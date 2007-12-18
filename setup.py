@@ -16,7 +16,7 @@ sysconfig.get_config_vars()['CFLAGS'] = ' '.join(cv_opt.split())
 
 
 setup (
-    name = 'midipatch',
+    name = 'mididings',
     version = '0.0',
     author = 'Dominic Sacre',
     author_email = 'dominic.sacre@gmx.de',
@@ -24,7 +24,7 @@ setup (
     description = '',
     license = "GPL",
     ext_modules = [
-        Extension('_midipatch',
+        Extension('_mididings',
                   [ 'src/backend.cc', 'src/backend_alsa.cc',
                     'src/setup.cc', 'src/patch.cc',
                     'src/python_interface.cc' ],

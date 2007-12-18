@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# midipatch
+# mididings
 #
 # Copyright (C) 2007  Dominic Sacré  <dominic.sacre@gmx.de>
 #
@@ -10,7 +10,7 @@
 # (at your option) any later version.
 #
 
-import _midipatch
+import _mididings
 
 
 _OCTAVE_OFFSET = 2

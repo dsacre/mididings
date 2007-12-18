@@ -1,5 +1,5 @@
 /*
- * midipatch
+ * mididings
  *
  * Copyright (C) 2007  Dominic Sacré  <dominic.sacre@gmx.de>
  *

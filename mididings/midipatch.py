@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# midipatch
+# mididings
 #
 # Copyright (C) 2007  Dominic Sacré  <dominic.sacre@gmx.de>
 #
@@ -10,15 +10,15 @@
 # (at your option) any later version.
 #
 
-import _midipatch
+import _mididings
 import misc as _misc
 from units import _Chain, _Unit
 from units import *
 
 
-class Patch(_midipatch.Patch):
+class Patch(_mididings.Patch):
     def __init__(self, p):
-        _midipatch.Patch.__init__(self)
+        _mididings.Patch.__init__(self)
 
         i = Patch.Module(Patch.Input())
         o = Patch.Module(Patch.Output())
@@ -64,11 +64,11 @@ class Patch(_midipatch.Patch):
             raise TypeError()
 
 
-class Setup(_midipatch.Setup):
+class Setup(_mididings.Setup):
     def __init__(self, patches, control, preprocess, postprocess, default_patch,
                  backend, client_name, in_ports, out_ports, debug):
-        in_portnames = _midipatch.string_vector()
-        out_portnames = _midipatch.string_vector()
+        in_portnames = _mididings.string_vector()
+        out_portnames = _mididings.string_vector()
 
         if _misc.is_sequence(in_ports):
             # fill vector with input port names
@@ -82,7 +82,7 @@ class Setup(_midipatch.Setup):
                 out_portnames.push_back(i)
             out_ports = len(out_ports)
 
-        _midipatch.Setup.__init__(self, backend, client_name,
+        _mididings.Setup.__init__(self, backend, client_name,
                                   in_ports, out_ports, in_portnames, out_portnames, debug)
 
         for i, p in patches.items():
@@ -102,7 +102,7 @@ class Setup(_midipatch.Setup):
 
 
 def run(patches, control=None, preprocess=None, postprocess=None,
-        default_patch=0, backend='alsa', client_name='midipatch',
+        default_patch=0, backend='alsa', client_name='mididings',
         in_ports=1, out_ports=1, debug=False):
     s = Setup(patches, control, preprocess, postprocess, default_patch,
               backend, client_name, in_ports, out_ports, debug)
@@ -114,6 +114,6 @@ def run(patches, control=None, preprocess=None, postprocess=None,
 
 def test_run(patch, event):
     s = Setup({0: patch}, None, None, None, 0,
-              'dummy', 'midipatch_test', 1, 1, False)
+              'dummy', 'mididings_test', 1, 1, False)
     r = s.process(event)
     return r[:]

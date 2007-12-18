@@ -30,7 +30,7 @@ env.ParseConfig(
     'pkg-config --cflags --libs alsa'
 )
 
-env.SharedLibrary('src/_midipatch',
+env.SharedLibrary('src/_mididings',
     [ 'src/backend_alsa.cc',
       'src/setup.cc', 'src/patch.cc', 'src/units.cc',
       'src/python_interface.cc' ],
@@ -39,7 +39,7 @@ env.SharedLibrary('src/_midipatch',
 #env.SharedObject('src/python_interface.o', 'src/python_interface.cc')
 #env.Ignore('src/python_interface.o', glob.glob('src/*.h'))
 #
-#env.SharedLibrary('src/_midipatch',
+#env.SharedLibrary('src/_mididings',
 #    [ 'src/backend_alsa.cc',
 #      'src/setup.cc', 'src/patch.cc', 'src/units.cc',
 #      'src/python_interface.o' ],

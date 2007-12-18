@@ -1,10 +1,10 @@
 import unittest
-from midipatch import *
-import midipatch
-from _midipatch import MidiEvent, MidiEventType
+from mididings import *
+import mididings
+from _mididings import MidiEvent, MidiEventType
 
-midipatch.misc._CHANNEL_OFFSET = 0
-midipatch.misc._PROGRAM_OFFSET = 0
+mididings.misc._CHANNEL_OFFSET = 0
+mididings.misc._PROGRAM_OFFSET = 0
 
 
 def make_event(type, port, channel, data1, data2):

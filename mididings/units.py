@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# midipatch
+# mididings
 #
 # Copyright (C) 2007  Dominic Sacré  <dominic.sacre@gmx.de>
 #
@@ -10,7 +10,7 @@
 # (at your option) any later version.
 #
 
-import _midipatch
+import _mididings
 import misc as _misc
 
 
@@ -60,13 +60,13 @@ class _Modifier(_Unit):
     pass
 
 
-class _InvertedFilter(_midipatch.InvertedFilter, _Unit):
+class _InvertedFilter(_mididings.InvertedFilter, _Unit):
     pass
 
 
-class Pass(_midipatch.Pass, _Unit):
+class Pass(_mididings.Pass, _Unit):
     def __init__(self, p=True):
-        _midipatch.Pass.__init__(self, p)
+        _mididings.Pass.__init__(self, p)
 
 def Discard():
     return Pass(False)
@@ -83,9 +83,9 @@ class Types:
 
 ### filters ###
 
-class TypeFilter(_midipatch.TypeFilter, _Filter):
+class TypeFilter(_mididings.TypeFilter, _Filter):
     def __init__(self, type_):
-        _midipatch.TypeFilter.__init__(self, type_)
+        _mididings.TypeFilter.__init__(self, type_)
 
 def NoteGate():
     return TypeFilter(Types.NOTE)
@@ -100,39 +100,39 @@ def ProgramChangeGate():
     return TypeFilter(Types.PROGRAMCHANGE)
 
 
-class PortFilter(_midipatch.PortFilter, _Filter):
+class PortFilter(_mididings.PortFilter, _Filter):
     def __init__(self, *args):
-        vec = _midipatch.int_vector()
+        vec = _mididings.int_vector()
 #        for port in [ p for p in _misc.flatten(args) ]:
         for port in _misc.flatten(args):
             vec.push_back(_misc.offset_port(port))
-        _midipatch.PortFilter.__init__(self, vec)
+        _mididings.PortFilter.__init__(self, vec)
 
 
-class ChannelFilter(_midipatch.ChannelFilter, _Filter):
+class ChannelFilter(_mididings.ChannelFilter, _Filter):
     def __init__(self, *args):
-        vec = _midipatch.int_vector()
+        vec = _mididings.int_vector()
         for channel in [ _misc.offset_channel(c) for c in _misc.flatten(args) ]:
             vec.push_back(channel)
-        _midipatch.ChannelFilter.__init__(self, vec)
+        _mididings.ChannelFilter.__init__(self, vec)
 
 
-class KeyFilter(_midipatch.KeyFilter, _Filter):
+class KeyFilter(_mididings.KeyFilter, _Filter):
     def __init__(self, *args):
         if len(args) == 1: args = args[0]
         r = _misc.noterange2numbers(args)
-        _midipatch.KeyFilter.__init__(self, r[0], r[1])
+        _mididings.KeyFilter.__init__(self, r[0], r[1])
 
 
-class VelocityFilter(_midipatch.VelocityFilter, _Filter):
+class VelocityFilter(_mididings.VelocityFilter, _Filter):
     def __init__(self, *args):
         if len(args) == 1: args = args[0]
-        _midipatch.VelocityFilter.__init__(self, args[0], args[1])
+        _mididings.VelocityFilter.__init__(self, args[0], args[1])
 
 
-class ControllerFilter(_midipatch.ControllerFilter, _Filter):
+class ControllerFilter(_mididings.ControllerFilter, _Filter):
     def __init__(self, controller):
-        _midipatch.ControllerFilter.__init__(self, controller)
+        _mididings.ControllerFilter.__init__(self, controller)
 
 
 ### splits ###
@@ -166,26 +166,26 @@ def VelocitySplit(*args):
 
 ### modifiers ###
 
-class Port(_midipatch.Port, _Modifier):
+class Port(_mididings.Port, _Modifier):
     def __init__(self, port):
-        _midipatch.Port.__init__(self, _misc.offset_port(port))
+        _mididings.Port.__init__(self, _misc.offset_port(port))
 
 
-class Channel(_midipatch.Channel, _Modifier):
+class Channel(_mididings.Channel, _Modifier):
     def __init__(self, channel):
-        _midipatch.Channel.__init__(self, _misc.offset_channel(channel))
+        _mididings.Channel.__init__(self, _misc.offset_channel(channel))
 
 
-class Transpose(_midipatch.Transpose, _Modifier):
+class Transpose(_mididings.Transpose, _Modifier):
     pass
 
 
-class Velocity(_midipatch.Velocity, _Modifier):
+class Velocity(_mididings.Velocity, _Modifier):
     OFFSET = 1
     MULTIPLY = 2
     FIXED = 3
     def __init__(self, value, mode=OFFSET):
-        _midipatch.Velocity.__init__(self, value, mode)
+        _mididings.Velocity.__init__(self, value, mode)
 
 def VelocityOffset(value):
     return Velocity(value, Velocity.OFFSET)
@@ -197,9 +197,9 @@ def VelocityFixed(value):
     return Velocity(value, Velocity.FIXED)
 
 
-class VelocityGradient(_midipatch.VelocityGradient, _Modifier):
+class VelocityGradient(_mididings.VelocityGradient, _Modifier):
     def __init__(self, note_first, note_last, value_first, value_last, mode=Velocity.OFFSET):
-        _midipatch.VelocityGradient.__init__(self,
+        _mididings.VelocityGradient.__init__(self,
             _misc.note2number(note_first), _misc.note2number(note_last),
             value_first, value_last, mode)
 
@@ -213,16 +213,16 @@ def VelocityGradientFixed(value):
     return VelocityGradient(value, Velocity.FIXED)
 
 
-class ControllerRange(_midipatch.ControllerRange, _Modifier):
+class ControllerRange(_mididings.ControllerRange, _Modifier):
     def __init__(self, controller, in_min, in_max, out_min, out_max):
-        _midipatch.ControllerRange.__init__(self, controller, in_min, in_max, out_min, out_max)
+        _mididings.ControllerRange.__init__(self, controller, in_min, in_max, out_min, out_max)
 
 
 ### midi events ###
 
-class TriggerEvent(_midipatch.TriggerEvent, _Unit):
+class TriggerEvent(_mididings.TriggerEvent, _Unit):
     def __init__(self, type_, port, channel, data1, data2):
-        _midipatch.TriggerEvent.__init__(self, type_,
+        _mididings.TriggerEvent.__init__(self, type_,
                 _misc.offset_port(port) if port >= 0 else port,
                 _misc.offset_channel(channel) if channel >= 0 else channel,
                 data1, data2)
@@ -244,11 +244,11 @@ VELOCITY  = -4
 
 PROGRAM   = -4
 
-class SwitchPatch(_midipatch.SwitchPatch, _Unit):
+class SwitchPatch(_mididings.SwitchPatch, _Unit):
     def __init__(self, num=PROGRAM):
-        _midipatch.SwitchPatch.__init__(self, num)
+        _mididings.SwitchPatch.__init__(self, num)
 
 
-class Print(_midipatch.Print, _Unit):
+class Print(_mididings.Print, _Unit):
     def __init__(self, name=''):
-        _midipatch.Print.__init__(self, name)
+        _mididings.Print.__init__(self, name)

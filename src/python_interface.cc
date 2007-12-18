@@ -1,5 +1,5 @@
 /*
- * midipatch
+ * mididings
  *
  * Copyright (C) 2007  Dominic Sacré  <dominic.sacre@gmx.de>
  *
@@ -43,7 +43,7 @@ bool operator==(const MidiEvent & lhs, const MidiEvent & rhs) {
 #endif // ENABLE_TEST
 
 
-BOOST_PYTHON_MODULE(_midipatch)
+BOOST_PYTHON_MODULE(_mididings)
 {
     class_<Unit, noncopyable>("Unit", no_init);
 
