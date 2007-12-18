@@ -23,8 +23,7 @@
 class Backend
 {
   public:
-    Backend(bool debug)
-      : _debug(debug)
+    Backend()
     {
     }
 
@@ -39,8 +38,6 @@ class Backend
         BackendError(const std::string & w)
           : string_exception(w) { }
     };
-
-    bool _debug;
 };
 
 

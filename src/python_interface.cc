@@ -70,7 +70,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<SwitchPatch, bases<Unit> >("SwitchPatch", init<int>());
     class_<Print, bases<Unit> >("Print", init<string>());
 
-    class_<Setup, noncopyable>("Setup", init<string, string, int, int, vector<string>, vector<string>, bool>())
+    class_<Setup, noncopyable>("Setup", init<string, string, int, int, vector<string>, vector<string> >())
         .def("add_patch", &Setup::add_patch)
         .def("set_processing", &Setup::set_processing)
         .def("run", &Setup::run)

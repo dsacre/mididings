@@ -23,10 +23,8 @@ using namespace std;
 BackendAlsa::BackendAlsa(const string & client_name,
                          int in_ports, int out_ports,
                          const vector<string> & in_portnames,
-                         const vector<string> & out_portnames,
-                         bool debug)
-  : Backend(debug),
-    _portid_in(in_ports),
+                         const vector<string> & out_portnames)
+  : _portid_in(in_ports),
     _portid_out(out_ports)
 {
     ASSERT(in_portnames.size() == (uint)in_ports || in_portnames.empty());

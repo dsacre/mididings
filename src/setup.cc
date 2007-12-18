@@ -25,8 +25,7 @@ Setup::Setup(const string & backend_name,
              const string & client_name,
              int in_ports, int out_ports,
              const vector<string> & in_portnames,
-             const vector<string> & out_portnames,
-             bool debug)
+             const vector<string> & out_portnames)
   : _current(NULL),
     _noteon_patches(MAX_SIMULTANEOUS_NOTES),
     _event_buffer1(EVENT_BUFFER_SIZE),
@@ -36,7 +35,7 @@ Setup::Setup(const string & backend_name,
     DEBUG_FN();
 
     if (backend_name == "alsa") {
-        _backend.reset(new BackendAlsa(client_name, in_ports, out_ports, in_portnames, out_portnames, debug));
+        _backend.reset(new BackendAlsa(client_name, in_ports, out_ports, in_portnames, out_portnames));
     }
 }
 
