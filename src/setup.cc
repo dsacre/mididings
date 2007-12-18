@@ -81,7 +81,7 @@ void Setup::switch_patch(int n)
 {
     DEBUG_FN();
 
-//    DEBUG_PRINT("switching to patch " << n);
+    DEBUG_PRINT("switching to patch " << n);
 
     PatchMap::iterator i = _patches.find(n);
     if (i != _patches.end()) {

@@ -14,6 +14,7 @@ import _midipatch
 
 
 _OCTAVE_OFFSET = 2
+_PORT_OFFSET = 0
 _CHANNEL_OFFSET = 1
 _PROGRAM_OFFSET = 1
 
@@ -81,6 +82,9 @@ def noterange2numbers(noterange):
 def notenumber2name(n):
     return _NOTE_NUMBERS[n % 12] + str(n / 12 - _OCTAVE_OFFSET)
 
+
+def offset_port(n):
+    return n - _PORT_OFFSET
 
 def offset_channel(n):
     return n - _CHANNEL_OFFSET

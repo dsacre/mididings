@@ -35,11 +35,6 @@ class Backend
     virtual void run(class Setup &) = 0;
 
   protected:
-    std::string dump_event(const MidiEvent & ev);
-
-    void dump_incoming_event(const MidiEvent & ev);
-    void dump_outgoing_events(const std::vector<MidiEvent> & evs);
-
     struct BackendError : public string_exception {
         BackendError(const std::string & w)
           : string_exception(w) { }

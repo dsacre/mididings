@@ -11,7 +11,7 @@
 #
 
 import _midipatch
-import misc
+import misc as _misc
 
 
 class _Unit:
@@ -41,13 +41,13 @@ class Fork(list, _Unit):
 def NoteFork(x):
     return Fork(Types.NOTE, x)
 
-def ControllerFork():
+def ControllerFork(x):
     return Fork(Types.CONTROLLER, x)
 
-def PitchBendFork():
+def PitchBendFork(x):
     return Fork(Types.PITCHBEND, x)
 
-def ProgramChangeFork():
+def ProgramChangeFork(x):
     return Fork(Types.PROGRAMCHANGE, x)
 
 
@@ -103,30 +103,29 @@ def ProgramChangeGate():
 class PortFilter(_midipatch.PortFilter, _Filter):
     def __init__(self, *args):
         vec = _midipatch.int_vector()
-        for port in [ p for p in misc.flatten(args) ]:
-            vec.push_back(port)
+#        for port in [ p for p in _misc.flatten(args) ]:
+        for port in _misc.flatten(args):
+            vec.push_back(_misc.offset_port(port))
         _midipatch.PortFilter.__init__(self, vec)
 
 
 class ChannelFilter(_midipatch.ChannelFilter, _Filter):
     def __init__(self, *args):
         vec = _midipatch.int_vector()
-        for channel in [ misc.offset_channel(c) for c in misc.flatten(args) ]:
+        for channel in [ _misc.offset_channel(c) for c in _misc.flatten(args) ]:
             vec.push_back(channel)
         _midipatch.ChannelFilter.__init__(self, vec)
 
 
 class KeyFilter(_midipatch.KeyFilter, _Filter):
     def __init__(self, *args):
-#        noterange = args if len(args) > 1 else args[0]
         if len(args) == 1: args = args[0]
-        r = misc.noterange2numbers(args)
+        r = _misc.noterange2numbers(args)
         _midipatch.KeyFilter.__init__(self, r[0], r[1])
 
 
 class VelocityFilter(_midipatch.VelocityFilter, _Filter):
     def __init__(self, *args):
-#        r = args if len(args) > 1 else args[0]
         if len(args) == 1: args = args[0]
         _midipatch.VelocityFilter.__init__(self, args[0], args[1])
 
@@ -169,12 +168,12 @@ def VelocitySplit(*args):
 
 class Port(_midipatch.Port, _Modifier):
     def __init__(self, port):
-        _midipatch.Port.__init__(self, port)
+        _midipatch.Port.__init__(self, _misc.offset_port(port))
 
 
 class Channel(_midipatch.Channel, _Modifier):
     def __init__(self, channel):
-        _midipatch.Channel.__init__(self, misc.offset_channel(channel))
+        _midipatch.Channel.__init__(self, _misc.offset_channel(channel))
 
 
 class Transpose(_midipatch.Transpose, _Modifier):
@@ -201,7 +200,7 @@ def VelocityFixed(value):
 class VelocityGradient(_midipatch.VelocityGradient, _Modifier):
     def __init__(self, note_first, note_last, value_first, value_last, mode=Velocity.OFFSET):
         _midipatch.VelocityGradient.__init__(self,
-            misc.note2number(note_first), misc.note2number(note_last),
+            _misc.note2number(note_first), _misc.note2number(note_last),
             value_first, value_last, mode)
 
 def VelocityGradientOffset(value):
@@ -214,18 +213,25 @@ def VelocityGradientFixed(value):
     return VelocityGradient(value, Velocity.FIXED)
 
 
+class ControllerRange(_midipatch.ControllerRange, _Modifier):
+    def __init__(self, controller, in_min, in_max, out_min, out_max):
+        _midipatch.ControllerRange.__init__(self, controller, in_min, in_max, out_min, out_max)
+
+
 ### midi events ###
 
-class SendMidiEvent(_midipatch.SendMidiEvent, _Unit):
+class TriggerEvent(_midipatch.TriggerEvent, _Unit):
     def __init__(self, type_, port, channel, data1, data2):
-        _midipatch.SendMidiEvent.__init__(self, type_, port,
-                misc.offset_channel(channel), data1, data2)
+        _midipatch.TriggerEvent.__init__(self, type_,
+                _misc.offset_port(port) if port >= 0 else port,
+                _misc.offset_channel(channel) if channel >= 0 else channel,
+                data1, data2)
 
-def ControlChange(channel, controller, value):
-    return SendMidiEvent(Types.CONTROLLER, 0, channel, controller, value)
+def ControlChange(port, channel, controller, value):
+    return TriggerEvent(Types.CONTROLLER, port, channel, controller, value)
 
-def ProgramChange(channel, program):
-    return SendMidiEvent(Types.PROGRAMCHANGE, 0, channel, 0, misc.offset_program(program))
+def ProgramChange(port, channel, program):
+    return TriggerEvent(Types.PROGRAMCHANGE, port, channel, 0, _misc.offset_program(program))
 
 
 PORT      = -1
@@ -244,4 +250,5 @@ class SwitchPatch(_midipatch.SwitchPatch, _Unit):
 
 
 class Print(_midipatch.Print, _Unit):
-    pass
+    def __init__(self, name=''):
+        _midipatch.Print.__init__(self, name)

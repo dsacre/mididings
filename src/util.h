@@ -16,7 +16,7 @@
 #include <boost/noncopyable.hpp>
 
 
-#ifdef _DEBUG
+#ifdef ENABLE_DEBUG
     #include <assert.h>
     #define ASSERT(f) assert(f)
     #define VERIFY(f) assert(f)
@@ -27,17 +27,17 @@
     #define FAIL()    ((void)0)
 #endif
 
-#if defined(_DEBUG_FN) || defined(_DEBUG_PRINT)
+#if defined(ENABLE_DEBUG_FN) || defined(ENABLE_DEBUG_PRINT)
     #include <iostream>
 #endif
 
-#ifdef _DEBUG_FN
+#ifdef ENABLE_DEBUG_FN
     #define DEBUG_FN() std::cout << __PRETTY_FUNCTION__ << std::endl
 #else
     #define DEBUG_FN() ((void)0)
 #endif
 
-#ifdef _DEBUG_PRINT
+#ifdef ENABLE_DEBUG_PRINT
     #define DEBUG_PRINT(m)  std::cout << m << std::endl
 #else
     #define DEBUG_PRINT(m)  ((void)0)

@@ -192,15 +192,17 @@ void BackendAlsa::run(Setup & setup)
         if (ev.type == MIDI_EVENT_NONE)
             continue;
 
-        dump_incoming_event(ev);
+        //DEBUG_PRINT("in: " << ev.type << ": " << ev.port << " "
+        //            << ev.channel << " " << ev.data1 << " " << ev.data2);
 
         // do all processing
         const Setup::MidiEventVector & out_events = setup.process(ev);
 
-        dump_outgoing_events(out_events);
-
         // output all events to alsa
         for (vector<MidiEvent>::const_iterator i = out_events.begin(); i != out_events.end(); ++i) {
+            //DEBUG_PRINT("out: " << i->type << ": " << i->port << " "
+            //            << i->channel << " " << i->data1 << " " << i->data2);
+
             snd_seq_event_t alsa_ev = midi_event_to_alsa(*i);
 
             snd_seq_ev_set_subs(&alsa_ev);

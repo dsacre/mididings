@@ -26,7 +26,7 @@ using namespace boost;
 using namespace std;
 
 
-#ifdef _TEST
+#ifdef ENABLE_TEST
 
 #include <boost/python/enum.hpp>
 #include <boost/python/operators.hpp>
@@ -40,14 +40,7 @@ bool operator==(const MidiEvent & lhs, const MidiEvent & rhs) {
             lhs.data2 == rhs.data2);
 }
 
-struct MidiEventWrapper
-  : public MidiEvent
-{
-    void set_type(int t) { type = (MidiEventType)t; }
-    int get_type() { return type; }
-};
-
-#endif
+#endif // ENABLE_TEST
 
 
 BOOST_PYTHON_MODULE(_midipatch)
@@ -71,7 +64,9 @@ BOOST_PYTHON_MODULE(_midipatch)
     class_<Velocity, bases<Unit> >("Velocity", init<float, int>());
 
     class_<VelocityGradient, bases<Unit> >("VelocityGradient", init<int, int, float, float, int>());
-    class_<SendMidiEvent, bases<Unit> >("SendMidiEvent", init<int, int, int, int, int>());
+    class_<ControllerRange, bases<Unit> >("ControllerRange", init<int, int, int, int, int>());
+
+    class_<TriggerEvent, bases<Unit> >("TriggerEvent", init<int, int, int, int, int>());
     class_<SwitchPatch, bases<Unit> >("SwitchPatch", init<int>());
     class_<Print, bases<Unit> >("Print", init<string>());
 
@@ -80,9 +75,9 @@ BOOST_PYTHON_MODULE(_midipatch)
         .def("set_processing", &Setup::set_processing)
         .def("run", &Setup::run)
         .def("switch_patch", &Setup::switch_patch)
-#ifdef _TEST
+#ifdef ENABLE_TEST
         .def("process", &Setup::process, return_value_policy<reference_existing_object>())
-#endif
+#endif // ENABLE_TEST
     ;
 
     {
@@ -105,7 +100,7 @@ BOOST_PYTHON_MODULE(_midipatch)
         .def("push_back", &vector<string>::push_back)
     ;
 
-#ifdef _TEST
+#ifdef ENABLE_TEST
     enum_<MidiEventType>("MidiEventType")
         .value("NONE", MIDI_EVENT_NONE)
         .value("NOTEON", MIDI_EVENT_NOTEON)
@@ -129,5 +124,5 @@ BOOST_PYTHON_MODULE(_midipatch)
     class_<vector<MidiEvent> >("MidiEventVector")
         .def(vector_indexing_suite<vector<MidiEvent> >())
     ;
-#endif
+#endif // ENABLE_TEST
 }

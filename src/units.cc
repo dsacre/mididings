@@ -50,20 +50,44 @@ bool Velocity::process(MidiEvent & ev)
 }
 
 
+/*
+ * maps the input range [arg_lower ... arg_upper] to the
+ * output range [val_lower ... val_upper]
+ */
+template <typename A, typename V>
+static V map_range(A arg, A arg_lower, A arg_upper, V val_lower, V val_upper)
+{
+    V value;
+
+    if (arg <= arg_lower) {
+        value = val_lower;
+    } else if (arg >= arg_upper) {
+        value = val_upper;
+    } else {
+        float dx = arg_upper - arg_lower;
+        float dy = val_upper - val_lower;
+        value = (V)((dy / dx) * (arg - arg_lower) + val_lower);
+    }
+
+    return value;
+}
+
+
 bool VelocityGradient::process(MidiEvent & ev)
 {
     if (ev.type == MIDI_EVENT_NOTEON) {
-        float value;
-        if (ev.note.note <= _note_first) {
-            value = _value_first;
-        } else if (ev.note.note >= _note_last) {
-            value = _value_last;
-        } else {
-            float dx = _note_last - _note_first;
-            float dy = _value_last - _value_first;
-            value = dy / dx * (ev.note.note - _note_first) + _value_first;
-        }
-        ev.note.velocity = apply_velocity(ev.note.velocity, value, (VelocityMode)_mode);
+        ev.note.velocity = apply_velocity(ev.note.velocity,
+            map_range(ev.note.note, _note_first, _note_last, _value_first, _value_last),
+            (VelocityMode)_mode);
+    }
+    return true;
+}
+
+
+bool ControllerRange::process(MidiEvent & ev)
+{
+    if (ev.type == MIDI_EVENT_CONTROLLER && ev.ctrl.param == _controller) {
+        ev.ctrl.value = map_range(ev.ctrl.value, _in_min, _in_max, _out_min, _out_max);
     }
     return true;
 }
@@ -96,7 +120,7 @@ static inline int get_parameter(int value, const MidiEvent & ev)
 }
 
 
-bool SendMidiEvent::process(MidiEvent & ev)
+bool TriggerEvent::process(MidiEvent & ev)
 {
     MidiEvent ev_new;
 
@@ -127,31 +151,49 @@ bool Print::process(MidiEvent & ev)
     {
       case MIDI_EVENT_NOTEON:
         s = make_string() << "note on: port " << ev.port << ", channel " << ev.channel
-                             << ", note " << ev.note.note << ", velocity " << ev.note.velocity;
+                          << ", note " << ev.note.note << ", velocity " << ev.note.velocity;
         break;
 
       case MIDI_EVENT_NOTEOFF:
         s = make_string() << "note off: port " << ev.port << ", channel " << ev.channel
-                             << ", note " << ev.note.note << ", velocity " << ev.note.velocity;
+                          << ", note " << ev.note.note << ", velocity " << ev.note.velocity;
         break;
 
       case MIDI_EVENT_CONTROLLER:
-        s = make_string() << "ctrl: port " << ev.port << ", channel " << ev.channel
-                             << ", param " << ev.ctrl.param << ", value " << ev.ctrl.value;
+        s = make_string() << "control change: port " << ev.port << ", channel " << ev.channel
+                          << ", param " << ev.ctrl.param << ", value " << ev.ctrl.value;
         break;
       case MIDI_EVENT_PITCHBEND:
         s = make_string() << "pitch bend: port " << ev.port << ", channel " << ev.channel
-                             << ", value " << ev.ctrl.value;
+                          << ", value " << ev.ctrl.value;
         break;
       case MIDI_EVENT_PGMCHANGE:
         s = make_string() << "program change: port " << ev.port << ", channel " << ev.channel
-                             << ", value " << ev.ctrl.value;
+                          << ", value " << ev.ctrl.value;
         break;
       default:
         s = "unknown event type";
     }
 
     cout << _name << ": " << s << endl;
+
+    return true;
+}
+
+
+class DeferredCall
+{
+  public:
+
+
+  protected:
+
+
+};
+
+
+bool Call::process(MidiEvent & ev)
+{
 
     return true;
 }

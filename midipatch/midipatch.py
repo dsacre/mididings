@@ -102,7 +102,7 @@ class Setup(_midipatch.Setup):
 
 
 def run(patches, control=None, preprocess=None, postprocess=None,
-        default_patch=None, backend='alsa', client_name='midipatch',
+        default_patch=0, backend='alsa', client_name='midipatch',
         in_ports=1, out_ports=1, debug=False):
     s = Setup(patches, control, preprocess, postprocess, default_patch,
               backend, client_name, in_ports, out_ports, debug)

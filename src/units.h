@@ -286,6 +286,7 @@ class VelocityGradient
         _value_last(value_last),
         _mode(mode)
     {
+        ASSERT(note_first < note_last);
     }
 
     virtual bool process(MidiEvent & ev);
@@ -297,13 +298,34 @@ class VelocityGradient
 };
 
 
-/**************************************************************************/
-
-class SendMidiEvent
+class ControllerRange
   : public Unit
 {
   public:
-    SendMidiEvent(int type, int port, int channel, int data1, int data2)
+    ControllerRange(int controller, int in_min, int in_max, int out_min, int out_max)
+      : _controller(controller),
+        _in_min(in_min), _in_max(in_max),
+        _out_min(out_min), _out_max(out_max)
+    {
+        ASSERT(in_min < in_max);
+    }
+
+    virtual bool process(MidiEvent & ev);
+
+  private:
+    int _controller;
+    int _in_min, _in_max;
+    int _out_min, _out_max;
+};
+
+
+/**************************************************************************/
+
+class TriggerEvent
+  : public Unit
+{
+  public:
+    TriggerEvent(int type, int port, int channel, int data1, int data2)
       : _type((MidiEventType)type),
         _port(port),
         _channel(channel),
@@ -316,10 +338,10 @@ class SendMidiEvent
 
   private:
     MidiEventType _type;
-    int _port,
-        _channel,
-        _data1,
-        _data2;
+    int _port;
+    int _channel;
+    int _data1;
+    int _data2;
 };
 
 
@@ -352,6 +374,19 @@ class Print
 
   private:
     std::string _name;
+};
+
+
+/**************************************************************************/
+
+class Call
+  : public Unit
+{
+  public:
+    Call() { }
+
+  private:
+    virtual bool process(MidiEvent & ev);
 };
 
 

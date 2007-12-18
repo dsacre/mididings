@@ -5,12 +5,12 @@ from distutils import sysconfig
 import glob
 
 env = Environment(
-#    CCFLAGS = [ '-O2', '-Wall' ],
-    CCFLAGS = [ '-g', '-Wall' ],
-    CPPDEFINES = [ '_DEBUG',
-#                   '_DEBUG_FN',
-                   '_DEBUG_PRINT',
-                   '_TEST',
+    CCFLAGS = [ '-O2', '-Wall' ],
+#    CCFLAGS = [ '-g', '-Wall' ],
+    CPPDEFINES = [ 'ENABLE_DEBUG',
+#                   'ENABLE_DEBUG_FN',
+                   'ENABLE_DEBUG_PRINT',
+                   'ENABLE_TEST',
     ],
     ENV = os.environ,
     LIBS = [ 'boost_python' ],
@@ -31,7 +31,7 @@ env.ParseConfig(
 )
 
 env.SharedLibrary('src/_midipatch',
-    [ 'src/backend.cc', 'src/backend_alsa.cc',
+    [ 'src/backend_alsa.cc',
       'src/setup.cc', 'src/patch.cc', 'src/units.cc',
       'src/python_interface.cc' ],
     SHLIBPREFIX='', SHOBJSUFFIX='.o')
@@ -40,7 +40,7 @@ env.SharedLibrary('src/_midipatch',
 #env.Ignore('src/python_interface.o', glob.glob('src/*.h'))
 #
 #env.SharedLibrary('src/_midipatch',
-#    [ 'src/backend.cc', 'src/backend_alsa.cc',
+#    [ 'src/backend_alsa.cc',
 #      'src/setup.cc', 'src/patch.cc', 'src/units.cc',
 #      'src/python_interface.o' ],
 #    SHLIBPREFIX='', SHOBJSUFFIX='.o')
