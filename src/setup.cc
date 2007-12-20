@@ -79,12 +79,17 @@ void Setup::run()
 void Setup::switch_patch(int n)
 {
     DEBUG_FN();
-
     DEBUG_PRINT("switching to patch " << n);
 
     PatchMap::iterator i = _patches.find(n);
     if (i != _patches.end()) {
         _current = &*i->second;
+
+        PatchMap::iterator k = _init_patches.find(n);
+        if (k != _init_patches.end()) {
+            MidiEvent dummy;
+            k->second->process(dummy);
+        }
     } else {
         cerr << "no such patch: " << n << endl;
     }
@@ -95,8 +100,11 @@ const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
 {
     Patch *p = NULL;
 
+    _event_buffer1.clear();
+
     if (_ctrl_patch) {
-        _current_output_buffer = NULL;
+//        _current_output_buffer = NULL;
+        _current_output_buffer = &_event_buffer1;
         _ctrl_patch->process(ev);
     }
 
@@ -120,7 +128,7 @@ const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
 //    DEBUG_PRINT(p);
 
     // preprocessing
-    _event_buffer1.clear();
+//    _event_buffer1.clear();
     _current_output_buffer = &_event_buffer1;
 
     if (_pre_patch) {

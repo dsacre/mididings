@@ -34,9 +34,9 @@ class Backend
     virtual void run(class Setup &) = 0;
 
   protected:
-    struct BackendError : public string_exception {
+    struct BackendError : public das::string_exception {
         BackendError(const std::string & w)
-          : string_exception(w) { }
+          : das::string_exception(w) { }
     };
 };
 

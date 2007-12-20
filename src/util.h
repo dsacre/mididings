@@ -44,6 +44,9 @@
 #endif
 
 
+namespace das {
+
+
 template <typename T, T *& pp>
 class global_object
   : boost::noncopyable
@@ -93,5 +96,7 @@ class string_exception : public std::exception {
     std::string _w;
 };
 
+
+} // namespace das
 
 #endif

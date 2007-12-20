@@ -28,7 +28,7 @@ extern class Setup *TheSetup;
 
 
 class Setup
-  : public global_object<Setup, ::TheSetup>
+  : public das::global_object<Setup, ::TheSetup>
 {
   public:
     static const int MAX_SIMULTANEOUS_NOTES = 64;

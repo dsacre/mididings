@@ -50,4 +50,3 @@ bool Patch::Output::process(MidiEvent & ev) {
     // nothing left to do
     return false;
 }
-

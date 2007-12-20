@@ -15,9 +15,9 @@
 #include "midi_event.h"
 
 #include <alsa/asoundlib.h>
-#include <iostream>
 
 using namespace std;
+using namespace das;
 
 
 BackendAlsa::BackendAlsa(const string & client_name,

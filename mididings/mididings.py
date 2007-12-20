@@ -66,7 +66,7 @@ class Patch(_mididings.Patch):
 
 class Setup(_mididings.Setup):
     def __init__(self, patches, control, preprocess, postprocess, default_patch,
-                 backend, client_name, in_ports, out_ports, debug):
+                 backend, client_name, in_ports, out_ports):
         in_portnames = _mididings.string_vector()
         out_portnames = _mididings.string_vector()
 
@@ -83,7 +83,7 @@ class Setup(_mididings.Setup):
             out_ports = len(out_ports)
 
         _mididings.Setup.__init__(self, backend, client_name,
-                                  in_ports, out_ports, in_portnames, out_portnames, debug)
+                                  in_ports, out_ports, in_portnames, out_portnames)
 
         for i, p in patches.items():
             if isinstance(p, tuple):
@@ -103,9 +103,9 @@ class Setup(_mididings.Setup):
 
 def run(patches, control=None, preprocess=None, postprocess=None,
         default_patch=0, backend='alsa', client_name='mididings',
-        in_ports=1, out_ports=1, debug=False):
+        in_ports=1, out_ports=1):
     s = Setup(patches, control, preprocess, postprocess, default_patch,
-              backend, client_name, in_ports, out_ports, debug)
+              backend, client_name, in_ports, out_ports)
     try:
         s.run()
     except KeyboardInterrupt:
@@ -114,6 +114,6 @@ def run(patches, control=None, preprocess=None, postprocess=None,
 
 def test_run(patch, event):
     s = Setup({0: patch}, None, None, None, 0,
-              'dummy', 'mididings_test', 1, 1, False)
+              'dummy', 'mididings_test', 1, 1)
     r = s.process(event)
     return r[:]

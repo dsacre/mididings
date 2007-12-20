@@ -16,6 +16,7 @@
 #include "util.h"
 
 using namespace std;
+using namespace das;
 
 
 enum VelocityMode {
