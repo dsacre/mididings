@@ -103,16 +103,15 @@ def ProgramChangeGate():
 class PortFilter(_mididings.PortFilter, _Filter):
     def __init__(self, *args):
         vec = _mididings.int_vector()
-#        for port in [ p for p in _misc.flatten(args) ]:
         for port in _misc.flatten(args):
-            vec.push_back(_misc.offset_port(port))
+            vec.push_back(port - _misc.PORT_OFFSET)
         _mididings.PortFilter.__init__(self, vec)
 
 
 class ChannelFilter(_mididings.ChannelFilter, _Filter):
     def __init__(self, *args):
         vec = _mididings.int_vector()
-        for channel in [ _misc.offset_channel(c) for c in _misc.flatten(args) ]:
+        for channel in [ c - _misc.CHANNEL_OFFSET for c in _misc.flatten(args) ]:
             vec.push_back(channel)
         _mididings.ChannelFilter.__init__(self, vec)
 
@@ -168,12 +167,12 @@ def VelocitySplit(*args):
 
 class Port(_mididings.Port, _Modifier):
     def __init__(self, port):
-        _mididings.Port.__init__(self, _misc.offset_port(port))
+        _mididings.Port.__init__(self, port - _misc.PORT_OFFSET)
 
 
 class Channel(_mididings.Channel, _Modifier):
     def __init__(self, channel):
-        _mididings.Channel.__init__(self, _misc.offset_channel(channel))
+        _mididings.Channel.__init__(self, channel - _misc.CHANNEL_OFFSET)
 
 
 class Transpose(_mididings.Transpose, _Modifier):
@@ -223,15 +222,15 @@ class ControllerRange(_mididings.ControllerRange, _Modifier):
 class TriggerEvent(_mididings.TriggerEvent, _Unit):
     def __init__(self, type_, port, channel, data1, data2):
         _mididings.TriggerEvent.__init__(self, type_,
-                _misc.offset_port(port) if port >= 0 else port,
-                _misc.offset_channel(channel) if channel >= 0 else channel,
+                port - _misc.PORT_OFFSET if port >= 0 else port,
+                channel - _misc.CHANNEL_OFFSET if channel >= 0 else channel,
                 data1, data2)
 
 def ControlChange(port, channel, controller, value):
     return TriggerEvent(Types.CONTROLLER, port, channel, controller, value)
 
 def ProgramChange(port, channel, program):
-    return TriggerEvent(Types.PROGRAMCHANGE, port, channel, 0, _misc.offset_program(program))
+    return TriggerEvent(Types.PROGRAMCHANGE, port, channel, 0, program - _misc.PROGRAM_OFFSET)
 
 
 PORT      = -1
@@ -252,3 +251,8 @@ class SwitchPatch(_mididings.SwitchPatch, _Unit):
 class Print(_mididings.Print, _Unit):
     def __init__(self, name=''):
         _mididings.Print.__init__(self, name)
+
+
+class Call(_mididings.Call, _Unit):
+    def __init__(self, fun):
+        _mididings.Call.__init__(self, fun)

@@ -176,25 +176,10 @@ bool Print::process(MidiEvent & ev)
         s = "unknown event type";
     }
 
-    cout << _name << ": " << s << endl;
-
-    return true;
-}
-
-
-class DeferredCall
-{
-  public:
-
-
-  protected:
-
-
-};
-
-
-bool Call::process(MidiEvent & ev)
-{
+    if (_name.length())
+        cout << _name << ": " << s << endl;
+    else
+        cout << s << endl;
 
     return true;
 }

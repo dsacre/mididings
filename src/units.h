@@ -382,11 +382,6 @@ class Print
 class Call
   : public Unit
 {
-  public:
-    Call() { }
-
-  private:
-    virtual bool process(MidiEvent & ev);
 };
 
 

@@ -10,16 +10,16 @@
 # (at your option) any later version.
 #
 
-import _mididings
+#import _mididings
 
 
-_OCTAVE_OFFSET = 2
-_PORT_OFFSET = 0
-_CHANNEL_OFFSET = 1
-_PROGRAM_OFFSET = 1
+OCTAVE_OFFSET   = 2
+PORT_OFFSET     = 1
+CHANNEL_OFFSET  = 1
+PROGRAM_OFFSET  = 1
 
 
-_NOTE_NAMES = {
+NOTE_NAMES = {
     'c':   0,
     'c#':  1, 'db':  1,
     'd':   2,
@@ -34,7 +34,7 @@ _NOTE_NAMES = {
     'b':  11,
 }
 
-_NOTE_NUMBERS = {
+NOTE_NUMBERS = {
      0: 'c',
      1: 'c#',
      2: 'd',
@@ -52,10 +52,10 @@ _NOTE_NUMBERS = {
 
 def notename2number(name):
     name = name.lower()
-    for n in _NOTE_NAMES:
+    for n in NOTE_NAMES:
         octave = name[len(n):]
         if name.startswith(n) and (octave.isdigit() or (octave[0] == '-' and octave[1:].isdigit())):
-            num = _NOTE_NAMES[n] + (int(octave) + _OCTAVE_OFFSET) * 12
+            num = NOTE_NAMES[n] + (int(octave) + OCTAVE_OFFSET) * 12
             if num < 0 or num > 127:
                 raise ValueError()
             return num
@@ -80,17 +80,17 @@ def noterange2numbers(noterange):
 
 
 def notenumber2name(n):
-    return _NOTE_NUMBERS[n % 12] + str(n / 12 - _OCTAVE_OFFSET)
+    return NOTE_NUMBERS[n % 12] + str(n / 12 - OCTAVE_OFFSET)
 
 
-def offset_port(n):
-    return n - _PORT_OFFSET
-
-def offset_channel(n):
-    return n - _CHANNEL_OFFSET
-
-def offset_program(n):
-    return n - _PROGRAM_OFFSET
+#def offset_port(n):
+#    return n - _PORT_OFFSET
+#
+#def offset_channel(n):
+#    return n - _CHANNEL_OFFSET
+#
+#def offset_program(n):
+#    return n - _PROGRAM_OFFSET
 
 
 def flatten(seq):
