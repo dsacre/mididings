@@ -78,6 +78,8 @@ void Setup::run()
 
 void Setup::switch_patch(int n)
 {
+    n++; ///////////
+
     DEBUG_FN();
     DEBUG_PRINT("switching to patch " << n);
 

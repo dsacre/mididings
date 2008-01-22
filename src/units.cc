@@ -19,6 +19,11 @@ using namespace std;
 using namespace das;
 
 
+static const int PORT_OFFSET    = 1;
+static const int CHANNEL_OFFSET = 1;
+static const int PROGRAM_OFFSET = 1;
+
+
 enum VelocityMode {
     VELOCITY_MODE_OFFSET = 1,
     VELOCITY_MODE_MULTIPLY = 2,
@@ -151,26 +156,34 @@ bool Print::process(MidiEvent & ev)
     switch (ev.type)
     {
       case MIDI_EVENT_NOTEON:
-        s = make_string() << "note on: port " << ev.port << ", channel " << ev.channel
-                          << ", note " << ev.note.note << ", velocity " << ev.note.velocity;
+        s = make_string() << "note on: port " << ev.port + PORT_OFFSET
+                          << ", channel " << ev.channel + CHANNEL_OFFSET
+                          << ", note " << ev.note.note
+                          << ", velocity " << ev.note.velocity;
         break;
 
       case MIDI_EVENT_NOTEOFF:
-        s = make_string() << "note off: port " << ev.port << ", channel " << ev.channel
-                          << ", note " << ev.note.note << ", velocity " << ev.note.velocity;
+        s = make_string() << "note off: port " << ev.port + PORT_OFFSET
+                          << ", channel " << ev.channel + CHANNEL_OFFSET
+                          << ", note " << ev.note.note
+                          << ", velocity " << ev.note.velocity;
         break;
 
       case MIDI_EVENT_CONTROLLER:
-        s = make_string() << "control change: port " << ev.port << ", channel " << ev.channel
-                          << ", param " << ev.ctrl.param << ", value " << ev.ctrl.value;
+        s = make_string() << "control change: port " << ev.port + PORT_OFFSET
+                          << ", channel " << ev.channel + CHANNEL_OFFSET
+                          << ", param " << ev.ctrl.param
+                          << ", value " << ev.ctrl.value;
         break;
       case MIDI_EVENT_PITCHBEND:
-        s = make_string() << "pitch bend: port " << ev.port << ", channel " << ev.channel
+        s = make_string() << "pitch bend: port " << ev.port + PORT_OFFSET
+                          << ", channel " << ev.channel + CHANNEL_OFFSET
                           << ", value " << ev.ctrl.value;
         break;
       case MIDI_EVENT_PGMCHANGE:
-        s = make_string() << "program change: port " << ev.port << ", channel " << ev.channel
-                          << ", value " << ev.ctrl.value;
+        s = make_string() << "program change: port " << ev.port + PORT_OFFSET
+                          << ", channel " << ev.channel + CHANNEL_OFFSET
+                          << ", value " << ev.ctrl.value + PROGRAM_OFFSET;
         break;
       default:
         s = "unknown event type";

@@ -42,11 +42,14 @@ class PythonCall
     {
     }
 
-    bool process(MidiEvent & ev) {
-        //cout << ev.type << endl;
-        _fun(ptr(&ev));
-        //cout << ev.type << endl;
-        return true;
+    bool process(MidiEvent & ev)
+    {
+        object ret = _fun(ptr(&ev));
+
+        if (ret.ptr() == Py_None)
+            return true;
+        else
+            return extract<bool>(ret);
     }
 
   private:
