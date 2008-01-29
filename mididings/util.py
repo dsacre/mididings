@@ -2,7 +2,7 @@
 #
 # mididings
 #
-# Copyright (C) 2007  Dominic Sacré  <dominic.sacre@gmx.de>
+# Copyright (C) 2008  Dominic Sacré  <dominic.sacre@gmx.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -10,13 +10,7 @@
 # (at your option) any later version.
 #
 
-#import _mididings
-
-
-OCTAVE_OFFSET   = 2
-PORT_OFFSET     = 1
-CHANNEL_OFFSET  = 1
-PROGRAM_OFFSET  = 1
+import main as _main
 
 
 NOTE_NAMES = {
@@ -55,7 +49,7 @@ def notename2number(name):
     for n in NOTE_NAMES:
         octave = name[len(n):]
         if name.startswith(n) and (octave.isdigit() or (octave[0] == '-' and octave[1:].isdigit())):
-            num = NOTE_NAMES[n] + (int(octave) + OCTAVE_OFFSET) * 12
+            num = NOTE_NAMES[n] + (int(octave) + _main.OCTAVE_OFFSET) * 12
             if num < 0 or num > 127:
                 raise ValueError()
             return num
@@ -80,17 +74,8 @@ def noterange2numbers(noterange):
 
 
 def notenumber2name(n):
-    return NOTE_NUMBERS[n % 12] + str(n / 12 - OCTAVE_OFFSET)
+    return NOTE_NUMBERS[n % 12] + str(n / 12 - _main.OCTAVE_OFFSET)
 
-
-#def offset_port(n):
-#    return n - _PORT_OFFSET
-#
-#def offset_channel(n):
-#    return n - _CHANNEL_OFFSET
-#
-#def offset_program(n):
-#    return n - _PROGRAM_OFFSET
 
 
 def flatten(seq):

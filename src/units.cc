@@ -1,7 +1,7 @@
 /*
  * mididings
  *
- * Copyright (C) 2007  Dominic Sacré  <dominic.sacre@gmx.de>
+ * Copyright (C) 2008  Dominic Sacré  <dominic.sacre@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,6 @@
 
 using namespace std;
 using namespace das;
-
-
-static const int PORT_OFFSET    = 1;
-static const int CHANNEL_OFFSET = 1;
-static const int PROGRAM_OFFSET = 1;
 
 
 enum VelocityMode {
@@ -146,53 +141,4 @@ bool SwitchPatch::process(MidiEvent & ev)
 {
     TheSetup->switch_patch(get_parameter(_num, ev));
     return false;
-}
-
-
-bool Print::process(MidiEvent & ev)
-{
-    string s;
-
-    switch (ev.type)
-    {
-      case MIDI_EVENT_NOTEON:
-        s = make_string() << "note on: port " << ev.port + PORT_OFFSET
-                          << ", channel " << ev.channel + CHANNEL_OFFSET
-                          << ", note " << ev.note.note
-                          << ", velocity " << ev.note.velocity;
-        break;
-
-      case MIDI_EVENT_NOTEOFF:
-        s = make_string() << "note off: port " << ev.port + PORT_OFFSET
-                          << ", channel " << ev.channel + CHANNEL_OFFSET
-                          << ", note " << ev.note.note
-                          << ", velocity " << ev.note.velocity;
-        break;
-
-      case MIDI_EVENT_CONTROLLER:
-        s = make_string() << "control change: port " << ev.port + PORT_OFFSET
-                          << ", channel " << ev.channel + CHANNEL_OFFSET
-                          << ", param " << ev.ctrl.param
-                          << ", value " << ev.ctrl.value;
-        break;
-      case MIDI_EVENT_PITCHBEND:
-        s = make_string() << "pitch bend: port " << ev.port + PORT_OFFSET
-                          << ", channel " << ev.channel + CHANNEL_OFFSET
-                          << ", value " << ev.ctrl.value;
-        break;
-      case MIDI_EVENT_PGMCHANGE:
-        s = make_string() << "program change: port " << ev.port + PORT_OFFSET
-                          << ", channel " << ev.channel + CHANNEL_OFFSET
-                          << ", value " << ev.ctrl.value + PROGRAM_OFFSET;
-        break;
-      default:
-        s = "unknown event type";
-    }
-
-    if (_name.length())
-        cout << _name << ": " << s << endl;
-    else
-        cout << s << endl;
-
-    return true;
 }

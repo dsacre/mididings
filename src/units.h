@@ -1,7 +1,7 @@
 /*
  * mididings
  *
- * Copyright (C) 2007  Dominic Sacré  <dominic.sacre@gmx.de>
+ * Copyright (C) 2008  Dominic Sacré  <dominic.sacre@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -358,30 +358,6 @@ class SwitchPatch
 
   private:
     int _num;
-};
-
-
-/**************************************************************************/
-
-class Print
-  : public Unit
-{
-  public:
-    Print(std::string name)
-      : _name(name) { }
-
-    virtual bool process(MidiEvent & ev);
-
-  private:
-    std::string _name;
-};
-
-
-/**************************************************************************/
-
-class Call
-  : public Unit
-{
 };
 
 

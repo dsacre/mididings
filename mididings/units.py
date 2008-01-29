@@ -2,7 +2,7 @@
 #
 # mididings
 #
-# Copyright (C) 2007  Dominic Sacré  <dominic.sacre@gmx.de>
+# Copyright (C) 2008  Dominic Sacré  <dominic.sacre@gmx.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -11,7 +11,10 @@
 #
 
 import _mididings
-import misc as _misc
+import main as _main
+import util as _util
+from event import *
+from event import _MidiEventEx
 
 
 class _Unit:
@@ -48,7 +51,7 @@ def PitchBendFork(x):
     return Fork(Types.PITCHBEND, x)
 
 def ProgramChangeFork(x):
-    return Fork(Types.PROGRAMCHANGE, x)
+    return Fork(Types.PGMCHANGE, x)
 
 
 # base class for all filters, supporting operator ~
@@ -72,15 +75,6 @@ def Discard():
     return Pass(False)
 
 
-class Types:
-    NOTEON        = 1 << 0
-    NOTEOFF       = 1 << 1
-    NOTE          = NOTEON | NOTEOFF
-    CONTROLLER    = 1 << 2
-    PITCHBEND     = 1 << 3
-    PROGRAMCHANGE = 1 << 4
-
-
 ### filters ###
 
 class TypeFilter(_mididings.TypeFilter, _Filter):
@@ -97,21 +91,21 @@ def PitchBendGate():
     return TypeFilter(Types.PITCHBEND)
 
 def ProgramChangeGate():
-    return TypeFilter(Types.PROGRAMCHANGE)
+    return TypeFilter(Types.PGMCHANGE)
 
 
 class PortFilter(_mididings.PortFilter, _Filter):
     def __init__(self, *args):
         vec = _mididings.int_vector()
-        for port in _misc.flatten(args):
-            vec.push_back(port - _misc.PORT_OFFSET)
+        for port in _util.flatten(args):
+            vec.push_back(port - _main.PORT_OFFSET)
         _mididings.PortFilter.__init__(self, vec)
 
 
 class ChannelFilter(_mididings.ChannelFilter, _Filter):
     def __init__(self, *args):
         vec = _mididings.int_vector()
-        for channel in [ c - _misc.CHANNEL_OFFSET for c in _misc.flatten(args) ]:
+        for channel in [ c - _main.CHANNEL_OFFSET for c in _util.flatten(args) ]:
             vec.push_back(channel)
         _mididings.ChannelFilter.__init__(self, vec)
 
@@ -119,7 +113,7 @@ class ChannelFilter(_mididings.ChannelFilter, _Filter):
 class KeyFilter(_mididings.KeyFilter, _Filter):
     def __init__(self, *args):
         if len(args) == 1: args = args[0]
-        r = _misc.noterange2numbers(args)
+        r = _util.noterange2numbers(args)
         _mididings.KeyFilter.__init__(self, r[0], r[1])
 
 
@@ -167,12 +161,12 @@ def VelocitySplit(*args):
 
 class Port(_mididings.Port, _Modifier):
     def __init__(self, port):
-        _mididings.Port.__init__(self, port - _misc.PORT_OFFSET)
+        _mididings.Port.__init__(self, port - _main.PORT_OFFSET)
 
 
 class Channel(_mididings.Channel, _Modifier):
     def __init__(self, channel):
-        _mididings.Channel.__init__(self, channel - _misc.CHANNEL_OFFSET)
+        _mididings.Channel.__init__(self, channel - _main.CHANNEL_OFFSET)
 
 
 class Transpose(_mididings.Transpose, _Modifier):
@@ -199,7 +193,7 @@ def VelocityFixed(value):
 class VelocityGradient(_mididings.VelocityGradient, _Modifier):
     def __init__(self, note_first, note_last, value_first, value_last, mode=Velocity.OFFSET):
         _mididings.VelocityGradient.__init__(self,
-            _misc.note2number(note_first), _misc.note2number(note_last),
+            _util.note2number(note_first), _util.note2number(note_last),
             value_first, value_last, mode)
 
 def VelocityGradientOffset(value):
@@ -222,37 +216,62 @@ class ControllerRange(_mididings.ControllerRange, _Modifier):
 class TriggerEvent(_mididings.TriggerEvent, _Unit):
     def __init__(self, type_, port, channel, data1, data2):
         _mididings.TriggerEvent.__init__(self, type_,
-                port - _misc.PORT_OFFSET if port >= 0 else port,
-                channel - _misc.CHANNEL_OFFSET if channel >= 0 else channel,
+                port - _main.PORT_OFFSET if port >= 0 else port,
+                channel - _main.CHANNEL_OFFSET if channel >= 0 else channel,
                 data1, data2)
 
 def ControlChange(port, channel, controller, value):
     return TriggerEvent(Types.CONTROLLER, port, channel, controller, value)
 
 def ProgramChange(port, channel, program):
-    return TriggerEvent(Types.PROGRAMCHANGE, port, channel, 0, program - _misc.PROGRAM_OFFSET)
+    return TriggerEvent(Types.PGMCHANGE, port, channel, 0, program - _main.PROGRAM_OFFSET)
 
-
-PORT      = -1
-CHANNEL   = -2
-DATA1     = -3
-DATA2     = -4
-
-NOTE      = -3
-VELOCITY  = -4
-
-PROGRAM   = -4
 
 class SwitchPatch(_mididings.SwitchPatch, _Unit):
-    def __init__(self, num=PROGRAM):
+    def __init__(self, num=Fields.PROGRAM):
         _mididings.SwitchPatch.__init__(self, num)
 
-
-class Print(_mididings.Print, _Unit):
-    def __init__(self, name=''):
-        _mididings.Print.__init__(self, name)
 
 
 class Call(_mididings.Call, _Unit):
     def __init__(self, fun):
-        _mididings.Call.__init__(self, fun)
+        self.fun = fun
+        _mididings.Call.__init__(self, self.do_call)
+    def do_call(self, ev):
+        ev.__class__ = _MidiEventEx
+        return self.fun(ev)
+
+
+class Print(Call, _Unit):
+    def __init__(self, name=None):
+        self.name = name
+        Call.__init__(self, self.do_print)
+
+    def do_print(self, ev):
+        if self.name:
+            print self.name + ":",
+
+        if ev.type == Types.NOTEON:
+            t = "note on"
+            d1 = "note " + str(ev.note) + " (" + _util.notenumber2name(ev.note) + ")"
+            d2 = "velocity " + str(ev.velocity)
+        elif ev.type == Types.NOTEOFF:
+            t = "note off"
+            d1 = "note " + str(ev.note) + " (" + _util.notenumber2name(ev.note) + ")"
+            d2 = "velocity " + str(ev.velocity)
+        elif ev.type == Types.CONTROLLER:
+            t = "control change"
+            d1 = "param " + str(ev.param)
+            d2 = "value " + str(ev.value)
+        elif ev.type == Types.PITCHBEND:
+            t = "pitch bend"
+            d1 = None
+            d2 = "value " + str(ev.value)
+        elif ev.type == Types.PGMCHANGE:
+            t = "program change"
+            d1 = None
+            d2 = "value " + str(ev.value + _main.PROGRAM_OFFSET)
+
+        print "%s: port %d, channel %d," % (t, ev.port + _main.PORT_OFFSET, ev.channel + _main.CHANNEL_OFFSET),
+        if d1: print "%s," % (d1,),
+        print "%s" % (d2,)

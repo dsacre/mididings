@@ -1,7 +1,7 @@
 /*
  * mididings
  *
- * Copyright (C) 2007  Dominic Sacré  <dominic.sacre@gmx.de>
+ * Copyright (C) 2008  Dominic Sacré  <dominic.sacre@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ void Setup::run()
 
 void Setup::switch_patch(int n)
 {
-    n++; ///////////
+//    n++; ///////////
 
     DEBUG_FN();
     DEBUG_PRINT("switching to patch " << n);

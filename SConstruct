@@ -5,12 +5,14 @@ from distutils import sysconfig
 import glob
 
 env = Environment(
-    CCFLAGS = [ '-O2', '-Wall' ],
+#    CCFLAGS = [ '-O2', '-Wall' ],
+    CCFLAGS = [ '-Wall' ],
 #    CCFLAGS = [ '-g', '-Wall' ],
-    CPPDEFINES = [ #'ENABLE_DEBUG',
-#                   'ENABLE_DEBUG_FN',
-                   'ENABLE_DEBUG_PRINT',
-#                   'ENABLE_TEST',
+    CPPDEFINES = [
+        'ENABLE_DEBUG',
+#        'ENABLE_DEBUG_FN',
+        'ENABLE_DEBUG_PRINT',
+#        'ENABLE_TEST',
     ],
     ENV = os.environ,
     LIBS = [ 'boost_python' ],

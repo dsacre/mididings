@@ -1,7 +1,7 @@
 /*
  * mididings
  *
- * Copyright (C) 2007  Dominic Sacré  <dominic.sacre@gmx.de>
+ * Copyright (C) 2008  Dominic Sacré  <dominic.sacre@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
 #include <boost/python/ptr.hpp>
 
 #ifdef ENABLE_TEST
-#include <boost/python/enum.hpp>
 #include <boost/python/operators.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #endif // ENABLE_TEST
@@ -33,8 +32,22 @@ using namespace boost;
 using namespace std;
 
 
+// wrap MidiEvent to add type as integer property
+struct MidiEventWrapper
+  : public MidiEvent
+{
+    int get_type() {
+        return (int)type;
+    }
+    void set_type(int t) {
+        type = (MidiEventType)t;
+    }
+};
+
+
+// unit to call back into python
 class PythonCall
-  : public Call
+  : public Unit
 {
   public:
     PythonCall(object fun)
@@ -44,7 +57,9 @@ class PythonCall
 
     bool process(MidiEvent & ev)
     {
-        object ret = _fun(ptr(&ev));
+        // reinterpret ev as the wrapper exposed to python
+        MidiEventWrapper & ev2 = reinterpret_cast<MidiEventWrapper &>(ev);
+        object ret = _fun(ptr(&ev2));
 
         if (ret.ptr() == Py_None)
             return true;
@@ -55,14 +70,6 @@ class PythonCall
   private:
     object _fun;
 };
-
-
-static inline int midi_event_get_type(MidiEvent & ev) {
-    return (int)ev.type;
-}
-static inline void midi_event_set_type(MidiEvent & ev, int t) {
-    ev.type = (MidiEventType)t;
-}
 
 
 #ifdef ENABLE_TEST
@@ -101,7 +108,6 @@ BOOST_PYTHON_MODULE(_mididings)
 
     class_<TriggerEvent, bases<Unit> >("TriggerEvent", init<int, int, int, int, int>());
     class_<SwitchPatch, bases<Unit> >("SwitchPatch", init<int>());
-    class_<Print, bases<Unit> >("Print", init<string>());
     class_<PythonCall, bases<Unit> >("Call", init<object>());
 
     class_<Setup, noncopyable>("Setup", init<string, string, int, int, vector<string>, vector<string> >())
@@ -113,7 +119,6 @@ BOOST_PYTHON_MODULE(_mididings)
         .def("process", &Setup::process, return_value_policy<reference_existing_object>())
 #endif // ENABLE_TEST
     ;
-
     {
         scope p = class_<Patch>("Patch")
             .def("set_start", &Patch::set_start)
@@ -134,21 +139,8 @@ BOOST_PYTHON_MODULE(_mididings)
         .def("push_back", &vector<string>::push_back)
     ;
 
-#ifdef ENABLE_TEST
-    enum_<MidiEventType>("MidiEventType")
-        .value("NONE", MIDI_EVENT_NONE)
-        .value("NOTEON", MIDI_EVENT_NOTEON)
-        .value("NOTEOFF", MIDI_EVENT_NOTEOFF)
-        .value("NOTE", MIDI_EVENT_NOTE)
-        .value("CONTROLLER", MIDI_EVENT_CONTROLLER)
-        .value("PITCHBEND", MIDI_EVENT_PITCHBEND)
-        .value("PGMCHANGE", MIDI_EVENT_PGMCHANGE)
-        .value("ANY", MIDI_EVENT_ANY)
-    ;
-#endif // ENABLE_TEST
-    class_<MidiEvent>("MidiEvent")
-//        .def_readwrite("type", &MidiEvent::type)
-        .add_property("type", &midi_event_get_type, &midi_event_set_type)
+    class_<MidiEventWrapper>("MidiEvent")
+        .add_property("type", &MidiEventWrapper::get_type, &MidiEventWrapper::set_type)
         .def_readwrite("port", &MidiEvent::port)
         .def_readwrite("channel", &MidiEvent::channel)
         .def_readwrite("data1", &MidiEvent::data1)
@@ -157,6 +149,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .def(self == self)
 #endif // ENABLE_TEST
     ;
+
 #ifdef ENABLE_TEST
     class_<vector<MidiEvent> >("MidiEventVector")
         .def(vector_indexing_suite<vector<MidiEvent> >())
