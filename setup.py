@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 from distutils.core import setup, Extension
 from distutils import sysconfig
@@ -15,7 +14,7 @@ for removal in removals:
 sysconfig.get_config_vars()['CFLAGS'] = ' '.join(cv_opt.split())
 
 
-setup (
+setup(
     name = 'mididings',
     version = '0.0',
     author = 'Dominic Sacre',
@@ -25,10 +24,11 @@ setup (
     license = "GPL",
     ext_modules = [
         Extension('_mididings',
-                  [ 'src/backend.cc', 'src/backend_alsa.cc',
-                    'src/setup.cc', 'src/patch.cc',
+                  [ 'src/backend_alsa.cc',
+                    'src/setup.cc', 'src/patch.cc', 'src/units.cc',
                     'src/python_interface.cc' ],
-                  libraries = [ 'asound', 'boost_python' ]
+                  libraries = ['asound', 'boost_python']
         ),
     ],
+    packages = ['mididings'],
 )

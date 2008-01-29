@@ -232,6 +232,7 @@ class SwitchPatch(_mididings.SwitchPatch, _Unit):
         _mididings.SwitchPatch.__init__(self, num)
 
 
+### misc ###
 
 class Call(_mididings.Call, _Unit):
     def __init__(self, fun):
