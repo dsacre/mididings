@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+
+<head>
+  <title>mididings - Documentation</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <style type="text/css">
+    body { max-width: 60em; font-size: 90%; }
+    h1 { font-size: 120%; color: #333; background: #eee; padding: 4px 0.7em; }
+    h2 { font-size: 110%; color: #fff; background: #667; padding: 4px 0.7em; margin-top: 1.5em; }
+    h3 { font-size: 100%; color: #333; padding-left: 0.5em; margin-bottom: 0.4em; }
+    p,table,pre { margin-left: 0.8em; margin-top: 0.4em; }
+    b { color: #333; }
+    pre { font-size: 110%; }
+    table { border: 1px solid #333; border-collapse: collapse; }
+    th, td { border: 1px solid #333; padding: 0em 0.3em; }
+    th { color: #333; text-align: left; background: #eee; }
+  </style>
+</head>
+
+<body>
+
+<h1>mididings - Documentation</h1>
+
+<h3>import mididings</h3>
+
+
+<h2>Forks</h2>
+
+<h3>Fork([units, ...])</h3>
+<p>
+duplicates all events, same as [...].
+</p>
+
+<h3>NoteFork([units, ...])<br>
+ControllerFork([units, ...])<br>
+PitchBendFork([units, ...])<br>
+ProgramChangeFork([units, ...])</h3>
+<p>
+duplicates events of one type, all others pass unchanged.
+</p>
+
+
+<h2>Gates</h2>
+
+<h3>NoteGate()<br>
+ControllerGate()<br>
+PitchBendGate()<br>
+ProgramChangeGate()</h3>
+<p>
+filters by event type.
+</p>
+
+
+<h2>Filters</h2>
+
+<h3>PortFilter(port, ...)<br>
+ChannelFilter(channel, ...)<br>
+KeyFilter(lower, upper)<br>
+KeyFilter(range)<br>
+VelocityFilter(min, max)<br>
+ControllerFilter(num)</h3>
+<p>
+filters by event property.
+</p>
+
+
+<h2>Splits</h2>
+
+<h3>PortSplit({port: units, ...})<br>
+ChannelSplit({channel: units, ...})</h3>
+<p>
+splits by channel or port.
+</p>
+
+<h3>KeySplit(key, units_lower, units_upper)<br>
+KeySplit({range: units, ...})</h3>
+<p>
+splits by key; only note events are affected.
+</p>
+
+<h3>VelocitySplit(threshold, units_lower, units_upper)<br>
+VelocitySplit((min, max): units, ...)</h3>
+<p>
+splits by velocity.
+</p>
+
+
+<h2>Modifiers</h2>
+
+<h3>Port(port)<br>
+Channel(channel)</h3>
+<p>
+changes port or channel.
+</p>
+
+<h3>Transpose(offset)</h3>
+<p>
+transposes all note events.
+</p>
+
+<h3>Velocity(offset)<br>
+VelocityFixed(value)</h3>
+<p>
+changes velocity, either by adding an offset, or by setting it to a fixed value.
+</p>
+
+<h3>VelocityGradient(note_lower, note_upper, value_lower, value_upper)<br>
+VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper)</h3>
+<p>
+changes velocity, using a gradient from lower to upper.
+</p>
+
+<h3>ControllerRange(num, in_min, in_max, out_min, out_max)</h3>
+<p>
+maps controller range in to out.
+</p>
+
+<h3>ControlChange(port, channel, num, value)<br>
+ProgramChange(port, channel, program)</h3>
+<p>
+creates a midi event.
+</p>
+
+
+<h2>Misc</h2>
+
+<h3>Pass()</h3>
+<p>
+does nothing.
+</p>
+
+<h3>Discard()</h3>
+<p>
+discards all events.
+</p>
+
+<h3>SwitchPatch(patch)</h3>
+<p>
+switches to another patch.
+</p>
+
+<h3>Call(function)</h3>
+<p>
+calls a python function.
+</p>
+
+<h3>Print()<br>
+Print(name)</h3>
+<p>
+prints event data.
+</p>
+
+
+</body>
+
+</html>
