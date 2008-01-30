@@ -150,19 +150,19 @@ class KeyFilter
   : public Filter
 {
   public:
-    KeyFilter(int first, int last)
+    KeyFilter(int lower, int upper)
       : Filter(MIDI_EVENT_NOTE),
-        _first(first), _last(last) { }
+        _lower(lower), _upper(upper) { }
 
     virtual bool process(MidiEvent & ev) {
         if (ev.type & MIDI_EVENT_NOTE)
-            return (ev.note.note >= _first && ev.note.note <= _last);
+            return (ev.note.note >= _lower && ev.note.note <= _upper);
         else
             return true;
     }
 
   private:
-    int _first, _last;
+    int _lower, _upper;
 };
 
 
@@ -277,23 +277,23 @@ class VelocityGradient
   : public Modifier
 {
   public:
-    VelocityGradient(int note_first, int note_last,
-                     float value_first, float value_last,
+    VelocityGradient(int note_lower, int note_upper,
+                     float value_lower, float value_upper,
                      int mode)
-      : _note_first(note_first),
-        _note_last(note_last),
-        _value_first(value_first),
-        _value_last(value_last),
+      : _note_lower(note_lower),
+        _note_upper(note_upper),
+        _value_lower(value_lower),
+        _value_upper(value_upper),
         _mode(mode)
     {
-        ASSERT(note_first < note_last);
+        ASSERT(note_lower < note_upper);
     }
 
     virtual bool process(MidiEvent & ev);
 
   private:
-    int _note_first, _note_last;
-    float _value_first, _value_last;
+    int _note_lower, _note_upper;
+    float _value_lower, _value_upper;
     int _mode;
 };
 

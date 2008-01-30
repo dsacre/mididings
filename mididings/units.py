@@ -31,27 +31,27 @@ class _Chain(_Unit):
 
 
 class Fork(list, _Unit):
-    def __init__(self, *args):
-        if len(args) == 1:
-            list.__init__(self, args[0])
-        elif len(args) == 2:
-            l = [ (TypeFilter(args[0]) >> x) for x in args[1] ] + \
-                [ ~TypeFilter(args[0]) ]
-            list.__init__(self, l)
-        else:
-            raise ArgumentError()
+    def __init__(self, l):
+        list.__init__(self, l)
+
+
+class TypeFork(Fork):
+    def __init__(self, t, l):
+        a = [ (TypeFilter(t) >> x) for x in l ] + \
+            [ ~TypeFilter(t) ]
+        list.__init__(self, a)
 
 def NoteFork(x):
-    return Fork(Types.NOTE, x)
+    return TypeFork(Types.NOTE, x)
 
 def ControllerFork(x):
-    return Fork(Types.CONTROLLER, x)
+    return TypeFork(Types.CONTROLLER, x)
 
 def PitchBendFork(x):
-    return Fork(Types.PITCHBEND, x)
+    return TypeFork(Types.PITCHBEND, x)
 
 def ProgramChangeFork(x):
-    return Fork(Types.PGMCHANGE, x)
+    return TypeFork(Types.PGMCHANGE, x)
 
 
 # base class for all filters, supporting operator ~
@@ -105,21 +105,23 @@ class PortFilter(_mididings.PortFilter, _Filter):
 class ChannelFilter(_mididings.ChannelFilter, _Filter):
     def __init__(self, *args):
         vec = _mididings.int_vector()
-        for channel in [ c - _main.CHANNEL_OFFSET for c in _util.flatten(args) ]:
-            vec.push_back(channel)
+        for c in _util.flatten(args):
+            vec.push_back(c - _main.CHANNEL_OFFSET)
         _mididings.ChannelFilter.__init__(self, vec)
 
 
 class KeyFilter(_mididings.KeyFilter, _Filter):
     def __init__(self, *args):
-        if len(args) == 1: args = args[0]
+        if len(args) == 1:
+            args = args[0]
         r = _util.noterange2numbers(args)
         _mididings.KeyFilter.__init__(self, r[0], r[1])
 
 
 class VelocityFilter(_mididings.VelocityFilter, _Filter):
     def __init__(self, *args):
-        if len(args) == 1: args = args[0]
+        if len(args) == 1:
+            args = args[0]
         _mididings.VelocityFilter.__init__(self, args[0], args[1])
 
 
@@ -139,20 +141,26 @@ def ChannelSplit(d):
 
 def KeySplit(*args):
     if len(args) == 1:
+        # KeySplit(d)
         return NoteFork([ (KeyFilter(k) >> w) for k, w in args[0].items() ])
     elif len(args) == 3:
-        filt = KeyFilter(0, args[0])
-        return NoteFork([ filt >> args[1], ~filt >> args[2] ])
+        # KeySplit(key, units_lower, units_upper)
+        key, units_lower, units_upper = args
+        filt = KeyFilter(0, key)
+        return NoteFork([ filt >> units_lower, ~filt >> units_upper ])
     else:
         raise ArgumentError()
 
 
 def VelocitySplit(*args):
     if len(args) == 1:
+        # VelocitySplit(d)
         return NoteFork([ (VelocityFilter(v) >> w) for v, w in args[0].items() ])
     elif len(args) == 3:
-        filt = VelocityFilter(0, args[0])
-        return NoteFork([ filt >> args[1], ~filt >> args[2] ])
+        # VelocitySplit(thresh, units_lower, units_upper)
+        thresh, units_lower, units_upper = args
+        filt = VelocityFilter(0, thresh)
+        return NoteFork([ filt >> units_lower, ~filt >> units_upper ])
     else:
         raise ArgumentError()
 
@@ -170,7 +178,8 @@ class Channel(_mididings.Channel, _Modifier):
 
 
 class Transpose(_mididings.Transpose, _Modifier):
-    pass
+    def __init__(self, offset):
+        _mididings.Transpose.__init__(self, offset)
 
 
 class Velocity(_mididings.Velocity, _Modifier):
@@ -191,19 +200,19 @@ def VelocityFixed(value):
 
 
 class VelocityGradient(_mididings.VelocityGradient, _Modifier):
-    def __init__(self, note_first, note_last, value_first, value_last, mode=Velocity.OFFSET):
+    def __init__(self, note_lower, note_upper, value_lower, value_upper, mode=Velocity.OFFSET):
         _mididings.VelocityGradient.__init__(self,
-            _util.note2number(note_first), _util.note2number(note_last),
-            value_first, value_last, mode)
+            _util.note2number(note_lower), _util.note2number(note_upper),
+            value_lower, value_upper, mode)
 
-def VelocityGradientOffset(value):
-    return VelocityGradient(value, Velocity.OFFSET)
+def VelocityGradientOffset(note_lower, note_upper, value_lower, value_upper):
+    return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.OFFSET)
 
-def VelocityGradientMultiply(value):
-    return VelocityGradient(value, Velocity.MULTIPLY)
+def VelocityGradientMultiply(note_lower, note_upper, value_lower, value_upper):
+    return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.MULTIPLY)
 
-def VelocityGradientFixed(value):
-    return VelocityGradient(value, Velocity.FIXED)
+def VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper):
+    return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.FIXED)
 
 
 class ControllerRange(_mididings.ControllerRange, _Modifier):
@@ -228,7 +237,7 @@ def ProgramChange(port, channel, program):
 
 
 class SwitchPatch(_mididings.SwitchPatch, _Unit):
-    def __init__(self, num=Fields.PROGRAM):
+    def __init__(self, num=PROGRAM):
         _mididings.SwitchPatch.__init__(self, num)
 
 

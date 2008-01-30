@@ -78,7 +78,7 @@ bool VelocityGradient::process(MidiEvent & ev)
 {
     if (ev.type == MIDI_EVENT_NOTEON) {
         ev.note.velocity = apply_velocity(ev.note.velocity,
-            map_range(ev.note.note, _note_first, _note_last, _value_first, _value_last),
+            map_range(ev.note.note, _note_lower, _note_upper, _value_lower, _value_upper),
             (VelocityMode)_mode);
     }
     return true;
