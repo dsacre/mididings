@@ -162,6 +162,10 @@ void BackendAlsa::run(Setup & setup)
     snd_seq_event_t *alsa_ev;
 
     while (snd_seq_event_input(_seq_handle, &alsa_ev)) {
+        if (!alsa_ev)
+            // terminated by user?
+            return;
+
         // convert event from alsa
         MidiEvent ev = alsa_to_midi_event(*alsa_ev);
 
