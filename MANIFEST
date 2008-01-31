@@ -1,0 +1,12 @@
+setup.py
+SConstruct
+mididings/__init__.py
+mididings/event.py
+mididings/main.py
+mididings/units.py
+mididings/util.py
+src/backend_alsa.cc
+src/patch.cc
+src/python_interface.cc
+src/setup.cc
+src/units.cc
