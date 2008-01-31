@@ -38,9 +38,9 @@ class BackendAlsa
     snd_seq_event_t midi_event_to_alsa(const MidiEvent & ev);
 
     snd_seq_t *_seq_handle;
-    std::vector<int> _portid_in;
-    std::map<int, int> _portid_in_rev;
-    std::vector<int> _portid_out;
+    std::vector<int> _portid_in;        // alsa input port ids
+    std::map<int, int> _portid_in_rev;  // reverse mapping (port id -> port #)
+    std::vector<int> _portid_out;       // alsa output port ids
 };
 
 

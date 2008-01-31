@@ -16,8 +16,12 @@
 
 #include <alsa/asoundlib.h>
 
+#include <algorithm>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
+
 using namespace std;
-using namespace das;
+using namespace boost::lambda;
 
 
 BackendAlsa::BackendAlsa(const string & client_name,
@@ -26,23 +30,19 @@ BackendAlsa::BackendAlsa(const string & client_name,
   : _portid_in(in_ports.size()),
     _portid_out(out_ports.size())
 {
+    ASSERT(!client_name.empty());
     ASSERT(!in_ports.empty());
     ASSERT(!out_ports.empty());
 
     // create sequencer client
-    if (snd_seq_open(&_seq_handle, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
+    if (snd_seq_open(&_seq_handle, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0)
         throw BackendError("error opening alsa sequencer");
-    }
 
     snd_seq_set_client_name(_seq_handle, client_name.c_str());
 
     // create input ports
     for (int n = 0; n < (int)in_ports.size(); n++) {
-        string port_name;
-
-        port_name = in_ports[n];
-
-        int id = snd_seq_create_simple_port(_seq_handle, port_name.c_str(),
+        int id = snd_seq_create_simple_port(_seq_handle, in_ports[n].c_str(),
                     SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
                     SND_SEQ_PORT_TYPE_APPLICATION);
 
@@ -55,11 +55,7 @@ BackendAlsa::BackendAlsa(const string & client_name,
 
     // create output ports
     for (int n = 0; n < (int)out_ports.size(); n++) {
-        string port_name;
-
-        port_name = out_ports[n];
-
-        int id = snd_seq_create_simple_port(_seq_handle, port_name.c_str(),
+        int id = snd_seq_create_simple_port(_seq_handle, out_ports[n].c_str(),
                 SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
                 SND_SEQ_PORT_TYPE_APPLICATION);
 
@@ -73,12 +69,9 @@ BackendAlsa::BackendAlsa(const string & client_name,
 
 BackendAlsa::~BackendAlsa()
 {
-    for (vector<int>::iterator i = _portid_in.begin(); i != _portid_in.end(); ++i) {
-        snd_seq_delete_port(_seq_handle, *i);
-    }
-    for (vector<int>::iterator i = _portid_out.begin(); i != _portid_out.end(); ++i) {
-        snd_seq_delete_port(_seq_handle, *i);
-    }
+    for_each(_portid_in.begin(), _portid_in.end(), bind(snd_seq_delete_port, _seq_handle, _1));
+    for_each(_portid_out.begin(), _portid_out.end(), bind(snd_seq_delete_port, _seq_handle, _1));
+
     snd_seq_close(_seq_handle);
 }
 
@@ -89,8 +82,7 @@ MidiEvent BackendAlsa::alsa_to_midi_event(const snd_seq_event_t & alsa_ev)
 
     ev.port = _portid_in_rev[alsa_ev.dest.port];
 
-    switch (alsa_ev.type)
-    {
+    switch (alsa_ev.type) {
       case SND_SEQ_EVENT_NOTEON:
         ev.type = alsa_ev.data.note.velocity ? MIDI_EVENT_NOTEON : MIDI_EVENT_NOTEOFF;
         ev.channel = alsa_ev.data.note.channel;
@@ -140,8 +132,7 @@ snd_seq_event_t BackendAlsa::midi_event_to_alsa(const MidiEvent & ev)
 
     snd_seq_ev_clear(&alsa_ev);
 
-    switch (ev.type)
-    {
+    switch (ev.type) {
       case MIDI_EVENT_NOTEON:
         snd_seq_ev_set_noteon(&alsa_ev, ev.channel, ev.note.note, ev.note.velocity);
         break;
@@ -170,12 +161,7 @@ void BackendAlsa::run(Setup & setup)
 {
     snd_seq_event_t *alsa_ev;
 
-    while (snd_seq_event_input(_seq_handle, &alsa_ev))
-    {
-        if (alsa_ev == NULL) {
-            return;
-        }
-
+    while (snd_seq_event_input(_seq_handle, &alsa_ev)) {
         // convert event from alsa
         MidiEvent ev = alsa_to_midi_event(*alsa_ev);
 

@@ -121,7 +121,7 @@ static inline int get_parameter(int value, const MidiEvent & ev)
 }
 
 
-bool TriggerEvent::process(MidiEvent & ev)
+bool GenerateEvent::process(MidiEvent & ev)
 {
     MidiEvent ev_new;
 
@@ -137,7 +137,7 @@ bool TriggerEvent::process(MidiEvent & ev)
 }
 
 
-bool SwitchPatch::process(MidiEvent & ev)
+bool PatchSwitcher::process(MidiEvent & ev)
 {
     TheSetup->switch_patch(get_parameter(_num, ev));
     return false;

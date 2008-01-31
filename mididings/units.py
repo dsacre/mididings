@@ -222,23 +222,23 @@ class ControllerRange(_mididings.ControllerRange, _Modifier):
 
 ### misc ###
 
-class TriggerEvent(_mididings.TriggerEvent, _Unit):
+class GenerateEvent(_mididings.GenerateEvent, _Unit):
     def __init__(self, type_, port, channel, data1, data2):
-        _mididings.TriggerEvent.__init__(self, type_,
+        _mididings.GenerateEvent.__init__(self, type_,
                 port - _main.PORT_OFFSET if port >= 0 else port,
                 channel - _main.CHANNEL_OFFSET if channel >= 0 else channel,
                 data1, data2)
 
 def ControlChange(port, channel, controller, value):
-    return TriggerEvent(Types.CONTROLLER, port, channel, controller, value)
+    return GenerateEvent(Types.CONTROLLER, port, channel, controller, value)
 
 def ProgramChange(port, channel, program):
-    return TriggerEvent(Types.PGMCHANGE, port, channel, 0, program - _main.PROGRAM_OFFSET)
+    return GenerateEvent(Types.PGMCHANGE, port, channel, 0, program - _main.PROGRAM_OFFSET)
 
 
-class SwitchPatch(_mididings.SwitchPatch, _Unit):
+class PatchSwitcher(_mididings.PatchSwitcher, _Unit):
     def __init__(self, num=PROGRAM):
-        _mididings.SwitchPatch.__init__(self, num)
+        _mididings.PatchSwitcher.__init__(self, num)
 
 
 class Call(_mididings.Call, _Unit):
@@ -246,11 +246,21 @@ class Call(_mididings.Call, _Unit):
         self.fun = fun
         _mididings.Call.__init__(self, self.do_call)
     def do_call(self, ev):
+        # foist a few more properties
         ev.__class__ = _MidiEventEx
         return self.fun(ev)
 
+#class CallAsync(_mididings.Call, _Unit):
+#    def __init__(self, fun):
+#        self.fun = fun
+#        _mididings.Call.__init__(self, self.do_call_async)
+#    def do_call_async(self, ev):
+#        ev.__class__ = _MidiEventEx
+#        Q.put((self.fun, ev))
+#        return False
 
-class Print(Call, _Unit):
+
+class Print(Call):
     def __init__(self, name=None):
         self.name = name
         Call.__init__(self, self.do_print)

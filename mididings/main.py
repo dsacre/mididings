@@ -146,9 +146,7 @@ def run(patches,
 
 
 def test_run(patch, event):
-    s = Setup({ PROGRAM_OFFSET: patch }, None,
-              None, None,
-              'dummy', 'mididings_test',
-              1, 1)
+    s = Setup({ PROGRAM_OFFSET: patch }, None, None, None,
+              'dummy', 'mididings_test', 1, 1)
     r = s.process(event)
     return r[:]

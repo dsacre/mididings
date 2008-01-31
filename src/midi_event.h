@@ -21,7 +21,7 @@ enum MidiEventType {
     MIDI_EVENT_CONTROLLER = 1 << 2,
     MIDI_EVENT_PITCHBEND  = 1 << 3,
     MIDI_EVENT_PGMCHANGE  = 1 << 4,
-    MIDI_EVENT_ANY        = ~0
+    MIDI_EVENT_ANY        = ~0,
 };
 
 typedef unsigned int MidiEventTypes;

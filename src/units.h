@@ -321,11 +321,11 @@ class ControllerRange
 
 /**************************************************************************/
 
-class TriggerEvent
+class GenerateEvent
   : public Unit
 {
   public:
-    TriggerEvent(int type, int port, int channel, int data1, int data2)
+    GenerateEvent(int type, int port, int channel, int data1, int data2)
       : _type((MidiEventType)type),
         _port(port),
         _channel(channel),
@@ -347,11 +347,11 @@ class TriggerEvent
 
 /**************************************************************************/
 
-class SwitchPatch
+class PatchSwitcher
   : public Unit
 {
   public:
-    SwitchPatch(int num)
+    PatchSwitcher(int num)
       : _num(num) { }
 
     virtual bool process(MidiEvent & ev);

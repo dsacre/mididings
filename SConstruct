@@ -5,8 +5,8 @@ from distutils import sysconfig
 import glob
 
 env = Environment(
-#    CCFLAGS = [ '-O2', '-Wall' ],
-    CCFLAGS = [ '-g', '-Wall' ],
+    CCFLAGS = [ '-O2', '-Wall' ],
+#    CCFLAGS = [ '-g', '-Wall' ],
     CPPDEFINES = [
         'ENABLE_DEBUG',
 #        'ENABLE_DEBUG_FN',

@@ -99,8 +99,8 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<VelocityGradient, bases<Unit> >("VelocityGradient", init<int, int, float, float, int>());
     class_<ControllerRange, bases<Unit> >("ControllerRange", init<int, int, int, int, int>());
 
-    class_<TriggerEvent, bases<Unit> >("TriggerEvent", init<int, int, int, int, int>());
-    class_<SwitchPatch, bases<Unit> >("SwitchPatch", init<int>());
+    class_<GenerateEvent, bases<Unit> >("GenerateEvent", init<int, int, int, int, int>());
+    class_<PatchSwitcher, bases<Unit> >("PatchSwitcher", init<int>());
     class_<PythonCall, bases<Unit> >("Call", init<object>());
 
     class_<Setup, noncopyable>("Setup", init<string, string, vector<string>, vector<string> >())
