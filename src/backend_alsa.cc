@@ -21,14 +21,13 @@ using namespace das;
 
 
 BackendAlsa::BackendAlsa(const string & client_name,
-                         int in_ports, int out_ports,
-                         const vector<string> & in_portnames,
-                         const vector<string> & out_portnames)
-  : _portid_in(in_ports),
-    _portid_out(out_ports)
+                         const vector<string> & in_ports,
+                         const vector<string> & out_ports)
+  : _portid_in(in_ports.size()),
+    _portid_out(out_ports.size())
 {
-    ASSERT(in_portnames.size() == (uint)in_ports || in_portnames.empty());
-    ASSERT(out_portnames.size() == (uint)out_ports || out_portnames.empty());
+    ASSERT(!in_ports.empty());
+    ASSERT(!out_ports.empty());
 
     // create sequencer client
     if (snd_seq_open(&_seq_handle, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
@@ -38,13 +37,10 @@ BackendAlsa::BackendAlsa(const string & client_name,
     snd_seq_set_client_name(_seq_handle, client_name.c_str());
 
     // create input ports
-    for (int n = 0; n < in_ports; n++) {
+    for (int n = 0; n < (int)in_ports.size(); n++) {
         string port_name;
 
-        if (in_portnames.empty())
-            port_name = make_string() << "in_" << n;
-        else
-            port_name = in_portnames[n];
+        port_name = in_ports[n];
 
         int id = snd_seq_create_simple_port(_seq_handle, port_name.c_str(),
                     SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
@@ -58,13 +54,10 @@ BackendAlsa::BackendAlsa(const string & client_name,
     }
 
     // create output ports
-    for (int n = 0; n < out_ports; n++) {
+    for (int n = 0; n < (int)out_ports.size(); n++) {
         string port_name;
 
-        if (out_portnames.empty())
-            port_name = make_string() << "out_" << n;
-        else
-            port_name = out_portnames[n];
+        port_name = out_ports[n];
 
         int id = snd_seq_create_simple_port(_seq_handle, port_name.c_str(),
                 SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,

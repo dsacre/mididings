@@ -77,35 +77,33 @@ class Setup(_mididings.Setup):
         in_portnames = _mididings.string_vector()
         out_portnames = _mididings.string_vector()
 
-        if util.is_sequence(in_ports):
-            # fill vector with input port names
-            for i in in_ports:
-                in_portnames.push_back(i)
-            in_ports = len(in_ports)
+        if not util.is_sequence(in_ports):
+            in_ports = [ 'in_' + str(n + PORT_OFFSET) for n in range(in_ports) ]
+        # fill vector with input port names
+        for i in in_ports:
+            in_portnames.push_back(i)
 
-        if util.is_sequence(out_ports):
-            # fill vector with output port names
-            for i in out_ports:
-                out_portnames.push_back(i)
-            out_ports = len(out_ports)
+        if not util.is_sequence(out_ports):
+            out_ports = [ 'out_' + str(n + PORT_OFFSET) for n in range(out_ports) ]
+        # fill vector with output port names
+        for i in out_ports:
+            out_portnames.push_back(i)
 
-        _mididings.Setup.__init__(self, backend, client_name,
-                                  in_ports, out_ports,
-                                  in_portnames, out_portnames)
+        _mididings.Setup.__init__(self, backend, client_name, in_portnames, out_portnames)
 
         for i, p in patches.items():
             if isinstance(p, tuple):
                 init_patch, patch = Patch(p[0]), Patch(p[1])
             else:
                 init_patch, patch = None, Patch(p)
-            self.add_patch(i, patch, init_patch)
+            self.add_patch(i - PROGRAM_OFFSET, patch, init_patch)
 
         ctrl = Patch(control) if control else None
         pre = Patch(preprocess) if preprocess else None
         post = Patch(postprocess) if postprocess else None
         self.set_processing(ctrl, pre, post)
 
-        self.switch_patch(PROGRAM_OFFSET)
+        self.switch_patch(0)
 
 
 def config(octave_offset=None,

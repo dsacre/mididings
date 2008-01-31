@@ -23,9 +23,8 @@ Setup * TheSetup = NULL;
 
 Setup::Setup(const string & backend_name,
              const string & client_name,
-             int in_ports, int out_ports,
-             const vector<string> & in_portnames,
-             const vector<string> & out_portnames)
+             const vector<string> & in_ports,
+             const vector<string> & out_ports)
   : _current(NULL),
     _noteon_patches(MAX_SIMULTANEOUS_NOTES),
     _event_buffer1(EVENT_BUFFER_SIZE),
@@ -35,7 +34,7 @@ Setup::Setup(const string & backend_name,
     DEBUG_FN();
 
     if (backend_name == "alsa") {
-        _backend.reset(new BackendAlsa(client_name, in_ports, out_ports, in_portnames, out_portnames));
+        _backend.reset(new BackendAlsa(client_name, in_ports, out_ports));
     }
 }
 
@@ -78,8 +77,6 @@ void Setup::run()
 
 void Setup::switch_patch(int n)
 {
-//    n++; ///////////
-
     DEBUG_FN();
     DEBUG_PRINT("switching to patch " << n);
 

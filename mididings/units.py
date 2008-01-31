@@ -220,7 +220,7 @@ class ControllerRange(_mididings.ControllerRange, _Modifier):
         _mididings.ControllerRange.__init__(self, controller, in_min, in_max, out_min, out_max)
 
 
-### midi events ###
+### misc ###
 
 class TriggerEvent(_mididings.TriggerEvent, _Unit):
     def __init__(self, type_, port, channel, data1, data2):
@@ -240,8 +240,6 @@ class SwitchPatch(_mididings.SwitchPatch, _Unit):
     def __init__(self, num=PROGRAM):
         _mididings.SwitchPatch.__init__(self, num)
 
-
-### misc ###
 
 class Call(_mididings.Call, _Unit):
     def __init__(self, fun):

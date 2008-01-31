@@ -32,17 +32,23 @@ using namespace boost;
 using namespace std;
 
 
-// wrap MidiEvent to add type as integer property
-struct MidiEventWrapper
-  : public MidiEvent
-{
-    int get_type() {
-        return (int)type;
-    }
-    void set_type(int t) {
-        type = (MidiEventType)t;
-    }
-};
+static inline int midi_event_get_type(MidiEvent & ev) {
+    return (int)ev.type;
+}
+static inline void midi_event_set_type(MidiEvent & ev, int t) {
+    ev.type = (MidiEventType)t;
+}
+
+
+#ifdef ENABLE_TEST
+bool operator==(const MidiEvent & lhs, const MidiEvent & rhs) {
+    return (lhs.type == rhs.type &&
+            lhs.port == rhs.port &&
+            lhs.channel == rhs.channel &&
+            lhs.data1 == rhs.data1 &&
+            lhs.data2 == rhs.data2);
+}
+#endif // ENABLE_TEST
 
 
 // unit to call back into python
@@ -57,9 +63,7 @@ class PythonCall
 
     bool process(MidiEvent & ev)
     {
-        // reinterpret ev as the wrapper exposed to python
-        MidiEventWrapper & ev2 = reinterpret_cast<MidiEventWrapper &>(ev);
-        object ret = _fun(ptr(&ev2));
+        object ret = _fun(ptr(&ev));
 
         if (ret.ptr() == Py_None)
             return true;
@@ -70,17 +74,6 @@ class PythonCall
   private:
     object _fun;
 };
-
-
-#ifdef ENABLE_TEST
-bool operator==(const MidiEvent & lhs, const MidiEvent & rhs) {
-    return (lhs.type == rhs.type &&
-            lhs.port == rhs.port &&
-            lhs.channel == rhs.channel &&
-            lhs.data1 == rhs.data1 &&
-            lhs.data2 == rhs.data2);
-}
-#endif // ENABLE_TEST
 
 
 BOOST_PYTHON_MODULE(_mididings)
@@ -110,7 +103,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<SwitchPatch, bases<Unit> >("SwitchPatch", init<int>());
     class_<PythonCall, bases<Unit> >("Call", init<object>());
 
-    class_<Setup, noncopyable>("Setup", init<string, string, int, int, vector<string>, vector<string> >())
+    class_<Setup, noncopyable>("Setup", init<string, string, vector<string>, vector<string> >())
         .def("add_patch", &Setup::add_patch)
         .def("set_processing", &Setup::set_processing)
         .def("run", &Setup::run)
@@ -139,8 +132,8 @@ BOOST_PYTHON_MODULE(_mididings)
         .def("push_back", &vector<string>::push_back)
     ;
 
-    class_<MidiEventWrapper>("MidiEvent")
-        .add_property("type", &MidiEventWrapper::get_type, &MidiEventWrapper::set_type)
+    class_<MidiEvent>("MidiEvent")
+        .add_property("type", &midi_event_get_type, &midi_event_set_type)
         .def_readwrite("port", &MidiEvent::port)
         .def_readwrite("channel", &MidiEvent::channel)
         .def_readwrite("data1", &MidiEvent::data1)

@@ -44,9 +44,8 @@ class Setup
 
     Setup(const std::string & backend_name,
           const std::string & client_name,
-          int in_ports, int out_ports,
-          const std::vector<std::string> & in_portnames,
-          const std::vector<std::string> & out_portnames);
+          const std::vector<std::string> & in_ports,
+          const std::vector<std::string> & out_ports);
 
     ~Setup();
 
