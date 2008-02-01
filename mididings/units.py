@@ -42,16 +42,16 @@ class TypeFork(Fork):
         list.__init__(self, a)
 
 def NoteFork(x):
-    return TypeFork(Types.NOTE, x)
+    return TypeFork(TYPE_NOTE, x)
 
 def ControllerFork(x):
-    return TypeFork(Types.CONTROLLER, x)
+    return TypeFork(TYPE_CONTROLLER, x)
 
 def PitchBendFork(x):
-    return TypeFork(Types.PITCHBEND, x)
+    return TypeFork(TYPE_PITCHBEND, x)
 
 def ProgramChangeFork(x):
-    return TypeFork(Types.PGMCHANGE, x)
+    return TypeFork(TYPE_PGMCHANGE, x)
 
 
 # base class for all filters, supporting operator ~
@@ -82,16 +82,16 @@ class TypeFilter(_mididings.TypeFilter, _Filter):
         _mididings.TypeFilter.__init__(self, type_)
 
 def NoteGate():
-    return TypeFilter(Types.NOTE)
+    return TypeFilter(TYPE_NOTE)
 
 def ControllerGate():
-    return TypeFilter(Types.CONTROLLER)
+    return TypeFilter(TYPE_CONTROLLER)
 
 def PitchBendGate():
-    return TypeFilter(Types.PITCHBEND)
+    return TypeFilter(TYPE_PITCHBEND)
 
 def ProgramChangeGate():
-    return TypeFilter(Types.PGMCHANGE)
+    return TypeFilter(TYPE_PGMCHANGE)
 
 
 class PortFilter(_mididings.PortFilter, _Filter):
@@ -230,10 +230,10 @@ class GenerateEvent(_mididings.GenerateEvent, _Unit):
                 data1, data2)
 
 def ControlChange(port, channel, controller, value):
-    return GenerateEvent(Types.CONTROLLER, port, channel, controller, value)
+    return GenerateEvent(TYPE_CONTROLLER, port, channel, controller, value)
 
 def ProgramChange(port, channel, program):
-    return GenerateEvent(Types.PGMCHANGE, port, channel, 0, program - _main.PROGRAM_OFFSET)
+    return GenerateEvent(TYPE_PGMCHANGE, port, channel, 0, program - _main.PROGRAM_OFFSET)
 
 
 class PatchSwitcher(_mididings.PatchSwitcher, _Unit):
@@ -269,27 +269,27 @@ class Print(Call):
         if self.name:
             print self.name + ":",
 
-        if ev.type == Types.NOTEON:
+        if ev.type == TYPE_NOTEON:
             t = "note on"
             d1 = "note " + str(ev.note) + " (" + _util.notenumber2name(ev.note) + ")"
             d2 = "velocity " + str(ev.velocity)
-        elif ev.type == Types.NOTEOFF:
+        elif ev.type == TYPE_NOTEOFF:
             t = "note off"
             d1 = "note " + str(ev.note) + " (" + _util.notenumber2name(ev.note) + ")"
             d2 = "velocity " + str(ev.velocity)
-        elif ev.type == Types.CONTROLLER:
+        elif ev.type == TYPE_CONTROLLER:
             t = "control change"
             d1 = "param " + str(ev.param)
             d2 = "value " + str(ev.value)
-        elif ev.type == Types.PITCHBEND:
+        elif ev.type == TYPE_PITCHBEND:
             t = "pitch bend"
             d1 = None
             d2 = "value " + str(ev.value)
-        elif ev.type == Types.PGMCHANGE:
+        elif ev.type == TYPE_PGMCHANGE:
             t = "program change"
             d1 = None
-            d2 = "value " + str(ev.value + _main.PROGRAM_OFFSET)
+            d2 = "value " + str(ev.program)
 
-        print "%s: port %d, channel %d," % (t, ev.port + _main.PORT_OFFSET, ev.channel + _main.CHANNEL_OFFSET),
+        print "%s: port %d, channel %d," % (t, ev.port, ev.channel),
         if d1: print "%s," % (d1,),
         print "%s" % (d2,)

@@ -23,9 +23,9 @@ def make_event(type, port, channel, data1, data2):
 
 class SimpleTestCase(unittest.TestCase):
     def setUp(self):
-        self.noteon1 = make_event(Types.NOTEON, 0, 0, 66, 23)
-        self.noteon2 = make_event(Types.NOTEON, 0, 0, 42, 127)
-        self.pgmchange1 = make_event(Types.PGMCHANGE, 0, 0, 0, 7)
+        self.noteon1 = make_event(TYPE_NOTEON, 0, 0, 66, 23)
+        self.noteon2 = make_event(TYPE_NOTEON, 0, 0, 42, 127)
+        self.pgmchange1 = make_event(TYPE_PGMCHANGE, 0, 0, 0, 7)
 
     def tearDown(self):
         pass

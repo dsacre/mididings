@@ -134,8 +134,8 @@ BOOST_PYTHON_MODULE(_mididings)
 
     class_<MidiEvent>("MidiEvent")
         .add_property("type", &midi_event_get_type, &midi_event_set_type)
-        .def_readwrite("port", &MidiEvent::port)
-        .def_readwrite("channel", &MidiEvent::channel)
+        .def_readwrite("port_", &MidiEvent::port)
+        .def_readwrite("channel_", &MidiEvent::channel)
         .def_readwrite("data1", &MidiEvent::data1)
         .def_readwrite("data2", &MidiEvent::data2)
 #ifdef ENABLE_TEST

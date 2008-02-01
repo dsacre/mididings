@@ -11,15 +11,17 @@
 #
 
 import _mididings
+import main as _main
 
 
-class Types:
-    NOTEON      = 1 << 0
-    NOTEOFF     = 1 << 1
-    NOTE        = NOTEON | NOTEOFF
-    CONTROLLER  = 1 << 2
-    PITCHBEND   = 1 << 3
-    PGMCHANGE   = 1 << 4
+TYPE_NONE       = 0
+TYPE_NOTEON     = 1 << 0
+TYPE_NOTEOFF    = 1 << 1
+TYPE_NOTE       = TYPE_NOTEON | TYPE_NOTEOFF
+TYPE_CONTROLLER = 1 << 2
+TYPE_PITCHBEND  = 1 << 3
+TYPE_PGMCHANGE  = 1 << 4
+TYPE_ANY        = ~0
 
 
 PORT      = -1
@@ -38,20 +40,26 @@ PROGRAM   = -4
 
 
 class _MidiEventEx(_mididings.MidiEvent):
-    def make_get_set(typ, data):
+    def make_get_set(typ, data, offset=None):
         def getter(self):
             if not self.type & typ:
                 print "midi event attribute error"
-            return getattr(self, data)
+            off = offset() if offset else 0
+            return getattr(self, data) + off
 
         def setter(self, value):
             if not self.type & typ:
                 print "midi event attribute error"
-            setattr(self, data, value)
+            off = offset() if offset else 0
+            setattr(self, data, value - off)
 
         return (getter, setter)
 
-    note     = property(*make_get_set(Types.NOTE, 'data1'))
-    velocity = property(*make_get_set(Types.NOTE, 'data2'))
-    param    = property(*make_get_set(Types.CONTROLLER, 'data1'))
-    value    = property(*make_get_set(Types.CONTROLLER | Types.PITCHBEND | Types.PGMCHANGE, 'data2'))
+    port      = property(*make_get_set(TYPE_ANY, 'port_', _main._port_offset))
+    channel   = property(*make_get_set(TYPE_ANY, 'channel_', _main._channel_offset))
+
+    note      = property(*make_get_set(TYPE_NOTE, 'data1'))
+    velocity  = property(*make_get_set(TYPE_NOTE, 'data2'))
+    param     = property(*make_get_set(TYPE_CONTROLLER, 'data1'))
+    value     = property(*make_get_set(TYPE_CONTROLLER | TYPE_PITCHBEND, 'data2'))
+    program   = property(*make_get_set(TYPE_PGMCHANGE, 'data2', _main._program_offset))

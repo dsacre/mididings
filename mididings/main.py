@@ -125,6 +125,15 @@ def config(octave_offset=None,
     if program_offset != None:
         PROGRAM_OFFSET = program_offset
 
+def _octave_offset():
+    return OCTAVE_OFFSET
+def _port_offset():
+    return PORT_OFFSET
+def _channel_offset():
+    return CHANNEL_OFFSET
+def _program_offset():
+    return PROGRAM_OFFSET
+
 
 def run(patches,
         control=None,
