@@ -229,11 +229,32 @@ class GenerateEvent(_mididings.GenerateEvent, _Unit):
                 channel - _main.CHANNEL_OFFSET if channel >= 0 else channel,
                 data1, data2)
 
-def ControlChange(port, channel, controller, value):
-    return GenerateEvent(TYPE_CONTROLLER, port, channel, controller, value)
 
-def ProgramChange(port, channel, program):
-    return GenerateEvent(TYPE_PGMCHANGE, port, channel, 0, program - _main.PROGRAM_OFFSET)
+def ControlChange(*args):
+    if len(args) == 2:
+        # ControlChange(controller, value)
+        controller, value = args
+        return GenerateEvent(TYPE_CONTROLLER, _main.PORT_OFFSET,
+                             _main.CHANNEL_OFFSET, controller, value)
+    elif len(args) == 4:
+        # ControlChange(port, channel, controller, value)
+        port, channel, controller, value = args
+        return GenerateEvent(TYPE_CONTROLLER, port, channel, controller, value)
+    else:
+        raise ArgumentError()
+
+
+def ProgramChange(*args):
+    if len(args) == 1:
+        # ProgramChange(program)
+        return GenerateEvent(TYPE_PGMCHANGE, _main.PORT_OFFSET,
+                             _main.CHANNEL_OFFSET, 0, args[0] - _main.PROGRAM_OFFSET)
+    elif len(args) == 3:
+        # ProgramChange(port, channel, program)
+        port, channel, program = args
+        return GenerateEvent(TYPE_PGMCHANGE, port, channel, 0, program - _main.PROGRAM_OFFSET)
+    else:
+        raise ArgumentError()
 
 
 class PatchSwitcher(_mididings.PatchSwitcher, _Unit):
