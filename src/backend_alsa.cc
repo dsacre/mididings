@@ -104,11 +104,13 @@ MidiEvent BackendAlsa::alsa_to_midi_event(const snd_seq_event_t & alsa_ev)
       case SND_SEQ_EVENT_PITCHBEND:
         ev.type = MIDI_EVENT_PITCHBEND;
         ev.channel = alsa_ev.data.control.channel;
+        ev.ctrl.param = 0;
         ev.ctrl.value = alsa_ev.data.control.value;
         break;
       case SND_SEQ_EVENT_PGMCHANGE:
         ev.type = MIDI_EVENT_PGMCHANGE;
         ev.channel = alsa_ev.data.control.channel;
+        ev.ctrl.param = 0;
         ev.ctrl.value = alsa_ev.data.control.value;
         break;
       default:
@@ -125,8 +127,12 @@ snd_seq_event_t BackendAlsa::midi_event_to_alsa(const MidiEvent & ev)
 {
     ASSERT(ev.type != MIDI_EVENT_NONE);
     ASSERT((uint)ev.port < _portid_out.size());
-    ASSERT(ev.data1 >= 0x0 && ev.data1 <= 0x7f);
-    ASSERT(ev.data2 >= 0x0 && ev.data2 <= 0x7f);
+    if (ev.type != MIDI_EVENT_PITCHBEND) {
+        ASSERT(ev.data1 >= 0x0 && ev.data1 <= 0x7f);
+        ASSERT(ev.data2 >= 0x0 && ev.data2 <= 0x7f);
+    } else {
+        ASSERT(ev.data2 >= -8192 && ev.data2 <= 8191);
+    }
 
     snd_seq_event_t alsa_ev;
 

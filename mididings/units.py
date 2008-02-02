@@ -309,7 +309,7 @@ class Print(Call):
         elif ev.type == TYPE_PGMCHANGE:
             t = "program change"
             d1 = None
-            d2 = "value " + str(ev.program)
+            d2 = "program " + str(ev.program)
 
         print "%s: port %d, channel %d," % (t, ev.port, ev.channel),
         if d1: print "%s," % (d1,),
