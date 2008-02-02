@@ -155,10 +155,11 @@ class KeyFilter
         _lower(lower), _upper(upper) { }
 
     virtual bool process(MidiEvent & ev) {
-        if (ev.type & MIDI_EVENT_NOTE)
+        if (ev.type & MIDI_EVENT_NOTE) {
             return (ev.note.note >= _lower && ev.note.note <= _upper);
-        else
+        } else {
             return true;
+        }
     }
 
   private:
@@ -175,10 +176,11 @@ class VelocityFilter
         _lower(lower), _upper(upper) { }
 
     virtual bool process(MidiEvent & ev) {
-        if (ev.type == MIDI_EVENT_NOTEON)
+        if (ev.type == MIDI_EVENT_NOTEON) {
             return (ev.note.velocity >= _lower && ev.note.velocity <= _upper);
-        else
+        } else {
             return true;
+        }
     }
 
   private:

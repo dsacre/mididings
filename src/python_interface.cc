@@ -65,10 +65,11 @@ class PythonCall
     {
         object ret = _fun(ptr(&ev));
 
-        if (ret.ptr() == Py_None)
+        if (ret.ptr() == Py_None) {
             return true;
-        else
+        } else {
             return extract<bool>(ret);
+        }
     }
 
   private:

@@ -35,19 +35,21 @@ BackendAlsa::BackendAlsa(const string & client_name,
     ASSERT(!out_ports.empty());
 
     // create sequencer client
-    if (snd_seq_open(&_seq_handle, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0)
+    if (snd_seq_open(&_seq_handle, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
         throw BackendError("error opening alsa sequencer");
+    }
 
     snd_seq_set_client_name(_seq_handle, client_name.c_str());
 
     // create input ports
     for (int n = 0; n < (int)in_ports.size(); n++) {
         int id = snd_seq_create_simple_port(_seq_handle, in_ports[n].c_str(),
-                    SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
-                    SND_SEQ_PORT_TYPE_APPLICATION);
+                        SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
+                        SND_SEQ_PORT_TYPE_APPLICATION);
 
-        if (id < 0)
+        if (id < 0) {
             throw BackendError("error creating sequencer input port");
+        }
 
         _portid_in[n] = id;
         _portid_in_rev[id] = n;
@@ -56,11 +58,12 @@ BackendAlsa::BackendAlsa(const string & client_name,
     // create output ports
     for (int n = 0; n < (int)out_ports.size(); n++) {
         int id = snd_seq_create_simple_port(_seq_handle, out_ports[n].c_str(),
-                SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
-                SND_SEQ_PORT_TYPE_APPLICATION);
+                        SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
+                        SND_SEQ_PORT_TYPE_APPLICATION);
 
-        if (id < 0)
+        if (id < 0) {
             throw BackendError("error creating sequencer output port");
+        }
 
         _portid_out[n] = id;
     }
@@ -135,7 +138,6 @@ snd_seq_event_t BackendAlsa::midi_event_to_alsa(const MidiEvent & ev)
     }
 
     snd_seq_event_t alsa_ev;
-
     snd_seq_ev_clear(&alsa_ev);
 
     switch (ev.type) {
@@ -168,16 +170,18 @@ void BackendAlsa::run(Setup & setup)
     snd_seq_event_t *alsa_ev;
 
     while (snd_seq_event_input(_seq_handle, &alsa_ev)) {
-        if (!alsa_ev)
+        if (!alsa_ev) {
             // terminated by user?
             return;
+        }
 
         // convert event from alsa
         MidiEvent ev = alsa_to_midi_event(*alsa_ev);
 
         // discard unknown events
-        if (ev.type == MIDI_EVENT_NONE)
+        if (ev.type == MIDI_EVENT_NONE) {
             continue;
+        }
 
         //DEBUG_PRINT("in: " << ev.type << ": " << ev.port << " "
         //            << ev.channel << " " << ev.data1 << " " << ev.data2);

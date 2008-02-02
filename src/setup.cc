@@ -69,8 +69,9 @@ void Setup::set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr pos
 
 void Setup::run()
 {
-    if (!_backend)
+    if (!_backend) {
         return;
+    }
 
     _backend->run(*this);
 }

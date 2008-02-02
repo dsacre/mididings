@@ -60,7 +60,6 @@ class Setup
 
 
     void buffer_event(const MidiEvent & ev) {
-//        ASSERT(_current_output_buffer);
         // this would cause the vector to be resized if it gets larger
         // than EVENT_BUFFER_SIZE -> not realtime safe
         if (_current_output_buffer)

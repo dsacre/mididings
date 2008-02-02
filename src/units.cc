@@ -27,8 +27,9 @@ enum VelocityMode {
 
 static inline int apply_velocity(int velocity, float value, VelocityMode mode)
 {
-    if (velocity == 0)
+    if (velocity == 0) {
         return 0;
+    }
 
     switch (mode) {
       case VELOCITY_MODE_OFFSET:
@@ -45,8 +46,9 @@ static inline int apply_velocity(int velocity, float value, VelocityMode mode)
 
 bool Velocity::process(MidiEvent & ev)
 {
-    if (ev.type == MIDI_EVENT_NOTEON)
+    if (ev.type == MIDI_EVENT_NOTEON) {
         ev.note.velocity = apply_velocity(ev.note.velocity, _value, (VelocityMode)_mode);
+    }
     return true;
 }
 
@@ -78,8 +80,8 @@ bool VelocityGradient::process(MidiEvent & ev)
 {
     if (ev.type == MIDI_EVENT_NOTEON) {
         ev.note.velocity = apply_velocity(ev.note.velocity,
-            map_range(ev.note.note, _note_lower, _note_upper, _value_lower, _value_upper),
-            (VelocityMode)_mode);
+                map_range(ev.note.note, _note_lower, _note_upper, _value_lower, _value_upper),
+                (VelocityMode)_mode);
     }
     return true;
 }
@@ -104,7 +106,10 @@ enum ParameterIndices {
 
 static inline int get_parameter(int value, const MidiEvent & ev)
 {
-    if (value >= 0) return value;
+    if (value >= 0) {
+        return value;
+    }
+
     switch (value) {
       case PARAMETER_PORT:
         return ev.port;
