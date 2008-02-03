@@ -54,7 +54,7 @@ class Setup
 
     void run();
 
-    void switch_patch(int n);
+    void switch_patch(int n, const MidiEvent & ev);
 
     const MidiEventVector & process(const MidiEvent & ev);
 

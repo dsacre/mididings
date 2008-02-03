@@ -78,7 +78,7 @@ void Setup::run()
 }
 
 
-void Setup::switch_patch(int n)
+void Setup::switch_patch(int n, const MidiEvent & ev)
 {
     DEBUG_FN();
     DEBUG_PRINT("switching to patch " << n);
@@ -89,14 +89,14 @@ void Setup::switch_patch(int n)
 
         PatchMap::iterator k = _init_patches.find(n);
         if (k != _init_patches.end()) {
-            MidiEvent dummy;
-            memset(&dummy, 0, sizeof(MidiEvent));
+//            MidiEvent dummy;
+//            memset(&dummy, 0, sizeof(MidiEvent));
 
             // temporarily redirect output to patch_out so events will go through postprocessing
             MidiEventVector *p = _current_output_buffer;
             _current_output_buffer = &_event_buffer_patch_out;
 
-            k->second->process(dummy);
+            k->second->process(/*dummy*/ev);
 
             _current_output_buffer = p;
         }

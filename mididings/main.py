@@ -107,7 +107,8 @@ class Setup(_mididings.Setup):
         post = Patch(postprocess) if postprocess else None
         self.set_processing(ctrl, pre, post)
 
-        self.switch_patch(0)
+        import event
+        self.switch_patch(0, event.MidiEvent())
 
 
 def config(octave_offset=None,

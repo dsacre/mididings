@@ -14,7 +14,6 @@ import _mididings
 import main as _main
 import util as _util
 from event import *
-from event import _MidiEventEx
 
 
 class _Unit:
@@ -268,7 +267,7 @@ class Call(_mididings.Call, _Unit):
         _mididings.Call.__init__(self, self.do_call)
     def do_call(self, ev):
         # foist a few more properties
-        ev.__class__ = _MidiEventEx
+        ev.__class__ = MidiEvent
         return self.fun(ev)
 
 #class CallAsync(_mididings.Call, _Unit):
@@ -276,7 +275,7 @@ class Call(_mididings.Call, _Unit):
 #        self.fun = fun
 #        _mididings.Call.__init__(self, self.do_call_async)
 #    def do_call_async(self, ev):
-#        ev.__class__ = _MidiEventEx
+#        ev.__class__ = _MidiEvent
 #        Q.put((self.fun, ev))
 #        return False
 
@@ -290,27 +289,32 @@ class Print(Call):
         if self.name:
             print self.name + ":",
 
-        if ev.type == TYPE_NOTEON:
+        if ev.type_ == TYPE_NOTEON:
             t = "note on"
             d1 = "note " + str(ev.note) + " (" + _util.notenumber2name(ev.note) + ")"
             d2 = "velocity " + str(ev.velocity)
-        elif ev.type == TYPE_NOTEOFF:
+        elif ev.type_ == TYPE_NOTEOFF:
             t = "note off"
             d1 = "note " + str(ev.note) + " (" + _util.notenumber2name(ev.note) + ")"
             d2 = "velocity " + str(ev.velocity)
-        elif ev.type == TYPE_CONTROLLER:
+        elif ev.type_ == TYPE_CONTROLLER:
             t = "control change"
             d1 = "param " + str(ev.param)
             d2 = "value " + str(ev.value)
-        elif ev.type == TYPE_PITCHBEND:
+        elif ev.type_ == TYPE_PITCHBEND:
             t = "pitch bend"
             d1 = None
             d2 = "value " + str(ev.value)
-        elif ev.type == TYPE_PGMCHANGE:
+        elif ev.type_ == TYPE_PGMCHANGE:
             t = "program change"
             d1 = None
             d2 = "program " + str(ev.program)
+        else:
+            t = "none"
+            d1 = None
+            d2 = "-"
 
         print "%s: port %d, channel %d," % (t, ev.port, ev.channel),
-        if d1: print "%s," % (d1,),
+        if d1 != None:
+            print "%s," % (d1,),
         print "%s" % (d2,)

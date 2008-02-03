@@ -39,16 +39,20 @@ VALUE     = -4
 PROGRAM   = -4
 
 
-class _MidiEventEx(_mididings.MidiEvent):
-    def make_get_set(typ, data, offset=None):
+class MidiEvent(_mididings.MidiEvent):
+    def __init__(self):
+        _mididings.MidiEvent.__init__(self)
+        self.type_ = TYPE_NONE
+
+    def make_get_set(type_, data, offset=None):
         def getter(self):
-            if not self.type & typ:
+            if not self.type_ & type_ and not type_ == TYPE_ANY:
                 print "midi event attribute error"
             off = offset() if offset else 0
             return getattr(self, data) + off
 
         def setter(self, value):
-            if not self.type & typ:
+            if not self.type_ & type_ and not type_ == TYPE_ANY:
                 print "midi event attribute error"
             off = offset() if offset else 0
             setattr(self, data, value - off)
