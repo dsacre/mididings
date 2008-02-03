@@ -145,6 +145,5 @@ bool GenerateEvent::process(MidiEvent & ev)
 bool PatchSwitcher::process(MidiEvent & ev)
 {
     TheSetup->switch_patch(get_parameter(_num, ev));
-//    cout << "PatchSwitcher returning" << endl;
     return false;
 }
