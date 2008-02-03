@@ -62,8 +62,9 @@ class Setup
     void buffer_event(const MidiEvent & ev) {
         // this would cause the vector to be resized if it gets larger
         // than EVENT_BUFFER_SIZE -> not realtime safe
-        if (_current_output_buffer)
+        if (_current_output_buffer) {
             _current_output_buffer->push_back(ev);
+        }
     }
 
   protected:
@@ -85,8 +86,9 @@ class Setup
 
     NotePatchMap _noteon_patches;
 
-    MidiEventVector _event_buffer1;
-    MidiEventVector _event_buffer2;
+    MidiEventVector _event_buffer_pre_out;
+    MidiEventVector _event_buffer_patch_out;
+    MidiEventVector _event_buffer_final;
 
     MidiEventVector * _current_output_buffer;
 };
