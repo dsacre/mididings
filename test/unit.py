@@ -74,10 +74,10 @@ class SimpleTestCase(unittest.TestCase):
         p = KeySplit(55, Channel(3), Channel(7))
         r = test_run(p, self.noteon1)
         assert len(r) == 1
-        assert r[0].channel == 7
+        assert r[0].channel_ == 7
         r = test_run(p, self.noteon2)
         assert len(r) == 1
-        assert r[0].channel == 3
+        assert r[0].channel_ == 3
         r = test_run(p, self.pgmchange1)
         assert len(r) == 1
         assert r[0] == self.pgmchange1

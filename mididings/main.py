@@ -91,6 +91,10 @@ class Setup(_mididings.Setup):
 
         _mididings.Setup.__init__(self, backend, client_name, in_portnames, out_portnames)
 
+        if not isinstance(patches, dict):
+            # assume single patch
+            patches = { PROGRAM_OFFSET: patches }
+
         for i, p in patches.items():
             if isinstance(p, tuple):
                 init_patch, patch = Patch(p[0]), Patch(p[1])
@@ -155,7 +159,7 @@ def run(patches,
 
 
 def test_run(patch, event):
-    s = Setup({ PROGRAM_OFFSET: patch }, None, None, None,
+    s = Setup(patch, None, None, None,
               'dummy', 'mididings_test', 1, 1)
     r = s.process(event)
     return r[:]
