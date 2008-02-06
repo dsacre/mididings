@@ -256,9 +256,9 @@ def ProgramChange(*args):
         raise ArgumentError()
 
 
-class PatchSwitcher(_mididings.PatchSwitcher, _Unit):
+class PatchSwitch(_mididings.PatchSwitch, _Unit):
     def __init__(self, num=PROGRAM):
-        _mididings.PatchSwitcher.__init__(self, num)
+        _mididings.PatchSwitch.__init__(self, num)
 
 
 class Call(_mididings.Call, _Unit):

@@ -349,11 +349,11 @@ class GenerateEvent
 
 /**************************************************************************/
 
-class PatchSwitcher
+class PatchSwitch
   : public Unit
 {
   public:
-    PatchSwitcher(int num)
+    PatchSwitch(int num)
       : _num(num) { }
 
     virtual bool process(MidiEvent & ev);
