@@ -14,6 +14,7 @@
 #include <boost/python/class.hpp>
 #include <boost/python/scope.hpp>
 #include <boost/python/ptr.hpp>
+#include <boost/python/tuple.hpp>   //////////
 
 #ifdef ENABLE_TEST
 #include <boost/python/operators.hpp>
@@ -61,9 +62,30 @@ class PythonCall
     {
     }
 
-    bool process(MidiEvent & ev)
+    bool process(MidiEvent & ev/*, MidiEventVector *& out*/)
     {
         object ret = _fun(ptr(&ev));
+#if 0
+        MidiEvent *r = extract<MidiEvent*>(ret);
+        cout << "r: " << r << endl;
+
+        if (r == &ev) {
+            cout << "same" << endl;
+        } else {
+            cout << "different" << endl;
+        }
+#endif
+/*
+        extract<MidiEvent> get_ev(ret);
+        if (get_ev.check()) {
+            cout << "event!" << endl;
+        }
+
+        extract<boost::python::tuple> get_tuple(ret);
+        if (get_tuple.check()) {
+            cout << "tuple!" << endl;
+        }
+*/
 
         if (ret.ptr() == Py_None) {
             return true;
@@ -89,16 +111,16 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<PortFilter, bases<Unit> >("PortFilter", init<const vector<int> &>());
     class_<ChannelFilter, bases<Unit> >("ChannelFilter", init<const vector<int> &>());
     class_<KeyFilter, bases<Unit> >("KeyFilter", init<int, int>());
-    class_<VelocityFilter, bases<Unit> >("VelocityFilter", init<int, int>());
-    class_<ControllerFilter, bases<Unit> >("ControllerFilter", init<int>());
+    class_<VeloFilter, bases<Unit> >("VeloFilter", init<int, int>());
+    class_<CtrlFilter, bases<Unit> >("CtrlFilter", init<int>());
 
     class_<Port, bases<Unit> >("Port", init<int>());
     class_<Channel, bases<Unit> >("Channel", init<int>());
     class_<Transpose, bases<Unit> >("Transpose", init<int>());
     class_<Velocity, bases<Unit> >("Velocity", init<float, int>());
 
-    class_<VelocityGradient, bases<Unit> >("VelocityGradient", init<int, int, float, float, int>());
-    class_<ControllerRange, bases<Unit> >("ControllerRange", init<int, int, int, int, int>());
+    class_<VeloGradient, bases<Unit> >("VeloGradient", init<int, int, float, float, int>());
+    class_<CtrlRange, bases<Unit> >("CtrlRange", init<int, int, int, int, int>());
 
     class_<GenerateEvent, bases<Unit> >("GenerateEvent", init<int, int, int, int, int>());
     class_<PatchSwitch, bases<Unit> >("PatchSwitch", init<int>());

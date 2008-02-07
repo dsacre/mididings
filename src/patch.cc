@@ -12,6 +12,7 @@
 #include "patch.h"
 #include "setup.h"
 #include "util.h"
+//#include <typeinfo>
 
 using namespace std;
 
@@ -25,6 +26,8 @@ void Patch::process(const MidiEvent & ev_in)
 
 void Patch::process_recursive(Module & m, MidiEvent & ev)
 {
+    //cout << typeid(m.unit()).name() << endl;
+
     bool r = m.unit().process(ev);
     if (!r) return;
 

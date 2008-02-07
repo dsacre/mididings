@@ -11,7 +11,7 @@ env = Environment(
         'ENABLE_DEBUG',
 #        'ENABLE_DEBUG_FN',
 #        'ENABLE_DEBUG_PRINT',
-#        'ENABLE_TEST',
+        'ENABLE_TEST',
     ],
     ENV = os.environ,
     LIBS = [ 'boost_python' ],
@@ -31,17 +31,17 @@ env.ParseConfig(
     'pkg-config --cflags --libs alsa'
 )
 
-#env.SharedLibrary('src/_mididings',
-#    [ 'src/backend_alsa.cc',
-#      'src/setup.cc', 'src/patch.cc', 'src/units.cc',
-#      'src/python_interface.cc' ],
-#    SHLIBPREFIX='', SHOBJSUFFIX='.o')
-
-env.SharedObject('src/python_interface.o', 'src/python_interface.cc')
-env.Ignore('src/python_interface.o', glob.glob('src/*.h'))
-
 env.SharedLibrary('src/_mididings',
     [ 'src/backend_alsa.cc',
       'src/setup.cc', 'src/patch.cc', 'src/units.cc',
-      'src/python_interface.o' ],
+      'src/python_interface.cc' ],
     SHLIBPREFIX='', SHOBJSUFFIX='.o')
+
+#env.SharedObject('src/python_interface.o', 'src/python_interface.cc')
+#env.Ignore('src/python_interface.o', glob.glob('src/*.h'))
+#
+#env.SharedLibrary('src/_mididings',
+#    [ 'src/backend_alsa.cc',
+#      'src/setup.cc', 'src/patch.cc', 'src/units.cc',
+#      'src/python_interface.o' ],
+#    SHLIBPREFIX='', SHOBJSUFFIX='.o')

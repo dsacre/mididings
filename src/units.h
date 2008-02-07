@@ -167,11 +167,11 @@ class KeyFilter
 };
 
 
-class VelocityFilter
+class VeloFilter
   : public Filter
 {
   public:
-    VelocityFilter(int lower, int upper)
+    VeloFilter(int lower, int upper)
       : Filter(MIDI_EVENT_NOTEON),
         _lower(lower), _upper(upper) { }
 
@@ -188,16 +188,16 @@ class VelocityFilter
 };
 
 
-class ControllerFilter
+class CtrlFilter
   : public Filter
 {
   public:
-    ControllerFilter(int controller)
-      : Filter(MIDI_EVENT_CONTROLLER),
+    CtrlFilter(int controller)
+      : Filter(MIDI_EVENT_CTRL),
         _controller(controller) { }
 
     virtual bool process(MidiEvent & ev) {
-        return (ev.type != MIDI_EVENT_CONTROLLER || ev.ctrl.param == _controller);
+        return (ev.type != MIDI_EVENT_CTRL || ev.ctrl.param == _controller);
     }
 
   private:
@@ -275,13 +275,13 @@ class Velocity
 };
 
 
-class VelocityGradient
+class VeloGradient
   : public Modifier
 {
   public:
-    VelocityGradient(int note_lower, int note_upper,
-                     float value_lower, float value_upper,
-                     int mode)
+    VeloGradient(int note_lower, int note_upper,
+                 float value_lower, float value_upper,
+                 int mode)
       : _note_lower(note_lower),
         _note_upper(note_upper),
         _value_lower(value_lower),
@@ -300,11 +300,11 @@ class VelocityGradient
 };
 
 
-class ControllerRange
+class CtrlRange
   : public Unit
 {
   public:
-    ControllerRange(int controller, int in_min, int in_max, int out_min, int out_max)
+    CtrlRange(int controller, int in_min, int in_max, int out_min, int out_max)
       : _controller(controller),
         _in_min(in_min), _in_max(in_max),
         _out_min(out_min), _out_max(out_max)

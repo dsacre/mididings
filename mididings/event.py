@@ -18,9 +18,9 @@ TYPE_NONE       = 0
 TYPE_NOTEON     = 1 << 0
 TYPE_NOTEOFF    = 1 << 1
 TYPE_NOTE       = TYPE_NOTEON | TYPE_NOTEOFF
-TYPE_CONTROLLER = 1 << 2
+TYPE_CTRL       = 1 << 2
 TYPE_PITCHBEND  = 1 << 3
-TYPE_PGMCHANGE  = 1 << 4
+TYPE_PROGRAM    = 1 << 4
 TYPE_ANY        = ~0
 
 
@@ -40,9 +40,21 @@ PROGRAM   = -4
 
 
 class MidiEvent(_mididings.MidiEvent):
-    def __init__(self):
+    def __init__(self, type_=TYPE_NONE, port=-1, channel=-1, data1=-1, data2=-1):
         _mididings.MidiEvent.__init__(self)
-        self.type_ = TYPE_NONE
+        self.type_ = type_
+        self.port_ = port - _main._data_offset() if port >= 0 else 0
+        self.channel_ = channel - _main._data_offset() if channel >= 0 else 0
+        if data1 >= 0 and data2 >= 0:
+            if type_ == TYPE_PROGRAM:
+                self.data1 = 0
+                self.program = data2
+            else:
+                self.data1 = data1
+                self.data2 = data2
+        else:
+            self.data1 = 0
+            self.data2 = 0
 
     def make_get_set(type_, data, offset=None):
         def getter(self):
@@ -59,11 +71,12 @@ class MidiEvent(_mididings.MidiEvent):
 
         return (getter, setter)
 
-    port      = property(*make_get_set(TYPE_ANY, 'port_', _main._port_offset))
-    channel   = property(*make_get_set(TYPE_ANY, 'channel_', _main._channel_offset))
+    port      = property(*make_get_set(TYPE_ANY, 'port_', _main._data_offset))
+    channel   = property(*make_get_set(TYPE_ANY, 'channel_', _main._data_offset))
 
     note      = property(*make_get_set(TYPE_NOTE, 'data1'))
     velocity  = property(*make_get_set(TYPE_NOTE, 'data2'))
-    param     = property(*make_get_set(TYPE_CONTROLLER, 'data1'))
-    value     = property(*make_get_set(TYPE_CONTROLLER | TYPE_PITCHBEND, 'data2'))
-    program   = property(*make_get_set(TYPE_PGMCHANGE, 'data2', _main._program_offset))
+    param     = property(*make_get_set(TYPE_CTRL, 'data1'))
+    value     = property(*make_get_set(TYPE_CTRL | TYPE_PITCHBEND, 'data2'))
+    program   = property(*make_get_set(TYPE_PROGRAM, 'data2', _main._data_offset))
+

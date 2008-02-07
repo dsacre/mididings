@@ -1,31 +1,15 @@
 import unittest
 from mididings import *
 from mididings.main import test_run
-import mididings
-from _mididings import MidiEvent
 
-config(
-    port_offset = 0,
-    channel_offset = 0,
-    program_offset = 0,
-)
-
-
-def make_event(type, port, channel, data1, data2):
-    ev = MidiEvent()
-    ev.type = type
-    ev.port = port
-    ev.channel = channel
-    ev.data1 = data1
-    ev.data2 = data2
-    return ev
+config(data_offset = 0)
 
 
 class SimpleTestCase(unittest.TestCase):
     def setUp(self):
-        self.noteon1 = make_event(TYPE_NOTEON, 0, 0, 66, 23)
-        self.noteon2 = make_event(TYPE_NOTEON, 0, 0, 42, 127)
-        self.pgmchange1 = make_event(TYPE_PGMCHANGE, 0, 0, 0, 7)
+        self.noteon1 = MidiEvent(TYPE_NOTEON, 0, 0, 66, 23)
+        self.noteon2 = MidiEvent(TYPE_NOTEON, 0, 0, 42, 127)
+        self.pgmchange1 = MidiEvent(TYPE_PROGRAM, 0, 0, 0, 7)
 
     def tearDown(self):
         pass
@@ -40,8 +24,8 @@ class SimpleTestCase(unittest.TestCase):
         assert len(r) == 2
         assert r[0] == r[1] == self.noteon1
 
-    def testVelocityFilter(self):
-        p = VelocityFilter(64, 127)
+    def testVeloFilter(self):
+        p = VeloFilter(64, 127)
         r = test_run(p, self.noteon1)
         assert len(r) == 0
         r = test_run(p, self.noteon2)
@@ -50,7 +34,7 @@ class SimpleTestCase(unittest.TestCase):
         assert len(r) == 1
 
     def testInvertedFilter(self):
-        p = ~VelocityFilter(64, 127)
+        p = ~VeloFilter(64, 127)
         r = test_run(p, self.noteon1)
         assert len(r) == 1
         r = test_run(p, self.noteon2)
@@ -58,8 +42,8 @@ class SimpleTestCase(unittest.TestCase):
         r = test_run(p, self.pgmchange1)
         assert len(r) == 1
 
-    def testProgramChangeGate(self):
-        p = ProgramChangeGate()
+    def testProgGate(self):
+        p = ProgGate()
         r = test_run(p, self.noteon1)
         assert len(r) == 0
         r = test_run(p, self.pgmchange1)

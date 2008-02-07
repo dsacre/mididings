@@ -76,7 +76,7 @@ static V map_range(A arg, A arg_lower, A arg_upper, V val_lower, V val_upper)
 }
 
 
-bool VelocityGradient::process(MidiEvent & ev)
+bool VeloGradient::process(MidiEvent & ev)
 {
     if (ev.type == MIDI_EVENT_NOTEON) {
         ev.note.velocity = apply_velocity(ev.note.velocity,
@@ -87,9 +87,9 @@ bool VelocityGradient::process(MidiEvent & ev)
 }
 
 
-bool ControllerRange::process(MidiEvent & ev)
+bool CtrlRange::process(MidiEvent & ev)
 {
-    if (ev.type == MIDI_EVENT_CONTROLLER && ev.ctrl.param == _controller) {
+    if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _controller) {
         ev.ctrl.value = map_range(ev.ctrl.value, _in_min, _in_max, _out_min, _out_max);
     }
     return true;

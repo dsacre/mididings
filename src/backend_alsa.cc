@@ -103,7 +103,7 @@ MidiEvent BackendAlsa::alsa_to_midi_event(const snd_seq_event_t & alsa_ev)
         ev.note.velocity = alsa_ev.data.note.velocity;
         break;
       case SND_SEQ_EVENT_CONTROLLER:
-        ev.type = MIDI_EVENT_CONTROLLER;
+        ev.type = MIDI_EVENT_CTRL;
         ev.channel = alsa_ev.data.control.channel;
         ev.ctrl.param = alsa_ev.data.control.param;
         ev.ctrl.value = alsa_ev.data.control.value;
@@ -115,7 +115,7 @@ MidiEvent BackendAlsa::alsa_to_midi_event(const snd_seq_event_t & alsa_ev)
         ev.ctrl.value = alsa_ev.data.control.value;
         break;
       case SND_SEQ_EVENT_PGMCHANGE:
-        ev.type = MIDI_EVENT_PGMCHANGE;
+        ev.type = MIDI_EVENT_PROGRAM;
         ev.channel = alsa_ev.data.control.channel;
         ev.ctrl.param = 0;
         ev.ctrl.value = alsa_ev.data.control.value;
@@ -151,13 +151,13 @@ snd_seq_event_t BackendAlsa::midi_event_to_alsa(const MidiEvent & ev)
       case MIDI_EVENT_NOTEOFF:
         snd_seq_ev_set_noteoff(&alsa_ev, ev.channel, ev.note.note, ev.note.velocity);
         break;
-      case MIDI_EVENT_CONTROLLER:
+      case MIDI_EVENT_CTRL:
         snd_seq_ev_set_controller(&alsa_ev, ev.channel, ev.ctrl.param, ev.ctrl.value);
         break;
       case MIDI_EVENT_PITCHBEND:
         snd_seq_ev_set_pitchbend(&alsa_ev, ev.channel, ev.ctrl.value);
         break;
-      case MIDI_EVENT_PGMCHANGE:
+      case MIDI_EVENT_PROGRAM:
         snd_seq_ev_set_pgmchange(&alsa_ev, ev.channel, ev.ctrl.value);
         break;
       default:

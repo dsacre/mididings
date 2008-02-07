@@ -43,14 +43,14 @@ class TypeFork(Fork):
 def NoteFork(x):
     return TypeFork(TYPE_NOTE, x)
 
-def ControllerFork(x):
-    return TypeFork(TYPE_CONTROLLER, x)
+def CtrlFork(x):
+    return TypeFork(TYPE_CTRL, x)
 
-def PitchBendFork(x):
+def PitchbendFork(x):
     return TypeFork(TYPE_PITCHBEND, x)
 
-def ProgramChangeFork(x):
-    return TypeFork(TYPE_PGMCHANGE, x)
+def ProgFork(x):
+    return TypeFork(TYPE_PROGRAM, x)
 
 
 # base class for all filters, supporting operator ~
@@ -83,21 +83,21 @@ class TypeFilter(_mididings.TypeFilter, _Filter):
 def NoteGate():
     return TypeFilter(TYPE_NOTE)
 
-def ControllerGate():
-    return TypeFilter(TYPE_CONTROLLER)
+def CtrlGate():
+    return TypeFilter(TYPE_CTRL)
 
-def PitchBendGate():
+def PitchbendGate():
     return TypeFilter(TYPE_PITCHBEND)
 
-def ProgramChangeGate():
-    return TypeFilter(TYPE_PGMCHANGE)
+def ProgGate():
+    return TypeFilter(TYPE_PROGRAM)
 
 
 class PortFilter(_mididings.PortFilter, _Filter):
     def __init__(self, *args):
         vec = _mididings.int_vector()
         for port in _util.flatten(args):
-            vec.push_back(port - _main.PORT_OFFSET)
+            vec.push_back(port - _main.DATA_OFFSET)
         _mididings.PortFilter.__init__(self, vec)
 
 
@@ -105,7 +105,7 @@ class ChannelFilter(_mididings.ChannelFilter, _Filter):
     def __init__(self, *args):
         vec = _mididings.int_vector()
         for c in _util.flatten(args):
-            vec.push_back(c - _main.CHANNEL_OFFSET)
+            vec.push_back(c - _main.DATA_OFFSET)
         _mididings.ChannelFilter.__init__(self, vec)
 
 
@@ -117,16 +117,16 @@ class KeyFilter(_mididings.KeyFilter, _Filter):
         _mididings.KeyFilter.__init__(self, r[0], r[1])
 
 
-class VelocityFilter(_mididings.VelocityFilter, _Filter):
+class VeloFilter(_mididings.VeloFilter, _Filter):
     def __init__(self, *args):
         if len(args) == 1:
             args = args[0]
-        _mididings.VelocityFilter.__init__(self, args[0], args[1])
+        _mididings.VeloFilter.__init__(self, args[0], args[1])
 
 
-class ControllerFilter(_mididings.ControllerFilter, _Filter):
+class CtrlFilter(_mididings.CtrlFilter, _Filter):
     def __init__(self, controller):
-        _mididings.ControllerFilter.__init__(self, controller)
+        _mididings.CtrlFilter.__init__(self, controller)
 
 
 ### splits ###
@@ -151,14 +151,14 @@ def KeySplit(*args):
         raise ArgumentError()
 
 
-def VelocitySplit(*args):
+def VeloSplit(*args):
     if len(args) == 1:
         # VelocitySplit(d)
-        return NoteFork([ (VelocityFilter(v) >> w) for v, w in args[0].items() ])
+        return NoteFork([ (VeloFilter(v) >> w) for v, w in args[0].items() ])
     elif len(args) == 3:
         # VelocitySplit(thresh, units_lower, units_upper)
         thresh, units_lower, units_upper = args
-        filt = VelocityFilter(0, thresh)
+        filt = VeloFilter(0, thresh)
         return NoteFork([ filt >> units_lower, ~filt >> units_upper ])
     else:
         raise ArgumentError()
@@ -168,12 +168,12 @@ def VelocitySplit(*args):
 
 class Port(_mididings.Port, _Modifier):
     def __init__(self, port):
-        _mididings.Port.__init__(self, port - _main.PORT_OFFSET)
+        _mididings.Port.__init__(self, port - _main.DATA_OFFSET)
 
 
 class Channel(_mididings.Channel, _Modifier):
     def __init__(self, channel):
-        _mididings.Channel.__init__(self, channel - _main.CHANNEL_OFFSET)
+        _mididings.Channel.__init__(self, channel - _main.DATA_OFFSET)
 
 
 class Transpose(_mididings.Transpose, _Modifier):
@@ -198,25 +198,25 @@ def VelocityFixed(value):
     return Velocity(value, Velocity.FIXED)
 
 
-class VelocityGradient(_mididings.VelocityGradient, _Modifier):
+class VeloGradient(_mididings.VeloGradient, _Modifier):
     def __init__(self, note_lower, note_upper, value_lower, value_upper, mode=Velocity.OFFSET):
-        _mididings.VelocityGradient.__init__(self,
+        _mididings.VeloGradient.__init__(self,
             _util.note2number(note_lower), _util.note2number(note_upper),
             value_lower, value_upper, mode)
 
-def VelocityGradientOffset(note_lower, note_upper, value_lower, value_upper):
-    return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.OFFSET)
+def VeloGradientOffset(note_lower, note_upper, value_lower, value_upper):
+    return VeloGradient(note_lower, note_upper, value_lower, value_upper, Velocity.OFFSET)
 
-def VelocityGradientMultiply(note_lower, note_upper, value_lower, value_upper):
-    return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.MULTIPLY)
+def VeloGradientMultiply(note_lower, note_upper, value_lower, value_upper):
+    return VeloGradient(note_lower, note_upper, value_lower, value_upper, Velocity.MULTIPLY)
 
-def VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper):
-    return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.FIXED)
+def VeloGradientFixed(note_lower, note_upper, value_lower, value_upper):
+    return VeloGradient(note_lower, note_upper, value_lower, value_upper, Velocity.FIXED)
 
 
-class ControllerRange(_mididings.ControllerRange, _Modifier):
+class CtrlRange(_mididings.CtrlRange, _Modifier):
     def __init__(self, controller, in_min, in_max, out_min, out_max):
-        _mididings.ControllerRange.__init__(self, controller, in_min, in_max, out_min, out_max)
+        _mididings.CtrlRange.__init__(self, controller, in_min, in_max, out_min, out_max)
 
 
 ### misc ###
@@ -224,34 +224,34 @@ class ControllerRange(_mididings.ControllerRange, _Modifier):
 class GenerateEvent(_mididings.GenerateEvent, _Unit):
     def __init__(self, type_, port, channel, data1, data2):
         _mididings.GenerateEvent.__init__(self, type_,
-                port - _main.PORT_OFFSET if port >= 0 else port,
-                channel - _main.CHANNEL_OFFSET if channel >= 0 else channel,
+                port - _main.DATA_OFFSET if port >= 0 else port,
+                channel - _main.DATA_OFFSET if channel >= 0 else channel,
                 data1, data2)
 
 
-def ControlChange(*args):
+def CtrlChange(*args):
     if len(args) == 2:
         # ControlChange(controller, value)
         controller, value = args
-        return GenerateEvent(TYPE_CONTROLLER, _main.PORT_OFFSET,
-                             _main.CHANNEL_OFFSET, controller, value)
+        return GenerateEvent(TYPE_CTRL, _main.DATA_OFFSET,
+                             _main.DATA_OFFSET, controller, value)
     elif len(args) == 4:
         # ControlChange(port, channel, controller, value)
         port, channel, controller, value = args
-        return GenerateEvent(TYPE_CONTROLLER, port, channel, controller, value)
+        return GenerateEvent(TYPE_CTRL, port, channel, controller, value)
     else:
         raise ArgumentError()
 
 
-def ProgramChange(*args):
+def ProgChange(*args):
     if len(args) == 1:
         # ProgramChange(program)
-        return GenerateEvent(TYPE_PGMCHANGE, _main.PORT_OFFSET,
-                             _main.CHANNEL_OFFSET, 0, args[0] - _main.PROGRAM_OFFSET)
+        return GenerateEvent(TYPE_PROGRAM, _main.DATA_OFFSET,
+                             _main.DATA_OFFSET, 0, args[0] - _main.DATA_OFFSET)
     elif len(args) == 3:
         # ProgramChange(port, channel, program)
         port, channel, program = args
-        return GenerateEvent(TYPE_PGMCHANGE, port, channel, 0, program - _main.PROGRAM_OFFSET)
+        return GenerateEvent(TYPE_PROGRAM, port, channel, 0, program - _main.DATA_OFFSET)
     else:
         raise ArgumentError()
 
@@ -297,7 +297,7 @@ class Print(Call):
             t = "note off"
             d1 = "note " + str(ev.note) + " (" + _util.notenumber2name(ev.note) + ")"
             d2 = "velocity " + str(ev.velocity)
-        elif ev.type_ == TYPE_CONTROLLER:
+        elif ev.type_ == TYPE_CTRL:
             t = "control change"
             d1 = "param " + str(ev.param)
             d2 = "value " + str(ev.value)
@@ -305,7 +305,7 @@ class Print(Call):
             t = "pitch bend"
             d1 = None
             d2 = "value " + str(ev.value)
-        elif ev.type_ == TYPE_PGMCHANGE:
+        elif ev.type_ == TYPE_PROGRAM:
             t = "program change"
             d1 = None
             d2 = "program " + str(ev.program)
