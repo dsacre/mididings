@@ -14,7 +14,7 @@
 #include <boost/python/class.hpp>
 #include <boost/python/scope.hpp>
 #include <boost/python/ptr.hpp>
-#include <boost/python/tuple.hpp>   //////////
+//#include <boost/python/tuple.hpp>   //////////
 
 #ifdef ENABLE_TEST
 #include <boost/python/operators.hpp>
@@ -112,7 +112,8 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<ChannelFilter, bases<Unit> >("ChannelFilter", init<const vector<int> &>());
     class_<KeyFilter, bases<Unit> >("KeyFilter", init<int, int>());
     class_<VeloFilter, bases<Unit> >("VeloFilter", init<int, int>());
-    class_<CtrlFilter, bases<Unit> >("CtrlFilter", init<int>());
+    class_<CtrlFilter, bases<Unit> >("CtrlFilter", init<const vector<int> &>());
+    class_<ProgFilter, bases<Unit> >("ProgFilter", init<const vector<int> &>());
 
     class_<Port, bases<Unit> >("Port", init<int>());
     class_<Channel, bases<Unit> >("Channel", init<int>());
@@ -126,7 +127,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<PatchSwitch, bases<Unit> >("PatchSwitch", init<int>());
     class_<PythonCall, bases<Unit> >("Call", init<object>());
 
-    class_<Setup, noncopyable>("Setup", init<string, string, vector<string>, vector<string> >())
+    class_<Setup, noncopyable>("Setup", init<const string &, const string &, const vector<string> &, const vector<string> &>())
         .def("add_patch", &Setup::add_patch)
         .def("set_processing", &Setup::set_processing)
         .def("run", &Setup::run)

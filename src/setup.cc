@@ -83,7 +83,7 @@ void Setup::switch_patch(int n, const MidiEvent & ev)
 {
     DEBUG_FN();
 //    DEBUG_PRINT("switching to patch " << n);
-    cout << "switching to patch " << n << endl;
+//    cout << "switching to patch " << n << endl;
 
     PatchMap::iterator i = _patches.find(n);
     if (i != _patches.end()) {

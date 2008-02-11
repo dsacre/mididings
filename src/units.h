@@ -95,7 +95,9 @@ class TypeFilter
 {
   public:
     TypeFilter(MidiEventTypes types)
-      : _types(types) { }
+      : _types(types)
+    {
+    }
 
     virtual bool process(MidiEvent & ev) {
         return (ev.type & _types);
@@ -110,8 +112,9 @@ class PortFilter
   : public Filter
 {
   public:
-    PortFilter(const std::vector<int> ports) {
-        _ports = ports;
+    PortFilter(const std::vector<int> & ports)
+      : _ports(ports)
+    {
     }
 
     virtual bool process(MidiEvent & ev) {
@@ -130,8 +133,9 @@ class ChannelFilter
   : public Filter
 {
   public:
-    ChannelFilter(const std::vector<int> channels) {
-        _channels = channels;
+    ChannelFilter(const std::vector<int> & channels)
+      : _channels(channels)
+    {
     }
 
     virtual bool process(MidiEvent & ev) {
@@ -152,13 +156,16 @@ class KeyFilter
   public:
     KeyFilter(int lower, int upper)
       : Filter(MIDI_EVENT_NOTE),
-        _lower(lower), _upper(upper) { }
+        _lower(lower), _upper(upper)
+    {
+    }
 
     virtual bool process(MidiEvent & ev) {
         if (ev.type & MIDI_EVENT_NOTE) {
             return (ev.note.note >= _lower && ev.note.note <= _upper);
         } else {
             return true;
+//            return false;
         }
     }
 
@@ -173,13 +180,16 @@ class VeloFilter
   public:
     VeloFilter(int lower, int upper)
       : Filter(MIDI_EVENT_NOTEON),
-        _lower(lower), _upper(upper) { }
+        _lower(lower), _upper(upper)
+    {
+    }
 
     virtual bool process(MidiEvent & ev) {
         if (ev.type == MIDI_EVENT_NOTEON) {
             return (ev.note.velocity >= _lower && ev.note.velocity <= _upper);
         } else {
             return true;
+//            return false;
         }
     }
 
@@ -192,16 +202,47 @@ class CtrlFilter
   : public Filter
 {
   public:
-    CtrlFilter(int controller)
+    CtrlFilter(const std::vector<int> & ctrls)
       : Filter(MIDI_EVENT_CTRL),
-        _controller(controller) { }
+        _ctrls(ctrls)
+    {
+    }
 
     virtual bool process(MidiEvent & ev) {
-        return (ev.type != MIDI_EVENT_CTRL || ev.ctrl.param == _controller);
+        if (ev.type != MIDI_EVENT_CTRL) return true;
+//        if (ev.type != MIDI_EVENT_CTRL) return false;
+        for (std::vector<int>::iterator i = _ctrls.begin(); i != _ctrls.end(); ++i) {
+            if (ev.ctrl.param == *i) return true;
+        }
+        return false;
     }
 
   private:
-    int _controller;
+    std::vector<int> _ctrls;
+};
+
+
+class ProgFilter
+  : public Filter
+{
+  public:
+    ProgFilter(const std::vector<int> & progs)
+      : Filter(MIDI_EVENT_PROGRAM),
+        _progs(progs)
+    {
+    }
+
+    virtual bool process(MidiEvent & ev) {
+        if (ev.type != MIDI_EVENT_PROGRAM) return true;
+//        if (ev.type != MIDI_EVENT_PROGRAM) return false;
+        for (std::vector<int>::iterator i = _progs.begin(); i != _progs.end(); ++i) {
+            if (ev.ctrl.value == *i) return true;
+        }
+        return false;
+    }
+
+  private:
+    std::vector<int> _progs;
 };
 
 

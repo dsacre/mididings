@@ -34,39 +34,39 @@ class Fork(list, _Unit):
         list.__init__(self, l)
 
 
-class TypeFork(Fork):
+class _TypeFork(Fork):
     def __init__(self, t, l):
-        a = [ (TypeFilter(t) >> x) for x in l ] + \
-            [ ~TypeFilter(t) ]
+        a = [ (_TypeFilter(t) >> x) for x in l ] + \
+            [ ~_TypeFilter(t) ]
         list.__init__(self, a)
 
 def NoteFork(x):
-    return TypeFork(TYPE_NOTE, x)
+    return _TypeFork(TYPE_NOTE, x)
 
 def CtrlFork(x):
-    return TypeFork(TYPE_CTRL, x)
+    return _TypeFork(TYPE_CTRL, x)
 
 def PitchbendFork(x):
-    return TypeFork(TYPE_PITCHBEND, x)
+    return _TypeFork(TYPE_PITCHBEND, x)
 
 def ProgFork(x):
-    return TypeFork(TYPE_PROGRAM, x)
+    return _TypeFork(TYPE_PROGRAM, x)
 
 
-def Divide(t, x, y):
-    return Fork([ TypeFilter(t) >> x, ~TypeFilter(t) >> y ])
+def _Divide(t, x, y):
+    return Fork([ _TypeFilter(t) >> x, ~_TypeFilter(t) >> y ])
 
 def NoteDivide(x, y):
-    return Divide(TYPE_NOTE, x, y)
+    return _Divide(TYPE_NOTE, x, y)
 
 def CtrlDivide(x, y):
-    return Divide(TYPE_CTRL, x, y)
+    return _Divide(TYPE_CTRL, x, y)
 
 def PitchbendDivide(x, y):
-    return Divide(TYPE_PITCHBEND, x, y)
+    return _Divide(TYPE_PITCHBEND, x, y)
 
 def ProgDivide(x, y):
-    return Divide(TYPE_PROGRAM, x, y)
+    return _Divide(TYPE_PROGRAM, x, y)
 
 
 # base class for all filters, supporting operator ~
@@ -92,37 +92,37 @@ def Discard():
 
 ### filters ###
 
-class TypeFilter(_mididings.TypeFilter, _Filter):
+class _TypeFilter(_mididings.TypeFilter, _Filter):
     def __init__(self, type_):
         _mididings.TypeFilter.__init__(self, type_)
 
 def NoteGate():
-    return TypeFilter(TYPE_NOTE)
+    return _TypeFilter(TYPE_NOTE)
 
 def CtrlGate():
-    return TypeFilter(TYPE_CTRL)
+    return _TypeFilter(TYPE_CTRL)
 
 def PitchbendGate():
-    return TypeFilter(TYPE_PITCHBEND)
+    return _TypeFilter(TYPE_PITCHBEND)
 
 def ProgGate():
-    return TypeFilter(TYPE_PROGRAM)
+    return _TypeFilter(TYPE_PROGRAM)
 
 
 class PortFilter(_mididings.PortFilter, _Filter):
     def __init__(self, *args):
-        vec = _mididings.int_vector()
-        for port in _util.flatten(args):
-            vec.push_back(port - _main.DATA_OFFSET)
-        _mididings.PortFilter.__init__(self, vec)
+        v = _mididings.int_vector()
+        for p in _util.flatten(args):
+            v.push_back(p - _main.DATA_OFFSET)
+        _mididings.PortFilter.__init__(self, v)
 
 
 class ChannelFilter(_mididings.ChannelFilter, _Filter):
     def __init__(self, *args):
-        vec = _mididings.int_vector()
+        v = _mididings.int_vector()
         for c in _util.flatten(args):
-            vec.push_back(c - _main.DATA_OFFSET)
-        _mididings.ChannelFilter.__init__(self, vec)
+            v.push_back(c - _main.DATA_OFFSET)
+        _mididings.ChannelFilter.__init__(self, v)
 
 
 class KeyFilter(_mididings.KeyFilter, _Filter):
@@ -141,8 +141,19 @@ class VeloFilter(_mididings.VeloFilter, _Filter):
 
 
 class CtrlFilter(_mididings.CtrlFilter, _Filter):
-    def __init__(self, controller):
-        _mididings.CtrlFilter.__init__(self, controller)
+    def __init__(self, *args):
+        v = _mididings.int_vector()
+        for c in _util.flatten(args):
+            v.push_back(c)
+        _mididings.CtrlFilter.__init__(self, v)
+
+
+class ProgFilter(_mididings.ProgFilter, _Filter):
+    def __init__(self, *args):
+        v = _mididings.int_vector()
+        for p in _util.flatten(args):
+            v.push_back(p - _main.DATA_OFFSET)
+        _mididings.ProgFilter.__init__(self, v)
 
 
 ### splits ###
@@ -231,8 +242,8 @@ def VeloGradientFixed(note_lower, note_upper, value_lower, value_upper):
 
 
 class CtrlRange(_mididings.CtrlRange, _Modifier):
-    def __init__(self, controller, in_min, in_max, out_min, out_max):
-        _mididings.CtrlRange.__init__(self, controller, in_min, in_max, out_min, out_max)
+    def __init__(self, ctrl, in_min, in_max, out_min, out_max):
+        _mididings.CtrlRange.__init__(self, ctrl, in_min, in_max, out_min, out_max)
 
 
 ### misc ###
@@ -247,14 +258,14 @@ class GenerateEvent(_mididings.GenerateEvent, _Unit):
 
 def CtrlChange(*args):
     if len(args) == 2:
-        # ControlChange(controller, value)
-        controller, value = args
+        # ControlChange(ctrl, value)
+        ctrl, value = args
         return GenerateEvent(TYPE_CTRL, _main.DATA_OFFSET,
-                             _main.DATA_OFFSET, controller, value)
+                             _main.DATA_OFFSET, ctrl, value)
     elif len(args) == 4:
-        # ControlChange(port, channel, controller, value)
-        port, channel, controller, value = args
-        return GenerateEvent(TYPE_CTRL, port, channel, controller, value)
+        # ControlChange(port, channel, ctrl, value)
+        port, channel, ctrl, value = args
+        return GenerateEvent(TYPE_CTRL, port, channel, ctrl, value)
     else:
         raise ArgumentError()
 
@@ -285,15 +296,6 @@ class Call(_mididings.Call, _Unit):
         # foist a few more properties
         ev.__class__ = MidiEvent
         return self.fun(ev)
-
-#class CallAsync(_mididings.Call, _Unit):
-#    def __init__(self, fun):
-#        self.fun = fun
-#        _mididings.Call.__init__(self, self.do_call_async)
-#    def do_call_async(self, ev):
-#        ev.__class__ = _MidiEvent
-#        Q.put((self.fun, ev))
-#        return False
 
 
 class Print(Call):

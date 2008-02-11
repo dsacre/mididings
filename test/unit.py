@@ -32,6 +32,7 @@ class SimpleTestCase(unittest.TestCase):
         assert len(r) == 1
         r = test_run(p, self.pgmchange1)
         assert len(r) == 1
+#        assert len(r) == 0
 
     def testInvertedFilter(self):
         p = ~VeloFilter(64, 127)
@@ -41,6 +42,7 @@ class SimpleTestCase(unittest.TestCase):
         assert len(r) == 0
         r = test_run(p, self.pgmchange1)
         assert len(r) == 1
+#        assert len(r) == 0
 
     def testProgGate(self):
         p = ProgGate()
