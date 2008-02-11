@@ -53,6 +53,22 @@ def ProgFork(x):
     return TypeFork(TYPE_PROGRAM, x)
 
 
+def Divide(t, x, y):
+    return Fork([ TypeFilter(t) >> x, ~TypeFilter(t) >> y ])
+
+def NoteDivide(x, y):
+    return Divide(TYPE_NOTE, x, y)
+
+def CtrlDivide(x, y):
+    return Divide(TYPE_CTRL, x, y)
+
+def PitchbendDivide(x, y):
+    return Divide(TYPE_PITCHBEND, x, y)
+
+def ProgDivide(x, y):
+    return Divide(TYPE_PROGRAM, x, y)
+
+
 # base class for all filters, supporting operator ~
 class _Filter(_Unit):
     def __invert__(self):
