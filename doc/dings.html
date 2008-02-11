@@ -28,28 +28,40 @@
 
 <h2>Forks</h2>
 
-<h3>Fork([units, ...])</h3>
+<h3>Fork([units, ...])<br>
+[units, ...]</h3>
 <p>
-duplicates all events, same as [...].
+Duplicates all events.
 </p>
 
 <h3>NoteFork([units, ...])<br>
-ControllerFork([units, ...])<br>
-PitchBendFork([units, ...])<br>
-ProgramChangeFork([units, ...])</h3>
+CtrlFork([units, ...])<br>
+PitchbendFork([units, ...])<br>
+ProgFork([units, ...])</h3>
 <p>
-duplicates events of one type, all others pass unchanged.
+Duplicates events of one type, all others pass unchanged.
 </p>
 
 
 <h2>Gates</h2>
 
 <h3>NoteGate()<br>
-ControllerGate()<br>
-PitchBendGate()<br>
-ProgramChangeGate()</h3>
+CtrlGate()<br>
+PitchbendGate()<br>
+ProgGate()</h3>
 <p>
-filters by event type.
+Filters by event type.
+</p>
+
+
+<h2>Divides</h2>
+
+<h3>NoteDivide(match, other)<br>
+CtrlDivide(match, other)<br>
+PitchbendDivide(match, other)<br>
+ProgDivide(match, other)</h3>
+<p>
+Separates one event type from all others.
 </p>
 
 
@@ -59,10 +71,11 @@ filters by event type.
 ChannelFilter(channel, ...)<br>
 KeyFilter(lower, upper)<br>
 KeyFilter(range)<br>
-VelocityFilter(min, max)<br>
-ControllerFilter(num)</h3>
+VeloFilter(min, max)<br>
+CtrlFilter(num, ...)<br>
+ProgFilter(num, ...)</h3>
 <p>
-filters by event property.
+Filters by event property.
 </p>
 
 
@@ -71,19 +84,20 @@ filters by event property.
 <h3>PortSplit({port: units, ...})<br>
 ChannelSplit({channel: units, ...})</h3>
 <p>
-splits by channel or port.
+Splits by channel or port.
 </p>
 
 <h3>KeySplit(key, units_lower, units_upper)<br>
+KeySplit({(lower, upper): units, ...})<br>
 KeySplit({range: units, ...})</h3>
 <p>
-splits by key; only note events are affected.
+Splits by key; only note events are affected.
 </p>
 
-<h3>VelocitySplit(threshold, units_lower, units_upper)<br>
-VelocitySplit((min, max): units, ...)</h3>
+<h3>VeloSplit(threshold, units_lower, units_upper)<br>
+VeloSplit({(min, max): units, ...})</h3>
 <p>
-splits by velocity.
+Splits by velocity.
 </p>
 
 
@@ -92,35 +106,37 @@ splits by velocity.
 <h3>Port(port)<br>
 Channel(channel)</h3>
 <p>
-changes port or channel.
+Changes port or channel.
 </p>
 
 <h3>Transpose(offset)</h3>
 <p>
-transposes all note events.
+Transposes all note events.
 </p>
 
 <h3>Velocity(offset)<br>
 VelocityFixed(value)</h3>
 <p>
-changes velocity, either by adding an offset, or by setting it to a fixed value.
+Changes velocity, either by adding an offset, or by setting it to a fixed value.
 </p>
 
-<h3>VelocityGradient(note_lower, note_upper, value_lower, value_upper)<br>
-VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper)</h3>
+<h3>VeloGradient(note_lower, note_upper, value_lower, value_upper)<br>
+VeloGradientFixed(note_lower, note_upper, value_lower, value_upper)</h3>
 <p>
-changes velocity, using a gradient from lower to upper.
+Changes velocity, using a gradient from lower to upper.
 </p>
 
-<h3>ControllerRange(num, in_min, in_max, out_min, out_max)</h3>
+<h3>CtrlRange(num, in_min, in_max, out_min, out_max)</h3>
 <p>
-maps controller range in to out.
+Maps controller range in to out.
 </p>
 
-<h3>ControlChange(port, channel, num, value)<br>
-ProgramChange(port, channel, program)</h3>
+<h3>CtrlChange(num, value)<br>
+CtrlChange(port, channel, num, value)<br>
+ProgChange(program)<br>
+ProgChange(port, channel, program)</h3>
 <p>
-creates a midi event.
+Creates a midi event.
 </p>
 
 
@@ -128,28 +144,28 @@ creates a midi event.
 
 <h3>Pass()</h3>
 <p>
-does nothing.
+Does nothing.
 </p>
 
 <h3>Discard()</h3>
 <p>
-discards all events.
+Discards all events.
 </p>
 
 <h3>SwitchPatch(patch)</h3>
 <p>
-switches to another patch.
+Switches to another patch.
 </p>
 
 <h3>Call(function)</h3>
 <p>
-calls a python function.
+Calls a python function.
 </p>
 
 <h3>Print()<br>
 Print(name)</h3>
 <p>
-prints event data.
+Prints event data.
 </p>
 
 
