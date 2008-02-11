@@ -85,6 +85,7 @@ class Setup
     Patch * _current;
 
     NotePatchMap _noteon_patches;
+    Patch * _sustain_patch;
 
     MidiEventVector _event_buffer_pre_out;
     MidiEventVector _event_buffer_patch_out;

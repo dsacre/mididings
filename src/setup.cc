@@ -27,6 +27,7 @@ Setup::Setup(const string & backend_name,
              const vector<string> & out_ports)
   : _current(NULL),
     _noteon_patches(MAX_SIMULTANEOUS_NOTES),
+    _sustain_patch(NULL),
     _event_buffer_pre_out(EVENT_BUFFER_SIZE),
     _event_buffer_patch_out(EVENT_BUFFER_SIZE),
     _event_buffer_final(EVENT_BUFFER_SIZE),
@@ -81,7 +82,8 @@ void Setup::run()
 void Setup::switch_patch(int n, const MidiEvent & ev)
 {
     DEBUG_FN();
-    DEBUG_PRINT("switching to patch " << n);
+//    DEBUG_PRINT("switching to patch " << n);
+    cout << "switching to patch " << n << endl;
 
     PatchMap::iterator i = _patches.find(n);
     if (i != _patches.end()) {
@@ -125,7 +127,7 @@ const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
     if (ev.type == MIDI_EVENT_NOTEON) {
         // note on: store current patch
         _noteon_patches.insert(make_pair(make_notekey(ev), _current));
-        p = _current;
+//        p = _current;
     }
     else if (ev.type == MIDI_EVENT_NOTEOFF) {
         // note off: retrieve and remove stored patch
@@ -135,10 +137,22 @@ const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
             _noteon_patches.erase(i);
         }
     }
-    else {
+
+    else if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == 64 && ev.ctrl.value == 127) {
+        // sustain pressed
+        _sustain_patch = _current;
+    }
+    else if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == 64 && ev.ctrl.value == 0) {
+        // sustain released
+        p = _sustain_patch;
+        _sustain_patch = NULL;
+    }
+
+    if (!p) {
         // anything else: just use current patch
         p = _current;
     }
+
 //    DEBUG_PRINT(p);
 
     // preprocessing, write events to intermediate buffer
