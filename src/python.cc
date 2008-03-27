@@ -113,6 +113,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<KeyFilter, bases<Unit> >("KeyFilter", init<int, int>());
     class_<VelocityFilter, bases<Unit> >("VelocityFilter", init<int, int>());
     class_<CtrlFilter, bases<Unit> >("CtrlFilter", init<const vector<int> &>());
+    class_<CtrlValueFilter, bases<Unit> >("CtrlValueFilter", init<int, int>());
     class_<ProgFilter, bases<Unit> >("ProgFilter", init<const vector<int> &>());
 
     class_<Port, bases<Unit> >("Port", init<int>());

@@ -215,6 +215,26 @@ class CtrlFilter
 };
 
 
+class CtrlValueFilter
+  : public Filter
+{
+  public:
+    CtrlValueFilter(int lower, int upper)
+      : _lower(lower), _upper(upper)
+    {
+    }
+
+    virtual bool process(MidiEvent & ev) {
+        if (ev.type != MIDI_EVENT_CTRL) return true;
+//        if (ev.type != MIDI_EVENT_CTRL) return false;
+        return ((ev.ctrl.value >= _lower && ev.ctrl.value <= _upper) || (ev.ctrl.value == _lower && !_upper));
+    }
+
+  private:
+    int _lower, _upper;
+};
+
+
 class ProgFilter
   : public Filter
 {
