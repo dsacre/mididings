@@ -17,16 +17,16 @@
 //#include <boost/python/tuple.hpp>   //////////
 
 #ifdef ENABLE_TEST
-#include <boost/python/operators.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+    #include <boost/python/operators.hpp>
+    #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #endif // ENABLE_TEST
 
 #include <vector>
 #include <string>
 
-#include "setup.h"
-#include "patch.h"
-#include "units.h"
+#include "setup.hh"
+#include "patch.hh"
+#include "units.hh"
 
 using namespace boost::python;
 using namespace boost;
@@ -111,7 +111,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<PortFilter, bases<Unit> >("PortFilter", init<const vector<int> &>());
     class_<ChannelFilter, bases<Unit> >("ChannelFilter", init<const vector<int> &>());
     class_<KeyFilter, bases<Unit> >("KeyFilter", init<int, int>());
-    class_<VeloFilter, bases<Unit> >("VeloFilter", init<int, int>());
+    class_<VelocityFilter, bases<Unit> >("VelocityFilter", init<int, int>());
     class_<CtrlFilter, bases<Unit> >("CtrlFilter", init<const vector<int> &>());
     class_<ProgFilter, bases<Unit> >("ProgFilter", init<const vector<int> &>());
 
@@ -120,7 +120,8 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<Transpose, bases<Unit> >("Transpose", init<int>());
     class_<Velocity, bases<Unit> >("Velocity", init<float, int>());
 
-    class_<VeloGradient, bases<Unit> >("VeloGradient", init<int, int, float, float, int>());
+    class_<VelocityCurve, bases<Unit> >("VelocityCurve", init<float>());
+    class_<VelocityGradient, bases<Unit> >("VelocityGradient", init<int, int, float, float, int>());
     class_<CtrlRange, bases<Unit> >("CtrlRange", init<int, int, int, int, int>());
 
     class_<GenerateEvent, bases<Unit> >("GenerateEvent", init<int, int, int, int, int>());
