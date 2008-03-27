@@ -9,8 +9,8 @@
  * (at your option) any later version.
  */
 
-#ifndef _MIDI_EVENT_H
-#define _MIDI_EVENT_H
+#ifndef _MIDI_EVENT_HH
+#define _MIDI_EVENT_HH
 
 
 enum MidiEventType {
@@ -53,4 +53,4 @@ struct MidiEvent {
 };
 
 
-#endif // _MIDI_EVENT_H
+#endif // _MIDI_EVENT_HH

@@ -24,8 +24,8 @@ class SimpleTestCase(unittest.TestCase):
         assert len(r) == 2
         assert r[0] == r[1] == self.noteon1
 
-    def testVeloFilter(self):
-        p = VeloFilter(64, 127)
+    def testVelocityFilter(self):
+        p = VelocityFilter(64, 127)
         r = test_run(p, self.noteon1)
         assert len(r) == 0
         r = test_run(p, self.noteon2)
@@ -35,7 +35,7 @@ class SimpleTestCase(unittest.TestCase):
 #        assert len(r) == 0
 
     def testInvertedFilter(self):
-        p = ~VeloFilter(64, 127)
+        p = ~VelocityFilter(64, 127)
         r = test_run(p, self.noteon1)
         assert len(r) == 1
         r = test_run(p, self.noteon2)

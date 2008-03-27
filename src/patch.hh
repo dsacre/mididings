@@ -9,12 +9,11 @@
  * (at your option) any later version.
  */
 
-#ifndef _PATCH_H
-#define _PATCH_H
+#ifndef _PATCH_HH
+#define _PATCH_HH
 
-#include "units.h"
-#include "midi_event.h"
-#include "util.h"
+#include "units.hh"
+#include "midi_event.hh"
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
@@ -91,4 +90,4 @@ class Patch
 };
 
 
-#endif // _PATCH_H
+#endif // _PATCH_HH

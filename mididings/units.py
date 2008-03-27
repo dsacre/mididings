@@ -16,6 +16,7 @@ import util as _util
 from event import *
 
 
+# bass class for all units
 class _Unit:
     def __rshift__(self, other):
         return _Chain(self, other)
@@ -24,21 +25,45 @@ class _Unit:
         return _Chain(other, self)
 
 
+# units connected in series
 class _Chain(_Unit):
     def __init__(self, first, second):
         self.items = first, second
 
 
+# units connected in parallel
 class Fork(list, _Unit):
     def __init__(self, l):
         list.__init__(self, l)
 
 
+# base class for all filters, supporting operator ~
+class _Filter(_Unit):
+    def __invert__(self):
+        return _InvertedFilter(self)
+
+
+class _InvertedFilter(_mididings.InvertedFilter, _Unit):
+    pass
+
+
+class Pass(_mididings.Pass, _Unit):
+    def __init__(self, p=True):
+        _mididings.Pass.__init__(self, p)
+
+def Discard():
+    return Pass(False)
+
+
+###
+
 class _TypeFork(Fork):
     def __init__(self, t, l):
-        a = [ (_TypeFilter(t) >> x) for x in l ] + \
-            [ ~_TypeFilter(t) ]
-        list.__init__(self, a)
+#        a = [ (_TypeFilter(t) >> x) for x in l ] + [ ~_TypeFilter(t) ]
+#        Fork.__init__(self, a)
+        match = _TypeFilter(t) >> [ x for x in l ]
+        other = ~_TypeFilter(t)
+        Fork.__init__(self, [ match, other ])
 
 def NoteFork(x):
     return _TypeFork(TYPE_NOTE, x)
@@ -53,41 +78,20 @@ def ProgFork(x):
     return _TypeFork(TYPE_PROGRAM, x)
 
 
-def _Divide(t, x, y):
-    return Fork([ _TypeFilter(t) >> x, ~_TypeFilter(t) >> y ])
+def _Divide(t, match, other=Pass()):
+    return Fork([ _TypeFilter(t) >> match, ~_TypeFilter(t) >> other ])
 
-def NoteDivide(x, y):
-    return _Divide(TYPE_NOTE, x, y)
+def NoteDivide(match, other=Pass()):
+    return _Divide(TYPE_NOTE, match, other)
 
-def CtrlDivide(x, y):
-    return _Divide(TYPE_CTRL, x, y)
+def CtrlDivide(match, other=Pass()):
+    return _Divide(TYPE_CTRL, match, other)
 
-def PitchbendDivide(x, y):
-    return _Divide(TYPE_PITCHBEND, x, y)
+def PitchbendDivide(match, other=Pass()):
+    return _Divide(TYPE_PITCHBEND, match, other)
 
-def ProgDivide(x, y):
-    return _Divide(TYPE_PROGRAM, x, y)
-
-
-# base class for all filters, supporting operator ~
-class _Filter(_Unit):
-    def __invert__(self):
-        return _InvertedFilter(self)
-
-class _Modifier(_Unit):
-    pass
-
-
-class _InvertedFilter(_mididings.InvertedFilter, _Unit):
-    pass
-
-
-class Pass(_mididings.Pass, _Unit):
-    def __init__(self, p=True):
-        _mididings.Pass.__init__(self, p)
-
-def Discard():
-    return Pass(False)
+def ProgDivide(match, other=Pass()):
+    return _Divide(TYPE_PROGRAM, match, other)
 
 
 ### filters ###
@@ -133,11 +137,11 @@ class KeyFilter(_mididings.KeyFilter, _Filter):
         _mididings.KeyFilter.__init__(self, r[0], r[1])
 
 
-class VeloFilter(_mididings.VeloFilter, _Filter):
+class VelocityFilter(_mididings.VelocityFilter, _Filter):
     def __init__(self, *args):
         if len(args) == 1:
             args = args[0]
-        _mididings.VeloFilter.__init__(self, args[0], args[1])
+        _mididings.VelocityFilter.__init__(self, args[0], args[1])
 
 
 class CtrlFilter(_mididings.CtrlFilter, _Filter):
@@ -170,45 +174,45 @@ def KeySplit(*args):
         # KeySplit(d)
         return NoteFork([ (KeyFilter(k) >> w) for k, w in args[0].items() ])
     elif len(args) == 3:
-        # KeySplit(key, units_lower, units_upper)
-        key, units_lower, units_upper = args
+        # KeySplit(key, unit_lower, unit_upper)
+        key, unit_lower, unit_upper = args
         filt = KeyFilter(0, key)
-        return NoteFork([ filt >> units_lower, ~filt >> units_upper ])
+        return NoteFork([ filt >> unit_lower, ~filt >> unit_upper ])
     else:
         raise ArgumentError()
 
 
-def VeloSplit(*args):
+def VelocitySplit(*args):
     if len(args) == 1:
         # VelocitySplit(d)
-        return NoteFork([ (VeloFilter(v) >> w) for v, w in args[0].items() ])
+        return NoteFork([ (VelocityFilter(v) >> w) for v, w in args[0].items() ])
     elif len(args) == 3:
-        # VelocitySplit(thresh, units_lower, units_upper)
-        thresh, units_lower, units_upper = args
-        filt = VeloFilter(0, thresh)
-        return NoteFork([ filt >> units_lower, ~filt >> units_upper ])
+        # VelocitySplit(thresh, unit_lower, unit_upper)
+        thresh, unit_lower, unit_upper = args
+        filt = VelocityFilter(0, thresh)
+        return NoteFork([ filt >> unit_lower, ~filt >> unit_upper ])
     else:
         raise ArgumentError()
 
 
 ### modifiers ###
 
-class Port(_mididings.Port, _Modifier):
+class Port(_mididings.Port, _Unit):
     def __init__(self, port):
         _mididings.Port.__init__(self, port - _main.DATA_OFFSET)
 
 
-class Channel(_mididings.Channel, _Modifier):
+class Channel(_mididings.Channel, _Unit):
     def __init__(self, channel):
         _mididings.Channel.__init__(self, channel - _main.DATA_OFFSET)
 
 
-class Transpose(_mididings.Transpose, _Modifier):
+class Transpose(_mididings.Transpose, _Unit):
     def __init__(self, offset):
         _mididings.Transpose.__init__(self, offset)
 
 
-class Velocity(_mididings.Velocity, _Modifier):
+class Velocity(_mididings.Velocity, _Unit):
     OFFSET = 1
     MULTIPLY = 2
     FIXED = 3
@@ -225,23 +229,28 @@ def VelocityFixed(value):
     return Velocity(value, Velocity.FIXED)
 
 
-class VeloGradient(_mididings.VeloGradient, _Modifier):
+class VelocityCurve(_mididings.VelocityCurve, _Unit):
+    def __init__(self, gamma):
+        _mididings.VelocityCurve.__init__(self, gamma)
+
+
+class VelocityGradient(_mididings.VelocityGradient, _Unit):
     def __init__(self, note_lower, note_upper, value_lower, value_upper, mode=Velocity.OFFSET):
-        _mididings.VeloGradient.__init__(self,
+        _mididings.VelocityGradient.__init__(self,
             _util.note2number(note_lower), _util.note2number(note_upper),
             value_lower, value_upper, mode)
 
-def VeloGradientOffset(note_lower, note_upper, value_lower, value_upper):
-    return VeloGradient(note_lower, note_upper, value_lower, value_upper, Velocity.OFFSET)
+def VelocityGradientOffset(note_lower, note_upper, value_lower, value_upper):
+    return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.OFFSET)
 
-def VeloGradientMultiply(note_lower, note_upper, value_lower, value_upper):
-    return VeloGradient(note_lower, note_upper, value_lower, value_upper, Velocity.MULTIPLY)
+def VelocityGradientMultiply(note_lower, note_upper, value_lower, value_upper):
+    return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.MULTIPLY)
 
-def VeloGradientFixed(note_lower, note_upper, value_lower, value_upper):
-    return VeloGradient(note_lower, note_upper, value_lower, value_upper, Velocity.FIXED)
+def VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper):
+    return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.FIXED)
 
 
-class CtrlRange(_mididings.CtrlRange, _Modifier):
+class CtrlRange(_mididings.CtrlRange, _Unit):
     def __init__(self, ctrl, in_min, in_max, out_min, out_max):
         _mididings.CtrlRange.__init__(self, ctrl, in_min, in_max, out_min, out_max)
 

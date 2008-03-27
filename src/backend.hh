@@ -9,12 +9,12 @@
  * (at your option) any later version.
  */
 
-#ifndef _BACKEND_H
-#define _BACKEND_H
+#ifndef _BACKEND_HH
+#define _BACKEND_HH
 
-#include "patch.h"
-#include "midi_event.h"
-#include "util.h"
+#include "patch.hh"
+#include "midi_event.hh"
+#include "util/exception.hh"
 
 #include <vector>
 #include <string>
@@ -34,11 +34,11 @@ class Backend
     virtual void run(class Setup &) = 0;
 
   protected:
-    struct BackendError : public das::string_exception {
+    struct BackendError : public das::exception {
         BackendError(const std::string & w)
-          : das::string_exception(w) { }
+          : das::exception(w) { }
     };
 };
 
 
-#endif
+#endif // _BACKEND_HH

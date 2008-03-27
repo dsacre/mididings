@@ -9,9 +9,9 @@
  * (at your option) any later version.
  */
 
-#include "setup.h"
-#include "backend_alsa.h"
-#include "util.h"
+#include "setup.hh"
+#include "backend_alsa.hh"
+#include "util/debug.hh"
 
 #include <iostream>
 

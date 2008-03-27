@@ -9,9 +9,8 @@
  * (at your option) any later version.
  */
 
-#include "patch.h"
-#include "setup.h"
-#include "util.h"
+#include "patch.hh"
+#include "setup.hh"
 //#include <typeinfo>
 
 using namespace std;

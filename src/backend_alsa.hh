@@ -9,11 +9,11 @@
  * (at your option) any later version.
  */
 
-#ifndef _BACKEND_ALSA_H
-#define _BACKEND_ALSA_H
+#ifndef _BACKEND_ALSA_HH
+#define _BACKEND_ALSA_HH
 
-#include "backend.h"
-#include "midi_event.h"
+#include "backend.hh"
+#include "midi_event.hh"
 
 #include <alsa/asoundlib.h>
 
@@ -44,4 +44,4 @@ class BackendAlsa
 };
 
 
-#endif // _BACKEND_ALSA_H
+#endif // _BACKEND_ALSA_HH

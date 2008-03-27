@@ -9,11 +9,11 @@
  * (at your option) any later version.
  */
 
-#ifndef _SETUP_H
-#define _SETUP_H
+#ifndef _SETUP_HH
+#define _SETUP_HH
 
-#include "patch.h"
-#include "backend.h"
+#include "patch.hh"
+#include "backend.hh"
 
 #include <string>
 #include <vector>
@@ -21,7 +21,7 @@
 #include <tr1/unordered_map>
 #include <boost/shared_ptr.hpp>
 
-#include "util.h"
+#include "util/global_object.hh"
 
 
 extern class Setup *TheSetup;
@@ -102,4 +102,4 @@ class Setup
 };
 
 
-#endif // _SETUP_H
+#endif // _SETUP_HH

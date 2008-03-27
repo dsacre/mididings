@@ -13,6 +13,7 @@ env = Environment(
 #        'ENABLE_DEBUG_PRINT',
         'ENABLE_TEST',
     ],
+    CPPPATH = ['.'],
     ENV = os.environ,
     LIBS = [ 'boost_python' ],
 
@@ -34,14 +35,14 @@ env.ParseConfig(
 env.SharedLibrary('src/_mididings',
     [ 'src/backend_alsa.cc',
       'src/setup.cc', 'src/patch.cc', 'src/units.cc',
-      'src/python_interface.cc' ],
+      'src/python.cc' ],
     SHLIBPREFIX='', SHOBJSUFFIX='.o')
 
-#env.SharedObject('src/python_interface.o', 'src/python_interface.cc')
-#env.Ignore('src/python_interface.o', glob.glob('src/*.h'))
+#env.SharedObject('src/python.o', 'src/python.cc')
+#env.Ignore('src/python.o', glob.glob('src/*.h'))
 #
 #env.SharedLibrary('src/_mididings',
 #    [ 'src/backend_alsa.cc',
 #      'src/setup.cc', 'src/patch.cc', 'src/units.cc',
-#      'src/python_interface.o' ],
+#      'src/python.o' ],
 #    SHLIBPREFIX='', SHOBJSUFFIX='.o')

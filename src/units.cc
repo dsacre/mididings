@@ -9,11 +9,11 @@
  * (at your option) any later version.
  */
 
-#include "units.h"
-#include "setup.h"
+#include "units.hh"
+#include "setup.hh"
 
 #include <iostream>
-#include "util.h"
+#include <cmath>
 
 using namespace std;
 using namespace das;
@@ -53,6 +53,17 @@ bool Velocity::process(MidiEvent & ev)
 }
 
 
+bool VelocityCurve::process(MidiEvent & ev)
+{
+    if (ev.type == MIDI_EVENT_NOTEON) {
+        float x = (float)ev.note.velocity / 127.0f;
+        float y = powf(x, 1.0f / _gamma);
+        ev.note.velocity = (int)y;
+    }
+    return true;
+}
+
+
 /*
  * maps the input range [arg_lower ... arg_upper] to the
  * output range [val_lower ... val_upper]
@@ -76,7 +87,7 @@ static V map_range(A arg, A arg_lower, A arg_upper, V val_lower, V val_upper)
 }
 
 
-bool VeloGradient::process(MidiEvent & ev)
+bool VelocityGradient::process(MidiEvent & ev)
 {
     if (ev.type == MIDI_EVENT_NOTEON) {
         ev.note.velocity = apply_velocity(ev.note.velocity,

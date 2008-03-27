@@ -9,10 +9,10 @@
  * (at your option) any later version.
  */
 
-#include "backend_alsa.h"
+#include "backend_alsa.hh"
 
-#include "setup.h"
-#include "midi_event.h"
+#include "setup.hh"
+#include "midi_event.hh"
 
 #include <alsa/asoundlib.h>
 

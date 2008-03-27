@@ -9,15 +9,14 @@
  * (at your option) any later version.
  */
 
-#ifndef _UNITS_H
-#define _UNITS_H
+#ifndef _UNITS_HH
+#define _UNITS_HH
 
-#include "midi_event.h"
-#include "util.h"
+#include "midi_event.hh"
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
-
+#include "util/debug.hh"
 
 class Unit
 {
@@ -43,12 +42,6 @@ class Filter
     MidiEventTypes types() const { return _types; }
   private:
     const MidiEventTypes _types;
-};
-
-
-class Modifier
-  : public Unit
-{
 };
 
 
@@ -174,11 +167,11 @@ class KeyFilter
 };
 
 
-class VeloFilter
+class VelocityFilter
   : public Filter
 {
   public:
-    VeloFilter(int lower, int upper)
+    VelocityFilter(int lower, int upper)
       : Filter(MIDI_EVENT_NOTEON),
         _lower(lower), _upper(upper)
     {
@@ -249,7 +242,7 @@ class ProgFilter
 /**************************************************************************/
 
 class Port
-  : public Modifier
+  : public Unit
 {
   public:
     Port(int port)
@@ -266,7 +259,7 @@ class Port
 
 
 class Channel
-  : public Modifier
+  : public Unit
 {
   public:
     Channel(int channel)
@@ -283,7 +276,7 @@ class Channel
 
 
 class Transpose
-  : public Modifier
+  : public Unit
 {
   public:
     Transpose(int offset)
@@ -302,7 +295,7 @@ class Transpose
 
 
 class Velocity
-  : public Modifier
+  : public Unit
 {
   public:
     Velocity(float value, int mode)
@@ -316,11 +309,25 @@ class Velocity
 };
 
 
-class VeloGradient
-  : public Modifier
+class VelocityCurve
+  : public Unit
 {
   public:
-    VeloGradient(int note_lower, int note_upper,
+    VelocityCurve(float gamma)
+      : _gamma(gamma) { }
+
+    virtual bool process(MidiEvent & ev);
+
+  private:
+    float _gamma;
+};
+
+
+class VelocityGradient
+  : public Unit
+{
+  public:
+    VelocityGradient(int note_lower, int note_upper,
                  float value_lower, float value_upper,
                  int mode)
       : _note_lower(note_lower),
@@ -404,4 +411,4 @@ class PatchSwitch
 };
 
 
-#endif // _UNITS_H
+#endif // _UNITS_HH
