@@ -133,7 +133,11 @@ def run(patches, control=None, preprocess=None, postprocess=None,
         return
 
 
-def test_run(patch, event):
+def test_run(patch, events):
     s = Setup(patch, None, None, None, 'dummy', 'mididings_test', 1, 1)
-    r = s.process(event)
-    return r[:]
+    r = []
+    if not util.is_sequence(events):
+        events = [events]
+    for ev in events:
+        r += s.process(ev)[:]
+    return r

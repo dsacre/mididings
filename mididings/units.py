@@ -55,62 +55,11 @@ def Discard():
     return Pass(False)
 
 
-###
-
-class _TypeFork(Fork):
-    def __init__(self, t, l):
-#        a = [ (_TypeFilter(t) >> x) for x in l ] + [ ~_TypeFilter(t) ]
-#        Fork.__init__(self, a)
-        match = _TypeFilter(t) >> [ x for x in l ]
-        other = ~_TypeFilter(t)
-        Fork.__init__(self, [ match, other ])
-
-def NoteFork(x):
-    return _TypeFork(TYPE_NOTE, x)
-
-def CtrlFork(x):
-    return _TypeFork(TYPE_CTRL, x)
-
-def PitchbendFork(x):
-    return _TypeFork(TYPE_PITCHBEND, x)
-
-def ProgFork(x):
-    return _TypeFork(TYPE_PROGRAM, x)
-
-
-def _Divide(t, match, other=Pass()):
-    return Fork([ _TypeFilter(t) >> match, ~_TypeFilter(t) >> other ])
-
-def NoteDivide(match, other=Pass()):
-    return _Divide(TYPE_NOTE, match, other)
-
-def CtrlDivide(match, other=Pass()):
-    return _Divide(TYPE_CTRL, match, other)
-
-def PitchbendDivide(match, other=Pass()):
-    return _Divide(TYPE_PITCHBEND, match, other)
-
-def ProgDivide(match, other=Pass()):
-    return _Divide(TYPE_PROGRAM, match, other)
-
-
 ### filters ###
 
-class _TypeFilter(_mididings.TypeFilter, _Filter):
+class TypeFilter(_mididings.TypeFilter, _Filter):
     def __init__(self, type_):
         _mididings.TypeFilter.__init__(self, type_)
-
-def NoteGate():
-    return _TypeFilter(TYPE_NOTE)
-
-def CtrlGate():
-    return _TypeFilter(TYPE_CTRL)
-
-def PitchbendGate():
-    return _TypeFilter(TYPE_PITCHBEND)
-
-def ProgGate():
-    return _TypeFilter(TYPE_PROGRAM)
 
 
 class PortFilter(_mididings.PortFilter, _Filter):
@@ -167,6 +116,9 @@ class ProgFilter(_mididings.ProgFilter, _Filter):
 
 ### splits ###
 
+def TypeSplit(d):
+    return Fork([ (TypeFilter(t) >> w) for t, w in d.items() ])
+
 def PortSplit(d):
     return Fork([ (PortFilter(p) >> w) for p, w in d.items() ])
 
@@ -177,12 +129,12 @@ def ChannelSplit(d):
 def KeySplit(*args):
     if len(args) == 1:
         # KeySplit(d)
-        return NoteFork([ (KeyFilter(k) >> w) for k, w in args[0].items() ])
+        return Fork([ (KeyFilter(k) >> w) for k, w in args[0].items() ])
     elif len(args) == 3:
         # KeySplit(key, unit_lower, unit_upper)
         key, unit_lower, unit_upper = args
         filt = KeyFilter(0, key)
-        return NoteFork([ filt >> unit_lower, ~filt >> unit_upper ])
+        return Fork([ filt >> unit_lower, ~filt >> unit_upper ])
     else:
         raise ArgumentError()
 
@@ -190,12 +142,12 @@ def KeySplit(*args):
 def VelocitySplit(*args):
     if len(args) == 1:
         # VelocitySplit(d)
-        return NoteFork([ (VelocityFilter(v) >> w) for v, w in args[0].items() ])
+        return Fork([ (VelocityFilter(v) >> w) for v, w in args[0].items() ])
     elif len(args) == 3:
         # VelocitySplit(thresh, unit_lower, unit_upper)
         thresh, unit_lower, unit_upper = args
         filt = VelocityFilter(0, thresh)
-        return NoteFork([ filt >> unit_lower, ~filt >> unit_upper ])
+        return Fork([ filt >> unit_lower, ~filt >> unit_upper ])
     else:
         raise ArgumentError()
 
@@ -298,7 +250,7 @@ def ProgChange(*args):
 
 
 class PatchSwitch(_mididings.PatchSwitch, _Unit):
-    def __init__(self, num=PROGRAM):
+    def __init__(self, num=EVENT_PROGRAM):
         _mididings.PatchSwitch.__init__(self, num)
 
 
@@ -307,7 +259,7 @@ class Call(_mididings.Call, _Unit):
         self.fun = fun
         _mididings.Call.__init__(self, self.do_call)
     def do_call(self, ev):
-        # foist a few more properties
+        # add a few more properties
         ev.__class__ = MidiEvent
         return self.fun(ev)
 

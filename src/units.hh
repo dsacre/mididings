@@ -57,7 +57,7 @@ class InvertedFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        return (!(_filter->types() & ev.type) || !_filter->process(ev));
+        return ((_filter->types() & ev.type) && !_filter->process(ev));
     }
 
   private:
@@ -157,8 +157,7 @@ class KeyFilter
         if (ev.type & MIDI_EVENT_NOTE) {
             return (ev.note.note >= _lower && ev.note.note <= _upper);
         } else {
-            return true;
-//            return false;
+            return false;
         }
     }
 
@@ -181,8 +180,7 @@ class VelocityFilter
         if (ev.type == MIDI_EVENT_NOTEON) {
             return (ev.note.velocity >= _lower && ev.note.velocity <= _upper);
         } else {
-            return true;
-//            return false;
+            return false;
         }
     }
 
@@ -202,8 +200,7 @@ class CtrlFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (ev.type != MIDI_EVENT_CTRL) return true;
-//        if (ev.type != MIDI_EVENT_CTRL) return false;
+        if (ev.type != MIDI_EVENT_CTRL) return false;
         for (std::vector<int>::iterator i = _ctrls.begin(); i != _ctrls.end(); ++i) {
             if (ev.ctrl.param == *i) return true;
         }
@@ -225,8 +222,7 @@ class CtrlValueFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (ev.type != MIDI_EVENT_CTRL) return true;
-//        if (ev.type != MIDI_EVENT_CTRL) return false;
+        if (ev.type != MIDI_EVENT_CTRL) return false;
         return ((ev.ctrl.value >= _lower && ev.ctrl.value <= _upper) || (ev.ctrl.value == _lower && !_upper));
     }
 
@@ -246,8 +242,7 @@ class ProgFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (ev.type != MIDI_EVENT_PROGRAM) return true;
-//        if (ev.type != MIDI_EVENT_PROGRAM) return false;
+        if (ev.type != MIDI_EVENT_PROGRAM) return false;
         for (std::vector<int>::iterator i = _progs.begin(); i != _progs.end(); ++i) {
             if (ev.ctrl.value == *i) return true;
         }

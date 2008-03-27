@@ -14,7 +14,6 @@
 #include <boost/python/class.hpp>
 #include <boost/python/scope.hpp>
 #include <boost/python/ptr.hpp>
-//#include <boost/python/tuple.hpp>   //////////
 
 #ifdef ENABLE_TEST
     #include <boost/python/operators.hpp>
@@ -62,30 +61,9 @@ class PythonCall
     {
     }
 
-    bool process(MidiEvent & ev/*, MidiEventVector *& out*/)
+    bool process(MidiEvent & ev)
     {
         object ret = _fun(ptr(&ev));
-#if 0
-        MidiEvent *r = extract<MidiEvent*>(ret);
-        cout << "r: " << r << endl;
-
-        if (r == &ev) {
-            cout << "same" << endl;
-        } else {
-            cout << "different" << endl;
-        }
-#endif
-/*
-        extract<MidiEvent> get_ev(ret);
-        if (get_ev.check()) {
-            cout << "event!" << endl;
-        }
-
-        extract<boost::python::tuple> get_tuple(ret);
-        if (get_tuple.check()) {
-            cout << "tuple!" << endl;
-        }
-*/
 
         if (ret.ptr() == Py_None) {
             return true;

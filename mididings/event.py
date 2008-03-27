@@ -24,19 +24,19 @@ TYPE_PROGRAM    = 1 << 4
 TYPE_ANY        = ~0
 
 
-PORT      = -1
-CHANNEL   = -2
+EVENT_PORT      = -1
+EVENT_CHANNEL   = -2
 # generic
-DATA1     = -3
-DATA2     = -4
+EVENT_DATA1     = -3
+EVENT_DATA2     = -4
 # note
-NOTE      = -3
-VELOCITY  = -4
+EVENT_NOTE      = -3
+EVENT_VELOCITY  = -4
 # controller
-PARAM     = -3
-VALUE     = -4
+EVENT_PARAM     = -3
+EVENT_VALUE     = -4
 # program change
-PROGRAM   = -4
+EVENT_PROGRAM   = -4
 
 
 class MidiEvent(_mididings.MidiEvent):
