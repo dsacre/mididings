@@ -23,10 +23,6 @@
 using namespace std;
 using namespace boost::lambda;
 
-//#include <iostream>
-//#include <sys/time.h>
-//#include <time.h>
-
 
 BackendAlsa::BackendAlsa(const string & client_name,
                          const vector<string> & in_ports,
@@ -190,14 +186,8 @@ void BackendAlsa::run(Setup & setup)
         //DEBUG_PRINT("in: " << ev.type << ": " << ev.port << " "
         //            << ev.channel << " " << ev.data1 << " " << ev.data2);
 
-//        timeval tv1, tv2;
-//        gettimeofday(&tv1, NULL);
-
         // do all processing
         const Setup::MidiEventVector & out_events = setup.process(ev);
-
-//        gettimeofday(&tv2, NULL);
-//        cout << tv2.tv_usec - tv1.tv_usec << endl;
 
         // output all events to alsa
         for (vector<MidiEvent>::const_iterator i = out_events.begin(); i != out_events.end(); ++i) {

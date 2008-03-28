@@ -13,7 +13,9 @@
 #include "backend_alsa.hh"
 #include "util/debug.hh"
 
-#include <iostream>
+//#include <iostream>
+//#include <sys/time.h>
+//#include <time.h>
 
 using namespace std;
 
@@ -105,6 +107,9 @@ void Setup::switch_patch(int n, const MidiEvent & ev)
 
 const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
 {
+//    timeval tv1, tv2;
+//    gettimeofday(&tv1, NULL);
+
     // clear all buffers
     _event_buffer_pre_out.clear();
     _event_buffer_patch_out.clear();
@@ -146,6 +151,9 @@ const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
     }
 
     _current_output_buffer = NULL;
+
+//    gettimeofday(&tv2, NULL);
+//    cout << (tv2.tv_sec * 1000000LL + tv2.tv_usec) - (tv1.tv_sec * 1000000LL + tv1.tv_usec) << endl;
 
     return _event_buffer_final;
 }
