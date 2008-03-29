@@ -64,8 +64,12 @@ def Discard():
 ### filters ###
 
 class Filter(_mididings.Filter, _Filter):
-    def __init__(self, type_):
-        _mididings.Filter.__init__(self, type_)
+    def __init__(self, *args):
+        if len(args) > 1:
+            types = reduce(lambda x,y: x|y, args)
+        else:
+            types = args[0]
+        _mididings.Filter.__init__(self, types)
 
 
 class PortFilter(_mididings.PortFilter, _Filter):
