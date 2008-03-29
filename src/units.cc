@@ -58,7 +58,7 @@ bool VelocityCurve::process(MidiEvent & ev)
     if (ev.type == MIDI_EVENT_NOTEON) {
         float x = (float)ev.note.velocity / 127.0f;
         float y = powf(x, 1.0f / _gamma);
-        ev.note.velocity = (int)y;
+        ev.note.velocity = (int)rintf(y * 127.0f);
     }
     return true;
 }

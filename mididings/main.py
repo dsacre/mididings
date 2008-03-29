@@ -58,6 +58,8 @@ class Patch(_mididings.Patch):
                 inp += r[0]
                 outp += r[1]
             return inp, outp
+        elif isinstance(p, dict):
+            return self.build([ units.Filter(t) >> w for t, w in p.items() ])
         elif isinstance(p, units._Unit):
             # single unit is both input and output
             m = Patch.Module(p)
@@ -68,8 +70,7 @@ class Patch(_mididings.Patch):
 
 
 class Setup(_mididings.Setup):
-    def __init__(self, patches, control, preprocess, postprocess,
-                 backend, client_name, in_ports, out_ports):
+    def __init__(self, patches, control, pre, post, backend, client_name, in_ports, out_ports):
         in_portnames = _mididings.string_vector()
         out_portnames = _mididings.string_vector()
 
@@ -87,10 +88,6 @@ class Setup(_mididings.Setup):
 
         _mididings.Setup.__init__(self, backend, client_name, in_portnames, out_portnames)
 
-        if not isinstance(patches, dict):
-            # assume single patch
-            patches = { DATA_OFFSET: patches }
-
         for i, p in patches.items():
             if isinstance(p, tuple):
                 init_patch, patch = Patch(p[0]), Patch(p[1])
@@ -99,9 +96,9 @@ class Setup(_mididings.Setup):
             self.add_patch(i - DATA_OFFSET, patch, init_patch)
 
         ctrl = Patch(control) if control else None
-        pre = Patch(preprocess) if preprocess else None
-        post = Patch(postprocess) if postprocess else None
-        self.set_processing(ctrl, pre, post)
+        pre_patch = Patch(pre) if pre else None
+        post_patch = Patch(post) if post else None
+        self.set_processing(ctrl, pre_patch, post_patch)
 
         import event
         self.switch_patch(0, event.MidiEvent())
@@ -122,11 +119,11 @@ def _octave_offset():
     return OCTAVE_OFFSET
 
 
-def run(patches, control=None, preprocess=None, postprocess=None,
-        backend='alsa', client_name='mididings', in_ports=1, out_ports=1):
+def run(patch, backend='alsa', client_name='mididings', in_ports=1, out_ports=1):
+    run_patches({ DATA_OFFSET: patch }, None, None, None, backend, client_name, in_ports, out_ports)
 
-    s = Setup(patches, control, preprocess, postprocess,
-              backend, client_name, in_ports, out_ports)
+def run_patches(patches, control=None, pre=None, post=None, backend='alsa', client_name='mididings', in_ports=1, out_ports=1):
+    s = Setup(patches, control, pre, post, backend, client_name, in_ports, out_ports)
     try:
         s.run()
     except KeyboardInterrupt:
@@ -134,7 +131,10 @@ def run(patches, control=None, preprocess=None, postprocess=None,
 
 
 def test_run(patch, events):
-    s = Setup(patch, None, None, None, 'dummy', 'mididings_test', 1, 1)
+    return test_run_patches({ DATA_OFFSET: patch }, events)
+
+def test_run_patches(patches, events):
+    s = Setup(patches, None, None, None, 'dummy', 'mididings_test', 1, 1)
     r = []
     if not util.is_sequence(events):
         events = [events]

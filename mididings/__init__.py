@@ -12,4 +12,4 @@
 
 from units import *
 from event import *
-from main import config, run
+from main import config, run, run_patches

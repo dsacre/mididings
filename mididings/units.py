@@ -37,10 +37,16 @@ class Fork(list, _Unit):
         list.__init__(self, l)
 
 
+# split events by type
+class Split(dict, _Unit):
+    def __init__(self, d):
+        dict.__init__(self, d)
+
+
 # base class for all filters, supporting operator ~
 class _Filter(_Unit):
     def __invert__(self):
-        return _InvertedFilter(self)
+        return _InvertedFilter(self, not isinstance(self, Filter))
 
 
 class _InvertedFilter(_mididings.InvertedFilter, _Unit):
@@ -57,9 +63,9 @@ def Discard():
 
 ### filters ###
 
-class TypeFilter(_mididings.TypeFilter, _Filter):
+class Filter(_mididings.Filter, _Filter):
     def __init__(self, type_):
-        _mididings.TypeFilter.__init__(self, type_)
+        _mididings.Filter.__init__(self, type_)
 
 
 class PortFilter(_mididings.PortFilter, _Filter):
@@ -116,9 +122,6 @@ class ProgFilter(_mididings.ProgFilter, _Filter):
 
 ### splits ###
 
-def TypeSplit(d):
-    return Fork([ (TypeFilter(t) >> w) for t, w in d.items() ])
-
 def PortSplit(d):
     return Fork([ (PortFilter(p) >> w) for p, w in d.items() ])
 
@@ -129,12 +132,17 @@ def ChannelSplit(d):
 def KeySplit(*args):
     if len(args) == 1:
         # KeySplit(d)
-        return Fork([ (KeyFilter(k) >> w) for k, w in args[0].items() ])
+        return Fork([
+            ([ KeyFilter(k), ~Filter(NOTE) ] >> w) for k, w in args[0].items()
+        ])
     elif len(args) == 3:
         # KeySplit(key, unit_lower, unit_upper)
         key, unit_lower, unit_upper = args
         filt = KeyFilter(0, key)
-        return Fork([ filt >> unit_lower, ~filt >> unit_upper ])
+        return Fork([
+            [  filt, ~Filter(NOTE) ] >> unit_lower,
+            [ ~filt, ~Filter(NOTE) ] >> unit_upper
+        ])
     else:
         raise ArgumentError()
 
@@ -142,12 +150,17 @@ def KeySplit(*args):
 def VelocitySplit(*args):
     if len(args) == 1:
         # VelocitySplit(d)
-        return Fork([ (VelocityFilter(v) >> w) for v, w in args[0].items() ])
+        return Fork([
+            ([ VelocityFilter(v), ~Filter(NOTE) ] >> w) for v, w in args[0].items()
+        ])
     elif len(args) == 3:
         # VelocitySplit(thresh, unit_lower, unit_upper)
         thresh, unit_lower, unit_upper = args
         filt = VelocityFilter(0, thresh)
-        return Fork([ filt >> unit_lower, ~filt >> unit_upper ])
+        return Fork([
+            [  filt, ~Filter(NOTE) ] >> unit_lower,
+            [ ~filt, ~Filter(NOTE) ] >> unit_upper
+        ])
     else:
         raise ArgumentError()
 
@@ -224,27 +237,25 @@ class GenerateEvent(_mididings.GenerateEvent, _Unit):
 
 def CtrlChange(*args):
     if len(args) == 2:
-        # ControlChange(ctrl, value)
+        # CrtlChange(ctrl, value)
         ctrl, value = args
-        return GenerateEvent(TYPE_CTRL, _main.DATA_OFFSET,
-                             _main.DATA_OFFSET, ctrl, value)
+        return GenerateEvent(CTRL, EVENT_PORT, EVENT_CHANNEL, ctrl, value)
     elif len(args) == 4:
-        # ControlChange(port, channel, ctrl, value)
+        # CrtlChange(port, channel, ctrl, value)
         port, channel, ctrl, value = args
-        return GenerateEvent(TYPE_CTRL, port, channel, ctrl, value)
+        return GenerateEvent(CTRL, port, channel, ctrl, value)
     else:
         raise ArgumentError()
 
 
 def ProgChange(*args):
     if len(args) == 1:
-        # ProgramChange(program)
-        return GenerateEvent(TYPE_PROGRAM, _main.DATA_OFFSET,
-                             _main.DATA_OFFSET, 0, args[0] - _main.DATA_OFFSET)
+        # ProgChange(program)
+        return GenerateEvent(PROGRAM, EVENT_PORT, EVENT_CHANNEL, 0, args[0] - _main.DATA_OFFSET)
     elif len(args) == 3:
-        # ProgramChange(port, channel, program)
+        # ProgChange(port, channel, program)
         port, channel, program = args
-        return GenerateEvent(TYPE_PROGRAM, port, channel, 0, program - _main.DATA_OFFSET)
+        return GenerateEvent(PROGRAM, port, channel, 0, program - _main.DATA_OFFSET)
     else:
         raise ArgumentError()
 
@@ -259,7 +270,7 @@ class Call(_mididings.Call, _Unit):
         self.fun = fun
         _mididings.Call.__init__(self, self.do_call)
     def do_call(self, ev):
-        # add a few more properties
+        # add additional properties
         ev.__class__ = MidiEvent
         return self.fun(ev)
 
@@ -273,23 +284,23 @@ class Print(Call):
         if self.name:
             print self.name + ":",
 
-        if ev.type_ == TYPE_NOTEON:
+        if ev.type_ == NOTEON:
             t = "note on"
             d1 = "note " + str(ev.note) + " (" + _util.notenumber2name(ev.note) + ")"
             d2 = "velocity " + str(ev.velocity)
-        elif ev.type_ == TYPE_NOTEOFF:
+        elif ev.type_ == NOTEOFF:
             t = "note off"
             d1 = "note " + str(ev.note) + " (" + _util.notenumber2name(ev.note) + ")"
             d2 = "velocity " + str(ev.velocity)
-        elif ev.type_ == TYPE_CTRL:
+        elif ev.type_ == CTRL:
             t = "control change"
             d1 = "param " + str(ev.param)
             d2 = "value " + str(ev.value)
-        elif ev.type_ == TYPE_PITCHBEND:
+        elif ev.type_ == PITCHBEND:
             t = "pitch bend"
             d1 = None
             d2 = "value " + str(ev.value)
-        elif ev.type_ == TYPE_PROGRAM:
+        elif ev.type_ == PROGRAM:
             t = "program change"
             d1 = None
             d2 = "program " + str(ev.program)

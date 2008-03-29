@@ -82,17 +82,17 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<Unit, noncopyable>("Unit", no_init);
 
     class_<Pass, bases<Unit> >("Pass", init<bool>());
-    class_<InvertedFilter, bases<Unit> >("InvertedFilter", init<shared_ptr<Unit> >());
 
-    class_<TypeFilter, bases<Unit> >("TypeFilter", init<int>());
+    class_<Filter, bases<Unit> >("Filter", init<int>());
+    class_<InvertedFilter, bases<Unit> >("InvertedFilter", init<shared_ptr<Filter>, bool>());
 
-    class_<PortFilter, bases<Unit> >("PortFilter", init<const vector<int> &>());
-    class_<ChannelFilter, bases<Unit> >("ChannelFilter", init<const vector<int> &>());
-    class_<KeyFilter, bases<Unit> >("KeyFilter", init<int, int>());
-    class_<VelocityFilter, bases<Unit> >("VelocityFilter", init<int, int>());
-    class_<CtrlFilter, bases<Unit> >("CtrlFilter", init<const vector<int> &>());
-    class_<CtrlValueFilter, bases<Unit> >("CtrlValueFilter", init<int, int>());
-    class_<ProgFilter, bases<Unit> >("ProgFilter", init<const vector<int> &>());
+    class_<PortFilter, bases<Filter> >("PortFilter", init<const vector<int> &>());
+    class_<ChannelFilter, bases<Filter> >("ChannelFilter", init<const vector<int> &>());
+    class_<KeyFilter, bases<Filter> >("KeyFilter", init<int, int>());
+    class_<VelocityFilter, bases<Filter> >("VelocityFilter", init<int, int>());
+    class_<CtrlFilter, bases<Filter> >("CtrlFilter", init<const vector<int> &>());
+    class_<CtrlValueFilter, bases<Filter> >("CtrlValueFilter", init<int, int>());
+    class_<ProgFilter, bases<Filter> >("ProgFilter", init<const vector<int> &>());
 
     class_<Port, bases<Unit> >("Port", init<int>());
     class_<Channel, bases<Unit> >("Channel", init<int>());

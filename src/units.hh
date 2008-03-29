@@ -37,9 +37,24 @@ class Filter
   : public Unit
 {
   public:
-    Filter(MidiEventTypes types = MIDI_EVENT_ANY)
-      : _types(types) { }
-    MidiEventTypes types() const { return _types; }
+    Filter(MidiEventTypes types)
+      : _types(types)
+    {
+    }
+
+    virtual bool process(MidiEvent & ev) {
+        return match_type(ev);
+    }
+
+    MidiEventTypes types() const {
+        return _types;
+    }
+
+  protected:
+    bool match_type(MidiEvent & ev) {
+        return (ev.type & _types);
+    }
+
   private:
     const MidiEventTypes _types;
 };
@@ -49,19 +64,18 @@ class InvertedFilter
   : public Unit
 {
   public:
-    // parameter must be a filter, but for efficiency,
-    // Filter is not exposed to python
-    InvertedFilter(boost::shared_ptr<Unit> filter) {
-        _filter = boost::dynamic_pointer_cast<Filter>(filter);
-        ASSERT(_filter);
+    InvertedFilter(boost::shared_ptr<Filter> filter, bool check_type)
+      : _filter(filter), _check_type(check_type)
+    {
     }
 
     virtual bool process(MidiEvent & ev) {
-        return ((_filter->types() & ev.type) && !_filter->process(ev));
+        return (((_filter->types() & ev.type) || !_check_type) && !_filter->process(ev));
     }
 
   private:
     boost::shared_ptr<Filter> _filter;
+    bool _check_type;
 };
 
 
@@ -81,32 +95,16 @@ class Pass
 };
 
 
-/**************************************************************************/
-
-class TypeFilter
-  : public Filter
-{
-  public:
-    TypeFilter(MidiEventTypes types)
-      : _types(types)
-    {
-    }
-
-    virtual bool process(MidiEvent & ev) {
-        return (ev.type & _types);
-    }
-
-  private:
-    MidiEventTypes _types;
-};
-
+/*
+ * filters
+ */
 
 class PortFilter
   : public Filter
 {
   public:
     PortFilter(const std::vector<int> & ports)
-      : _ports(ports)
+      : Filter(MIDI_EVENT_ANY), _ports(ports)
     {
     }
 
@@ -127,7 +125,7 @@ class ChannelFilter
 {
   public:
     ChannelFilter(const std::vector<int> & channels)
-      : _channels(channels)
+      : Filter(MIDI_EVENT_ANY), _channels(channels)
     {
     }
 
@@ -154,11 +152,8 @@ class KeyFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (ev.type & MIDI_EVENT_NOTE) {
-            return (ev.note.note >= _lower && ev.note.note <= _upper);
-        } else {
-            return false;
-        }
+        if (!match_type(ev)) return false;
+        return (ev.note.note >= _lower && ev.note.note <= _upper);
     }
 
   private:
@@ -177,11 +172,8 @@ class VelocityFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (ev.type == MIDI_EVENT_NOTEON) {
-            return (ev.note.velocity >= _lower && ev.note.velocity <= _upper);
-        } else {
-            return false;
-        }
+        if (!match_type(ev)) return false;
+        return (ev.note.velocity >= _lower && ev.note.velocity <= _upper);
     }
 
   private:
@@ -200,7 +192,7 @@ class CtrlFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (ev.type != MIDI_EVENT_CTRL) return false;
+        if (!match_type(ev)) return false;
         for (std::vector<int>::iterator i = _ctrls.begin(); i != _ctrls.end(); ++i) {
             if (ev.ctrl.param == *i) return true;
         }
@@ -217,12 +209,13 @@ class CtrlValueFilter
 {
   public:
     CtrlValueFilter(int lower, int upper)
-      : _lower(lower), _upper(upper)
+      : Filter(MIDI_EVENT_CTRL),
+        _lower(lower), _upper(upper)
     {
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (ev.type != MIDI_EVENT_CTRL) return false;
+        if (!match_type(ev)) return false;
         return ((ev.ctrl.value >= _lower && ev.ctrl.value <= _upper) || (ev.ctrl.value == _lower && !_upper));
     }
 
@@ -242,7 +235,7 @@ class ProgFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (ev.type != MIDI_EVENT_PROGRAM) return false;
+        if (!match_type(ev)) return false;
         for (std::vector<int>::iterator i = _progs.begin(); i != _progs.end(); ++i) {
             if (ev.ctrl.value == *i) return true;
         }
@@ -254,7 +247,9 @@ class ProgFilter
 };
 
 
-/**************************************************************************/
+/*
+ * modifiers
+ */
 
 class Port
   : public Unit
@@ -384,7 +379,9 @@ class CtrlRange
 };
 
 
-/**************************************************************************/
+/*
+ * misc
+ */
 
 class GenerateEvent
   : public Unit
@@ -409,8 +406,6 @@ class GenerateEvent
     int _data2;
 };
 
-
-/**************************************************************************/
 
 class PatchSwitch
   : public Unit

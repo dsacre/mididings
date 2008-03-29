@@ -14,10 +14,10 @@
 
 #include "patch.hh"
 #include "midi_event.hh"
-#include "util/exception.hh"
 
 #include <vector>
 #include <string>
+#include <stdexcept>
 
 
 class Backend
@@ -34,9 +34,9 @@ class Backend
     virtual void run(class Setup &) = 0;
 
   protected:
-    struct BackendError : public das::exception {
+    struct BackendError : public std::runtime_error {
         BackendError(const std::string & w)
-          : das::exception(w) { }
+          : std::runtime_error(w) { }
     };
 };
 
