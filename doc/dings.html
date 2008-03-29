@@ -7,15 +7,17 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <style type="text/css">
     body { max-width: 60em; font-size: 90%; }
-    h1 { font-size: 120%; color: #333; background: #eee; padding: 4px 0.7em; }
+    h1 { font-size: 130%; color: #333; background: #eee; padding: 4px 0.7em; }
     h2 { font-size: 110%; color: #fff; background: #667; padding: 4px 0.7em; margin-top: 1.5em; }
-    h3 { font-size: 100%; color: #333; padding-left: 0.5em; margin-bottom: 0.4em; }
+    h3 { font-size: 100%; color: #333; background: #dddde5; padding: 4px 0.7em; margin-top: 1.5em; }
+    h4 { font-size: 100%; color: #333; padding-left: 0.5em; margin-bottom: 0.4em; }
     p,table,pre { margin-left: 0.8em; margin-top: 0.4em; }
     b { color: #333; }
     pre { font-size: 110%; }
     table { border: 1px solid #333; border-collapse: collapse; }
     th, td { border: 1px solid #333; padding: 0em 0.3em; }
     th { color: #333; text-align: left; background: #eee; }
+    a { font-weight: bold; color: #237; }
   </style>
 </head>
 
@@ -23,150 +25,262 @@
 
 <h1>mididings - Documentation</h1>
 
-<h3>import mididings</h3>
+<h2>Table of Contents</h2>
+<ul>
+  <li><a href="#basics">Basics</a>
+    <ul>
+      <li><a href="#functions">Functions</a></li>
+      <li><a href="#connect">Making connections</a></li>
+    </ul>
+  </li>
+
+  <li><a href="#units">Units</a>
+    <ul>
+      <li><a href="#filters">Filters</a></li>
+      <li><a href="#splits">Splits</a></li>
+      <li><a href="#modifiers">Modifiers</a></li>
+      <li><a href="#misc">Miscellaneous</a></li>
+    </ul>
+  </li>
+
+  <li><a href="#examples">Examples</a></li>
+</ul>
 
 
-<h2>Forks</h2>
+<h2><a name="basics"></a>Basics</h2>
 
-<h3>Fork([units, ...])<br>
-[units, ...]</h3>
 <p>
-Duplicates all events.
+mididings configuration files are just Python scripts, although mididings uses some of Python's features in ways
+for which they weren't intended ;)<br>
+Basically, the MIDI processing setup is defined in Python, while the actual event processing is done entirely
+in C++. It is however possible to explicitly call back into Python, if necessary.
 </p>
 
-<h3>NoteFork([units, ...])<br>
-CtrlFork([units, ...])<br>
-PitchbendFork([units, ...])<br>
-ProgFork([units, ...])</h3>
+<h3><a name="functions"></a>Functions</h3>
+
+<h4>run(patch, backend='alsa', client_name='mididings', in_ports=1, out_ports=1)</h4>
 <p>
-Duplicates events of one type, all others pass unchanged.
+Starts the actual MIDI processing. This is usually the last function called by a mididings script.
+</p>
+<ul>
+  <li><b>patch</b>: A single patch.</li>
+  <li><b>backend/client_name</b>: MIDI backend and client name to be used. Current only ALSA is supported.</li>
+  <li><b>in_ports/out_ports</b>: Integers indicating the number of input/output ports to create (named in_<i>n</i>
+  or out_<i>n</i>), or tuples with port names, in which case the tuple's length determines the number of ports.</li>
+</ul>
+
+<h4>run_patches(patches, control=None, pre=None, post=None,
+                backend='alsa', client_name='mididings', in_ports=1, out_ports=1)</h4>
+<ul>
+  <li><b>patches</b>: A dictionary with program numbers as keys, and patches as values.
+  Values can also be tuple with two items, the first being an init-patch that's executed once every time the
+  patch is selected, and the second being the actual patch that processes incoming events.</li>
+  <li><b>control</b>: The "control" patch, which is always active, and run in parallel to the current patch.</li>
+  <li><b>pre/post</b>: Allows processing to take place before/after every patch. Does not affect
+  the control patch.</li>
+  <li><b>backend/client_name/in_ports/out_ports</b>: Same as for run().</li>
+</ul>
+
+<h4>config(...)</h4>
+<p>
+Changes global mididings settings. This should be called before constructing any processing units.
+Arguments should be passed by name.<br>
+<br>
+Possible arguments are:
+</p>
+<ul>
+  <li><b>data_offset</b>: 1 (default) or 0. Determines whether program, port and channel numbers will be
+  in the range 1-128 or 0-127.</li>
+  <li><b>octave_offset</b>: Default is 2, meaning that "Middle C" is designated as C3.</li>
+</ul>
+
+
+
+<h3><a name="connect"></a>Making connections</h3>
+
+<h4>A &gt;&gt; B</h4>
+<p>
+Connects two units in series. Incoming MIDI events will be processed by unit A first, then by unit B.
+If the event is filtered out by unit A, it is not processed any further, and unit B will not be called.
+</p>
+
+<h4>[ A, B, ... ]</h4>
+<p>
+Connects two or more units in parallel. All units will be called with identical copies of incoming MIDI
+events. The output will be the sum of all the units' outputs.
+</p>
+
+<h4>{ T1: A, T2: B, ... }</h4>
+<p>
+Splits by event type. Equivalent to [ Filter(T1) &gt;&gt; A, Filter(T2) &gt;&gt; B, ... ].
 </p>
 
 
-<h2>Gates</h2>
+<h2><a name="units"></a>Units</h2>
 
-<h3>NoteGate()<br>
-CtrlGate()<br>
-PitchbendGate()<br>
-ProgGate()</h3>
 <p>
-Filters by event type.
+These are the basic building blocks from which you can build your patches. They can roughly be divided into 4 categories:
+<ul>
+  <li><b>Filters</b>: These units filter by some property of the MIDI event. If the event matches, it's passed
+  unmodified, otherwise it's discarded.
+  Events of different types (e.g. a note event going through a CtrlFilter) are also discarded.<br>
+  Filters can be inverted by prepending operator ~.</li>
+  <li><b>Splits</b>: Basically just combinations of multiple filters of the same kind.</li>
+  <li><b>Modifiers</b>: These units change some property of the MIDI event.</li>
+  <li><b>Miscellaneous</b>: Anything that doesn't fit into any of the other categories :)</li>
+</ul>
+<p>
+
+
+<h3><a name="filters"></a>Filters</h3>
+
+<h4>Filter(type, ...)</h4>
+<p>
+Filters by one or more event types.
+Types must be one of: NOTE, NOTEON, NOTEOFF, CTRL, PITCHBEND, PROGRAM.
 </p>
 
-
-<h2>Divides</h2>
-
-<h3>NoteDivide(match, other)<br>
-CtrlDivide(match, other)<br>
-PitchbendDivide(match, other)<br>
-ProgDivide(match, other)</h3>
+<h4>PortFilter(port, ...)<br>
+ChannelFilter(channel, ...)</h4>
 <p>
-Separates one event type from all others.
+Filters by event port or channel.
 </p>
 
-
-<h2>Filters</h2>
-
-<h3>PortFilter(port, ...)<br>
-ChannelFilter(channel, ...)<br>
+<h4>KeyFilter(key)<br>
 KeyFilter(lower, upper)<br>
-KeyFilter(range)<br>
-VeloFilter(min, max)<br>
-CtrlFilter(num, ...)<br>
-ProgFilter(num, ...)</h3>
+KeyFilter(range)</h4>
 <p>
-Filters by event property.
+Filters by key or key-range. Keys can be MIDI note numbers or note names (e.g. 'g#3').
+Ranges can be 2-tuples of note numbers, or note names (e.g. 'g#3:c6').
+</p>
+
+<h4>VelocityFilter(min, max)</h4>
+<p>
+Filters by note velocity.
+</p>
+
+<h4>CtrlFilter(num, ...)</h4>
+<p>
+Filters by CC number.
+</p>
+
+<h4>CtrlValueFilter(value)<br>
+CtrlValueFilter(min, max)</h4>
+<p>
+Filters by CC value.
+</p>
+
+<h4>ProgFilter(num, ...)</h4>
+<p>
+Filters by PC number.
 </p>
 
 
-<h2>Splits</h2>
+<h3><a name="splits"></a>Splits</h3>
 
-<h3>PortSplit({port: units, ...})<br>
-ChannelSplit({channel: units, ...})</h3>
+<h4>PortSplit({port: units, ...})<br>
+ChannelSplit({channel: units, ...})</h4>
 <p>
-Splits by channel or port.
+Splits by port or channel.
 </p>
 
-<h3>KeySplit(key, units_lower, units_upper)<br>
+<h4>KeySplit(key, units_lower, units_upper)<br>
 KeySplit({(lower, upper): units, ...})<br>
-KeySplit({range: units, ...})</h3>
+KeySplit({range: units, ...})</h4>
 <p>
-Splits by key; only note events are affected.
+Splits by key. Non-note events are sent to all units.
 </p>
 
-<h3>VeloSplit(threshold, units_lower, units_upper)<br>
-VeloSplit({(min, max): units, ...})</h3>
+<h4>VelocitySplit(threshold, units_lower, units_upper)<br>
+VelocitySplit({(min, max): units, ...})</h4>
 <p>
-Splits by velocity.
+Splits by velocity. Non-note events are sent to all units.
 </p>
 
 
-<h2>Modifiers</h2>
+<h3><a name="modifiers"></a>Modifiers</h3>
 
-<h3>Port(port)<br>
-Channel(channel)</h3>
+<h4>Port(port)<br>
+Channel(channel)</h4>
 <p>
 Changes port or channel.
 </p>
 
-<h3>Transpose(offset)</h3>
+<h4>Transpose(offset)</h4>
 <p>
 Transposes all note events.
 </p>
 
-<h3>Velocity(offset)<br>
-VelocityFixed(value)</h3>
+<h4>Velocity(offset)<br>
+VelocityFixed(value)</h4>
 <p>
 Changes velocity, either by adding an offset, or by setting it to a fixed value.
 </p>
 
-<h3>VeloGradient(note_lower, note_upper, value_lower, value_upper)<br>
-VeloGradientFixed(note_lower, note_upper, value_lower, value_upper)</h3>
+<h4>VelocityCurve(gamma)</h4>
+<p>
+Applies a "gamma"-curve to all velocity values.
+</p>
+
+<h4>VelocityGradient(note_lower, note_upper, value_lower, value_upper)<br>
+VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper)</h4>
 <p>
 Changes velocity, using a gradient from lower to upper.
 </p>
 
-<h3>CtrlRange(num, in_min, in_max, out_min, out_max)</h3>
+<h4>CtrlRange(num, in_min, in_max, out_min, out_max)</h4>
 <p>
 Maps controller range in to out.
 </p>
 
-<h3>CtrlChange(num, value)<br>
+<h4>CtrlChange(num, value)<br>
 CtrlChange(port, channel, num, value)<br>
 ProgChange(program)<br>
-ProgChange(port, channel, program)</h3>
+ProgChange(port, channel, program)</h4>
 <p>
-Creates a midi event.
+Changes the type of the event.
+If port and channel are omitted, the values of the input event are used.
 </p>
 
 
-<h2>Misc</h2>
+<h3><a name="misc"></a>Miscellaneous</h3>
 
-<h3>Pass()</h3>
+<h4>Pass()</h4>
 <p>
 Does nothing.
 </p>
 
-<h3>Discard()</h3>
+<h4>Discard()</h4>
 <p>
 Discards all events.
 </p>
 
-<h3>SwitchPatch(patch)</h3>
+<h4>PatchSwitch()<br>
+PatchSwitch(patch)</h4>
 <p>
 Switches to another patch.
+If patch is omitted, uses the number of the input event (should be a program change).
 </p>
 
-<h3>Call(function)</h3>
+<h4>Call(function)</h4>
 <p>
-Calls a python function.
+Calls a python function, with the event as the only argument.
 </p>
 
-<h3>Print()<br>
-Print(name)</h3>
+<h4>Print()<br>
+Print(name)</h4>
 <p>
 Prints event data.
 </p>
+
+
+<h2><a name="examples"></a>Examples</h2>
+
+<ul>
+  <li><a href="./example.py">example.py</a> - a very simple mididings setup</li>
+  <li><a href="./example_patches.py">example_patches.py</a> - a simple example setup, demonstrating patch switching</li>
+  <li><a href="./example_python.py">example_python.py</a> - shows how to process MIDI events in Python</li>
+</ul>
 
 
 </body>
