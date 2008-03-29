@@ -1,16 +1,16 @@
 import unittest
 from mididings import *
-from mididings.main import test_run
+from mididings.main import test_run, test_run_patches
 
 
 class SimpleTestCase(unittest.TestCase):
     def setUp(self):
         config(data_offset = 0)
-        self.noteon1 = MidiEvent(TYPE_NOTEON, 0, 0, 66, 23)
-        self.noteon2 = MidiEvent(TYPE_NOTEON, 0, 0, 42, 127)
-        self.noteon3 = MidiEvent(TYPE_NOTEON, 0, 1, 23, 127)
-        self.ctrl1 = MidiEvent(TYPE_CTRL, 0, 0, 23, 42)
-        self.prog1 = MidiEvent(TYPE_PROGRAM, 0, 0, 0, 7)
+        self.noteon1 = MidiEvent(NOTEON, 0, 0, 66, 23)
+        self.noteon2 = MidiEvent(NOTEON, 0, 0, 42, 127)
+        self.noteon3 = MidiEvent(NOTEON, 0, 1, 23, 127)
+        self.ctrl1 = MidiEvent(CTRL, 0, 0, 23, 42)
+        self.prog1 = MidiEvent(PROGRAM, 0, 0, 0, 7)
 
     def tearDown(self):
         pass
@@ -37,11 +37,10 @@ class SimpleTestCase(unittest.TestCase):
         r = test_run(p, self.noteon2)
         assert len(r) == 0
         r = test_run(p, self.prog1)
-#        assert len(r) == 1
         assert len(r) == 0
 
-    def testTypeFilter(self):
-        p = TypeFilter(TYPE_PROGRAM)
+    def testFilter(self):
+        p = Filter(PROGRAM)
         r = test_run(p, self.noteon1)
         assert len(r) == 0
         r = test_run(p, self.prog1)
@@ -59,6 +58,9 @@ class SimpleTestCase(unittest.TestCase):
         p = PortFilter(1)
         r = test_run(p, self.noteon1)
         assert len(r) == 0
+        p = ~PortFilter(1)
+        r = test_run(p, self.noteon1)
+        assert len(r) == 1
 
     def testVelocityFilter(self):
         p = VelocityFilter(64, 127)
@@ -67,11 +69,10 @@ class SimpleTestCase(unittest.TestCase):
         r = test_run(p, self.noteon2)
         assert len(r) == 1
         r = test_run(p, self.prog1)
-#        assert len(r) == 1
         assert len(r) == 0
 
-    def testTypeSplit(self):
-        p = TypeSplit({ TYPE_NOTE: Port(1), TYPE_PROGRAM: Port(2) })
+    def testSplit(self):
+        p = Split({ NOTE: Port(1), PROGRAM: Port(2) })
         r = test_run(p, self.noteon1)
         assert len(r) == 1
         assert r[0].port_ == 1
@@ -98,7 +99,9 @@ class SimpleTestCase(unittest.TestCase):
         assert len(r) == 1
         assert r[0].channel_ == 3
         r = test_run(p, self.prog1)
-        assert len(r) == 0
+        assert len(r) == 2
+        assert r[0].channel_ == 3
+        assert r[1].channel_ == 7
 
     def testCall(self):
         def foo(ev):
@@ -112,10 +115,17 @@ class SimpleTestCase(unittest.TestCase):
         p = Call(foo) >> Call(bar)
         r = test_run(p, self.noteon1)
 
+    def testGenerateEvent(self):
+        p = CtrlChange(23, 42)
+        event = MidiEvent(NOTEON, 4, 8, 15, 16)
+        r = test_run(p, event)
+        assert len(r) == 1
+        assert r[0] == MidiEvent(CTRL, 4, 8, 23, 42)
+
     def testDataOffset(self):
         config(data_offset = 1)
         p = Channel(6)
-        ev = MidiEvent(TYPE_PROGRAM, 1, 1, 0, 42)
+        ev = MidiEvent(PROGRAM, 1, 1, 0, 42)
         assert ev.channel_ == 0
         assert ev.data2 == 41
         def foo(ev):
@@ -129,25 +139,25 @@ class SimpleTestCase(unittest.TestCase):
 
     def testPatchSwitch(self):
         p = {
-            0:  TypeSplit({
-                    TYPE_PROGRAM:  PatchSwitch(),
-                    ~TYPE_PROGRAM: Channel(7),
+            0:  Split({
+                    PROGRAM:  PatchSwitch(),
+                    ~PROGRAM: Channel(7),
                 }),
             1: Channel(13),
         }
         events = [
-            MidiEvent(TYPE_NOTEON, 0, 0, 69, 123),
-            MidiEvent(TYPE_PROGRAM, 0, 0, 0, 1),
-            MidiEvent(TYPE_NOTEON, 0, 0, 23, 42),
-            MidiEvent(TYPE_NOTEOFF, 0, 0, 69, 0)
+            MidiEvent(NOTEON, 0, 0, 69, 123),
+            MidiEvent(PROGRAM, 0, 0, 0, 1),
+            MidiEvent(NOTEON, 0, 0, 23, 42),
+            MidiEvent(NOTEOFF, 0, 0, 69, 0)
         ]
-        r = test_run(p, events)
+        r = test_run_patches(p, events)
         assert len(r) == 3
-        assert r[0].type_ == TYPE_NOTEON
+        assert r[0].type_ == NOTEON
         assert r[0].channel_ == 7
-        assert r[1].type_ == TYPE_NOTEON
+        assert r[1].type_ == NOTEON
         assert r[1].channel_ == 13
-        assert r[2].type_ == TYPE_NOTEOFF
+        assert r[2].type_ == NOTEOFF
         assert r[2].channel_ == 7
 
 
