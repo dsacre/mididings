@@ -1,0 +1,20 @@
+mididings - a MIDI router/processor
+
+Copyright (C) 2008  Dominic Sacré  <dominic.sacre@gmx.de>
+
+
+Requirements:
+=============
+
+* Python >= 2.5 [http://www.python.org/]
+* Boost / Boost.Python [http://www.boost.org/]
+* ALSA [http://www.alsa-project.org/]
+
+
+Installation:
+=============
+
+In the mididings source directory, run:
+
+./setup.py build
+./setup.py install
