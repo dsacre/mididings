@@ -48,7 +48,7 @@ class Patch
       public:
         Input() { }
 
-        virtual bool process(MidiEvent & ev) {
+        virtual bool process(MidiEvent & /*ev*/) {
             return true;
         }
     };

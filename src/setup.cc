@@ -13,7 +13,7 @@
 #include "backend_alsa.hh"
 #include "util/debug.hh"
 
-//#include <iostream>
+#include <iostream>
 //#include <sys/time.h>
 //#include <time.h>
 
@@ -33,13 +33,15 @@ Setup::Setup(const string & backend_name,
     _event_buffer_pre_out(EVENT_BUFFER_SIZE),
     _event_buffer_patch_out(EVENT_BUFFER_SIZE),
     _event_buffer_final(EVENT_BUFFER_SIZE),
-    _current_output_buffer(NULL)
+    _output_buffer(NULL)
 {
     DEBUG_FN();
 
     if (backend_name == "alsa") {
         _backend.reset(new BackendAlsa(client_name, in_ports, out_ports));
     }
+
+    _num_out_ports = (int)out_ports.size();
 }
 
 
@@ -81,30 +83,6 @@ void Setup::run()
 }
 
 
-void Setup::switch_patch(int n, const MidiEvent & ev)
-{
-//    DEBUG_PRINT("switching to patch " << n);
-
-    PatchMap::iterator i = _patches.find(n);
-    if (i != _patches.end()) {
-        _current = &*i->second;
-
-        PatchMap::iterator k = _init_patches.find(n);
-        if (k != _init_patches.end()) {
-            // temporarily redirect output to patch_out so events will go through postprocessing
-            MidiEventVector *p = _current_output_buffer;
-            _current_output_buffer = &_event_buffer_patch_out;
-
-            k->second->process(ev);
-
-            _current_output_buffer = p;
-        }
-//    } else {
-//        cerr << "no such patch: " << n << endl;
-    }
-}
-
-
 const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
 {
 //    timeval tv1, tv2;
@@ -118,14 +96,14 @@ const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
     if (_ctrl_patch) {
         // all output events are written to the final buffer,
         // and will not be processed any further
-        _current_output_buffer = &_event_buffer_final;
+        _output_buffer = &_event_buffer_final;
         _ctrl_patch->process(ev);
     }
 
 //    DEBUG_PRINT(p);
 
     // preprocessing, write events to intermediate buffer
-    _current_output_buffer = &_event_buffer_pre_out;
+    _output_buffer = &_event_buffer_pre_out;
 
     if (_pre_patch) {
         _pre_patch->process(ev);
@@ -134,14 +112,14 @@ const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
     }
 
     // process patch, write events to another buffer
-    _current_output_buffer = &_event_buffer_patch_out;
+    _output_buffer = &_event_buffer_patch_out;
 
     for (MidiEventVector::const_iterator i = _event_buffer_pre_out.begin(); i != _event_buffer_pre_out.end(); ++i) {
         get_matching_patch(ev)->process(*i);
     }
 
     // postprocessing, write events to final buffer
-    _current_output_buffer = &_event_buffer_final;
+    _output_buffer = &_event_buffer_final;
     for (MidiEventVector::const_iterator i = _event_buffer_patch_out.begin(); i != _event_buffer_patch_out.end(); ++i) {
         if (_post_patch) {
             _post_patch->process(*i);
@@ -150,7 +128,7 @@ const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
         }
     }
 
-    _current_output_buffer = NULL;
+    _output_buffer = NULL;
 
 //    gettimeofday(&tv2, NULL);
 //    cout << (tv2.tv_sec * 1000000LL + tv2.tv_usec) - (tv1.tv_sec * 1000000LL + tv1.tv_usec) << endl;
@@ -190,4 +168,71 @@ Patch * Setup::get_matching_patch(const MidiEvent & ev)
 
     // anything else: just use current patch
     return _current;
+}
+
+
+void Setup::switch_patch(int n, const MidiEvent & ev)
+{
+//    DEBUG_PRINT("switching to patch " << n);
+
+    PatchMap::iterator i = _patches.find(n);
+    if (i != _patches.end()) {
+        _current = &*i->second;
+
+        PatchMap::iterator k = _init_patches.find(n);
+        if (k != _init_patches.end()) {
+            // temporarily redirect output to patch_out so events will go through postprocessing
+            MidiEventVector *p = _output_buffer;
+            _output_buffer = &_event_buffer_patch_out;
+
+            k->second->process(ev);
+
+            _output_buffer = p;
+        }
+//    } else {
+//        cerr << "no such patch: " << n << endl;
+    }
+}
+
+
+bool Setup::sanitize_event(MidiEvent & ev, bool print) const
+{
+    if (ev.port < 0 || ev.port >= num_out_ports()) {
+        if (print) cout << "invalid port, event discarded" << endl;
+        return false;
+    }
+
+    if (ev.channel < 0 || ev.channel > 15) {
+        if (print) cout << "invalid port, event discarded" << endl;
+        return false;
+    }
+
+    switch (ev.type) {
+        case MIDI_EVENT_NOTEON:
+        case MIDI_EVENT_NOTEOFF:
+            if (ev.note.note < 0 || ev.note.note > 127) {
+                if (print) cout << "invalid note number, event discarded" << endl;
+            }
+            if (ev.note.velocity < 0) ev.note.velocity = 0;
+            if (ev.note.velocity > 127) ev.note.velocity = 127;
+            return true;
+        case MIDI_EVENT_CTRL:
+            if (ev.ctrl.param < 0 || ev.ctrl.param > 127) {
+                if (print) cout << "invalid controller number, event discarded" << endl;
+            }
+            if (ev.ctrl.value < 0) ev.ctrl.value = 0;
+            if (ev.ctrl.value > 127) ev.ctrl.value = 127;
+            return true;
+        case MIDI_EVENT_PITCHBEND:
+            if (ev.ctrl.value < -8192) ev.ctrl.value = -8192;
+            if (ev.ctrl.value >  8191) ev.ctrl.value =  8191;
+            return true;
+        case MIDI_EVENT_PROGRAM:
+            if (ev.ctrl.value < 0 || ev.ctrl.value > 127) {
+                if (print) cout << "invalid program number, event discarded" << endl;
+            }
+            return true;
+        default:
+            return false;
+    }
 }

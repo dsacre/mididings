@@ -86,7 +86,7 @@ class Pass
     Pass(bool pass)
       : _pass(pass) { }
 
-    virtual bool process(MidiEvent & ev) {
+    virtual bool process(MidiEvent & /*ev*/) {
         return _pass;
     }
 
@@ -404,6 +404,16 @@ class GenerateEvent
     int _channel;
     int _data1;
     int _data2;
+};
+
+
+class Sanitize
+  : public Unit
+{
+  public:
+    Sanitize() { }
+
+    virtual bool process(MidiEvent & ev);
 };
 
 

@@ -104,6 +104,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<CtrlRange, bases<Unit> >("CtrlRange", init<int, int, int, int, int>());
 
     class_<GenerateEvent, bases<Unit> >("GenerateEvent", init<int, int, int, int, int>());
+    class_<Sanitize, bases<Unit> >("Sanitize", init<>());
     class_<PatchSwitch, bases<Unit> >("PatchSwitch", init<int>());
     class_<PythonCall, bases<Unit> >("Call", init<object>());
 

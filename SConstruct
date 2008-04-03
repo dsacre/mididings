@@ -5,8 +5,8 @@ from distutils import sysconfig
 import glob
 
 env = Environment(
-    CCFLAGS = [ '-O2', '-Wall' ],
-#    CCFLAGS = [ '-g', '-Wall' ],
+    CCFLAGS = [ '-O2', '-W', '-Wall' ],
+#    CCFLAGS = [ '-g', '-W', '-Wall' ],
     CPPDEFINES = [
         'ENABLE_DEBUG',
 #        'ENABLE_DEBUG_FN',
@@ -32,17 +32,17 @@ env.ParseConfig(
     'pkg-config --cflags --libs alsa'
 )
 
-env.SharedLibrary('src/_mididings',
-    [ 'src/backend_alsa.cc',
-      'src/setup.cc', 'src/patch.cc', 'src/units.cc',
-      'src/python.cc' ],
-    SHLIBPREFIX='', SHOBJSUFFIX='.o')
-
-#env.SharedObject('src/python.o', 'src/python.cc')
-#env.Ignore('src/python.o', glob.glob('src/*.h'))
-#
 #env.SharedLibrary('src/_mididings',
 #    [ 'src/backend_alsa.cc',
 #      'src/setup.cc', 'src/patch.cc', 'src/units.cc',
-#      'src/python.o' ],
+#      'src/python.cc' ],
 #    SHLIBPREFIX='', SHOBJSUFFIX='.o')
+
+env.SharedObject('src/python.o', 'src/python.cc', CCFLAGS = [f for f in env['CCFLAGS'] if f != '-W'])
+#env.Ignore('src/python.o', glob.glob('src/*.h'))
+
+env.SharedLibrary('src/_mididings',
+    [ 'src/backend_alsa.cc',
+      'src/setup.cc', 'src/patch.cc', 'src/units.cc',
+      'src/python.o' ],
+    SHLIBPREFIX='', SHOBJSUFFIX='.o')

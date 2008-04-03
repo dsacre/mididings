@@ -12,7 +12,6 @@
 #include "units.hh"
 #include "setup.hh"
 
-#include <iostream>
 #include <cmath>
 
 using namespace std;
@@ -33,9 +32,9 @@ static inline int apply_velocity(int velocity, float value, VelocityMode mode)
 
     switch (mode) {
       case VELOCITY_MODE_OFFSET:
-        return std::min(127, std::max(1, velocity + (int)value));
+        return velocity + (int)value;
       case VELOCITY_MODE_MULTIPLY:
-        return std::min(127, (int)(velocity * value));
+        return (int)(velocity * value);
       case VELOCITY_MODE_FIXED:
         return (int)value;
       default:
@@ -150,6 +149,12 @@ bool GenerateEvent::process(MidiEvent & ev)
     ev = ev_new;
 
     return true;
+}
+
+
+bool Sanitize::process(MidiEvent & ev)
+{
+    return TheSetup->sanitize_event(ev, false);
 }
 
 

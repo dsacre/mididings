@@ -72,13 +72,13 @@ class SimpleTestCase(unittest.TestCase):
         assert len(r) == 0
 
     def testSplit(self):
-        p = Split({ NOTE: Port(1), PROGRAM: Port(2) })
+        p = Split({ NOTE: Channel(1), PROGRAM: Channel(2) })
         r = test_run(p, self.noteon1)
         assert len(r) == 1
-        assert r[0].port_ == 1
+        assert r[0].channel_ == 1
         r = test_run(p, self.prog1)
         assert len(r) == 1
-        assert r[0].port_ == 2
+        assert r[0].channel_ == 2
         r = test_run(p, self.ctrl1)
         assert len(r) == 0
 
@@ -117,10 +117,10 @@ class SimpleTestCase(unittest.TestCase):
 
     def testGenerateEvent(self):
         p = CtrlChange(23, 42)
-        event = MidiEvent(NOTEON, 4, 8, 15, 16)
+        event = MidiEvent(NOTEON, 0, 8, 15, 16)
         r = test_run(p, event)
         assert len(r) == 1
-        assert r[0] == MidiEvent(CTRL, 4, 8, 23, 42)
+        assert r[0] == MidiEvent(CTRL, 0, 8, 23, 42)
 
     def testDataOffset(self):
         config(data_offset = 1)
@@ -136,6 +136,16 @@ class SimpleTestCase(unittest.TestCase):
             ev.channel = 6
         r = test_run(p, ev)
         assert r[0].channel_ == 5
+
+    def testSanitize(self):
+        def foo(ev):
+            assert False
+        p = Port(42) >> Sanitize() >> Call(foo)
+        test_run(p, self.noteon1)
+        p = Velocity(+666) >> Sanitize()
+        r = test_run(p, self.noteon1)
+        assert len(r) == 1
+        assert r[0].data2 == 127
 
     def testPatchSwitch(self):
         p = {

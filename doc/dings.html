@@ -273,6 +273,12 @@ Print(name)</h4>
 Prints event data.
 </p>
 
+<h4>Sanitize()</h4>
+<p>
+Makes sure the event is a valid MIDI message. Events with invalid port, channel, controller, program or note number are
+discarded, note velocity and controller values are confined to the range 0-127.
+</p>
+
 
 <h2><a name="examples"></a>Examples</h2>
 

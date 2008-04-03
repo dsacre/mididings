@@ -264,6 +264,11 @@ def ProgChange(*args):
         raise ArgumentError()
 
 
+class Sanitize(_mididings.Sanitize, _Unit):
+    def __init__(self):
+        _mididings.Sanitize.__init__(self)
+
+
 class PatchSwitch(_mididings.PatchSwitch, _Unit):
     def __init__(self, num=EVENT_PROGRAM):
         _mididings.PatchSwitch.__init__(self, num)

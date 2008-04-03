@@ -55,6 +55,8 @@ class Setup
     void add_patch(int i, PatchPtr patch, PatchPtr init_patch);
     void set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch);
 
+    int num_out_ports() const { return _num_out_ports; }
+
     void run();
 
     void switch_patch(int n, const MidiEvent & ev);
@@ -63,12 +65,21 @@ class Setup
 
 
     void buffer_event(const MidiEvent & ev) {
-        // this would cause the vector to be resized if it gets larger
+        // this will cause the vector to be resized if it gets larger
         // than EVENT_BUFFER_SIZE -> not realtime safe
-        if (_current_output_buffer) {
-            _current_output_buffer->push_back(ev);
+        if (_output_buffer == &_event_buffer_final) {
+            MidiEvent out = ev;
+            if (!sanitize_event(out, true)) {
+                return;
+            } else {
+                _output_buffer->push_back(out);
+            }
+        } else if (_output_buffer) {
+            _output_buffer->push_back(ev);
         }
     }
+
+    bool sanitize_event(MidiEvent & ev, bool print) const;
 
   protected:
     Patch * get_matching_patch(const MidiEvent & ev);
@@ -81,6 +92,7 @@ class Setup
     }
 
     boost::shared_ptr<Backend> _backend;
+    int _num_out_ports;
 
     PatchMap _patches;
     PatchMap _init_patches;
@@ -98,7 +110,7 @@ class Setup
     MidiEventVector _event_buffer_patch_out;
     MidiEventVector _event_buffer_final;
 
-    MidiEventVector * _current_output_buffer;
+    MidiEventVector * _output_buffer;
 };
 
 
