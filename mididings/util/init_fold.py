@@ -20,14 +20,14 @@ class InitAction(units._Unit):
 
 
 class Output(InitAction):
-    def __init__(self, port, channel, program):
+    def __init__(self, port, channel, program=-1):
         InitAction.__init__(self,
-            ProgChange(port, channel, program),
+            ProgChange(port, channel, program) if program != -1 else None,
             Port(port) >> Channel(channel),
         )
 
 
-def convolve_patches(patches):
+def unfold_patches(patches):
     def traverse(p, init):
         if isinstance(p, units._Chain):
             return traverse(p.items[0], init) >> traverse(p.items[1], init)
@@ -36,7 +36,8 @@ def convolve_patches(patches):
         elif isinstance(p, dict):
             return Split(dict(((n, traverse(i, init)) for n, i in p.items())))
         elif isinstance(p, InitAction):
-            init.append(p.init_patch)
+            if p.init_patch:
+                init.append(p.init_patch)
             return p.proc_patch
         elif isinstance(p, units._Unit):
             return p

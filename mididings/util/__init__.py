@@ -10,6 +10,3 @@
 # (at your option) any later version.
 #
 
-from inhibit_pc import *
-from init_convolve import *
-

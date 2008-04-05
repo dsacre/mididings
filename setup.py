@@ -27,7 +27,7 @@ setup(
                   [ 'src/backend_alsa.cc',
                     'src/setup.cc', 'src/patch.cc', 'src/units.cc',
                     'src/python.cc' ],
-                  include_dirs = ['.'],
+                  include_dirs = ['src'],
                   libraries = ['asound', 'boost_python']
         ),
     ],
