@@ -11,7 +11,7 @@
 #
 
 import _mididings
-import util
+import misc
 import units
 
 
@@ -74,13 +74,13 @@ class Setup(_mididings.Setup):
         in_portnames = _mididings.string_vector()
         out_portnames = _mididings.string_vector()
 
-        if not util.is_sequence(in_ports):
+        if not misc.is_sequence(in_ports):
             in_ports = [ 'in_' + str(n + DATA_OFFSET) for n in range(in_ports) ]
         # fill vector with input port names
         for i in in_ports:
             in_portnames.push_back(i)
 
-        if not util.is_sequence(out_ports):
+        if not misc.is_sequence(out_ports):
             out_ports = [ 'out_' + str(n + DATA_OFFSET) for n in range(out_ports) ]
         # fill vector with output port names
         for i in out_ports:
@@ -136,7 +136,7 @@ def test_run(patch, events):
 def test_run_patches(patches, events):
     s = Setup(patches, None, None, None, 'dummy', 'mididings_test', 1, 1)
     r = []
-    if not util.is_sequence(events):
+    if not misc.is_sequence(events):
         events = [events]
     for ev in events:
         r += s.process(ev)[:]

@@ -12,7 +12,7 @@
 
 import _mididings
 import main as _main
-import util as _util
+import misc as _misc
 from event import *
 
 
@@ -75,7 +75,7 @@ class Filter(_mididings.Filter, _Filter):
 class PortFilter(_mididings.PortFilter, _Filter):
     def __init__(self, *args):
         v = _mididings.int_vector()
-        for p in _util.flatten(args):
+        for p in _misc.flatten(args):
             v.push_back(p - _main.DATA_OFFSET)
         _mididings.PortFilter.__init__(self, v)
 
@@ -83,7 +83,7 @@ class PortFilter(_mididings.PortFilter, _Filter):
 class ChannelFilter(_mididings.ChannelFilter, _Filter):
     def __init__(self, *args):
         v = _mididings.int_vector()
-        for c in _util.flatten(args):
+        for c in _misc.flatten(args):
             v.push_back(c - _main.DATA_OFFSET)
         _mididings.ChannelFilter.__init__(self, v)
 
@@ -92,7 +92,7 @@ class KeyFilter(_mididings.KeyFilter, _Filter):
     def __init__(self, *args):
         if len(args) == 1:
             args = args[0]
-        r = _util.noterange2numbers(args)
+        r = _misc.noterange2numbers(args)
         _mididings.KeyFilter.__init__(self, r[0], r[1])
 
 
@@ -106,7 +106,7 @@ class VelocityFilter(_mididings.VelocityFilter, _Filter):
 class CtrlFilter(_mididings.CtrlFilter, _Filter):
     def __init__(self, *args):
         v = _mididings.int_vector()
-        for c in _util.flatten(args):
+        for c in _misc.flatten(args):
             v.push_back(c)
         _mididings.CtrlFilter.__init__(self, v)
 
@@ -119,7 +119,7 @@ class CtrlValueFilter(_mididings.CtrlValueFilter, _Filter):
 class ProgFilter(_mididings.ProgFilter, _Filter):
     def __init__(self, *args):
         v = _mididings.int_vector()
-        for p in _util.flatten(args):
+        for p in _misc.flatten(args):
             v.push_back(p - _main.DATA_OFFSET)
         _mididings.ProgFilter.__init__(self, v)
 
@@ -211,7 +211,7 @@ class VelocityCurve(_mididings.VelocityCurve, _Unit):
 class VelocityGradient(_mididings.VelocityGradient, _Unit):
     def __init__(self, note_lower, note_upper, value_lower, value_upper, mode=Velocity.OFFSET):
         _mididings.VelocityGradient.__init__(self,
-            _util.note2number(note_lower), _util.note2number(note_upper),
+            _misc.note2number(note_lower), _misc.note2number(note_upper),
             value_lower, value_upper, mode)
 
 def VelocityGradientOffset(note_lower, note_upper, value_lower, value_upper):
@@ -295,11 +295,11 @@ class Print(Call):
 
         if ev.type_ == NOTEON:
             t = "note on"
-            d1 = "note " + str(ev.note) + " (" + _util.notenumber2name(ev.note) + ")"
+            d1 = "note " + str(ev.note) + " (" + _misc.notenumber2name(ev.note) + ")"
             d2 = "velocity " + str(ev.velocity)
         elif ev.type_ == NOTEOFF:
             t = "note off"
-            d1 = "note " + str(ev.note) + " (" + _util.notenumber2name(ev.note) + ")"
+            d1 = "note " + str(ev.note) + " (" + _misc.notenumber2name(ev.note) + ")"
             d2 = "velocity " + str(ev.velocity)
         elif ev.type_ == CTRL:
             t = "control change"
