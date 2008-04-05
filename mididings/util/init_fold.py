@@ -9,6 +9,21 @@
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
+#
+# This module lets you embed init patch commands in the regular patch.
+#
+# Example: Two patches, both sending MIDI events to port 1, channel 1.
+# The first patch uses program 23, the second uses program 42.
+# Using the following code, the program changes will automatically be sent,
+# without explicitly specifying an init patch:
+#
+# p = {
+#     1: Output(1, 1, 23),
+#     2: Transpose(-12) >> Output(1, 1, 42),
+# }
+#
+# run_patches(patches = unfold_patches(p))
+
 
 from mididings import *
 
@@ -20,9 +35,9 @@ class InitAction(units._Unit):
 
 
 class Output(InitAction):
-    def __init__(self, port, channel, program=-1):
+    def __init__(self, port, channel, program=None):
         InitAction.__init__(self,
-            ProgChange(port, channel, program) if program != -1 else None,
+            ProgChange(port, channel, program) if program != None else None,
             Port(port) >> Channel(channel),
         )
 
