@@ -1,10 +1,12 @@
 setup.py
-SConstruct
+README
+COPYING
 mididings/__init__.py
 mididings/main.py
 mididings/units.py
 mididings/event.py
 mididings/misc.py
+src/SConstruct
 src/setup.hh
 src/setup.cc
 src/patch.hh
