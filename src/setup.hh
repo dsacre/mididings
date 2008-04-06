@@ -20,7 +20,7 @@
 #include <map>
 #include <tr1/unordered_map>
 #include <boost/shared_ptr.hpp>
-
+#include <Python.h>
 #include "util/global_object.hh"
 
 
@@ -45,7 +45,8 @@ class Setup
     typedef std::vector<MidiEvent> MidiEventVector;
 
 
-    Setup(const std::string & backend_name,
+    Setup(PyObject * self,
+          const std::string & backend_name,
           const std::string & client_name,
           const std::vector<std::string> & in_ports,
           const std::vector<std::string> & out_ports);
@@ -91,6 +92,7 @@ class Setup
         return ev.port | ev.channel << 16;
     }
 
+    PyObject * _self;
     boost::shared_ptr<Backend> _backend;
     int _num_out_ports;
 

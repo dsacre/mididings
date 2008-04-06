@@ -13,9 +13,10 @@
 #include "backend_alsa.hh"
 #include "util/debug.hh"
 
-#include <iostream>
+//#include <iostream>
 //#include <sys/time.h>
 //#include <time.h>
+#include <boost/python/call_method.hpp>
 
 using namespace std;
 
@@ -23,11 +24,13 @@ using namespace std;
 Setup * TheSetup = NULL;
 
 
-Setup::Setup(const string & backend_name,
+Setup::Setup(PyObject * self,
+             const string & backend_name,
              const string & client_name,
              const vector<string> & in_ports,
              const vector<string> & out_ports)
-  : _current(NULL),
+  : _self(self),
+    _current(NULL),
     _noteon_patches(MAX_SIMULTANEOUS_NOTES),
     _sustain_patches(MAX_SUSTAIN_PEDALS),
     _event_buffer_pre_out(EVENT_BUFFER_SIZE),
@@ -173,9 +176,10 @@ Patch * Setup::get_matching_patch(const MidiEvent & ev)
 
 void Setup::switch_patch(int n, const MidiEvent & ev)
 {
-//    DEBUG_PRINT("switching to patch " << n);
-
     PatchMap::iterator i = _patches.find(n);
+
+    boost::python::call_method<void>(_self, "print_switch_patch", n, i != _patches.end());
+
     if (i != _patches.end()) {
         _current = &*i->second;
 
@@ -189,8 +193,6 @@ void Setup::switch_patch(int n, const MidiEvent & ev)
 
             _output_buffer = p;
         }
-//    } else {
-//        cerr << "no such patch: " << n << endl;
     }
 }
 
@@ -203,7 +205,7 @@ bool Setup::sanitize_event(MidiEvent & ev, bool print) const
     }
 
     if (ev.channel < 0 || ev.channel > 15) {
-        if (print) cout << "invalid port, event discarded" << endl;
+        if (print) cout << "invalid channel, event discarded" << endl;
         return false;
     }
 

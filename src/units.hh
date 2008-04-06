@@ -18,6 +18,9 @@
 #include <boost/shared_ptr.hpp>
 #include "util/debug.hh"
 
+#include <boost/python/object.hpp>
+
+
 class Unit
 {
   public:
@@ -428,6 +431,22 @@ class PatchSwitch
 
   private:
     int _num;
+};
+
+
+class Call
+  : public Unit
+{
+  public:
+    Call(boost::python::object fun)
+      : _fun(fun)
+    {
+    }
+
+    bool process(MidiEvent & ev);
+
+  private:
+    boost::python::object _fun;
 };
 
 

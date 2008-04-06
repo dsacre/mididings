@@ -14,6 +14,9 @@
 
 #include <cmath>
 
+#include <boost/python/ptr.hpp>
+#include <boost/python/extract.hpp>
+
 using namespace std;
 using namespace das;
 
@@ -162,4 +165,16 @@ bool PatchSwitch::process(MidiEvent & ev)
 {
     TheSetup->switch_patch(get_parameter(_num, ev), ev);
     return false;
+}
+
+
+bool Call::process(MidiEvent & ev)
+{
+    boost::python::object ret = _fun(boost::python::ptr(&ev));
+
+    if (ret.ptr() == Py_None) {
+        return true;
+    } else {
+        return boost::python::extract<bool>(ret);
+    }
 }

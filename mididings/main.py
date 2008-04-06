@@ -103,6 +103,12 @@ class Setup(_mididings.Setup):
         import event
         self.switch_patch(0, event.MidiEvent())
 
+    def print_switch_patch(self, n, found):
+        if found:
+            print "switching to patch: %d" % (n + DATA_OFFSET)
+        else:
+            print "no such patch: %d" % (n + DATA_OFFSET)
+
 
 def config(data_offset=None, octave_offset=None):
     global DATA_OFFSET

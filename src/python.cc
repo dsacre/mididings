@@ -13,7 +13,7 @@
 #include <boost/python/def.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/scope.hpp>
-#include <boost/python/ptr.hpp>
+//#include <boost/python/ptr.hpp>
 
 #ifdef ENABLE_TEST
     #include <boost/python/operators.hpp>
@@ -51,32 +51,6 @@ bool operator==(const MidiEvent & lhs, const MidiEvent & rhs) {
 #endif // ENABLE_TEST
 
 
-// unit to call back into python
-class PythonCall
-  : public Unit
-{
-  public:
-    PythonCall(object fun)
-      : _fun(fun)
-    {
-    }
-
-    bool process(MidiEvent & ev)
-    {
-        object ret = _fun(ptr(&ev));
-
-        if (ret.ptr() == Py_None) {
-            return true;
-        } else {
-            return extract<bool>(ret);
-        }
-    }
-
-  private:
-    object _fun;
-};
-
-
 BOOST_PYTHON_MODULE(_mididings)
 {
     class_<Unit, noncopyable>("Unit", no_init);
@@ -106,9 +80,9 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<GenerateEvent, bases<Unit> >("GenerateEvent", init<int, int, int, int, int>());
     class_<Sanitize, bases<Unit> >("Sanitize", init<>());
     class_<PatchSwitch, bases<Unit> >("PatchSwitch", init<int>());
-    class_<PythonCall, bases<Unit> >("Call", init<object>());
+    class_<Call, bases<Unit> >("Call", init<object>());
 
-    class_<Setup, noncopyable>("Setup", init<const string &, const string &, const vector<string> &, const vector<string> &>())
+    class_<Setup, Setup, noncopyable>("Setup", init<const string &, const string &, const vector<string> &, const vector<string> &>())
         .def("add_patch", &Setup::add_patch)
         .def("set_processing", &Setup::set_processing)
         .def("run", &Setup::run)
