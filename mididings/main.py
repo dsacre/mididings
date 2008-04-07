@@ -15,8 +15,19 @@ import misc
 import units
 
 
-DATA_OFFSET     = 1
-OCTAVE_OFFSET   = 2
+_config = {
+    'client_name':      'mididings',
+    'in_ports':         1,
+    'out_ports':        1,
+    'data_offset':      1,
+    'octave_offset':    2,
+}
+
+def config(**kwargs):
+    for k in kwargs:
+        if k not in _config:
+            raise TypeError('unknown config variable: %s' % k)
+        _config[k] = kwargs[k]
 
 
 class Patch(_mididings.Patch):
@@ -70,30 +81,33 @@ class Patch(_mididings.Patch):
 
 
 class Setup(_mididings.Setup):
-    def __init__(self, patches, control, pre, post, backend, client_name, in_ports, out_ports):
+    def __init__(self, patches, control, pre, post):
+        in_ports = _config['in_ports']
+        out_ports = _config['out_ports']
+
         in_portnames = _mididings.string_vector()
         out_portnames = _mididings.string_vector()
 
-        if not misc.is_sequence(in_ports):
-            in_ports = [ 'in_' + str(n + DATA_OFFSET) for n in range(in_ports) ]
+        if not misc.issequence(in_ports):
+            in_ports = [ 'in_' + str(n + _config['data_offset']) for n in range(in_ports) ]
         # fill vector with input port names
         for i in in_ports:
             in_portnames.push_back(i)
 
-        if not misc.is_sequence(out_ports):
-            out_ports = [ 'out_' + str(n + DATA_OFFSET) for n in range(out_ports) ]
+        if not misc.issequence(out_ports):
+            out_ports = [ 'out_' + str(n + _config['data_offset']) for n in range(out_ports) ]
         # fill vector with output port names
         for i in out_ports:
             out_portnames.push_back(i)
 
-        _mididings.Setup.__init__(self, backend, client_name, in_portnames, out_portnames)
+        _mididings.Setup.__init__(self, '', _config['client_name'], in_portnames, out_portnames)
 
         for i, p in patches.items():
             if isinstance(p, tuple):
                 init_patch, patch = Patch(p[0]), Patch(p[1])
             else:
                 init_patch, patch = None, Patch(p)
-            self.add_patch(i - DATA_OFFSET, patch, init_patch)
+            self.add_patch(i - _config['data_offset'], patch, init_patch)
 
         ctrl = Patch(control) if control else None
         pre_patch = Patch(pre) if pre else None
@@ -105,31 +119,16 @@ class Setup(_mididings.Setup):
 
     def print_switch_patch(self, n, found):
         if found:
-            print "switching to patch: %d" % (n + DATA_OFFSET)
+            print "switching to patch: %d" % (n + _config['data_offset'])
         else:
-            print "no such patch: %d" % (n + DATA_OFFSET)
+            print "no such patch: %d" % (n + _config['data_offset'])
 
 
-def config(data_offset=None, octave_offset=None):
-    global DATA_OFFSET
-    global OCTAVE_OFFSET
+def run(patch):
+    run_patches({ _config['data_offset']: patch }, None, None, None)
 
-    if data_offset != None:
-        DATA_OFFSET = data_offset
-    if octave_offset != None:
-        OCTAVE_OFFSET = octave_offset
-
-def _data_offset():
-    return DATA_OFFSET
-def _octave_offset():
-    return OCTAVE_OFFSET
-
-
-def run(patch, backend='alsa', client_name='mididings', in_ports=1, out_ports=1):
-    run_patches({ DATA_OFFSET: patch }, None, None, None, backend, client_name, in_ports, out_ports)
-
-def run_patches(patches, control=None, pre=None, post=None, backend='alsa', client_name='mididings', in_ports=1, out_ports=1):
-    s = Setup(patches, control, pre, post, backend, client_name, in_ports, out_ports)
+def run_patches(patches, control=None, pre=None, post=None):
+    s = Setup(patches, control, pre, post)
     try:
         s.run()
     except KeyboardInterrupt:
@@ -137,12 +136,12 @@ def run_patches(patches, control=None, pre=None, post=None, backend='alsa', clie
 
 
 def test_run(patch, events):
-    return test_run_patches({ DATA_OFFSET: patch }, events)
+    return test_run_patches({ _config['data_offset']: patch }, events)
 
 def test_run_patches(patches, events):
-    s = Setup(patches, None, None, None, 'dummy', 'mididings_test', 1, 1)
+    s = Setup(patches, None, None, None)
     r = []
-    if not misc.is_sequence(events):
+    if not misc.issequence(events):
         events = [events]
     for ev in events:
         r += s.process(ev)[:]

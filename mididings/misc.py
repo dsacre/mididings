@@ -88,10 +88,28 @@ def flatten(seq):
     return r
 
 
-def is_sequence(seq):
+def issequence(seq):
     try:
         iter(seq)
         return True
     except:
         return False
 
+
+def port_number(port):
+    try:
+        return int(port) - _main._config['data_offset']
+    except ValueError:
+        try:
+            return _main._config['out_ports'].index(port)
+        except ValueError:
+            try:
+                return _main._config['in_ports'].index(port)
+            except:
+                raise ValueError('invalid port name')
+
+def channel_number(channel):
+    return channel - _main._config['data_offset']
+
+def program_number(program):
+    return program - _main._config['data_offset']

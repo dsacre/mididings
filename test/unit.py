@@ -170,6 +170,12 @@ class SimpleTestCase(unittest.TestCase):
         assert r[2].type_ == NOTEOFF
         assert r[2].channel_ == 7
 
+    def testNamedPorts(self):
+        config(out_ports = ['foo', 'bar', 'baz'])
+        r = test_run(Port('bar'), self.noteon1)
+        assert len(r) == 1
+        assert r[0].port_ == 1
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -43,8 +43,8 @@ class MidiEvent(_mididings.MidiEvent):
     def __init__(self, type_=NONE, port=-1, channel=-1, data1=-1, data2=-1):
         _mididings.MidiEvent.__init__(self)
         self.type_ = type_
-        self.port_ = port - _main._data_offset() if port >= 0 else 0
-        self.channel_ = channel - _main._data_offset() if channel >= 0 else 0
+        self.port_ = port - _main._config['data_offset'] if port >= 0 else 0
+        self.channel_ = channel - _main._config['data_offset'] if channel >= 0 else 0
         if data1 >= 0 and data2 >= 0:
             if type_ == PROGRAM:
                 self.data1 = 0
@@ -56,27 +56,24 @@ class MidiEvent(_mididings.MidiEvent):
             self.data1 = 0
             self.data2 = 0
 
-    def make_get_set(type_, data, offset=None):
+    def make_get_set(type_, data, offset=lambda: 0):
         def getter(self):
             if not self.type_ & type_ and not type_ == ANY:
                 print "midi event attribute error"
-            off = offset() if offset else 0
-            return getattr(self, data) + off
+            return getattr(self, data) + offset()
 
         def setter(self, value):
             if not self.type_ & type_ and not type_ == ANY:
                 print "midi event attribute error"
-            off = offset() if offset else 0
-            setattr(self, data, value - off)
+            setattr(self, data, value - offset())
 
         return (getter, setter)
 
-    port      = property(*make_get_set(ANY, 'port_', _main._data_offset))
-    channel   = property(*make_get_set(ANY, 'channel_', _main._data_offset))
+    port      = property(*make_get_set(ANY, 'port_', lambda: _main._config['data_offset']))
+    channel   = property(*make_get_set(ANY, 'channel_', lambda: _main._config['data_offset']))
 
     note      = property(*make_get_set(NOTE, 'data1'))
     velocity  = property(*make_get_set(NOTE, 'data2'))
     param     = property(*make_get_set(CTRL, 'data1'))
     value     = property(*make_get_set(CTRL | PITCHBEND, 'data2'))
-    program   = property(*make_get_set(PROGRAM, 'data2', _main._data_offset))
-
+    program   = property(*make_get_set(PROGRAM, 'data2', lambda: _main._config['data_offset']))

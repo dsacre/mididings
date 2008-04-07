@@ -13,7 +13,7 @@
 #include "backend_alsa.hh"
 #include "util/debug.hh"
 
-//#include <iostream>
+#include <iostream>
 //#include <sys/time.h>
 //#include <time.h>
 #include <boost/python/call_method.hpp>

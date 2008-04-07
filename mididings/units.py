@@ -76,7 +76,7 @@ class PortFilter(_mididings.PortFilter, _Filter):
     def __init__(self, *args):
         v = _mididings.int_vector()
         for p in _misc.flatten(args):
-            v.push_back(p - _main.DATA_OFFSET)
+            v.push_back(_misc.port_number(p))
         _mididings.PortFilter.__init__(self, v)
 
 
@@ -84,7 +84,7 @@ class ChannelFilter(_mididings.ChannelFilter, _Filter):
     def __init__(self, *args):
         v = _mididings.int_vector()
         for c in _misc.flatten(args):
-            v.push_back(c - _main.DATA_OFFSET)
+            v.push_back(_misc.channel_number(c))
         _mididings.ChannelFilter.__init__(self, v)
 
 
@@ -120,7 +120,7 @@ class ProgFilter(_mididings.ProgFilter, _Filter):
     def __init__(self, *args):
         v = _mididings.int_vector()
         for p in _misc.flatten(args):
-            v.push_back(p - _main.DATA_OFFSET)
+            v.push_back(_misc.program_number(p))
         _mididings.ProgFilter.__init__(self, v)
 
 
@@ -173,12 +173,12 @@ def VelocitySplit(*args):
 
 class Port(_mididings.Port, _Unit):
     def __init__(self, port):
-        _mididings.Port.__init__(self, port - _main.DATA_OFFSET)
+        _mididings.Port.__init__(self, _misc.port_number(port))
 
 
 class Channel(_mididings.Channel, _Unit):
     def __init__(self, channel):
-        _mididings.Channel.__init__(self, channel - _main.DATA_OFFSET)
+        _mididings.Channel.__init__(self, _misc.channel_number(channel))
 
 
 class Transpose(_mididings.Transpose, _Unit):
@@ -234,8 +234,8 @@ class CtrlRange(_mididings.CtrlRange, _Unit):
 class GenerateEvent(_mididings.GenerateEvent, _Unit):
     def __init__(self, type_, port, channel, data1, data2):
         _mididings.GenerateEvent.__init__(self, type_,
-                port - _main.DATA_OFFSET if port >= 0 else port,
-                channel - _main.DATA_OFFSET if channel >= 0 else channel,
+                _misc.port_number(port) if isinstance(port, str) or port >= 0 else port,
+                _misc.channel_number(channel) if channel >= 0 else channel,
                 data1, data2)
 
 
@@ -255,11 +255,11 @@ def CtrlChange(*args):
 def ProgChange(*args):
     if len(args) == 1:
         # ProgChange(program)
-        return GenerateEvent(PROGRAM, EVENT_PORT, EVENT_CHANNEL, 0, args[0] - _main.DATA_OFFSET)
+        return GenerateEvent(PROGRAM, EVENT_PORT, EVENT_CHANNEL, 0, _misc.program_number(args[0]))
     elif len(args) == 3:
         # ProgChange(port, channel, program)
         port, channel, program = args
-        return GenerateEvent(PROGRAM, port, channel, 0, program - _main.DATA_OFFSET)
+        return GenerateEvent(PROGRAM, port, channel, 0, _misc.program_number(program))
     else:
         raise ArgumentError()
 

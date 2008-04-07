@@ -66,7 +66,7 @@ Starts the actual MIDI processing. This is usually the last function called by a
   <li><b>patch</b>: A single patch.</li>
   <li><b>backend/client_name</b>: MIDI backend and client name to be used. Current only ALSA is supported.</li>
   <li><b>in_ports/out_ports</b>: Integers indicating the number of input/output ports to create (named in_<i>n</i>
-  or out_<i>n</i>), or tuples with port names, in which case the tuple's length determines the number of ports.</li>
+  or out_<i>n</i>), or lists of port names, in which case the list's length determines the number of ports.</li>
 </ul>
 
 <h4>run_patches(patches, control=None, pre=None, post=None,
