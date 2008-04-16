@@ -49,7 +49,8 @@ class Setup
           const std::string & backend_name,
           const std::string & client_name,
           const std::vector<std::string> & in_ports,
-          const std::vector<std::string> & out_ports);
+          const std::vector<std::string> & out_ports,
+          bool verbose);
 
     ~Setup();
 
@@ -70,7 +71,7 @@ class Setup
         // than EVENT_BUFFER_SIZE -> not realtime safe
         if (_output_buffer == &_event_buffer_final) {
             MidiEvent out = ev;
-            if (!sanitize_event(out, true)) {
+            if (!sanitize_event(out)) {
                 return;
             } else {
                 _output_buffer->push_back(out);
@@ -80,7 +81,7 @@ class Setup
         }
     }
 
-    bool sanitize_event(MidiEvent & ev, bool print) const;
+    bool sanitize_event(MidiEvent & ev) const;
 
   protected:
     Patch * get_matching_patch(const MidiEvent & ev);
@@ -93,6 +94,8 @@ class Setup
     }
 
     PyObject * _self;
+    bool _verbose;
+
     boost::shared_ptr<Backend> _backend;
     int _num_out_ports;
 

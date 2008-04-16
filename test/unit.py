@@ -5,7 +5,7 @@ from mididings.main import test_run, test_run_patches
 
 class SimpleTestCase(unittest.TestCase):
     def setUp(self):
-        config(data_offset = 0)
+        config(data_offset = 0, verbose = False)
         self.noteon1 = MidiEvent(NOTEON, 0, 0, 66, 23)
         self.noteon2 = MidiEvent(NOTEON, 0, 0, 42, 127)
         self.noteon3 = MidiEvent(NOTEON, 0, 1, 23, 127)

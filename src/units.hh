@@ -365,7 +365,7 @@ class CtrlRange
   : public Unit
 {
   public:
-    CtrlRange(int controller, int in_min, int in_max, int out_min, int out_max)
+    CtrlRange(int controller, int out_min, int out_max, int in_min, int in_max)
       : _controller(controller),
         _in_min(in_min), _in_max(in_max),
         _out_min(out_min), _out_max(out_max)

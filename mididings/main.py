@@ -16,11 +16,13 @@ import units
 
 
 _config = {
+    'backend':          'alsa',
     'client_name':      'mididings',
     'in_ports':         1,
     'out_ports':        1,
     'data_offset':      1,
     'octave_offset':    2,
+    'verbose':          True,
 }
 
 def config(**kwargs):
@@ -82,25 +84,17 @@ class Patch(_mididings.Patch):
 
 class Setup(_mididings.Setup):
     def __init__(self, patches, control, pre, post):
-        in_ports = _config['in_ports']
-        out_ports = _config['out_ports']
+        def make_portnames(ports, prefix):
+            return ports if misc.issequence(ports) else \
+                   ( prefix + str(n + _config['data_offset']) for n in range(ports) )
 
-        in_portnames = _mididings.string_vector()
-        out_portnames = _mididings.string_vector()
+        in_ports = make_portnames(_config['in_ports'], 'in_')
+        out_ports = make_portnames(_config['out_ports'], 'out_')
 
-        if not misc.issequence(in_ports):
-            in_ports = [ 'in_' + str(n + _config['data_offset']) for n in range(in_ports) ]
-        # fill vector with input port names
-        for i in in_ports:
-            in_portnames.push_back(i)
-
-        if not misc.issequence(out_ports):
-            out_ports = [ 'out_' + str(n + _config['data_offset']) for n in range(out_ports) ]
-        # fill vector with output port names
-        for i in out_ports:
-            out_portnames.push_back(i)
-
-        _mididings.Setup.__init__(self, '', _config['client_name'], in_portnames, out_portnames)
+        _mididings.Setup.__init__(self, _config['backend'], _config['client_name'],
+                                  misc.make_string_vector(in_ports),
+                                  misc.make_string_vector(out_ports),
+                                  _config['verbose'])
 
         for i, p in patches.items():
             if isinstance(p, tuple):
@@ -118,10 +112,10 @@ class Setup(_mididings.Setup):
         self.switch_patch(0, event.MidiEvent())
 
     def print_switch_patch(self, n, found):
-        if found:
-            print "switching to patch: %d" % (n + _config['data_offset'])
-        else:
-            print "no such patch: %d" % (n + _config['data_offset'])
+        if _config['verbose']:
+            n += _config['data_offset']
+            if found: print "switching to patch: %d" % n
+            else: print "no such patch: %d" % n
 
 
 def run(patch):
@@ -139,6 +133,7 @@ def test_run(patch, events):
     return test_run_patches({ _config['data_offset']: patch }, events)
 
 def test_run_patches(patches, events):
+    config(backend = 'dummy')
     s = Setup(patches, None, None, None)
     r = []
     if not misc.issequence(events):

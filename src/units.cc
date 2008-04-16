@@ -157,7 +157,7 @@ bool GenerateEvent::process(MidiEvent & ev)
 
 bool Sanitize::process(MidiEvent & ev)
 {
-    return TheSetup->sanitize_event(ev, false);
+    return TheSetup->sanitize_event(ev);
 }
 
 

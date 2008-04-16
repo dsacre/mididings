@@ -28,8 +28,10 @@ Setup::Setup(PyObject * self,
              const string & backend_name,
              const string & client_name,
              const vector<string> & in_ports,
-             const vector<string> & out_ports)
+             const vector<string> & out_ports,
+             bool verbose)
   : _self(self),
+    _verbose(verbose),
     _current(NULL),
     _noteon_patches(MAX_SIMULTANEOUS_NOTES),
     _sustain_patches(MAX_SUSTAIN_PEDALS),
@@ -197,15 +199,15 @@ void Setup::switch_patch(int n, const MidiEvent & ev)
 }
 
 
-bool Setup::sanitize_event(MidiEvent & ev, bool print) const
+bool Setup::sanitize_event(MidiEvent & ev) const
 {
     if (ev.port < 0 || ev.port >= num_out_ports()) {
-        if (print) cout << "invalid port, event discarded" << endl;
+        if (_verbose) cout << "invalid port, event discarded" << endl;
         return false;
     }
 
     if (ev.channel < 0 || ev.channel > 15) {
-        if (print) cout << "invalid channel, event discarded" << endl;
+        if (_verbose) cout << "invalid channel, event discarded" << endl;
         return false;
     }
 
@@ -213,14 +215,14 @@ bool Setup::sanitize_event(MidiEvent & ev, bool print) const
         case MIDI_EVENT_NOTEON:
         case MIDI_EVENT_NOTEOFF:
             if (ev.note.note < 0 || ev.note.note > 127) {
-                if (print) cout << "invalid note number, event discarded" << endl;
+                if (_verbose) cout << "invalid note number, event discarded" << endl;
             }
             if (ev.note.velocity < 0) ev.note.velocity = 0;
             if (ev.note.velocity > 127) ev.note.velocity = 127;
             return true;
         case MIDI_EVENT_CTRL:
             if (ev.ctrl.param < 0 || ev.ctrl.param > 127) {
-                if (print) cout << "invalid controller number, event discarded" << endl;
+                if (_verbose) cout << "invalid controller number, event discarded" << endl;
             }
             if (ev.ctrl.value < 0) ev.ctrl.value = 0;
             if (ev.ctrl.value > 127) ev.ctrl.value = 127;
@@ -231,7 +233,7 @@ bool Setup::sanitize_event(MidiEvent & ev, bool print) const
             return true;
         case MIDI_EVENT_PROGRAM:
             if (ev.ctrl.value < 0 || ev.ctrl.value > 127) {
-                if (print) cout << "invalid program number, event discarded" << endl;
+                if (_verbose) cout << "invalid program number, event discarded" << endl;
             }
             return true;
         default:

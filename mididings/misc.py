@@ -11,6 +11,7 @@
 #
 
 import main as _main
+import _mididings
 
 
 NOTE_NAMES = {
@@ -49,7 +50,7 @@ def notename2number(name):
     for n in NOTE_NAMES:
         octave = name[len(n):]
         if name.startswith(n) and (octave.isdigit() or (octave[0] == '-' and octave[1:].isdigit())):
-            num = NOTE_NAMES[n] + (int(octave) + _main.OCTAVE_OFFSET) * 12
+            num = NOTE_NAMES[n] + (int(octave) + _main._config['octave_offset']) * 12
             if num < 0 or num > 127:
                 raise ValueError()
             return num
@@ -74,7 +75,7 @@ def noterange2numbers(noterange):
 
 
 def notenumber2name(n):
-    return NOTE_NUMBERS[n % 12] + str(n / 12 - _main.OCTAVE_OFFSET)
+    return NOTE_NUMBERS[n % 12] + str(n / 12 - _main._config['octave_offset'])
 
 
 
@@ -106,10 +107,23 @@ def port_number(port):
             try:
                 return _main._config['in_ports'].index(port)
             except:
-                raise ValueError('invalid port name')
+                raise ValueError('invalid port name: %s' % port)
 
 def channel_number(channel):
     return channel - _main._config['data_offset']
 
 def program_number(program):
     return program - _main._config['data_offset']
+
+
+def make_string_vector(seq):
+    vec = _mididings.string_vector()
+    for i in seq:
+        vec.push_back(i)
+    return vec
+
+def make_int_vector(seq):
+    vec = _mididings.int_vector()
+    for i in seq:
+        vec.push_back(i)
+    return vec

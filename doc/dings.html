@@ -58,19 +58,31 @@ in C++. It is however possible to explicitly call back into Python, if necessary
 
 <h3><a name="functions"></a>Functions</h3>
 
-<h4>run(patch, backend='alsa', client_name='mididings', in_ports=1, out_ports=1)</h4>
+<h4>config(**kwargs)</h4>
+<p>
+Changes global mididings settings. This should be called only once, before constructing any processing units.
+<br>
+Possible keyword arguments are:
+</p>
+<ul>
+  <li><b>client_name</b>: MIDI client name to be used.</li>
+  <li><b>in_ports/out_ports</b>: Integers indicating the number of input/output ports to create (named in_<i>n</i>
+  or out_<i>n</i>), or lists of port names, in which case the list's length determines the number of ports.</li>
+  <li><b>data_offset</b>: 1 (default) or 0. Determines whether program, port and channel numbers will be
+  in the range 1-128 or 0-127.</li>
+  <li><b>octave_offset</b>: Default is 2, meaning that "Middle C" is designated as C3.</li>
+</ul>
+
+
+<h4>run(patch)</h4>
 <p>
 Starts the actual MIDI processing. This is usually the last function called by a mididings script.
 </p>
 <ul>
   <li><b>patch</b>: A single patch.</li>
-  <li><b>backend/client_name</b>: MIDI backend and client name to be used. Current only ALSA is supported.</li>
-  <li><b>in_ports/out_ports</b>: Integers indicating the number of input/output ports to create (named in_<i>n</i>
-  or out_<i>n</i>), or lists of port names, in which case the list's length determines the number of ports.</li>
 </ul>
 
-<h4>run_patches(patches, control=None, pre=None, post=None,
-                backend='alsa', client_name='mididings', in_ports=1, out_ports=1)</h4>
+<h4>run_patches(patches, control=None, pre=None, post=None)</h4>
 <ul>
   <li><b>patches</b>: A dictionary with program numbers as keys, and patches as values.
   Values can also be tuple with two items, the first being an init-patch that's executed once every time the
@@ -78,22 +90,7 @@ Starts the actual MIDI processing. This is usually the last function called by a
   <li><b>control</b>: The "control" patch, which is always active, and run in parallel to the current patch.</li>
   <li><b>pre/post</b>: Allows processing to take place before/after every patch. Does not affect
   the control patch.</li>
-  <li><b>backend/client_name/in_ports/out_ports</b>: Same as for run().</li>
 </ul>
-
-<h4>config(...)</h4>
-<p>
-Changes global mididings settings. This should be called before constructing any processing units.
-Arguments should be passed by name.<br>
-<br>
-Possible arguments are:
-</p>
-<ul>
-  <li><b>data_offset</b>: 1 (default) or 0. Determines whether program, port and channel numbers will be
-  in the range 1-128 or 0-127.</li>
-  <li><b>octave_offset</b>: Default is 2, meaning that "Middle C" is designated as C3.</li>
-</ul>
-
 
 
 <h3><a name="connect"></a>Making connections</h3>
@@ -228,7 +225,7 @@ VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper)</h4>
 Changes velocity, using a gradient from lower to upper.
 </p>
 
-<h4>CtrlRange(num, in_min, in_max, out_min, out_max)</h4>
+<h4>CtrlRange(num, out_min, out_max, in_min=0, in_max=127)</h4>
 <p>
 Maps controller range in to out.
 </p>

@@ -17,6 +17,10 @@
 
 from mididings import *
 
+config(
+    # create two output ports
+    out_ports = 2,
+)
 
 # define the output ports/channels for all synths
 piano = Port(1) >> Channel(1)
@@ -46,6 +50,4 @@ run_patches(
     pre = ~Filter(PROGRAM),
     # postprocessing: print all outgoing events
     post = Print('out'),
-    # create two output ports
-    out_ports = 2,
 )

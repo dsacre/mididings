@@ -13,7 +13,6 @@
 #include <boost/python/def.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/scope.hpp>
-//#include <boost/python/ptr.hpp>
 
 #ifdef ENABLE_TEST
     #include <boost/python/operators.hpp>
@@ -82,7 +81,8 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<PatchSwitch, bases<Unit> >("PatchSwitch", init<int>());
     class_<Call, bases<Unit> >("Call", init<object>());
 
-    class_<Setup, Setup, noncopyable>("Setup", init<const string &, const string &, const vector<string> &, const vector<string> &>())
+    class_<Setup, Setup, noncopyable>("Setup", init<const string &, const string &,
+                                                    const vector<string> &, const vector<string> &, bool>())
         .def("add_patch", &Setup::add_patch)
         .def("set_processing", &Setup::set_processing)
         .def("run", &Setup::run)

@@ -74,17 +74,13 @@ class Filter(_mididings.Filter, _Filter):
 
 class PortFilter(_mididings.PortFilter, _Filter):
     def __init__(self, *args):
-        v = _mididings.int_vector()
-        for p in _misc.flatten(args):
-            v.push_back(_misc.port_number(p))
+        v = _misc.make_int_vector((_misc.port_number(p) for p in _misc.flatten(args)))
         _mididings.PortFilter.__init__(self, v)
 
 
 class ChannelFilter(_mididings.ChannelFilter, _Filter):
     def __init__(self, *args):
-        v = _mididings.int_vector()
-        for c in _misc.flatten(args):
-            v.push_back(_misc.channel_number(c))
+        v = _misc.make_int_vector((_misc.channel_number(c) for c in _misc.flatten(args)))
         _mididings.ChannelFilter.__init__(self, v)
 
 
@@ -105,9 +101,7 @@ class VelocityFilter(_mididings.VelocityFilter, _Filter):
 
 class CtrlFilter(_mididings.CtrlFilter, _Filter):
     def __init__(self, *args):
-        v = _mididings.int_vector()
-        for c in _misc.flatten(args):
-            v.push_back(c)
+        v = _misc.make_int_vector(_misc.flatten(args))
         _mididings.CtrlFilter.__init__(self, v)
 
 
@@ -118,9 +112,7 @@ class CtrlValueFilter(_mididings.CtrlValueFilter, _Filter):
 
 class ProgFilter(_mididings.ProgFilter, _Filter):
     def __init__(self, *args):
-        v = _mididings.int_vector()
-        for p in _misc.flatten(args):
-            v.push_back(_misc.program_number(p))
+        v = _misc.make_int_vector((_misc.program_number(p) for p in _misc.flatten(args)))
         _mididings.ProgFilter.__init__(self, v)
 
 
@@ -225,8 +217,8 @@ def VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper):
 
 
 class CtrlRange(_mididings.CtrlRange, _Unit):
-    def __init__(self, ctrl, in_min, in_max, out_min, out_max):
-        _mididings.CtrlRange.__init__(self, ctrl, in_min, in_max, out_min, out_max)
+    def __init__(self, ctrl, out_min, out_max, in_min=0, in_max=127):
+        _mididings.CtrlRange.__init__(self, ctrl, out_min, out_max, in_min, in_max)
 
 
 ### misc ###

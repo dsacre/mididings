@@ -12,10 +12,6 @@
 #ifndef _BACKEND_HH
 #define _BACKEND_HH
 
-#include "patch.hh"
-#include "midi_event.hh"
-
-#include <vector>
 #include <string>
 #include <stdexcept>
 
