@@ -180,7 +180,9 @@ void Setup::switch_patch(int n, const MidiEvent & ev)
 {
     PatchMap::iterator i = _patches.find(n);
 
-    boost::python::call_method<void>(_self, "print_switch_patch", n, i != _patches.end());
+    if (_patches.size() > 1) {
+        boost::python::call_method<void>(_self, "print_switch_patch", n, i != _patches.end());
+    }
 
     if (i != _patches.end()) {
         _current = &*i->second;
