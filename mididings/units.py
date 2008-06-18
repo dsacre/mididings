@@ -129,15 +129,15 @@ def KeySplit(*args):
     if len(args) == 1:
         # KeySplit(d)
         return Fork([
-            ([ KeyFilter(k), ~Filter(NOTE) ] >> w) for k, w in args[0].items()
+            (Fork([ KeyFilter(k), ~Filter(NOTE) ]) >> w) for k, w in args[0].items()
         ])
     elif len(args) == 3:
         # KeySplit(key, unit_lower, unit_upper)
         key, unit_lower, unit_upper = args
         filt = KeyFilter(0, key)
         return Fork([
-            [  filt, ~Filter(NOTE) ] >> unit_lower,
-            [ ~filt, ~Filter(NOTE) ] >> unit_upper
+            Fork([  filt, ~Filter(NOTE) ]) >> unit_lower,
+            Fork([ ~filt, ~Filter(NOTE) ]) >> unit_upper
         ])
     else:
         raise ArgumentError()
@@ -147,15 +147,15 @@ def VelocitySplit(*args):
     if len(args) == 1:
         # VelocitySplit(d)
         return Fork([
-            ([ VelocityFilter(v), ~Filter(NOTE) ] >> w) for v, w in args[0].items()
+            (Fork([ VelocityFilter(v), ~Filter(NOTE) ]) >> w) for v, w in args[0].items()
         ])
     elif len(args) == 3:
         # VelocitySplit(thresh, unit_lower, unit_upper)
         thresh, unit_lower, unit_upper = args
         filt = VelocityFilter(0, thresh)
         return Fork([
-            [  filt, ~Filter(NOTE) ] >> unit_lower,
-            [ ~filt, ~Filter(NOTE) ] >> unit_upper
+            Fork([  filt, ~Filter(NOTE) ]) >> unit_lower,
+            Fork([ ~filt, ~Filter(NOTE) ]) >> unit_upper
         ])
     else:
         raise ArgumentError()
