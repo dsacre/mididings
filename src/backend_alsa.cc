@@ -169,6 +169,21 @@ void BackendAlsa::run(Setup & setup)
 {
     snd_seq_event_t *alsa_ev;
 
+    // handle init events
+    const Setup::MidiEventVector & out_events = setup.init_events();
+
+    for (vector<MidiEvent>::const_iterator i = out_events.begin(); i != out_events.end(); ++i) {
+        snd_seq_event_t alsa_ev = midi_event_to_alsa(*i);
+
+        snd_seq_ev_set_subs(&alsa_ev);
+        snd_seq_ev_set_direct(&alsa_ev);
+        snd_seq_ev_set_source(&alsa_ev, _portid_out[i->port]);
+        snd_seq_event_output_buffer(_seq_handle, &alsa_ev);
+    }
+
+    snd_seq_drain_output(_seq_handle);
+
+
     while (snd_seq_event_input(_seq_handle, &alsa_ev)) {
         if (!alsa_ev) {
             // terminated by user?

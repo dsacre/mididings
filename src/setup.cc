@@ -176,6 +176,12 @@ Patch * Setup::get_matching_patch(const MidiEvent & ev)
 }
 
 
+const Setup::MidiEventVector & Setup::init_events()
+{
+    return _event_buffer_patch_out;
+}
+
+
 void Setup::switch_patch(int n, const MidiEvent & ev)
 {
     PatchMap::iterator i = _patches.find(n);

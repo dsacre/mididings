@@ -65,6 +65,8 @@ class Setup
 
     const MidiEventVector & process(const MidiEvent & ev);
 
+    const MidiEventVector & init_events();
+
 
     void buffer_event(const MidiEvent & ev) {
         // this will cause the vector to be resized if it gets larger
