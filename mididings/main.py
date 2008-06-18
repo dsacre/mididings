@@ -14,6 +14,8 @@ import _mididings
 import misc
 import units
 
+import time
+
 
 _config = {
     'backend':          'alsa',
@@ -23,6 +25,7 @@ _config = {
     'data_offset':      1,
     'octave_offset':    2,
     'verbose':          True,
+    'start_delay':      0.0,
 }
 
 def config(**kwargs):
@@ -107,6 +110,10 @@ class Setup(_mididings.Setup):
         pre_patch = Patch(pre) if pre else None
         post_patch = Patch(post) if post else None
         self.set_processing(ctrl, pre_patch, post_patch)
+
+        # delay before actually sending any midi data (give qjackctl patchbay time to react...)
+        if _config['start_delay'] > 0.0:
+            time.sleep(_config['start_delay'])
 
         import event
         self.switch_patch(0, event.MidiEvent())
