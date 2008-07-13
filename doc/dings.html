@@ -96,6 +96,12 @@ Starts the actual MIDI processing. This is usually the last function called by a
 </ul>
 
 
+<h4>switch_patch(number)</h4>
+<p>
+Switches to another patch. This function is similar to the PatchSwitch() object, but can be called from Python.
+</p>
+
+
 <h3><a name="connect"></a>Making connections</h3>
 
 <h4>A &gt;&gt; B</h4>
@@ -239,7 +245,9 @@ ProgChange(program)<br>
 ProgChange(port, channel, program)</h4>
 <p>
 Changes the type of the event.
-If port and channel are omitted, the values of the input event are used.
+If port and channel are omitted, the values of the input event are used.<br>
+To "reuse" values from the incoming event, the following constants can be used in place of any parameter:
+EVENT_PORT, EVENT_CHANNEL, EVENT_DATA1, EVENT_DATA2, EVENT_NOTE, EVENT_VELOCITY, EVENT_PARAM, EVENT_VALUE, EVENT_PROGRAM.
 </p>
 
 
@@ -256,10 +264,11 @@ Discards all events.
 </p>
 
 <h4>PatchSwitch()<br>
-PatchSwitch(patch)</h4>
+PatchSwitch(number)</h4>
 <p>
 Switches to another patch.
-If patch is omitted, uses the number of the input event (should be a program change).
+number should be a patch number, or one of the EVENT_* constants.
+Without parameters, the program number of the incoming event (should be a program change) will be used.
 </p>
 
 <h4>Call(function)</h4>
