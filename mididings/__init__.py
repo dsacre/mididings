@@ -13,3 +13,4 @@
 from units import *
 from event import *
 from main import config, run, run_patches
+from main import switch_patch
