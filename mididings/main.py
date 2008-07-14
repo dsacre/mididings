@@ -16,6 +16,7 @@ import units
 import misc
 
 import time
+import weakref
 
 
 _config = {
@@ -122,7 +123,7 @@ class Setup(_mididings.Setup):
         self.switch_patch(0, event.MidiEvent())
 
         global TheSetup
-        TheSetup = self
+        TheSetup = weakref.proxy(self)
 
     def print_switch_patch(self, n, found):
         if _config['verbose']:
