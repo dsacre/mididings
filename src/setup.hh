@@ -76,10 +76,14 @@ class Setup
             if (!sanitize_event(out)) {
                 return;
             } else {
-                _output_buffer->push_back(out);
+                if (out.type != MIDI_EVENT_NONE) {
+                    _output_buffer->push_back(out);
+                }
             }
         } else if (_output_buffer) {
-            _output_buffer->push_back(ev);
+            if (ev.type != MIDI_EVENT_NONE) {
+                _output_buffer->push_back(ev);
+            }
         }
     }
 

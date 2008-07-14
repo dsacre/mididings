@@ -178,7 +178,19 @@ Patch * Setup::get_matching_patch(const MidiEvent & ev)
 
 const Setup::MidiEventVector & Setup::init_events()
 {
-    return _event_buffer_patch_out;
+    _event_buffer_final.clear();
+
+    // apply postprocessing
+    _output_buffer = &_event_buffer_final;
+    for (MidiEventVector::const_iterator i = _event_buffer_patch_out.begin(); i != _event_buffer_patch_out.end(); ++i) {
+        if (_post_patch) {
+            _post_patch->process(*i);
+        } else {
+            buffer_event(*i);
+        }
+    }
+
+    return _event_buffer_final;
 }
 
 

@@ -11,7 +11,6 @@
 
 #include "patch.hh"
 #include "setup.hh"
-//#include <typeinfo>
 
 using namespace std;
 
@@ -47,7 +46,8 @@ void Patch::process_recursive(Module & m, MidiEvent & ev)
 }
 
 
-bool Patch::Output::process(MidiEvent & ev) {
+bool Patch::Output::process(MidiEvent & ev)
+{
     TheSetup->buffer_event(ev);
     // nothing left to do
     return false;
