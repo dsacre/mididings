@@ -170,11 +170,73 @@ bool PatchSwitch::process(MidiEvent & ev)
 
 bool Call::process(MidiEvent & ev)
 {
-    boost::python::object ret = _fun(boost::python::ptr(&ev));
+    if (!_async) {
+        // acquire lock and call function immediately
+        PyGILState_STATE gil = PyGILState_Ensure();
 
-    if (ret.ptr() == Py_None) {
-        return true;
-    } else {
-        return boost::python::extract<bool>(ret);
+        boost::python::object obj = _fun(boost::python::ptr(&ev));
+        bool ret;
+
+        if (obj.ptr() == Py_None) {
+            ret = true;
+        } else {
+            ret = boost::python::extract<bool>(obj);
+        }
+
+        PyGILState_Release(gil);
+        return ret;
+    }
+    else {
+        ASSERT(rb_);
+
+        // store call info in ring buffer, discard event
+        AsyncCallInfo c = { this, ev };
+
+        if (jack_ringbuffer_write_space(rb_) >= sizeof(AsyncCallInfo)) {
+            jack_ringbuffer_write(rb_, reinterpret_cast<const char *>(&c), sizeof(AsyncCallInfo));
+            rb_cond_.notify_one();
+        } else {
+            FAIL();
+        }
+
+        return _cont;
     }
 }
+
+
+void Call::async_thread()
+{
+    rb_ = jack_ringbuffer_create(MAX_ASYNC_CALLS * sizeof(AsyncCallInfo));
+
+    for (;;) {
+        if (jack_ringbuffer_read_space(rb_) >= sizeof(AsyncCallInfo)) {
+            PyGILState_STATE gil = PyGILState_Ensure();
+
+            AsyncCallInfo c;
+            jack_ringbuffer_read(rb_, reinterpret_cast<char *>(&c), sizeof(AsyncCallInfo));
+
+            try {
+                (c.call->_fun)(boost::python::ptr(&c.ev));
+            }
+            catch (boost::python::error_already_set &) {
+                PyErr_Print();
+            }
+
+            PyGILState_Release(gil);
+        }
+        else {
+            boost::mutex dummy;
+            boost::mutex::scoped_lock lock(dummy);
+            rb_cond_.wait(lock);
+        }
+
+    }
+
+    // how do we get here?
+
+    jack_ringbuffer_free(rb_);
+}
+
+
+jack_ringbuffer_t * Call::rb_;
+boost::condition Call::rb_cond_;

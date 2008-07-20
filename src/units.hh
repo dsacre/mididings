@@ -19,6 +19,10 @@
 #include "util/debug.hh"
 
 #include <boost/python/object.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
+
+#include <jack/ringbuffer.h>
 
 
 class Unit
@@ -361,6 +365,29 @@ class VelocityGradient
 };
 
 
+class CtrlMap
+  : public Unit
+{
+  public:
+    CtrlMap(int ctrl_in, int ctrl_out)
+      : _ctrl_in(ctrl_in),
+        _ctrl_out(ctrl_out)
+    {
+    }
+
+    virtual bool process(MidiEvent & ev) {
+        if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _ctrl_in) {
+            ev.ctrl.param = _ctrl_out;
+        }
+        return true;
+    }
+
+  private:
+    int _ctrl_in;
+    int _ctrl_out;
+};
+
+
 class CtrlRange
   : public Unit
 {
@@ -438,16 +465,33 @@ class Call
   : public Unit
 {
   public:
-    Call(boost::python::object fun)
-      : _fun(fun)
+    static const int MAX_ASYNC_CALLS = 64;
+
+    Call(boost::python::object fun, bool async, bool cont)
+      : _fun(fun),
+        _async(async),
+        _cont(cont)
     {
     }
 
     bool process(MidiEvent & ev);
 
+    static void async_thread();
+
   private:
+    struct AsyncCallInfo {
+        Call const * call;
+        MidiEvent ev;
+    };
+
     boost::python::object _fun;
+    bool _async;
+    bool _cont;
+
+    static jack_ringbuffer_t * rb_;
+    static boost::condition rb_cond_;
 };
+
 
 
 #endif // _UNITS_HH

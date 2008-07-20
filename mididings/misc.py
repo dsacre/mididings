@@ -14,7 +14,7 @@ import main as _main
 import _mididings
 
 
-NOTE_NAMES = {
+NOTE_NUMBERS = {
     'c':   0,
     'c#':  1, 'db':  1,
     'd':   2,
@@ -29,7 +29,7 @@ NOTE_NAMES = {
     'b':  11,
 }
 
-NOTE_NUMBERS = {
+NOTE_NAMES = {
      0: 'c',
      1: 'c#',
      2: 'd',
@@ -44,13 +44,29 @@ NOTE_NUMBERS = {
     11: 'b',
 }
 
+CONTROLLER_NAMES = {
+     0: 'Bank select (MSB)',
+     1: 'Mod wheel',
+     7: 'Volume',
+    10: 'Pan',
+    11: 'Expression',
+    32: 'Bank select (LSB)',
+    64: 'Sustain',
+    65: 'Portamento',
+    66: 'Sostenuto',
+    67: 'Soft pedal',
+    68: 'Legato pedal',
+   121: 'Reset all controllers',
+   123: 'All notes off',
+}
+
 
 def notename2number(name):
     name = name.lower()
-    for n in NOTE_NAMES:
+    for n in NOTE_NUMBERS:
         octave = name[len(n):]
         if name.startswith(n) and (octave.isdigit() or (octave[0] == '-' and octave[1:].isdigit())):
-            num = NOTE_NAMES[n] + (int(octave) + _main._config['octave_offset']) * 12
+            num = NOTE_NUMBERS[n] + (int(octave) + _main._config['octave_offset']) * 12
             if num < 0 or num > 127:
                 raise ValueError()
             return num
@@ -75,7 +91,14 @@ def noterange2numbers(noterange):
 
 
 def notenumber2name(n):
-    return NOTE_NUMBERS[n % 12] + str(n / 12 - _main._config['octave_offset'])
+    return NOTE_NAMES[n % 12] + str(n / 12 - _main._config['octave_offset'])
+
+
+def controller_name(n):
+    if n in CONTROLLER_NAMES:
+        return CONTROLLER_NAMES[n]
+    else:
+        return None
 
 
 

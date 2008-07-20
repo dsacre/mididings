@@ -15,6 +15,8 @@ import main as _main
 import misc as _misc
 from event import *
 
+import thread as _thread
+
 
 # bass class for all units
 class _Unit:
@@ -216,6 +218,11 @@ def VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper):
     return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.FIXED)
 
 
+class CtrlMap(_mididings.CtrlMap, _Unit):
+    def __init__(self, ctrl_in, ctrl_out):
+        _mididings.CtrlMap.__init__(self, ctrl_in, ctrl_out)
+
+
 class CtrlRange(_mididings.CtrlRange, _Unit):
     def __init__(self, ctrl, out_min, out_max, in_min=0, in_max=127):
         _mididings.CtrlRange.__init__(self, ctrl, out_min, out_max, in_min, in_max)
@@ -266,51 +273,56 @@ class PatchSwitch(_mididings.PatchSwitch, _Unit):
         _mididings.PatchSwitch.__init__(self, num)
 
 
-class Call(_mididings.Call, _Unit):
-    def __init__(self, fun):
+class _CallBase(_mididings.Call, _Unit):
+    def __init__(self, fun, async, cont):
         self.fun = fun
-        _mididings.Call.__init__(self, self.do_call)
+        _mididings.Call.__init__(self, self.do_call, async, cont)
     def do_call(self, ev):
         # add additional properties
         ev.__class__ = MidiEvent
         return self.fun(ev)
 
+class Call(_CallBase):
+    def __init__(self, fun):
+        _CallBase.__init__(self, fun, False, False)
 
-class Print(Call):
-    def __init__(self, name=None):
+class CallAsync(_CallBase):
+    def __init__(self, fun, cont=False):
+        _CallBase.__init__(self, fun, True, cont)
+
+class CallThread(_CallBase):
+    def __init__(self, fun, cont=False):
+        self.fun_thread = fun
+        _CallBase.__init__(self, self.do_thread, True, cont)
+    def do_thread(self, ev):
+        # need to make a copy of the event. the underlying C++ object will become invalid when this function returns
+        ev_copy = MidiEvent(ev.type_, ev.port_, ev.channel_, ev.data1, ev.data2)
+        _thread.start_new_thread(self.fun_thread, (ev_copy,))
+
+
+class Print(_CallBase):
+    PORTNAMES_NONE = 0
+    PORTNAMES_IN   = 1
+    PORTNAMES_OUT  = 2
+
+    def __init__(self, name=None, types=ANY, portnames=PORTNAMES_NONE):
         self.name = name
-        Call.__init__(self, self.do_print)
+        self.types = types
+        self.ports = portnames
+        _CallBase.__init__(self, self.do_print, True, True)
 
     def do_print(self, ev):
-        if self.name:
-            print self.name + ":",
+        # delayed 'til first use, because _main.TheSetup doesn't yet exist during __init__
+        if not hasattr(self, 'portnames'):
+            if self.ports == Print.PORTNAMES_NONE:
+                self.portnames = []
+            elif self.ports == Print.PORTNAMES_IN:
+                self.portnames = _main.TheSetup.in_ports
+            elif self.ports == Print.PORTNAMES_OUT:
+                self.portnames = _main.TheSetup.out_ports
+            self.portname_length = max((len(p) for p in self.portnames))
 
-        if ev.type_ == NOTEON:
-            t = "note on"
-            d1 = "note " + str(ev.note) + " (" + _misc.notenumber2name(ev.note) + ")"
-            d2 = "velocity " + str(ev.velocity)
-        elif ev.type_ == NOTEOFF:
-            t = "note off"
-            d1 = "note " + str(ev.note) + " (" + _misc.notenumber2name(ev.note) + ")"
-            d2 = "velocity " + str(ev.velocity)
-        elif ev.type_ == CTRL:
-            t = "control change"
-            d1 = "param " + str(ev.param)
-            d2 = "value " + str(ev.value)
-        elif ev.type_ == PITCHBEND:
-            t = "pitch bend"
-            d1 = None
-            d2 = "value " + str(ev.value)
-        elif ev.type_ == PROGRAM:
-            t = "program change"
-            d1 = None
-            d2 = "program " + str(ev.program)
-        else:
-            t = "none"
-            d1 = None
-            d2 = "-"
-
-        print "%s: port %d, channel %d," % (t, ev.port, ev.channel),
-        if d1 != None:
-            print "%s," % (d1,),
-        print "%s" % (d2,)
+        if ev.type_ & self.types:
+            if self.name:
+                print self.name + ":",
+            print ev.to_string(self.portnames, self.portname_length)

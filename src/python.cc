@@ -52,6 +52,8 @@ bool operator==(const MidiEvent & lhs, const MidiEvent & rhs) {
 
 BOOST_PYTHON_MODULE(_mididings)
 {
+    PyEval_InitThreads();
+
     class_<Unit, noncopyable>("Unit", no_init);
 
     class_<Pass, bases<Unit> >("Pass", init<bool>());
@@ -71,15 +73,15 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<Channel, bases<Unit> >("Channel", init<int>());
     class_<Transpose, bases<Unit> >("Transpose", init<int>());
     class_<Velocity, bases<Unit> >("Velocity", init<float, int>());
-
     class_<VelocityCurve, bases<Unit> >("VelocityCurve", init<float>());
     class_<VelocityGradient, bases<Unit> >("VelocityGradient", init<int, int, float, float, int>());
+    class_<CtrlMap, bases<Unit> >("CtrlMap", init<int, int>());
     class_<CtrlRange, bases<Unit> >("CtrlRange", init<int, int, int, int, int>());
 
     class_<GenerateEvent, bases<Unit> >("GenerateEvent", init<int, int, int, int, int>());
     class_<Sanitize, bases<Unit> >("Sanitize", init<>());
     class_<PatchSwitch, bases<Unit> >("PatchSwitch", init<int>());
-    class_<Call, bases<Unit> >("Call", init<object>());
+    class_<Call, bases<Unit> >("Call", init<object, bool, bool>());
 
     class_<Setup, Setup, noncopyable>("Setup", init<const string &, const string &,
                                                     const vector<string> &, const vector<string> &, bool>())

@@ -91,14 +91,14 @@ class Setup(_mididings.Setup):
     def __init__(self, patches, control, pre, post):
         def make_portnames(ports, prefix):
             return ports if misc.issequence(ports) else \
-                   ( prefix + str(n + _config['data_offset']) for n in range(ports) )
+                   [ prefix + str(n + _config['data_offset']) for n in range(ports) ]
 
-        in_ports = make_portnames(_config['in_ports'], 'in_')
-        out_ports = make_portnames(_config['out_ports'], 'out_')
+        self.in_ports = make_portnames(_config['in_ports'], 'in_')
+        self.out_ports = make_portnames(_config['out_ports'], 'out_')
 
         _mididings.Setup.__init__(self, _config['backend'], _config['client_name'],
-                                  misc.make_string_vector(in_ports),
-                                  misc.make_string_vector(out_ports),
+                                  misc.make_string_vector(self.in_ports),
+                                  misc.make_string_vector(self.out_ports),
                                   _config['verbose'])
 
         for i, p in patches.items():

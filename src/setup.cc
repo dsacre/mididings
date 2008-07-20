@@ -17,6 +17,7 @@
 //#include <sys/time.h>
 //#include <time.h>
 #include <boost/python/call_method.hpp>
+#include <boost/thread/thread.hpp>
 
 using namespace std;
 
@@ -47,6 +48,8 @@ Setup::Setup(PyObject * self,
     }
 
     _num_out_ports = (int)out_ports.size();
+
+    boost::thread thrd(&Call::async_thread);
 }
 
 
@@ -84,7 +87,12 @@ void Setup::run()
         return;
     }
 
+    // we'll stay in C++ land from now on, except for Call()
+    Py_BEGIN_ALLOW_THREADS
+
     _backend->run(*this);
+
+    Py_END_ALLOW_THREADS
 }
 
 

@@ -12,6 +12,7 @@
 
 import _mididings
 import main as _main
+import misc as _misc
 
 
 NONE      = 0
@@ -40,21 +41,41 @@ EVENT_PROGRAM   = -4
 
 
 class MidiEvent(_mididings.MidiEvent):
-    def __init__(self, type_=NONE, port=-1, channel=-1, data1=-1, data2=-1):
+    def __init__(self, type_=0, port_=0, channel_=0, data1=0, data2=0):
         _mididings.MidiEvent.__init__(self)
         self.type_ = type_
-        self.port_ = port - _main._config['data_offset'] if port >= 0 else 0
-        self.channel_ = channel - _main._config['data_offset'] if channel >= 0 else 0
-        if data1 >= 0 and data2 >= 0:
-            if type_ == PROGRAM:
-                self.data1 = 0
-                self.program = data2
-            else:
-                self.data1 = data1
-                self.data2 = data2
+        self.port_ = port_
+        self.channel_ = channel_
+        self.data1 = data1
+        self.data2 = data2
+
+    def __str__(self):
+        return self.to_string()
+
+    def to_string(self, portnames=[], portname_length=0):
+        if len(portnames) > self.port_:
+            port = portnames[self.port_]
         else:
-            self.data1 = 0
-            self.data2 = 0
+            port = str(self.port)
+
+        channel = self.channel
+
+        if self.type_ == NOTEON:
+            s = 'Note on:  %3d %3d  (%s)' % (self.note, self.velocity, _misc.notenumber2name(self.note))
+        elif self.type_ == NOTEOFF:
+            s = 'Note off: %3d %3d  (%s)' % (self.note, self.velocity, _misc.notenumber2name(self.note))
+        elif self.type_ == CTRL:
+            s = 'Control:  %3d %3d' % (self.param, self.value)
+            n = _misc.controller_name(self.param)
+            if n: s += '  (%s)' % n
+        elif self.type_ == PITCHBEND:
+            s = 'Pitch bend: %+5d' % self.value
+        elif self.type_ == PROGRAM:
+            s = 'Program:      %3d' % self.program
+        else:
+            s = 'None'
+
+        return '[%*s, %2d] %s' % (portname_length, port, channel, s)
 
     def make_get_set(type_, data, offset=lambda: 0):
         def getter(self):
