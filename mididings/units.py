@@ -320,7 +320,11 @@ class Print(_CallBase):
                 self.portnames = _main.TheSetup.in_ports
             elif self.ports == Print.PORTNAMES_OUT:
                 self.portnames = _main.TheSetup.out_ports
-            self.portname_length = max((len(p) for p in self.portnames))
+
+            if len(self.portnames):
+                self.portname_length = max((len(p) for p in self.portnames))
+            else:
+                self.portname_length = 0
 
         if ev.type_ & self.types:
             if self.name:
