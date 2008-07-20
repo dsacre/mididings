@@ -169,6 +169,10 @@ void BackendAlsa::run(Setup & setup)
 {
     snd_seq_event_t *alsa_ev;
 
+    // clean input queue
+    snd_seq_drop_input(_seq_handle);
+
+
     // handle init events
     const Setup::MidiEventVector & out_events = setup.init_events();
 
