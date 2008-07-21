@@ -100,6 +100,8 @@ void Setup::run()
 
 const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
 {
+    boost::recursive_mutex::scoped_lock lock(_process_mutex);
+
 #ifdef ENABLE_BENCHMARK
     timeval tv1, tv2;
     gettimeofday(&tv1, NULL);
@@ -190,6 +192,8 @@ Patch * Setup::get_matching_patch(const MidiEvent & ev)
 
 const Setup::MidiEventVector & Setup::init_events()
 {
+    boost::recursive_mutex::scoped_lock lock(_process_mutex);
+
     _event_buffer_final.clear();
 
     // apply postprocessing
@@ -208,10 +212,14 @@ const Setup::MidiEventVector & Setup::init_events()
 
 void Setup::switch_patch(int n, const MidiEvent & ev)
 {
+    boost::recursive_mutex::scoped_lock lock(_process_mutex);
+
     PatchMap::iterator i = _patches.find(n);
 
     if (_patches.size() > 1) {
+        PyGILState_STATE gil = PyGILState_Ensure();
         boost::python::call_method<void>(_self, "print_switch_patch", n, i != _patches.end());
+        PyGILState_Release(gil);
     }
 
     if (i != _patches.end()) {

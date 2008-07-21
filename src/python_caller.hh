@@ -20,7 +20,6 @@
 #include <boost/python/object.hpp>
 
 #include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 
 #include <jack/ringbuffer.h>
@@ -48,7 +47,6 @@ class PythonCaller
     boost::shared_ptr<boost::thread> _thrd;
 
     jack_ringbuffer_t * _rb;
-    boost::mutex        _rb_mutex;
     boost::condition    _rb_cond;
     volatile bool       _quit;
 

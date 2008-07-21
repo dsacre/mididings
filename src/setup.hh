@@ -24,6 +24,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
 
+#include <boost/thread/recursive_mutex.hpp>
+
 #include <boost/python/object.hpp>
 
 #include "util/global_object.hh"
@@ -135,6 +137,8 @@ class Setup
     MidiEventVector _event_buffer_final;
 
     MidiEventVector * _output_buffer;
+
+    boost::recursive_mutex _process_mutex;
 
     boost::scoped_ptr<PythonCaller> _python_caller;
 };

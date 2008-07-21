@@ -31,6 +31,7 @@ PythonCaller::~PythonCaller()
 {
     _quit = true;
     _rb_cond.notify_one();
+    // what if the thread doesn't terminate, due to a long-running python function?
     _thrd->join();
 
     jack_ringbuffer_free(_rb);
@@ -72,6 +73,9 @@ void PythonCaller::call_deferred(boost::python::object & fun, MidiEvent const & 
 
 void PythonCaller::async_thread()
 {
+    boost::mutex mutex;
+    boost::mutex::scoped_lock lock(mutex);
+
     for (;;) {
         if (_quit) {
             return;
@@ -93,7 +97,6 @@ void PythonCaller::async_thread()
             PyGILState_Release(gil);
         }
         else {
-            boost::mutex::scoped_lock lock(_rb_mutex);
             _rb_cond.wait(lock);
         }
     }
