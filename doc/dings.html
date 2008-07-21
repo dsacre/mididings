@@ -327,17 +327,16 @@ Calls a Python function. This will stall any other MIDI processing until the fun
   The function should return True to continue processing the event, or False to discard it.</li>
 </ul>
 
-<h4>CallAsync(function, cont=False)</h4>
+<h4>CallAsync(function)</h4>
 <p>
 Schedules a Python function for execution, and continues MIDI processing immediately.
 </p>
 <ul>
   <li><b>function</b>: The function to be called. Unlike Call(), this will run the function in another thread.
   Its return value will be ignored.</li>
-  <li><b>cont</b>: Whether to continue processing the current MIDI event.</li>
 </ul>
 
-<h4>CallThread(function, cont=False)</h4>
+<h4>CallThread(function)</h4>
 <p>
 Like CallAsync(), but runs the function in its own thread.
 </p>
@@ -352,7 +351,7 @@ Does nothing.
 
 <h4>Discard()</h4>
 <p>
-Discards all events.
+Discards the current event.
 </p>
 
 <h4>PatchSwitch()<br>
@@ -372,6 +371,11 @@ Prints event data.
   <li><b>portnames</b>: Pass Print.PORTNAMES_IN or Print.PORTNAMES_OUT to print input or output portnames,
   rather than just numbers.</li>
 </ul>
+
+<h4>PrintString(string)</h4>
+<p>
+Prints a fixed string.
+</p>
 
 <h4>Sanitize()</h4>
 <p>

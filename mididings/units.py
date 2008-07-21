@@ -287,13 +287,13 @@ class Call(_CallBase):
         _CallBase.__init__(self, fun, False, False)
 
 class CallAsync(_CallBase):
-    def __init__(self, fun, cont=False):
-        _CallBase.__init__(self, fun, True, cont)
+    def __init__(self, fun):
+        _CallBase.__init__(self, fun, True, True)
 
 class CallThread(_CallBase):
-    def __init__(self, fun, cont=False):
+    def __init__(self, fun):
         self.fun_thread = fun
-        _CallBase.__init__(self, self.do_thread, True, cont)
+        _CallBase.__init__(self, self.do_thread, True, True)
     def do_thread(self, ev):
         # need to make a copy of the event. the underlying C++ object will become invalid when this function returns
         ev_copy = MidiEvent(ev.type_, ev.port_, ev.channel_, ev.data1, ev.data2)
@@ -330,3 +330,11 @@ class Print(_CallBase):
             if self.name:
                 print self.name + ":",
             print ev.to_string(self.portnames, self.portname_length)
+
+
+class PrintString(_CallBase):
+    def __init__(self, string):
+        self.string = string
+        _CallBase.__init__(self, self.do_print, True, True)
+    def do_print(self, ev):
+        print self.string
