@@ -74,7 +74,6 @@ void PythonCaller::call_deferred(boost::python::object & fun, MidiEvent const & 
 void PythonCaller::async_thread()
 {
     boost::mutex mutex;
-    boost::mutex::scoped_lock lock(mutex);
 
     for (;;) {
         if (_quit) {
@@ -97,6 +96,7 @@ void PythonCaller::async_thread()
             PyGILState_Release(gil);
         }
         else {
+            boost::mutex::scoped_lock lock(mutex);
             _rb_cond.wait(lock);
         }
     }
