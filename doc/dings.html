@@ -11,7 +11,7 @@
     h2 { font-size: 110%; color: #fff; background: #667; padding: 4px 0.7em; margin-top: 1.5em; }
     h3 { font-size: 100%; color: #333; background: #dddde5; padding: 4px 0.7em; margin-top: 1.5em; }
     h4 { font-size: 100%; color: #333; padding-left: 0.5em; margin-bottom: 0.4em; }
-    p,table,pre { margin-left: 0.8em; margin-top: 0.4em; }
+    p,table,pre { margin-left: 1.6em; margin-top: 0.4em; }
     b { color: #333; }
     pre { font-size: 110%; }
     table { border: 1px solid #333; border-collapse: collapse; }
@@ -30,7 +30,9 @@
   <li><a href="#basics">Basics</a>
     <ul>
       <li><a href="#functions">Functions</a></li>
-      <li><a href="#connect">Making connections</a></li>
+      <li><a href="#types">Data Types</a></li>
+      <li><a href="#constants">Constants</a></li>
+      <li><a href="#connect">Making Connections</a></li>
     </ul>
   </li>
 
@@ -39,12 +41,15 @@
       <li><a href="#filters">Filters</a></li>
       <li><a href="#splits">Splits</a></li>
       <li><a href="#modifiers">Modifiers</a></li>
+      <li><a href="#generators">Generators</a></li>
+      <li><a href="#calls">Function Calls</a></li>
       <li><a href="#misc">Miscellaneous</a></li>
     </ul>
   </li>
 
   <li><a href="#examples">Examples</a></li>
 </ul>
+
 
 
 <h2><a name="basics"></a>Basics</h2>
@@ -55,6 +60,7 @@ for which they weren't intended ;)<br>
 Basically, the MIDI processing setup is defined in Python, while the actual event processing is done entirely
 in C++. It is however possible to explicitly call back into Python, if necessary.
 </p>
+
 
 <h3><a name="functions"></a>Functions</h3>
 
@@ -86,6 +92,9 @@ Starts the actual MIDI processing. This is usually the last function called by a
 </ul>
 
 <h4>run_patches(patches, control=None, pre=None, post=None)</h4>
+<p>
+Starts the actual MIDI processing, using multiple patches.
+</p>
 <ul>
   <li><b>patches</b>: A dictionary with program numbers as keys, and patches as values.
   Values can also be tuple with two items, the first being an init-patch that's executed once every time the
@@ -102,7 +111,53 @@ Switches to another patch. This function is similar to the PatchSwitch() object,
 </p>
 
 
-<h3><a name="connect"></a>Making connections</h3>
+<h3><a name="types"></a>Data Types</h3>
+
+<h4>MidiEvent</h4>
+<p>
+  Used in conjunction with the Call(), CallAsync() and CallThread() units.
+</p>
+<p>
+  A MidiEvent object has the following attributes:
+</p>
+<ul>
+  <li><b>type_</b>: The event type, one of the constants described below.</li>
+  <li><b>port_</b>: The event port.</li>
+  <li><b>channel_</b>: The event channel.</li>
+  <li><b>data1, data2</b>: Data bytes, meaning depends on event type.</li>
+</ul>
+<p>
+There are also aliases for these attributes, some of which are only defined for certain types of events:
+</p>
+<ul>
+  <li><b>port</b>: Event port. Unlike port_, this value is affected by the data_offset setting.</li>
+  <li><b>channel</b>: Event channel. Unlike channel_, this value is affected by the data_offset setting.</li>
+  <li><b>note</b>: Note number, alias for data1.</li>
+  <li><b>velocity</b>: Note velocity, alias for data2.</li>
+  <li><b>param</b>: Controller number, alias for data1.</li>
+  <li><b>value</b>: Controller parameter, alias for data2.</li>
+  <li><b>program</b>: Program number, alias for data2. Unlike data2, this value is affected by the data_offset setting.</li>
+</ul>
+
+
+<h3><a name="constants"></a>Constants</h3>
+
+<h4>Event Types</h4>
+<p>
+  Every event has one of these types: <b>NOTEON</b>, <b>NOTEOFF</b>, <b>CTRL</b>, <b>PITCHBEND</b>, <b>PROGRAM</b>.<br>
+  When building filters, event types can be combined using the bitwise or operator.<br>
+  Also defined are <b>NOTE</b> (= NOTEON | NOTEOFF), <b>NONE</b>, <b>ANY</b>.
+</p>
+
+<h4>Event Attributes</h4>
+<p>
+  These constants are used to refer to an event's data attributes:
+  <b>EVENT_PORT</b>, <b>EVENT_CHANNEL</b>, <b>EVENT_DATA1</b>, <b>EVENT_DATA2</b>, <b>EVENT_NOTE</b>,
+  <b>EVENT_VELOCITY</b>, <b>EVENT_PARAM</b>, <b>EVENT_VALUE</b>, <b>EVENT_PROGRAM</b>.
+</p>
+
+
+<h3><a name="connect"></a>Making Connections</h3>
 
 <h4>A &gt;&gt; B</h4>
 <p>
@@ -122,10 +177,12 @@ Splits by event type. Equivalent to [ Filter(T1) &gt;&gt; A, Filter(T2) &gt;&gt;
 </p>
 
 
+
 <h2><a name="units"></a>Units</h2>
 
 <p>
-These are the basic building blocks from which you can build your patches. They can roughly be divided into 4 categories:
+These are the basic building blocks from which you can build your patches.
+</p>
 <ul>
   <li><b>Filters</b>: These units filter by some property of the MIDI event. If the event matches, it's passed
   unmodified, otherwise it's discarded.
@@ -133,9 +190,10 @@ These are the basic building blocks from which you can build your patches. They 
   Filters can be inverted by prepending operator ~.</li>
   <li><b>Splits</b>: Basically just combinations of multiple filters of the same kind.</li>
   <li><b>Modifiers</b>: These units change some property of the MIDI event.</li>
+  <li><b>Generators</b>: Converters from one event type to another.</li>
+  <li><b>Function Calls</b>: These units allow calling back into Python code.</li>
   <li><b>Miscellaneous</b>: Anything that doesn't fit into any of the other categories :)</li>
 </ul>
-<p>
 
 
 <h3><a name="filters"></a>Filters</h3>
@@ -143,7 +201,6 @@ These are the basic building blocks from which you can build your patches. They 
 <h4>Filter(type, ...)</h4>
 <p>
 Filters by one or more event types.
-Types must be one of: NOTE, NOTEON, NOTEOFF, CTRL, PITCHBEND, PROGRAM.
 </p>
 
 <h4>PortFilter(port, ...)<br>
@@ -165,7 +222,7 @@ Ranges can be 2-tuples of note numbers, or note names (e.g. 'g#3:c6').
 Filters by note velocity.
 </p>
 
-<h4>CtrlFilter(num, ...)</h4>
+<h4>CtrlFilter(ctrl, ...)</h4>
 <p>
 Filters by CC number.
 </p>
@@ -176,7 +233,7 @@ CtrlValueFilter(min, max)</h4>
 Filters by CC value.
 </p>
 
-<h4>ProgFilter(num, ...)</h4>
+<h4>ProgFilter(program, ...)</h4>
 <p>
 Filters by PC number.
 </p>
@@ -234,20 +291,55 @@ VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper)</h4>
 Changes velocity, using a gradient from lower to upper.
 </p>
 
-<h4>CtrlRange(num, out_min, out_max, in_min=0, in_max=127)</h4>
+<h4>CtrlMap(ctrl_in, ctrl_out)</h4>
+<p>
+Maps one controller to another.
+</p>
+
+<h4>CtrlRange(ctrl, out_min, out_max, in_min=0, in_max=127)</h4>
 <p>
 Maps controller range in to out.
 </p>
 
-<h4>CtrlChange(num, value)<br>
-CtrlChange(port, channel, num, value)<br>
+
+<h3><a name="generators"></a>Generators</h3>
+
+<h4>CtrlChange(ctrl, value)<br>
+CtrlChange(port, channel, ctrl, value)<br>
 ProgChange(program)<br>
 ProgChange(port, channel, program)</h4>
 <p>
 Changes the type of the event.
 If port and channel are omitted, the values of the input event are used.<br>
-To "reuse" values from the incoming event, the following constants can be used in place of any parameter:
-EVENT_PORT, EVENT_CHANNEL, EVENT_DATA1, EVENT_DATA2, EVENT_NOTE, EVENT_VELOCITY, EVENT_PARAM, EVENT_VALUE, EVENT_PROGRAM.
+To "reuse" values from the incoming event, one of the EVENT_* constants can be used in place of any parameter.
+</p>
+
+
+<h3><a name="calls"></a>Function Calls</h3>
+
+<h4>Call(function)</h4>
+<p>
+Calls a Python function. This will stall any other MIDI processing until the function returns.
+</p>
+<ul>
+  <li><b>function</b>: A function (or any other callable object) that will be called with a MidiEvent
+  object as its only argument. All of the event's data members may be modified.
+  The function should return True to continue processing the event, or False to discard it.</li>
+</ul>
+
+<h4>CallAsync(function, cont=False)</h4>
+<p>
+Schedules a Python function for execution, and continues MIDI processing immediately.
+</p>
+<ul>
+  <li><b>function</b>: The function to be called. Unlike Call(), this will run the function in another thread.
+  Its return value will be ignored.</li>
+  <li><b>cont</b>: Whether to continue processing the current MIDI event.</li>
+</ul>
+
+<h4>CallThread(function, cont=False)</h4>
+<p>
+Like CallAsync(), but runs the function in its own thread.
 </p>
 
 
@@ -271,44 +363,22 @@ number should be a patch number, or one of the EVENT_* constants.
 Without parameters, the program number of the incoming event (should be a program change) will be used.
 </p>
 
-<h4>Call(function)</h4>
-<p>
-Calls a python function, with the event as its only argument.
-The event is an object with the following attributes, all of which can be both read and written:
-</p>
-<ul>
-  <li><b>type_</b>: The event type, one of NOTEON, NOTEOFF, CTRL, PITCHBEND, PROGRAM.</li>
-  <li><b>port_</b>: The event port.</li>
-  <li><b>channel_</b>: The event channel.</li>
-  <li><b>data1, data2</b>: Data bytes, meaning depends on event type.</li>
-</ul>
-<p>
-There are also aliases for these attributes, some of which are only meaningful for certain types of events:
-</p>
-<ul>
-  <li><b>port</b>: Event port. Unlike port_, this value is affected by the data_offset setting.</li>
-  <li><b>channel</b>: Event channel. Unlike channel_, this value is affected by the data_offset setting.</li>
-  <li><b>note</b>: Note number, alias for data1.</li>
-  <li><b>velocity</b>: Note velocity, alias for data2.</li>
-  <li><b>param</b>: Controller number, alias for data1.</li>
-  <li><b>value</b>: Controller parameter, alias for data2.</li>
-  <li><b>program</b>: Program number, alias for data2. Unlike data2, this value is affected by the data_offset setting.</li>
-</ul>
-<p>
-The function should return True to continue processing the event, or False to discard it.
-</p>
-
-<h4>Print()<br>
-Print(name)</h4>
+<h4>Print(name=None, types=ANY, portnames=Print.PORTNAMES_NONE)</h4>
 <p>
 Prints event data.
-</p>
+<ul>
+  <li><b>name</b>: A string to be printed before each event.</li>
+  <li><b>types</b>: Restricts printing to certain event types, using a combination of the event type constants described above.</li>
+  <li><b>portnames</b>: Pass Print.PORTNAMES_IN or Print.PORTNAMES_OUT to print input or output portnames,
+  rather than just numbers.</li>
+</ul>
 
 <h4>Sanitize()</h4>
 <p>
 Makes sure the event is a valid MIDI message. Events with invalid port, channel, controller, program or note number are
 discarded, note velocity and controller values are confined to the range 0-127.
 </p>
+
 
 
 <h2><a name="examples"></a>Examples</h2>
