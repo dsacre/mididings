@@ -14,13 +14,18 @@
 
 #include "patch.hh"
 #include "backend.hh"
+#include "python_caller.hh"
 
 #include <string>
 #include <vector>
 #include <map>
 #include <tr1/unordered_map>
+
 #include <boost/shared_ptr.hpp>
-#include <Python.h>
+#include <boost/scoped_ptr.hpp>
+
+#include <boost/python/object.hpp>
+
 #include "util/global_object.hh"
 
 
@@ -89,7 +94,15 @@ class Setup
 
     bool sanitize_event(MidiEvent & ev) const;
 
-  protected:
+    bool call_now(boost::python::object & fun, MidiEvent & ev) {
+        return _python_caller->call_now(fun, ev);
+    }
+
+    void call_deferred(boost::python::object & fun, MidiEvent const & ev) {
+        _python_caller->call_deferred(fun, ev);
+    }
+
+  private:
     Patch * get_matching_patch(const MidiEvent & ev);
 
     static inline EventKey make_notekey(const MidiEvent & ev) {
@@ -122,6 +135,8 @@ class Setup
     MidiEventVector _event_buffer_final;
 
     MidiEventVector * _output_buffer;
+
+    boost::scoped_ptr<PythonCaller> _python_caller;
 };
 
 

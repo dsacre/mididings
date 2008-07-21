@@ -26,7 +26,7 @@ setup(
         Extension('_mididings',
                   [ 'src/backend_alsa.cc',
                     'src/setup.cc', 'src/patch.cc', 'src/units.cc',
-                    'src/python.cc' ],
+                    'src/python_caller.cc', 'src/python.cc' ],
                   include_dirs = ['src'],
                   libraries = ['asound', 'jack', 'boost_python', 'boost_thread']
         ),

@@ -14,10 +14,13 @@
 #include "util/debug.hh"
 
 #include <iostream>
-//#include <sys/time.h>
-//#include <time.h>
+
+#ifdef ENABLE_BENCHMARK
+  #include <sys/time.h>
+  #include <time.h>
+#endif
+
 #include <boost/python/call_method.hpp>
-#include <boost/thread/thread.hpp>
 
 using namespace std;
 
@@ -39,7 +42,8 @@ Setup::Setup(PyObject * self,
     _event_buffer_pre_out(EVENT_BUFFER_SIZE),
     _event_buffer_patch_out(EVENT_BUFFER_SIZE),
     _event_buffer_final(EVENT_BUFFER_SIZE),
-    _output_buffer(NULL)
+    _output_buffer(NULL),
+    _python_caller(new PythonCaller())
 {
     DEBUG_FN();
 
@@ -48,8 +52,6 @@ Setup::Setup(PyObject * self,
     }
 
     _num_out_ports = (int)out_ports.size();
-
-    boost::thread thrd(&Call::async_thread);
 }
 
 
@@ -98,8 +100,10 @@ void Setup::run()
 
 const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
 {
-//    timeval tv1, tv2;
-//    gettimeofday(&tv1, NULL);
+#ifdef ENABLE_BENCHMARK
+    timeval tv1, tv2;
+    gettimeofday(&tv1, NULL);
+#endif
 
     // clear all buffers
     _event_buffer_pre_out.clear();
@@ -112,8 +116,6 @@ const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
         _output_buffer = &_event_buffer_final;
         _ctrl_patch->process(ev);
     }
-
-//    DEBUG_PRINT(p);
 
     // preprocessing, write events to intermediate buffer
     _output_buffer = &_event_buffer_pre_out;
@@ -143,8 +145,10 @@ const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
 
     _output_buffer = NULL;
 
-//    gettimeofday(&tv2, NULL);
-//    cout << (tv2.tv_sec * 1000000LL + tv2.tv_usec) - (tv1.tv_sec * 1000000LL + tv1.tv_usec) << endl;
+#ifdef ENABLE_BENCHMARK
+    gettimeofday(&tv2, NULL);
+    cout << (tv2.tv_sec * 1000000LL + tv2.tv_usec) - (tv1.tv_sec * 1000000LL + tv1.tv_usec) << endl;
+#endif
 
     return _event_buffer_final;
 }

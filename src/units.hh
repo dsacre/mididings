@@ -19,10 +19,6 @@
 #include "util/debug.hh"
 
 #include <boost/python/object.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-
-#include <jack/ringbuffer.h>
 
 
 class Unit
@@ -465,8 +461,6 @@ class Call
   : public Unit
 {
   public:
-    static const int MAX_ASYNC_CALLS = 64;
-
     Call(boost::python::object fun, bool async, bool cont)
       : _fun(fun),
         _async(async),
@@ -476,20 +470,10 @@ class Call
 
     bool process(MidiEvent & ev);
 
-    static void async_thread();
-
   private:
-    struct AsyncCallInfo {
-        Call const * call;
-        MidiEvent ev;
-    };
-
     boost::python::object _fun;
     bool _async;
     bool _cont;
-
-    static jack_ringbuffer_t * rb_;
-    static boost::condition rb_cond_;
 };
 
 
