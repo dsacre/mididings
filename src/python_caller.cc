@@ -41,14 +41,19 @@ PythonCaller::~PythonCaller()
 bool PythonCaller::call_now(boost::python::object & fun, MidiEvent & ev)
 {
     PyGILState_STATE gil = PyGILState_Ensure();
-
-    boost::python::object obj = fun(boost::python::ptr(&ev));
     bool ret;
 
-    if (obj.ptr() == Py_None) {
-        ret = true;
-    } else {
-        ret = boost::python::extract<bool>(obj);
+    try {
+        boost::python::object obj = fun(boost::python::ptr(&ev));
+
+        if (obj.ptr() == Py_None) {
+            ret = true;
+        } else {
+            ret = boost::python::extract<bool>(obj);
+        }
+    } catch (boost::python::error_already_set &) {
+        PyErr_Print();
+        ret = false;
     }
 
     PyGILState_Release(gil);
