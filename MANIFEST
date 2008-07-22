@@ -17,6 +17,8 @@ src/midi_event.hh
 src/backend.hh
 src/backend_alsa.hh
 src/backend_alsa.cc
+src/python_caller.hh
+src/python_caller.cc
 src/python.cc
 src/util/debug.hh
 src/util/global_object.hh
