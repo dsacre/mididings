@@ -11,7 +11,7 @@ env = Environment(
         'ENABLE_DEBUG',
 #        'ENABLE_DEBUG_FN',
 #        'ENABLE_DEBUG_PRINT',
-#        'ENABLE_TEST',
+        'ENABLE_TEST',
 #        'ENABLE_BENCHMARK',
     ],
     CPPPATH = ['.'],

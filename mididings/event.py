@@ -12,7 +12,7 @@
 
 import _mididings
 import main as _main
-import misc as _misc
+import util as _util
 
 
 NONE      = 0
@@ -61,12 +61,12 @@ class MidiEvent(_mididings.MidiEvent):
         channel = self.channel
 
         if self.type_ == NOTEON:
-            s = 'Note on:  %3d %3d  (%s)' % (self.note, self.velocity, _misc.notenumber2name(self.note))
+            s = 'Note on:  %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
         elif self.type_ == NOTEOFF:
-            s = 'Note off: %3d %3d  (%s)' % (self.note, self.velocity, _misc.notenumber2name(self.note))
+            s = 'Note off: %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
         elif self.type_ == CTRL:
             s = 'Control:  %3d %3d' % (self.param, self.value)
-            n = _misc.controller_name(self.param)
+            n = _util.controller_name(self.param)
             if n: s += '  (%s)' % n
         elif self.type_ == PITCHBEND:
             s = 'Pitch bend: %+5d' % self.value

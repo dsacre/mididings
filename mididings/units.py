@@ -13,6 +13,7 @@
 import _mididings
 import main as _main
 import misc as _misc
+import util as _util
 from event import *
 
 import thread as _thread
@@ -76,13 +77,13 @@ class Filter(_mididings.Filter, _Filter):
 
 class PortFilter(_mididings.PortFilter, _Filter):
     def __init__(self, *args):
-        v = _misc.make_int_vector((_misc.port_number(p) for p in _misc.flatten(args)))
+        v = _misc.make_int_vector((_util.port_number(p) for p in _misc.flatten(args)))
         _mididings.PortFilter.__init__(self, v)
 
 
 class ChannelFilter(_mididings.ChannelFilter, _Filter):
     def __init__(self, *args):
-        v = _misc.make_int_vector((_misc.channel_number(c) for c in _misc.flatten(args)))
+        v = _misc.make_int_vector((_util.channel_number(c) for c in _misc.flatten(args)))
         _mididings.ChannelFilter.__init__(self, v)
 
 
@@ -90,7 +91,7 @@ class KeyFilter(_mididings.KeyFilter, _Filter):
     def __init__(self, *args):
         if len(args) == 1:
             args = args[0]
-        r = _misc.noterange2numbers(args)
+        r = _util.note_range(args)
         _mididings.KeyFilter.__init__(self, r[0], r[1])
 
 
@@ -114,7 +115,7 @@ class CtrlValueFilter(_mididings.CtrlValueFilter, _Filter):
 
 class ProgFilter(_mididings.ProgFilter, _Filter):
     def __init__(self, *args):
-        v = _misc.make_int_vector((_misc.program_number(p) for p in _misc.flatten(args)))
+        v = _misc.make_int_vector((_util.program_number(p) for p in _misc.flatten(args)))
         _mididings.ProgFilter.__init__(self, v)
 
 
@@ -167,12 +168,12 @@ def VelocitySplit(*args):
 
 class Port(_mididings.Port, _Unit):
     def __init__(self, port):
-        _mididings.Port.__init__(self, _misc.port_number(port))
+        _mididings.Port.__init__(self, _util.port_number(port))
 
 
 class Channel(_mididings.Channel, _Unit):
     def __init__(self, channel):
-        _mididings.Channel.__init__(self, _misc.channel_number(channel))
+        _mididings.Channel.__init__(self, _util.channel_number(channel))
 
 
 class Transpose(_mididings.Transpose, _Unit):
@@ -205,7 +206,7 @@ class VelocityCurve(_mididings.VelocityCurve, _Unit):
 class VelocityGradient(_mididings.VelocityGradient, _Unit):
     def __init__(self, note_lower, note_upper, value_lower, value_upper, mode=Velocity.OFFSET):
         _mididings.VelocityGradient.__init__(self,
-            _misc.note2number(note_lower), _misc.note2number(note_upper),
+            _util.note_number(note_lower), _util.note_number(note_upper),
             value_lower, value_upper, mode)
 
 def VelocityGradientOffset(note_lower, note_upper, value_lower, value_upper):
@@ -233,8 +234,8 @@ class CtrlRange(_mididings.CtrlRange, _Unit):
 class GenerateEvent(_mididings.GenerateEvent, _Unit):
     def __init__(self, type_, port, channel, data1, data2):
         _mididings.GenerateEvent.__init__(self, type_,
-                _misc.port_number(port) if isinstance(port, str) or port >= 0 else port,
-                _misc.channel_number(channel) if channel >= 0 else channel,
+                _util.port_number(port) if isinstance(port, str) or port >= 0 else port,
+                _util.channel_number(channel) if channel >= 0 else channel,
                 data1, data2)
 
 
@@ -254,11 +255,11 @@ def CtrlChange(*args):
 def ProgChange(*args):
     if len(args) == 1:
         # ProgChange(program)
-        return GenerateEvent(PROGRAM, EVENT_PORT, EVENT_CHANNEL, 0, _misc.program_number(args[0]))
+        return GenerateEvent(PROGRAM, EVENT_PORT, EVENT_CHANNEL, 0, _util.program_number(args[0]))
     elif len(args) == 3:
         # ProgChange(port, channel, program)
         port, channel, program = args
-        return GenerateEvent(PROGRAM, port, channel, 0, _misc.program_number(program))
+        return GenerateEvent(PROGRAM, port, channel, 0, _util.program_number(program))
     else:
         raise ArgumentError()
 

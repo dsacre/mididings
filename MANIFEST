@@ -5,6 +5,7 @@ mididings/__init__.py
 mididings/main.py
 mididings/units.py
 mididings/event.py
+mididings/util.py
 mididings/misc.py
 src/SConstruct
 src/setup.hh
