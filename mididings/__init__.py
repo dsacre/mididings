@@ -12,5 +12,6 @@
 
 from units import *
 from event import *
-from main import config, run, run_patches
-from main import switch_patch
+from main import config, run, run_patches, switch_patch
+
+__all__ = main.__all__ + units.__all__ + event.__all__

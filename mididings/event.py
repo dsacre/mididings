@@ -22,6 +22,7 @@ NOTE      = NOTEON | NOTEOFF
 CTRL      = 1 << 2
 PITCHBEND = 1 << 3
 PROGRAM   = 1 << 4
+DUMMY     = 1 << 5
 ANY       = ~0
 
 
@@ -38,6 +39,20 @@ EVENT_PARAM     = -3
 EVENT_VALUE     = -4
 # program change
 EVENT_PROGRAM   = -4
+
+
+def _make_get_set(type_, data, offset=lambda: 0):
+    def getter(self):
+        if not self.type_ & type_ and not type_ == ANY:
+            print "midi event attribute error"
+        return getattr(self, data) + offset()
+
+    def setter(self, value):
+        if not self.type_ & type_ and not type_ == ANY:
+            print "midi event attribute error"
+        setattr(self, data, value - offset())
+
+    return (getter, setter)
 
 
 class MidiEvent(_mididings.MidiEvent):
@@ -72,29 +87,26 @@ class MidiEvent(_mididings.MidiEvent):
             s = 'Pitch bend: %+5d' % self.value
         elif self.type_ == PROGRAM:
             s = 'Program:      %3d' % self.program
+        elif self.type_ == DUMMY:
+            s = 'Dummy'
         else:
             s = 'None'
 
         return '[%*s, %2d] %s' % (portname_length, port, channel, s)
 
-    def make_get_set(type_, data, offset=lambda: 0):
-        def getter(self):
-            if not self.type_ & type_ and not type_ == ANY:
-                print "midi event attribute error"
-            return getattr(self, data) + offset()
+    port      = property(*_make_get_set(ANY, 'port_', lambda: _main._config['data_offset']))
+    channel   = property(*_make_get_set(ANY, 'channel_', lambda: _main._config['data_offset']))
 
-        def setter(self, value):
-            if not self.type_ & type_ and not type_ == ANY:
-                print "midi event attribute error"
-            setattr(self, data, value - offset())
+    note      = property(*_make_get_set(NOTE, 'data1'))
+    velocity  = property(*_make_get_set(NOTE, 'data2'))
+    param     = property(*_make_get_set(CTRL, 'data1'))
+    value     = property(*_make_get_set(CTRL | PITCHBEND, 'data2'))
+    program   = property(*_make_get_set(PROGRAM, 'data2', lambda: _main._config['data_offset']))
 
-        return (getter, setter)
 
-    port      = property(*make_get_set(ANY, 'port_', lambda: _main._config['data_offset']))
-    channel   = property(*make_get_set(ANY, 'channel_', lambda: _main._config['data_offset']))
+class _DummyEvent(MidiEvent):
+    def __init__(self):
+        MidiEvent.__init__(self, DUMMY)
 
-    note      = property(*make_get_set(NOTE, 'data1'))
-    velocity  = property(*make_get_set(NOTE, 'data2'))
-    param     = property(*make_get_set(CTRL, 'data1'))
-    value     = property(*make_get_set(CTRL | PITCHBEND, 'data2'))
-    program   = property(*make_get_set(PROGRAM, 'data2', lambda: _main._config['data_offset']))
+
+__all__ = [x for x in dir() if not x.startswith('_')]

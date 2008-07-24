@@ -11,10 +11,11 @@
 #
 
 import _mididings
+
 import main as _main
+import event as _event
 import misc as _misc
 import util as _util
-from event import *
 
 import thread as _thread
 
@@ -132,15 +133,15 @@ def KeySplit(*args):
     if len(args) == 1:
         # KeySplit(d)
         return Fork([
-            (Fork([ KeyFilter(k), ~Filter(NOTE) ]) >> w) for k, w in args[0].items()
+            (Fork([ KeyFilter(k), ~Filter(_event.NOTE) ]) >> w) for k, w in args[0].items()
         ])
     elif len(args) == 3:
         # KeySplit(key, unit_lower, unit_upper)
         key, unit_lower, unit_upper = args
         filt = KeyFilter(0, key)
         return Fork([
-            Fork([  filt, ~Filter(NOTE) ]) >> unit_lower,
-            Fork([ ~filt, ~Filter(NOTE) ]) >> unit_upper
+            Fork([  filt, ~Filter(_event.NOTE) ]) >> unit_lower,
+            Fork([ ~filt, ~Filter(_event.NOTE) ]) >> unit_upper
         ])
     else:
         raise ArgumentError()
@@ -150,15 +151,15 @@ def VelocitySplit(*args):
     if len(args) == 1:
         # VelocitySplit(d)
         return Fork([
-            (Fork([ VelocityFilter(v), ~Filter(NOTE) ]) >> w) for v, w in args[0].items()
+            (Fork([ VelocityFilter(v), ~Filter(_event.NOTE) ]) >> w) for v, w in args[0].items()
         ])
     elif len(args) == 3:
         # VelocitySplit(thresh, unit_lower, unit_upper)
         thresh, unit_lower, unit_upper = args
         filt = VelocityFilter(0, thresh)
         return Fork([
-            Fork([  filt, ~Filter(NOTE) ]) >> unit_lower,
-            Fork([ ~filt, ~Filter(NOTE) ]) >> unit_upper
+            Fork([  filt, ~Filter(_event.NOTE) ]) >> unit_lower,
+            Fork([ ~filt, ~Filter(_event.NOTE) ]) >> unit_upper
         ])
     else:
         raise ArgumentError()
@@ -243,11 +244,11 @@ def CtrlChange(*args):
     if len(args) == 2:
         # CrtlChange(ctrl, value)
         ctrl, value = args
-        return GenerateEvent(CTRL, EVENT_PORT, EVENT_CHANNEL, ctrl, value)
+        return GenerateEvent(_event.CTRL, _event.EVENT_PORT, _event.EVENT_CHANNEL, ctrl, value)
     elif len(args) == 4:
         # CrtlChange(port, channel, ctrl, value)
         port, channel, ctrl, value = args
-        return GenerateEvent(CTRL, port, channel, ctrl, value)
+        return GenerateEvent(_event.CTRL, port, channel, ctrl, value)
     else:
         raise ArgumentError()
 
@@ -255,11 +256,12 @@ def CtrlChange(*args):
 def ProgChange(*args):
     if len(args) == 1:
         # ProgChange(program)
-        return GenerateEvent(PROGRAM, EVENT_PORT, EVENT_CHANNEL, 0, _util.program_number(args[0]))
+        return GenerateEvent(_event.PROGRAM, _event.EVENT_PORT,
+                             _event.EVENT_CHANNEL, 0, _util.program_number(args[0]))
     elif len(args) == 3:
         # ProgChange(port, channel, program)
         port, channel, program = args
-        return GenerateEvent(PROGRAM, port, channel, 0, _util.program_number(program))
+        return GenerateEvent(_event.PROGRAM, port, channel, 0, _util.program_number(program))
     else:
         raise ArgumentError()
 
@@ -270,7 +272,7 @@ class Sanitize(_mididings.Sanitize, _Unit):
 
 
 class PatchSwitch(_mididings.PatchSwitch, _Unit):
-    def __init__(self, num=EVENT_PROGRAM):
+    def __init__(self, num=_event.EVENT_PROGRAM):
         _mididings.PatchSwitch.__init__(self, num)
 
 
@@ -280,7 +282,7 @@ class _CallBase(_mididings.Call, _Unit):
         _mididings.Call.__init__(self, self.do_call, async, cont)
     def do_call(self, ev):
         # add additional properties
-        ev.__class__ = MidiEvent
+        ev.__class__ = _event.MidiEvent
         return self.fun(ev)
 
 class Call(_CallBase):
@@ -296,8 +298,9 @@ class CallThread(_CallBase):
         self.fun_thread = fun
         _CallBase.__init__(self, self.do_thread, True, True)
     def do_thread(self, ev):
-        # need to make a copy of the event. the underlying C++ object will become invalid when this function returns
-        ev_copy = MidiEvent(ev.type_, ev.port_, ev.channel_, ev.data1, ev.data2)
+        # need to make a copy of the event.
+        # the underlying C++ object will become invalid when this function returns
+        ev_copy = _event.MidiEvent(ev.type_, ev.port_, ev.channel_, ev.data1, ev.data2)
         _thread.start_new_thread(self.fun_thread, (ev_copy,))
 
 
@@ -306,7 +309,7 @@ class Print(_CallBase):
     PORTNAMES_IN   = 1
     PORTNAMES_OUT  = 2
 
-    def __init__(self, name=None, types=ANY, portnames=PORTNAMES_NONE):
+    def __init__(self, name=None, types=_event.ANY, portnames=PORTNAMES_NONE):
         self.name = name
         self.types = types
         self.ports = portnames
@@ -315,12 +318,12 @@ class Print(_CallBase):
     def do_print(self, ev):
         # delayed 'til first use, because _main.TheSetup doesn't yet exist during __init__
         if not hasattr(self, 'portnames'):
-            if self.ports == Print.PORTNAMES_NONE:
-                self.portnames = []
-            elif self.ports == Print.PORTNAMES_IN:
+            if self.ports == Print.PORTNAMES_IN:
                 self.portnames = _main.TheSetup.in_ports
             elif self.ports == Print.PORTNAMES_OUT:
                 self.portnames = _main.TheSetup.out_ports
+            else:
+                self.portnames = []
 
             if len(self.portnames):
                 self.portname_length = max((len(p) for p in self.portnames))
@@ -339,3 +342,7 @@ class PrintString(_CallBase):
         _CallBase.__init__(self, self.do_print, True, True)
     def do_print(self, ev):
         print self.string
+
+
+
+__all__ = [x for x in dir() if not x.startswith('_')]

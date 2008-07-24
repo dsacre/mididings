@@ -70,7 +70,8 @@ def note_number(note):
         note = note.lower()
         # find first digit
         for i in range(len(note)):
-            if note[i].isdigit() or note[i] == '-': break
+            if note[i].isdigit() or note[i] == '-':
+                break
         return NOTE_NUMBERS[note[:i]] + (int(note[i:]) + _main._config['octave_offset']) * 12
 
 

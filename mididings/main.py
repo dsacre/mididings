@@ -120,7 +120,7 @@ class Setup(_mididings.Setup):
             else:
                 raw_input("press enter to start midi processing...")
 
-        self.switch_patch(0, event.MidiEvent())
+        self.switch_patch(0, event._DummyEvent())
 
         global TheSetup
         TheSetup = weakref.proxy(self)
@@ -158,4 +158,8 @@ def test_run_patches(patches, events):
 
 
 def switch_patch(n):
-    TheSetup.switch_patch(n, event.MidiEvent())
+    TheSetup.switch_patch(n, event._DummyEvent())
+
+
+
+__all__ = ['config', 'run', 'run_patches', 'switch_patch']

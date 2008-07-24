@@ -13,7 +13,8 @@
 #define _MIDI_EVENT_HH
 
 
-enum MidiEventType {
+enum MidiEventType
+{
     MIDI_EVENT_NONE       = 0,
     MIDI_EVENT_NOTEON     = 1 << 0,
     MIDI_EVENT_NOTEOFF    = 1 << 1,
@@ -27,24 +28,23 @@ enum MidiEventType {
 typedef unsigned int MidiEventTypes;
 
 
-struct MidiNoteEvent {
-    int note;
-    int velocity;
-};
-
-struct MidiCtrlEvent {
-    int param;
-    int value;
-};
-
-
-struct MidiEvent {
+struct MidiEvent
+{
     MidiEventType type;
     int port;
     int channel;
+
     union {
-        MidiNoteEvent note;
-        MidiCtrlEvent ctrl;
+        struct {
+            int note;
+            int velocity;
+        } note;
+
+        struct {
+            int param;
+            int value;
+        } ctrl;
+
         struct {
             int data1;
             int data2;
