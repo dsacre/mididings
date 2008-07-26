@@ -165,7 +165,7 @@ snd_seq_event_t BackendAlsa::midi_event_to_alsa(const MidiEvent & ev)
 }
 
 
-void BackendAlsa::run(Engine & setup)
+void BackendAlsa::run(Engine & engine)
 {
     snd_seq_event_t *alsa_ev;
 
@@ -174,7 +174,7 @@ void BackendAlsa::run(Engine & setup)
 
 
     // handle init events
-    const Engine::MidiEventVector & out_events = setup.init_events();
+    const Engine::MidiEventVector & out_events = engine.init_events();
 
     for (vector<MidiEvent>::const_iterator i = out_events.begin(); i != out_events.end(); ++i) {
         snd_seq_event_t alsa_ev = midi_event_to_alsa(*i);
@@ -188,7 +188,8 @@ void BackendAlsa::run(Engine & setup)
     snd_seq_drain_output(_seq_handle);
 
 
-    while (snd_seq_event_input(_seq_handle, &alsa_ev)) {
+    while (snd_seq_event_input(_seq_handle, &alsa_ev))
+    {
         if (!alsa_ev) {
             // terminated by user?
             return;
@@ -206,7 +207,7 @@ void BackendAlsa::run(Engine & setup)
         //            << ev.channel << " " << ev.data1 << " " << ev.data2);
 
         // do all processing
-        const Engine::MidiEventVector & out_events = setup.process(ev);
+        const Engine::MidiEventVector & out_events = engine.process(ev);
 
         // output all events to alsa
         for (vector<MidiEvent>::const_iterator i = out_events.begin(); i != out_events.end(); ++i) {

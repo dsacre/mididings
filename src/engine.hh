@@ -9,8 +9,8 @@
  * (at your option) any later version.
  */
 
-#ifndef _SETUP_HH
-#define _SETUP_HH
+#ifndef _ENGINE_HH
+#define _ENGINE_HH
 
 #include "patch.hh"
 #include "backend.hh"
@@ -144,4 +144,4 @@ class Engine
 };
 
 
-#endif // _SETUP_HH
+#endif // _ENGINE_HH

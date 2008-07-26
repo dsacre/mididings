@@ -31,7 +31,7 @@ class BackendAlsa
                 const std::vector<std::string> & out_ports);
     virtual ~BackendAlsa();
 
-    virtual void run(class Engine & setup);
+    virtual void run(class Engine & engine);
 
   private:
     MidiEvent alsa_to_midi_event(const snd_seq_event_t & alsa_ev);
