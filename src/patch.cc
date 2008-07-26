@@ -10,45 +10,115 @@
  */
 
 #include "patch.hh"
-#include "setup.hh"
+#include "units.hh"
 
-using namespace std;
+#include <algorithm>
+#include <iterator>
+
+#include "util/debug.hh"
+#include "util/string.hh"
 
 
-void Patch::process(const MidiEvent & ev_in)
+Patch::EventIterRange Patch::Chain::process(Events & buf, EventIterRange r)
 {
-    MidiEvent ev = ev_in;
-    process_recursive(*_start, ev);
+    DEBUG_PRINT(Patch::debug_range("Chain in", buf, r));
+
+    for (ModuleVector::iterator m = _modules.begin(); m != _modules.end(); ++m)
+    {
+        if (r.empty()) {
+            // nothing to do
+            break;
+        }
+
+        r = (*m)->process(buf, r);
+    }
+
+    DEBUG_PRINT(Patch::debug_range("Chain out", buf, r));
+
+    return r;
 }
 
 
-void Patch::process_recursive(Module & m, MidiEvent & ev)
+Patch::EventIterRange Patch::Fork::process(Events & buf, EventIterRange r)
 {
-    //cout << typeid(m.unit()).name() << endl;
+    DEBUG_PRINT(Patch::debug_range("Fork in", buf, r));
 
-    bool r = m.unit().process(ev);
-    if (!r) return;
+    // make a copy of all incoming events
+    Events::size_type in_size = r.size();
+    MidiEvent in[r.size()];
+    std::copy(r.begin(), r.end(), in);
 
-    size_t s = m.next().size();
+    EventIterRange q = r;
+    r = EventIterRange(r.end(), r.end());
 
-    if (s == 1) {
-        // single successor, pass same event on to next module
-        process_recursive(*m.next()[0], ev);
-    }
-    else if (s > 1) {
-        // more than one successor, need to work on a copy of the original event
-        MidiEvent ev_copy;
-        for (vector<ModulePtr>::iterator i = m.next().begin(); i != m.next().end(); ++i) {
-            ev_copy = ev;
-            process_recursive(**i, ev_copy);
+    for (ModuleVector::iterator m = _modules.begin(); m != _modules.end(); ++m)
+    {
+        q = (*m)->process(buf, q);
+
+        if (r.begin() == r.end() && !q.empty()) {
+            // found first event(s) of return range
+            r = EventIterRange(q.begin(), q.end());
+        }
+
+        // find and remove duplicates
+        for (EventIter it = q.begin(); it != q.end(); ) {
+            if (std::find(r.begin(), q.begin(), *it) == q.begin()) {
+                ++it;
+            } else {
+                it = buf.erase(it);
+            }
+        }
+
+        if (m + 1 != _modules.end()) {
+            // insert copies of all incoming events at the end of the list
+            EventIter it = buf.insert(r.end(), *in);
+            buf.insert(r.end(), in + 1, in + in_size);
+
+            // point q to newly inserted events
+            q = EventIterRange(it, r.end());
         }
     }
+
+    DEBUG_PRINT(Patch::debug_range("Fork out", buf, r));
+
+    return r;
 }
 
 
-bool Patch::Output::process(MidiEvent & ev)
+Patch::EventIterRange Patch::Single::process(Events & buf, EventIterRange r)
 {
-    TheSetup->buffer_event(ev);
-    // nothing left to do
-    return false;
+    DEBUG_PRINT(Patch::debug_range("Single in", buf, r));
+
+    for (EventIter it = r.begin(); it != r.end(); )
+    {
+        if (_unit->process(*it)) {
+            // keep event
+            ++it;
+        } else {
+            // remove event
+            if (it == r.begin()) {
+                // adjust the range to keep it valid
+                r = EventIterRange(++r.begin(), r.end());
+            }
+            it = buf.erase(it);
+        }
+    }
+
+    DEBUG_PRINT(Patch::debug_range("Single out", buf, r));
+
+    return r;
+}
+
+
+
+Patch::EventIterRange Patch::process(Events & buf, EventIterRange r)
+{
+    DEBUG_PRINT(Patch::debug_range("Patch in", buf, r));
+
+    return _module->process(buf, r);
+}
+
+
+std::string Patch::debug_range(std::string const & str, Events & buf, EventIterRange r) {
+    return das::make_string() << str << ": " << std::distance(buf.begin(), r.begin()) << ", " << r.size();
 }

@@ -37,8 +37,14 @@ class _Chain(_Unit):
 
 # units connected in parallel
 class Fork(list, _Unit):
-    def __init__(self, l):
-        list.__init__(self, l)
+    def __init__(self, *args):
+        if len(args) == 1:
+            list.__init__(self, args[0])
+        elif len(args) == 2:
+            # fork only certain types of events
+            l = [ (Filter(args[0]) >> x) for x in args[1] ] + \
+                [ ~Filter(args[0]) ]
+            list.__init__(self, l)
 
 
 # split events by type
@@ -328,18 +334,18 @@ class Print(_CallBase):
 
     def do_print(self, ev):
         # get list of port names to be used
-        # (delayed 'til first use, because _main.TheSetup doesn't yet exist during __init__)
+        # (delayed 'til first use, because _main.TheEngine doesn't yet exist during __init__)
         if self.ports == None:
             if self.portnames == Print.PORTNAMES_IN:
-                self.ports = _main.TheSetup.in_ports
+                self.ports = _main.TheEngine.in_ports
             elif self.portnames == Print.PORTNAMES_OUT:
-                self.ports = _main.TheSetup.out_ports
+                self.ports = _main.TheEngine.out_ports
             else:
                 self.ports = []
 
         # find maximum port name length (delayed for the same reason as above)
         if Print.max_portname_length == -1:
-            all_ports = _main.TheSetup.in_ports + _main.TheSetup.out_ports
+            all_ports = _main.TheEngine.in_ports + _main.TheEngine.out_ports
             Print.max_portname_length = max((len(p) for p in all_ports))
 
         if ev.type_ & self.types:

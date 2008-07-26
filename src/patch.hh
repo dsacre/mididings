@@ -12,82 +12,93 @@
 #ifndef _PATCH_HH
 #define _PATCH_HH
 
-#include "units.hh"
 #include "midi_event.hh"
+class Unit;
 
 #include <vector>
+#include <list>
+#include <string>
+
 #include <boost/shared_ptr.hpp>
+#include <boost/range/iterator_range.hpp>
 
 
 class Patch
 {
   public:
-    class Module;
-    typedef boost::shared_ptr<Module> ModulePtr;
-    typedef boost::shared_ptr<Unit> UnitPtr;
 
-    Patch() {
-        DEBUG_FN();
-    }
-
-    ~Patch() {
-        DEBUG_FN();
-    }
-
-    void set_start(ModulePtr start) {
-        _start = start;
-    }
-
-    void process(const MidiEvent & ev);
-    void process_recursive(Module & m, MidiEvent & ev);
-
-
-    class Input
-      : public Unit
-    {
-      public:
-        Input() { }
-
-        virtual bool process(MidiEvent & /*ev*/) {
-            return true;
-        }
-    };
-
-    class Output
-      : public Unit
-    {
-      public:
-        Output() { }
-
-        virtual bool process(MidiEvent & ev);
-    };
+    typedef std::list<MidiEvent> Events;
+    typedef Events::iterator EventIter;
+    typedef boost::iterator_range<EventIter> EventIterRange;
 
 
     class Module
     {
       public:
-        Module(UnitPtr unit)
-          : _unit(unit) {
-            DEBUG_FN();
-        }
+        Module() { }
+        virtual ~Module() { }
 
-        ~Module() {
-            DEBUG_FN();
-        }
-
-        void attach(ModulePtr m) { _next.push_back(m); }
-
-        Unit & unit() { return *_unit; }
-        std::vector<ModulePtr> & next() { return _next; }
-
-      private:
-        UnitPtr _unit;
-        std::vector<ModulePtr> _next;
+        virtual EventIterRange process(Events &, EventIterRange) = 0;
     };
 
+    typedef boost::shared_ptr<Module> ModulePtr;
+    typedef std::vector<ModulePtr> ModuleVector;
+
+
+    class Chain
+      : public Module
+    {
+      public:
+        Chain(ModuleVector m) : _modules(m) { }
+
+        virtual EventIterRange process(Events &, EventIterRange);
+
+      private:
+        ModuleVector _modules;
+    };
+
+
+    class Fork
+      : public Module
+    {
+      public:
+        Fork(ModuleVector m) : _modules(m) { }
+
+        virtual EventIterRange process(Events &, EventIterRange);
+
+      private:
+        ModuleVector _modules;
+    };
+
+
+    class Single
+      : public Module
+    {
+      public:
+        Single(boost::shared_ptr<Unit> unit) : _unit(unit) { }
+
+        virtual EventIterRange process(Events &, EventIterRange);
+
+      private:
+        boost::shared_ptr<Unit> _unit;
+    };
+
+
+  public:
+
+    Patch(ModulePtr m) : _module(m) { }
+
+    EventIterRange process(Events &, EventIterRange);
+
+
   private:
-    ModulePtr _start;
+
+    static std::string debug_range(std::string const & str, Events & buf, EventIterRange r);
+
+
+    ModulePtr _module;
 };
+
 
 
 #endif // _PATCH_HH

@@ -27,7 +27,7 @@ class Backend
     {
     }
 
-    virtual void run(class Setup &) = 0;
+    virtual void run(class Engine &) = 0;
 
   protected:
     struct BackendError : public std::runtime_error {

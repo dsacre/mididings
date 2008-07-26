@@ -53,4 +53,14 @@ struct MidiEvent
 };
 
 
+inline bool operator==(MidiEvent const & lhs, MidiEvent const & rhs)
+{
+    return (lhs.type == rhs.type &&
+            lhs.port == rhs.port &&
+            lhs.channel == rhs.channel &&
+            lhs.data1 == rhs.data1 &&
+            lhs.data2 == rhs.data2);
+}
+
+
 #endif // _MIDI_EVENT_HH

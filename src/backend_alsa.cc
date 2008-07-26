@@ -11,7 +11,7 @@
 
 #include "backend_alsa.hh"
 
-#include "setup.hh"
+#include "engine.hh"
 #include "midi_event.hh"
 
 #include <alsa/asoundlib.h>
@@ -165,7 +165,7 @@ snd_seq_event_t BackendAlsa::midi_event_to_alsa(const MidiEvent & ev)
 }
 
 
-void BackendAlsa::run(Setup & setup)
+void BackendAlsa::run(Engine & setup)
 {
     snd_seq_event_t *alsa_ev;
 
@@ -174,7 +174,7 @@ void BackendAlsa::run(Setup & setup)
 
 
     // handle init events
-    const Setup::MidiEventVector & out_events = setup.init_events();
+    const Engine::MidiEventVector & out_events = setup.init_events();
 
     for (vector<MidiEvent>::const_iterator i = out_events.begin(); i != out_events.end(); ++i) {
         snd_seq_event_t alsa_ev = midi_event_to_alsa(*i);
@@ -206,7 +206,7 @@ void BackendAlsa::run(Setup & setup)
         //            << ev.channel << " " << ev.data1 << " " << ev.data2);
 
         // do all processing
-        const Setup::MidiEventVector & out_events = setup.process(ev);
+        const Engine::MidiEventVector & out_events = setup.process(ev);
 
         // output all events to alsa
         for (vector<MidiEvent>::const_iterator i = out_events.begin(); i != out_events.end(); ++i) {

@@ -10,7 +10,7 @@
  */
 
 #include "units.hh"
-#include "setup.hh"
+#include "engine.hh"
 
 #include <cmath>
 
@@ -154,13 +154,13 @@ bool GenerateEvent::process(MidiEvent & ev)
 
 bool Sanitize::process(MidiEvent & ev)
 {
-    return TheSetup->sanitize_event(ev);
+    return TheEngine->sanitize_event(ev);
 }
 
 
 bool PatchSwitch::process(MidiEvent & ev)
 {
-    TheSetup->switch_patch(get_parameter(_num, ev), ev);
+    TheEngine->switch_patch(get_parameter(_num, ev), ev);
     return false;
 }
 
@@ -168,10 +168,10 @@ bool PatchSwitch::process(MidiEvent & ev)
 bool Call::process(MidiEvent & ev)
 {
     if (!_async) {
-        return TheSetup->call_now(_fun, ev);
+        return TheEngine->call_now(_fun, ev);
     }
     else {
-        TheSetup->call_deferred(_fun, ev);
+        TheEngine->call_deferred(_fun, ev);
         return _cont;
     }
 }

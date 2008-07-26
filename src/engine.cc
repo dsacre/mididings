@@ -9,7 +9,7 @@
  * (at your option) any later version.
  */
 
-#include "setup.hh"
+#include "engine.hh"
 #include "backend_alsa.hh"
 #include "util/debug.hh"
 
@@ -25,24 +25,24 @@
 using namespace std;
 
 
-Setup * TheSetup = NULL;
+Engine * TheEngine = NULL;
 
 
-Setup::Setup(PyObject * self,
-             const string & backend_name,
-             const string & client_name,
-             const vector<string> & in_ports,
-             const vector<string> & out_ports,
-             bool verbose)
+Engine::Engine(PyObject * self,
+               const string & backend_name,
+               const string & client_name,
+               const vector<string> & in_ports,
+               const vector<string> & out_ports,
+               bool verbose)
   : _self(self),
     _verbose(verbose),
     _current(NULL),
     _noteon_patches(MAX_SIMULTANEOUS_NOTES),
     _sustain_patches(MAX_SUSTAIN_PEDALS),
-    _event_buffer_pre_out(EVENT_BUFFER_SIZE),
-    _event_buffer_patch_out(EVENT_BUFFER_SIZE),
-    _event_buffer_final(EVENT_BUFFER_SIZE),
-    _output_buffer(NULL),
+//    _event_buffer_pre_out(EVENT_BUFFER_SIZE),
+//    _event_buffer_patch_out(EVENT_BUFFER_SIZE),
+//    _event_buffer_final(EVENT_BUFFER_SIZE),
+//    _output_buffer(NULL),
     _python_caller(new PythonCaller())
 {
     DEBUG_FN();
@@ -55,13 +55,13 @@ Setup::Setup(PyObject * self,
 }
 
 
-Setup::~Setup()
+Engine::~Engine()
 {
     DEBUG_FN();
 }
 
 
-void Setup::add_patch(int i, PatchPtr patch, PatchPtr init_patch)
+void Engine::add_patch(int i, PatchPtr patch, PatchPtr init_patch)
 {
     ASSERT(_patches.find(i) == _patches.end());
 
@@ -72,7 +72,7 @@ void Setup::add_patch(int i, PatchPtr patch, PatchPtr init_patch)
 }
 
 
-void Setup::set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch)
+void Engine::set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch)
 {
     ASSERT(!_ctrl_patch);
     ASSERT(!_pre_patch);
@@ -83,7 +83,7 @@ void Setup::set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr pos
 }
 
 
-void Setup::run()
+void Engine::run()
 {
     if (!_backend) {
         return;
@@ -98,7 +98,7 @@ void Setup::run()
 }
 
 
-const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
+const Engine::MidiEventVector & Engine::process(const MidiEvent & ev)
 {
     boost::recursive_mutex::scoped_lock lock(_process_mutex);
 
@@ -107,56 +107,43 @@ const Setup::MidiEventVector & Setup::process(const MidiEvent & ev)
     gettimeofday(&tv1, NULL);
 #endif
 
-    // clear all buffers
-    _event_buffer_pre_out.clear();
-    _event_buffer_patch_out.clear();
-    _event_buffer_final.clear();
+    Patch::Events buffer;
+    buffer.insert(buffer.end(), ev);
+
+    Patch::EventIterRange range(buffer);
+
+    Patch * patch = get_matching_patch(ev);
 
     if (_ctrl_patch) {
-        // all output events are written to the final buffer,
-        // and will not be processed any further
-        _output_buffer = &_event_buffer_final;
-        _ctrl_patch->process(ev);
-    }
+        _ctrl_patch->process(buffer, range);
 
-    // preprocessing, write events to intermediate buffer
-    _output_buffer = &_event_buffer_pre_out;
+        Patch::EventIter it = buffer.insert(buffer.end(), ev);
+        range = Patch::EventIterRange(it, buffer.end());
+    }
 
     if (_pre_patch) {
-        _pre_patch->process(ev);
-    } else {
-        buffer_event(ev);
+        range = _pre_patch->process(buffer, range);
     }
 
-    // process patch, write events to another buffer
-    _output_buffer = &_event_buffer_patch_out;
+    range = patch->process(buffer, range);
 
-    for (MidiEventVector::const_iterator i = _event_buffer_pre_out.begin(); i != _event_buffer_pre_out.end(); ++i) {
-        get_matching_patch(ev)->process(*i);
+    if (_post_patch) {
+        range = _post_patch->process(buffer, range);
     }
-
-    // postprocessing, write events to final buffer
-    _output_buffer = &_event_buffer_final;
-    for (MidiEventVector::const_iterator i = _event_buffer_patch_out.begin(); i != _event_buffer_patch_out.end(); ++i) {
-        if (_post_patch) {
-            _post_patch->process(*i);
-        } else {
-            buffer_event(*i);
-        }
-    }
-
-    _output_buffer = NULL;
 
 #ifdef ENABLE_BENCHMARK
     gettimeofday(&tv2, NULL);
     cout << (tv2.tv_sec * 1000000LL + tv2.tv_usec) - (tv1.tv_sec * 1000000LL + tv1.tv_usec) << endl;
 #endif
 
-    return _event_buffer_final;
+    static std::vector<MidiEvent> foo;
+    foo.clear();
+    foo.insert(foo.end(), buffer.begin(), buffer.end());
+    return foo;
 }
 
 
-Patch * Setup::get_matching_patch(const MidiEvent & ev)
+Patch * Engine::get_matching_patch(const MidiEvent & ev)
 {
     // note on: store current patch
     if (ev.type == MIDI_EVENT_NOTEON) {
@@ -190,8 +177,9 @@ Patch * Setup::get_matching_patch(const MidiEvent & ev)
 }
 
 
-const Setup::MidiEventVector & Setup::init_events()
+const Engine::MidiEventVector & Engine::init_events()
 {
+/*
     boost::recursive_mutex::scoped_lock lock(_process_mutex);
 
     _event_buffer_final.clear();
@@ -207,10 +195,13 @@ const Setup::MidiEventVector & Setup::init_events()
     }
 
     return _event_buffer_final;
+*/
+    static std::vector<MidiEvent> foo;
+    return foo;
 }
 
 
-void Setup::switch_patch(int n, const MidiEvent & ev)
+void Engine::switch_patch(int n, const MidiEvent & ev)
 {
     boost::recursive_mutex::scoped_lock lock(_process_mutex);
 
@@ -227,6 +218,7 @@ void Setup::switch_patch(int n, const MidiEvent & ev)
 
         PatchMap::iterator k = _init_patches.find(n);
         if (k != _init_patches.end()) {
+/*
             // temporarily redirect output to patch_out so events will go through postprocessing
             MidiEventVector *p = _output_buffer;
             _output_buffer = &_event_buffer_patch_out;
@@ -234,12 +226,13 @@ void Setup::switch_patch(int n, const MidiEvent & ev)
             k->second->process(ev);
 
             _output_buffer = p;
+*/
         }
     }
 }
 
 
-bool Setup::sanitize_event(MidiEvent & ev) const
+bool Engine::sanitize_event(MidiEvent & ev) const
 {
     if (ev.port < 0 || ev.port >= num_out_ports()) {
         if (_verbose) cout << "invalid port, event discarded" << endl;

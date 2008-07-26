@@ -31,16 +31,16 @@
 #include "util/global_object.hh"
 
 
-extern class Setup *TheSetup;
+extern class Engine *TheEngine;
 
 
-class Setup
-  : public das::global_object<Setup, ::TheSetup>
+class Engine
+  : public das::global_object<Engine, ::TheEngine>
 {
   public:
     static const int MAX_SIMULTANEOUS_NOTES = 64;
     static const int MAX_SUSTAIN_PEDALS = 4;
-    static const int EVENT_BUFFER_SIZE = 16;
+//    static const int EVENT_BUFFER_SIZE = 16;
 
     typedef boost::shared_ptr<Patch> PatchPtr;
     typedef std::map<int, PatchPtr> PatchMap;
@@ -52,14 +52,14 @@ class Setup
     typedef std::vector<MidiEvent> MidiEventVector;
 
 
-    Setup(PyObject * self,
-          const std::string & backend_name,
-          const std::string & client_name,
-          const std::vector<std::string> & in_ports,
-          const std::vector<std::string> & out_ports,
-          bool verbose);
+    Engine(PyObject * self,
+           const std::string & backend_name,
+           const std::string & client_name,
+           const std::vector<std::string> & in_ports,
+           const std::vector<std::string> & out_ports,
+           bool verbose);
 
-    ~Setup();
+    ~Engine();
 
     void add_patch(int i, PatchPtr patch, PatchPtr init_patch);
     void set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch);
@@ -74,7 +74,7 @@ class Setup
 
     const MidiEventVector & init_events();
 
-
+/*
     void buffer_event(const MidiEvent & ev) {
         // this will cause the vector to be resized if it gets larger
         // than EVENT_BUFFER_SIZE -> not realtime safe
@@ -93,7 +93,7 @@ class Setup
             }
         }
     }
-
+*/
     bool sanitize_event(MidiEvent & ev) const;
 
     bool call_now(boost::python::object & fun, MidiEvent & ev) {
@@ -131,13 +131,13 @@ class Setup
 
     NotePatchMap _noteon_patches;
     SustainPatchMap _sustain_patches;
-
+/*
     MidiEventVector _event_buffer_pre_out;
     MidiEventVector _event_buffer_patch_out;
     MidiEventVector _event_buffer_final;
 
     MidiEventVector * _output_buffer;
-
+*/
     boost::recursive_mutex _process_mutex;
 
     boost::scoped_ptr<PythonCaller> _python_caller;

@@ -11,7 +11,7 @@ env = Environment(
         'ENABLE_DEBUG',
 #        'ENABLE_DEBUG_FN',
 #        'ENABLE_DEBUG_PRINT',
-        'ENABLE_TEST',
+#        'ENABLE_TEST',
 #        'ENABLE_BENCHMARK',
     ],
     CPPPATH = ['.'],
@@ -35,7 +35,7 @@ env.ParseConfig(
 
 #env.SharedLibrary('_mididings',
 #    [ 'backend_alsa.cc',
-#      'setup.cc', 'patch.cc', 'units.cc',
+#      'engine.cc', 'patch.cc', 'units.cc',
 #      'python_caller.cc', 'python.cc' ],
 #    SHLIBPREFIX='', SHOBJSUFFIX='.o')
 
@@ -44,6 +44,6 @@ env.SharedObject('python.o', 'python.cc', CCFLAGS = [f for f in env['CCFLAGS'] i
 
 env.SharedLibrary('_mididings',
     [ 'backend_alsa.cc',
-      'setup.cc', 'patch.cc', 'units.cc',
+      'engine.cc', 'patch.cc', 'units.cc',
       'python_caller.cc', 'python.o' ],
     SHLIBPREFIX='', SHOBJSUFFIX='.o')

@@ -22,7 +22,7 @@
 #include <vector>
 #include <string>
 
-#include "setup.hh"
+#include "engine.hh"
 #include "patch.hh"
 #include "units.hh"
 
@@ -39,77 +39,68 @@ static inline void midi_event_set_type(MidiEvent & ev, int t) {
 }
 
 
-#ifdef ENABLE_TEST
-bool operator==(const MidiEvent & lhs, const MidiEvent & rhs) {
-    return (lhs.type == rhs.type &&
-            lhs.port == rhs.port &&
-            lhs.channel == rhs.channel &&
-            lhs.data1 == rhs.data1 &&
-            lhs.data2 == rhs.data2);
-}
-#endif // ENABLE_TEST
-
-
 BOOST_PYTHON_MODULE(_mididings)
 {
     PyEval_InitThreads();
 
     class_<Unit, noncopyable>("Unit", no_init);
 
-    class_<Pass, bases<Unit> >("Pass", init<bool>());
+    class_<Pass, bases<Unit>, noncopyable>("Pass", init<bool>());
+    class_<Filter, bases<Unit>, noncopyable>("Filter", init<int>());
+    class_<InvertedFilter, bases<Unit>, noncopyable>("InvertedFilter", init<shared_ptr<Filter>, bool>());
 
-    class_<Filter, bases<Unit> >("Filter", init<int>());
-    class_<InvertedFilter, bases<Unit> >("InvertedFilter", init<shared_ptr<Filter>, bool>());
+    class_<PortFilter, bases<Filter>, noncopyable>("PortFilter", init<const vector<int> &>());
+    class_<ChannelFilter, bases<Filter>, noncopyable>("ChannelFilter", init<const vector<int> &>());
+    class_<KeyFilter, bases<Filter>, noncopyable>("KeyFilter", init<int, int>());
+    class_<VelocityFilter, bases<Filter>, noncopyable>("VelocityFilter", init<int, int>());
+    class_<CtrlFilter, bases<Filter>, noncopyable>("CtrlFilter", init<const vector<int> &>());
+    class_<CtrlValueFilter, bases<Filter>, noncopyable>("CtrlValueFilter", init<int, int>());
+    class_<ProgFilter, bases<Filter>, noncopyable>("ProgFilter", init<const vector<int> &>());
 
-    class_<PortFilter, bases<Filter> >("PortFilter", init<const vector<int> &>());
-    class_<ChannelFilter, bases<Filter> >("ChannelFilter", init<const vector<int> &>());
-    class_<KeyFilter, bases<Filter> >("KeyFilter", init<int, int>());
-    class_<VelocityFilter, bases<Filter> >("VelocityFilter", init<int, int>());
-    class_<CtrlFilter, bases<Filter> >("CtrlFilter", init<const vector<int> &>());
-    class_<CtrlValueFilter, bases<Filter> >("CtrlValueFilter", init<int, int>());
-    class_<ProgFilter, bases<Filter> >("ProgFilter", init<const vector<int> &>());
+    class_<Port, bases<Unit>, noncopyable>("Port", init<int>());
+    class_<Channel, bases<Unit>, noncopyable>("Channel", init<int>());
+    class_<Transpose, bases<Unit>, noncopyable>("Transpose", init<int>());
+    class_<Velocity, bases<Unit>, noncopyable>("Velocity", init<float, int>());
+    class_<VelocityCurve, bases<Unit>, noncopyable>("VelocityCurve", init<float>());
+    class_<VelocityGradient, bases<Unit>, noncopyable>("VelocityGradient", init<int, int, float, float, int>());
+    class_<CtrlMap, bases<Unit>, noncopyable>("CtrlMap", init<int, int>());
+    class_<CtrlRange, bases<Unit>, noncopyable>("CtrlRange", init<int, int, int, int, int>());
 
-    class_<Port, bases<Unit> >("Port", init<int>());
-    class_<Channel, bases<Unit> >("Channel", init<int>());
-    class_<Transpose, bases<Unit> >("Transpose", init<int>());
-    class_<Velocity, bases<Unit> >("Velocity", init<float, int>());
-    class_<VelocityCurve, bases<Unit> >("VelocityCurve", init<float>());
-    class_<VelocityGradient, bases<Unit> >("VelocityGradient", init<int, int, float, float, int>());
-    class_<CtrlMap, bases<Unit> >("CtrlMap", init<int, int>());
-    class_<CtrlRange, bases<Unit> >("CtrlRange", init<int, int, int, int, int>());
+    class_<GenerateEvent, bases<Unit>, noncopyable>("GenerateEvent", init<int, int, int, int, int>());
+    class_<Sanitize, bases<Unit>, noncopyable>("Sanitize", init<>());
+    class_<PatchSwitch, bases<Unit>, noncopyable>("PatchSwitch", init<int>());
+    class_<Call, bases<Unit>, noncopyable>("Call", init<object, bool, bool>());
 
-    class_<GenerateEvent, bases<Unit> >("GenerateEvent", init<int, int, int, int, int>());
-    class_<Sanitize, bases<Unit> >("Sanitize", init<>());
-    class_<PatchSwitch, bases<Unit> >("PatchSwitch", init<int>());
-    class_<Call, bases<Unit> >("Call", init<object, bool, bool>());
-
-    class_<Setup, Setup, noncopyable>("Setup", init<const string &, const string &,
+    class_<Engine, Engine, noncopyable>("Engine", init<const string &, const string &,
                                                     const vector<string> &, const vector<string> &, bool>())
-        .def("add_patch", &Setup::add_patch)
-        .def("set_processing", &Setup::set_processing)
-        .def("run", &Setup::run)
-        .def("switch_patch", &Setup::switch_patch)
+        .def("add_patch", &Engine::add_patch)
+        .def("set_processing", &Engine::set_processing)
+        .def("run", &Engine::run)
+        .def("switch_patch", &Engine::switch_patch)
 #ifdef ENABLE_TEST
-        .def("process", &Setup::process, return_value_policy<reference_existing_object>())
+        .def("process", &Engine::process, return_value_policy<reference_existing_object>())
 #endif // ENABLE_TEST
     ;
+
     {
-        scope p = class_<Patch>("Patch")
-            .def("set_start", &Patch::set_start)
+        scope patch_scope = class_<Patch, noncopyable>("Patch", init<Patch::ModulePtr>());
+
+        class_<Patch::Module, noncopyable>("Module", no_init);
+
+        class_<Patch::ModuleVector, noncopyable>("ModuleVector")
+            .def("push_back", &Patch::ModuleVector::push_back)
         ;
 
-        class_<Patch::Input, bases<Unit> >("Input");
-        class_<Patch::Output, bases<Unit> >("Output");
-
-        class_<Patch::Module>("Module", init<shared_ptr<Unit> >())
-            .def("attach", &Patch::Module::attach)
-        ;
+        class_<Patch::Chain, bases<Patch::Module>, noncopyable>("Chain", init<Patch::ModuleVector>());
+        class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector>());
+        class_<Patch::Single, bases<Patch::Module>, noncopyable>("Single", init<shared_ptr<Unit> >());
     }
 
-    class_<vector<int> >("int_vector")
+
+    class_<vector<int>, noncopyable>("int_vector")
         .def("push_back", &vector<int>::push_back)
     ;
-    class_<vector<string> >("string_vector")
+    class_<vector<string>, noncopyable>("string_vector")
         .def("push_back", &vector<string>::push_back)
     ;
 
