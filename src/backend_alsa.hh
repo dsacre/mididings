@@ -13,7 +13,6 @@
 #define _BACKEND_ALSA_HH
 
 #include "backend.hh"
-#include "midi_event.hh"
 
 #include <alsa/asoundlib.h>
 
@@ -31,7 +30,11 @@ class BackendAlsa
                 const std::vector<std::string> & out_ports);
     virtual ~BackendAlsa();
 
-    virtual void run(class Engine & engine);
+//    virtual void run(class Engine & engine);
+
+    virtual bool get_event(MidiEvent & ev);
+    virtual void output_event(MidiEvent const & ev);
+    virtual void flush_output();
 
   private:
     MidiEvent alsa_to_midi_event(const snd_seq_event_t & alsa_ev);

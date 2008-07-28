@@ -15,6 +15,8 @@
 #include <string>
 #include <stdexcept>
 
+#include "midi_event.hh"
+
 
 class Backend
 {
@@ -27,7 +29,17 @@ class Backend
     {
     }
 
-    virtual void run(class Engine &) = 0;
+    virtual bool get_event(MidiEvent & ev) = 0;
+    virtual void output_event(MidiEvent const & ev) = 0;
+    virtual void flush_output() = 0;
+
+    template <typename C>
+    void output_events(C const & events)
+    {
+        for (typename C::const_iterator it = events.begin(); it != events.end(); ++it) {
+            output_event(*it);
+        }
+    }
 
   protected:
     struct BackendError : public std::runtime_error {

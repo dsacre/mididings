@@ -90,13 +90,22 @@ void Engine::run()
     // we'll stay in C++ land from now on, except for Call()
     Py_BEGIN_ALLOW_THREADS
 
-    _backend->run(*this);
+    MidiEvent ev;
+
+    while (_backend->get_event(ev)) {
+        Patch::Events buffer;
+
+        Patch::EventIterRange r = process(buffer, ev);
+
+        _backend->output_events(r);
+        _backend->flush_output();
+    }
 
     Py_END_ALLOW_THREADS
 }
 
 
-const Engine::MidiEventVector & Engine::process(const MidiEvent & ev)
+Patch::EventIterRange Engine::process(Patch::Events & buffer, MidiEvent const & ev)
 {
     boost::recursive_mutex::scoped_lock lock(_process_mutex);
 
@@ -105,7 +114,6 @@ const Engine::MidiEventVector & Engine::process(const MidiEvent & ev)
     gettimeofday(&tv1, NULL);
 #endif
 
-    Patch::Events buffer;
     buffer.insert(buffer.end(), ev);
 
     Patch::EventIterRange range(buffer);
@@ -133,11 +141,13 @@ const Engine::MidiEventVector & Engine::process(const MidiEvent & ev)
     gettimeofday(&tv2, NULL);
     cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec) << endl;
 #endif
-
+/*
     static std::vector<MidiEvent> foo;
     foo.clear();
     foo.insert(foo.end(), buffer.begin(), buffer.end());
     return foo;
+*/
+    return range;
 }
 
 
@@ -175,7 +185,7 @@ Patch * Engine::get_matching_patch(const MidiEvent & ev)
 }
 
 
-const Engine::MidiEventVector & Engine::init_events()
+Patch::EventIterRange Engine::init_events()
 {
 /*
     boost::recursive_mutex::scoped_lock lock(_process_mutex);
@@ -194,8 +204,7 @@ const Engine::MidiEventVector & Engine::init_events()
 
     return _event_buffer_final;
 */
-    static std::vector<MidiEvent> foo;
-    return foo;
+    return Patch::EventIterRange();
 }
 
 

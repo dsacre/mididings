@@ -49,7 +49,12 @@ class Engine
     typedef std::tr1::unordered_map<EventKey, Patch *> SustainPatchMap;
 
 
-    typedef std::vector<MidiEvent> MidiEventVector;
+//    typedef Patch::Events Events;
+//    typedef Patch::EventIterRange EventIterRange;
+//    typedef Patch::EventIter EventIter;
+
+
+//    typedef std::vector<MidiEvent> MidiEventVector;
 
 
     Engine(PyObject * self,
@@ -73,9 +78,11 @@ class Engine
 
     void switch_patch(int n, const MidiEvent & ev);
 
-    const MidiEventVector & process(const MidiEvent & ev);
+//    const MidiEventVector & process(const MidiEvent & ev);
+//    const MidiEventVector & init_events();
 
-    const MidiEventVector & init_events();
+    Patch::EventIterRange process(Patch::Events & buffer, MidiEvent const & ev);
+    Patch::EventIterRange init_events();
 
 
     bool sanitize_event(MidiEvent & ev) const;

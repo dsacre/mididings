@@ -34,9 +34,26 @@ using namespace std;
 static inline int midi_event_get_type(MidiEvent & ev) {
     return (int)ev.type;
 }
+
 static inline void midi_event_set_type(MidiEvent & ev, int t) {
     ev.type = (MidiEventType)t;
 }
+
+#ifdef ENABLE_TEST
+
+vector<MidiEvent> engine_process_test(Engine * this_, MidiEvent const & ev)
+{
+    vector<MidiEvent> v;
+    Patch::Events buffer;
+
+    this_->process(buffer, ev);
+
+    v.insert(v.end(), buffer.begin(), buffer.end());
+    return v;
+}
+
+#endif // ENABLE_TEST
+
 
 
 BOOST_PYTHON_MODULE(_mididings)
@@ -79,7 +96,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .def("run", &Engine::run)
         .def("switch_patch", &Engine::switch_patch)
 #ifdef ENABLE_TEST
-        .def("process", &Engine::process, return_value_policy<reference_existing_object>())
+        .def("process", &engine_process_test)
 #endif // ENABLE_TEST
     ;
 
@@ -96,7 +113,6 @@ BOOST_PYTHON_MODULE(_mididings)
         class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector, bool>());
         class_<Patch::Single, bases<Patch::Module>, noncopyable>("Single", init<shared_ptr<Unit> >());
     }
-
 
     class_<vector<int>, noncopyable>("int_vector")
         .def("push_back", &vector<int>::push_back)

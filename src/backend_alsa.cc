@@ -16,19 +16,12 @@
 
 #include <alsa/asoundlib.h>
 
-#include <algorithm>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 
-using namespace std;
-using namespace boost::lambda;
-
-
-BackendAlsa::BackendAlsa(const string & client_name,
-                         const vector<string> & in_ports,
-                         const vector<string> & out_ports)
-  : _portid_in(in_ports.size()),
-    _portid_out(out_ports.size())
+BackendAlsa::BackendAlsa(const std::string & client_name,
+                         const std::vector<std::string> & in_ports,
+                         const std::vector<std::string> & out_ports)
+  : _portid_in(in_ports.size())
+  , _portid_out(out_ports.size())
 {
     ASSERT(!client_name.empty());
     ASSERT(!in_ports.empty());
@@ -72,8 +65,13 @@ BackendAlsa::BackendAlsa(const string & client_name,
 
 BackendAlsa::~BackendAlsa()
 {
-    for_each(_portid_in.begin(), _portid_in.end(), bind(snd_seq_delete_port, _seq_handle, _1));
-    for_each(_portid_out.begin(), _portid_out.end(), bind(snd_seq_delete_port, _seq_handle, _1));
+    for (std::vector<int>::iterator it = _portid_in.begin(); it != _portid_in.end(); ++it) {
+        snd_seq_delete_port(_seq_handle, *it);
+    }
+
+    for (std::vector<int>::iterator it = _portid_out.begin(); it != _portid_out.end(); ++it) {
+        snd_seq_delete_port(_seq_handle, *it);
+    }
 
     snd_seq_close(_seq_handle);
 }
@@ -165,64 +163,66 @@ snd_seq_event_t BackendAlsa::midi_event_to_alsa(const MidiEvent & ev)
 }
 
 
-void BackendAlsa::run(Engine & engine)
+
+
+//    snd_seq_event_t *alsa_ev;
+//
+//    // clean input queue
+//    snd_seq_drop_input(_seq_handle);
+//
+//
+//    // handle init events
+//    const Engine::MidiEventVector & out_events = engine.init_events();
+//
+//    for (vector<MidiEvent>::const_iterator i = out_events.begin(); i != out_events.end(); ++i) {
+//        snd_seq_event_t alsa_ev = midi_event_to_alsa(*i);
+//
+//        snd_seq_ev_set_subs(&alsa_ev);
+//        snd_seq_ev_set_direct(&alsa_ev);
+//        snd_seq_ev_set_source(&alsa_ev, _portid_out[i->port]);
+//        snd_seq_event_output_buffer(_seq_handle, &alsa_ev);
+//    }
+//
+//    snd_seq_drain_output(_seq_handle);
+
+
+
+
+
+bool BackendAlsa::get_event(MidiEvent & ev)
 {
     snd_seq_event_t *alsa_ev;
 
-    // clean input queue
-    snd_seq_drop_input(_seq_handle);
+    for (;;) {
+        snd_seq_event_input(_seq_handle, &alsa_ev);
 
-
-    // handle init events
-    const Engine::MidiEventVector & out_events = engine.init_events();
-
-    for (vector<MidiEvent>::const_iterator i = out_events.begin(); i != out_events.end(); ++i) {
-        snd_seq_event_t alsa_ev = midi_event_to_alsa(*i);
-
-        snd_seq_ev_set_subs(&alsa_ev);
-        snd_seq_ev_set_direct(&alsa_ev);
-        snd_seq_ev_set_source(&alsa_ev, _portid_out[i->port]);
-        snd_seq_event_output_buffer(_seq_handle, &alsa_ev);
-    }
-
-    snd_seq_drain_output(_seq_handle);
-
-
-    while (snd_seq_event_input(_seq_handle, &alsa_ev))
-    {
         if (!alsa_ev) {
             // terminated by user?
-            return;
+            return false;
         }
 
         // convert event from alsa
-        MidiEvent ev = alsa_to_midi_event(*alsa_ev);
+        ev = alsa_to_midi_event(*alsa_ev);
 
-        // discard unknown events
-        if (ev.type == MIDI_EVENT_NONE) {
-            continue;
+        if (ev.type != MIDI_EVENT_NONE) {
+            return true;
         }
-
-        //DEBUG_PRINT("in: " << ev.type << ": " << ev.port << " "
-        //            << ev.channel << " " << ev.data1 << " " << ev.data2);
-
-        // do all processing
-        const Engine::MidiEventVector & out_events = engine.process(ev);
-
-        // output all events to alsa
-        for (vector<MidiEvent>::const_iterator i = out_events.begin(); i != out_events.end(); ++i) {
-            //DEBUG_PRINT("out: " << i->type << ": " << i->port << " "
-            //            << i->channel << " " << i->data1 << " " << i->data2);
-
-            snd_seq_event_t alsa_ev = midi_event_to_alsa(*i);
-
-            snd_seq_ev_set_subs(&alsa_ev);
-            snd_seq_ev_set_direct(&alsa_ev);
-            snd_seq_ev_set_source(&alsa_ev, _portid_out[i->port]);
-            snd_seq_event_output_buffer(_seq_handle, &alsa_ev);
-        }
-
-        // flush event buffer
-        snd_seq_drain_output(_seq_handle);
     }
+}
+
+
+void BackendAlsa::output_event(MidiEvent const & ev)
+{
+    snd_seq_event_t alsa_ev = midi_event_to_alsa(ev);
+
+    snd_seq_ev_set_subs(&alsa_ev);
+    snd_seq_ev_set_direct(&alsa_ev);
+    snd_seq_ev_set_source(&alsa_ev, _portid_out[ev.port]);
+    snd_seq_event_output_buffer(_seq_handle, &alsa_ev);
+}
+
+
+void BackendAlsa::flush_output()
+{
+    snd_seq_drain_output(_seq_handle);
 }
