@@ -11,6 +11,7 @@
 
 #include "patch.hh"
 #include "units.hh"
+#include "engine.hh"
 
 #include <algorithm>
 #include <iterator>
@@ -38,6 +39,7 @@ Patch::EventIterRange Patch::Chain::process(Events & buf, EventIterRange r)
     return r;
 }
 
+#if 0
 
 Patch::EventIterRange Patch::Fork::process(Events & buf, EventIterRange r)
 {
@@ -60,12 +62,14 @@ Patch::EventIterRange Patch::Fork::process(Events & buf, EventIterRange r)
             r = EventIterRange(q.begin(), q.end());
         }
 
-        // find and remove duplicates
-        for (EventIter it = q.begin(); it != q.end(); ) {
-            if (std::find(r.begin(), q.begin(), *it) == q.begin()) {
-                ++it;
-            } else {
-                it = buf.erase(it);
+        if (TheEngine->remove_duplicates()) {
+            // find and remove duplicates
+            for (EventIter it = q.begin(); it != q.end(); ) {
+                if (std::find(r.begin(), q.begin(), *it) == q.begin()) {
+                    ++it;
+                } else {
+                    it = buf.erase(it);
+                }
             }
         }
 
@@ -83,7 +87,58 @@ Patch::EventIterRange Patch::Fork::process(Events & buf, EventIterRange r)
 
     return r;
 }
+#else
 
+Patch::EventIterRange Patch::Fork::process(Events & buf, EventIterRange r)
+{
+    DEBUG_PRINT(Patch::debug_range("Fork in", buf, r));
+
+    // make a copy of all incoming events
+    MidiEvent in[r.size()];
+    std::copy(r.begin(), r.end(), in);
+
+    // remove all incoming events
+    buf.erase(r.begin(), r.end());
+    // events to be returned: none so far
+    r = EventIterRange(r.end(), r.end());
+
+    for (MidiEvent * ev = in; ev != in + sizeof(in)/sizeof(*in); ++ev)
+    {
+        EventIterRange q(r.end(), r.end());
+
+        for (ModuleVector::iterator m = _modules.begin(); m != _modules.end(); ++m)
+        {
+            // insert one event, process it
+            EventIter it = buf.insert(q.end(), *ev);
+            EventIterRange p = (*m)->process(buf, EventIterRange(it, q.end()));
+
+            if (!p.empty() && q.empty()) {
+                // set start of p and q if they're still empty
+                if (r.empty()) {
+                    r = EventIterRange(p.begin(), p.end());
+                }
+                q = EventIterRange(p.begin(), p.end());
+            }
+
+            if (_remove_duplicates) {
+                // for all events in p, look for previous occurrences in q \ p
+                for (EventIter it = p.begin(); it != p.end(); ) {
+                    if (std::find(q.begin(), p.begin(), *it) == p.begin()) {
+                        ++it;
+                    } else {
+                        it = buf.erase(it);
+                    }
+                }
+            }
+        }
+    }
+
+    DEBUG_PRINT(Patch::debug_range("Fork out", buf, r));
+
+    return r;
+}
+
+#endif
 
 Patch::EventIterRange Patch::Single::process(Events & buf, EventIterRange r)
 {
@@ -115,7 +170,11 @@ Patch::EventIterRange Patch::process(Events & buf, EventIterRange r)
 {
     DEBUG_PRINT(Patch::debug_range("Patch in", buf, r));
 
-    return _module->process(buf, r);
+    r = _module->process(buf, r);
+
+    DEBUG_PRINT(Patch::debug_range("Patch out", buf, r));
+
+    return r;
 }
 
 

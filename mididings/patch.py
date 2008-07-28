@@ -11,6 +11,7 @@
 #
 
 import _mididings
+import main
 import units
 
 
@@ -21,7 +22,7 @@ class Patch(_mididings.Patch):
     def build(self, p):
         if isinstance(p, units._Chain):
             v = Patch.ModuleVector()
-            for i in p.items:
+            for i in p.units:
                 v.push_back(self.build(i))
             return Patch.Chain(v)
 
@@ -29,7 +30,13 @@ class Patch(_mididings.Patch):
             v = Patch.ModuleVector()
             for i in p:
                 v.push_back(self.build(i))
-            return Patch.Fork(v)
+
+            if hasattr(p, 'remove_duplicates') and p.remove_duplicates != None:
+                r = p.remove_duplicates
+            else:
+                r = main._config['remove_duplicates']
+
+            return Patch.Fork(v, r)
 
         elif isinstance(p, dict):
             return self.build([
@@ -39,5 +46,4 @@ class Patch(_mididings.Patch):
         elif isinstance(p, units._Unit):
             return Patch.Single(p)
 
-        # whoops...
-        raise TypeError('invalid patch')
+        raise TypeError("type '%s' not allowed in patch" % type(p).__name__)

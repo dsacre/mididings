@@ -23,28 +23,33 @@ import thread as _thread
 # bass class for all units
 class _Unit:
     def __rshift__(self, other):
-        return _Chain(self, other)
+        a = self.units if isinstance(self, _Chain) else [self]
+        b = other.units if isinstance(other, _Chain) else [other]
+        return _Chain(a + b)
 
     def __rrshift__(self, other):
-        return _Chain(other, self)
+        a = other.units if isinstance(other, _Chain) else [other]
+        b = self.units if isinstance(self, _Chain) else [self]
+        return _Chain(a + b)
 
 
 # units connected in series
 class _Chain(_Unit):
-    def __init__(self, first, second):
-        self.items = first, second
+    def __init__(self, units):
+        self.units = units
 
 
 # units connected in parallel
 class Fork(list, _Unit):
-    def __init__(self, *args):
-        if len(args) == 1:
-            list.__init__(self, args[0])
-        elif len(args) == 2:
+    def __init__(self, units, types=_event.ANY, remove_duplicates=None):
+        if types == _event.ANY:
+            list.__init__(self, units)
+        else:
             # fork only certain types of events
-            l = [ (Filter(args[0]) >> x) for x in args[1] ] + \
-                [ ~Filter(args[0]) ]
+            l = [ (Filter(types) >> x) for x in units ] + \
+                [ ~Filter(types) ]
             list.__init__(self, l)
+        self.remove_duplicates = remove_duplicates
 
 
 # split events by type

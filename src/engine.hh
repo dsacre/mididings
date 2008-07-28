@@ -57,7 +57,8 @@ class Engine
            const std::string & client_name,
            const std::vector<std::string> & in_ports,
            const std::vector<std::string> & out_ports,
-           bool verbose);
+           bool verbose,
+           bool remove_duplicates);
 
     ~Engine();
 
@@ -65,6 +66,8 @@ class Engine
     void set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch);
 
     int num_out_ports() const { return _num_out_ports; }
+
+    bool remove_duplicates() const { return _remove_duplicates; }
 
     void run();
 
@@ -74,26 +77,7 @@ class Engine
 
     const MidiEventVector & init_events();
 
-/*
-    void buffer_event(const MidiEvent & ev) {
-        // this will cause the vector to be resized if it gets larger
-        // than EVENT_BUFFER_SIZE -> not realtime safe
-        if (_output_buffer == &_event_buffer_final) {
-            MidiEvent out = ev;
-            if (!sanitize_event(out)) {
-                return;
-            } else {
-                if (out.type != MIDI_EVENT_NONE) {
-                    _output_buffer->push_back(out);
-                }
-            }
-        } else if (_output_buffer) {
-            if (ev.type != MIDI_EVENT_NONE) {
-                _output_buffer->push_back(ev);
-            }
-        }
-    }
-*/
+
     bool sanitize_event(MidiEvent & ev) const;
 
     bool call_now(boost::python::object & fun, MidiEvent & ev) {
@@ -116,6 +100,7 @@ class Engine
 
     PyObject * _self;
     bool _verbose;
+    bool _remove_duplicates;
 
     boost::shared_ptr<Backend> _backend;
     int _num_out_ports;
@@ -131,13 +116,7 @@ class Engine
 
     NotePatchMap _noteon_patches;
     SustainPatchMap _sustain_patches;
-/*
-    MidiEventVector _event_buffer_pre_out;
-    MidiEventVector _event_buffer_patch_out;
-    MidiEventVector _event_buffer_final;
 
-    MidiEventVector * _output_buffer;
-*/
     boost::recursive_mutex _process_mutex;
 
     boost::scoped_ptr<PythonCaller> _python_caller;

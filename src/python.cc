@@ -72,7 +72,8 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<Call, bases<Unit>, noncopyable>("Call", init<object, bool, bool>());
 
     class_<Engine, Engine, noncopyable>("Engine", init<const string &, const string &,
-                                                    const vector<string> &, const vector<string> &, bool>())
+                                                       const vector<string> &, const vector<string> &,
+                                                       bool, bool>())
         .def("add_patch", &Engine::add_patch)
         .def("set_processing", &Engine::set_processing)
         .def("run", &Engine::run)
@@ -92,7 +93,7 @@ BOOST_PYTHON_MODULE(_mididings)
         ;
 
         class_<Patch::Chain, bases<Patch::Module>, noncopyable>("Chain", init<Patch::ModuleVector>());
-        class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector>());
+        class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector, bool>());
         class_<Patch::Single, bases<Patch::Module>, noncopyable>("Single", init<shared_ptr<Unit> >());
     }
 

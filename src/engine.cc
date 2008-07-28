@@ -33,16 +33,14 @@ Engine::Engine(PyObject * self,
                const string & client_name,
                const vector<string> & in_ports,
                const vector<string> & out_ports,
-               bool verbose)
+               bool verbose,
+               bool remove_duplicates)
   : _self(self),
     _verbose(verbose),
+    _remove_duplicates(remove_duplicates),
     _current(NULL),
     _noteon_patches(MAX_SIMULTANEOUS_NOTES),
     _sustain_patches(MAX_SUSTAIN_PEDALS),
-//    _event_buffer_pre_out(EVENT_BUFFER_SIZE),
-//    _event_buffer_patch_out(EVENT_BUFFER_SIZE),
-//    _event_buffer_final(EVENT_BUFFER_SIZE),
-//    _output_buffer(NULL),
     _python_caller(new PythonCaller())
 {
     DEBUG_FN();
@@ -133,7 +131,7 @@ const Engine::MidiEventVector & Engine::process(const MidiEvent & ev)
 
 #ifdef ENABLE_BENCHMARK
     gettimeofday(&tv2, NULL);
-    cout << (tv2.tv_sec * 1000000LL + tv2.tv_usec) - (tv1.tv_sec * 1000000LL + tv1.tv_usec) << endl;
+    cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec) << endl;
 #endif
 
     static std::vector<MidiEvent> foo;

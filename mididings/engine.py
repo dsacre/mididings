@@ -22,17 +22,17 @@ import weakref
 
 class Engine(_mididings.Engine):
     def __init__(self, patches, control, pre, post):
-        def make_portnames(ports, prefix):
-            return ports if misc.issequence(ports) else \
-                   [ prefix + str(n + main._config['data_offset']) for n in range(ports) ]
+        self.in_ports = self.make_portnames(main._config['in_ports'], 'in_')
+        self.out_ports = self.make_portnames(main._config['out_ports'], 'out_')
 
-        self.in_ports = make_portnames(main._config['in_ports'], 'in_')
-        self.out_ports = make_portnames(main._config['out_ports'], 'out_')
-
-        _mididings.Engine.__init__(self, main._config['backend'], main._config['client_name'],
-                                   misc.make_string_vector(self.in_ports),
-                                   misc.make_string_vector(self.out_ports),
-                                   main._config['verbose'])
+        _mididings.Engine.__init__(
+            self, main._config['backend'],
+            main._config['client_name'],
+            misc.make_string_vector(self.in_ports),
+            misc.make_string_vector(self.out_ports),
+            main._config['verbose'],
+            main._config['remove_duplicates']
+        )
 
         for i, p in patches.items():
             if isinstance(p, tuple):
@@ -57,6 +57,10 @@ class Engine(_mididings.Engine):
 
         global TheEngine
         TheEngine = weakref.proxy(self)
+
+    def make_portnames(self, ports, prefix):
+        return ports if misc.issequence(ports) else \
+               [ prefix + str(n + main._config['data_offset']) for n in range(ports) ]
 
     def print_switch_patch(self, n, found):
         if main._config['verbose']:

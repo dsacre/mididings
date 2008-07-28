@@ -22,6 +22,8 @@ class Unit;
 #include <boost/shared_ptr.hpp>
 #include <boost/range/iterator_range.hpp>
 
+#include "util/debug.hh"
+
 
 class Patch
 {
@@ -35,8 +37,15 @@ class Patch
     class Module
     {
       public:
-        Module() { }
-        virtual ~Module() { }
+        Module()
+        {
+            DEBUG_FN();
+        }
+
+        virtual ~Module()
+        {
+            DEBUG_FN();
+        }
 
         virtual EventIterRange process(Events &, EventIterRange) = 0;
     };
@@ -49,7 +58,10 @@ class Patch
       : public Module
     {
       public:
-        Chain(ModuleVector m) : _modules(m) { }
+        Chain(ModuleVector m)
+          : _modules(m)
+        {
+        }
 
         virtual EventIterRange process(Events &, EventIterRange);
 
@@ -62,12 +74,17 @@ class Patch
       : public Module
     {
       public:
-        Fork(ModuleVector m) : _modules(m) { }
+        Fork(ModuleVector m, bool remove_duplicates)
+          : _modules(m)
+          , _remove_duplicates(remove_duplicates)
+        {
+        }
 
         virtual EventIterRange process(Events &, EventIterRange);
 
       private:
         ModuleVector _modules;
+        bool _remove_duplicates;
     };
 
 
@@ -75,7 +92,10 @@ class Patch
       : public Module
     {
       public:
-        Single(boost::shared_ptr<Unit> unit) : _unit(unit) { }
+        Single(boost::shared_ptr<Unit> unit)
+          : _unit(unit)
+        {
+        }
 
         virtual EventIterRange process(Events &, EventIterRange);
 
@@ -86,7 +106,16 @@ class Patch
 
   public:
 
-    Patch(ModulePtr m) : _module(m) { }
+    Patch(ModulePtr m)
+      : _module(m)
+    {
+        DEBUG_FN();
+    }
+
+    ~Patch()
+    {
+        DEBUG_FN();
+    }
 
     EventIterRange process(Events &, EventIterRange);
 

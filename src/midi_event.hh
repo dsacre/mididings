@@ -22,6 +22,7 @@ enum MidiEventType
     MIDI_EVENT_CTRL       = 1 << 2,
     MIDI_EVENT_PITCHBEND  = 1 << 3,
     MIDI_EVENT_PROGRAM    = 1 << 4,
+    MIDI_EVENT_DUMMY      = 1 << 5,
     MIDI_EVENT_ANY        = ~0,
 };
 

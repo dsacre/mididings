@@ -16,14 +16,15 @@ import misc
 
 
 _config = {
-    'backend':          'alsa',
-    'client_name':      'mididings',
-    'in_ports':         1,
-    'out_ports':        1,
-    'data_offset':      1,
-    'octave_offset':    2,
-    'verbose':          True,
-    'start_delay':      None,
+    'backend':              'alsa',
+    'client_name':          'mididings',
+    'in_ports':             1,
+    'out_ports':            1,
+    'data_offset':          1,
+    'octave_offset':        2,
+    'verbose':              True,
+    'start_delay':          None,
+    'remove_duplicates':    True,
 }
 
 
