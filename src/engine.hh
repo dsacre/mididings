@@ -31,16 +31,16 @@
 #include "util/global_object.hh"
 
 
-extern class Engine *TheEngine;
+extern class Engine * TheEngine;
 
 
 class Engine
   : public das::global_object<Engine, ::TheEngine>
 {
   public:
-    static const int MAX_SIMULTANEOUS_NOTES = 64;
-    static const int MAX_SUSTAIN_PEDALS = 4;
-//    static const int EVENT_BUFFER_SIZE = 16;
+
+    static int const MAX_SIMULTANEOUS_NOTES = 64;
+    static int const MAX_SUSTAIN_PEDALS = 4;
 
     typedef boost::shared_ptr<Patch> PatchPtr;
     typedef std::map<int, PatchPtr> PatchMap;
@@ -49,21 +49,12 @@ class Engine
     typedef std::tr1::unordered_map<EventKey, Patch *> SustainPatchMap;
 
 
-//    typedef Patch::Events Events;
-//    typedef Patch::EventIterRange EventIterRange;
-//    typedef Patch::EventIter EventIter;
-
-
-//    typedef std::vector<MidiEvent> MidiEventVector;
-
-
     Engine(PyObject * self,
-           const std::string & backend_name,
-           const std::string & client_name,
-           const std::vector<std::string> & in_ports,
-           const std::vector<std::string> & out_ports,
-           bool verbose,
-           bool remove_duplicates);
+           std::string const & backend_name,
+           std::string const & client_name,
+           std::vector<std::string> const & in_ports,
+           std::vector<std::string> const & out_ports,
+           bool verbose);
 
     ~Engine();
 
@@ -72,19 +63,9 @@ class Engine
 
     int num_out_ports() const { return _num_out_ports; }
 
-    bool remove_duplicates() const { return _remove_duplicates; }
-
     void run();
 
-    void switch_patch(int n, const MidiEvent & ev);
-
-//    const MidiEventVector & process(const MidiEvent & ev);
-//    const MidiEventVector & init_events();
-
-    Patch::EventIterRange process(Patch::Events & buffer, MidiEvent const & ev);
-    Patch::EventIterRange init_events();
-
-
+    void switch_patch(int n, MidiEvent const & ev);
     bool sanitize_event(MidiEvent & ev) const;
 
     bool call_now(boost::python::object & fun, MidiEvent & ev) {
@@ -95,22 +76,38 @@ class Engine
         _python_caller->call_deferred(fun, ev);
     }
 
-  private:
-    Patch * get_matching_patch(const MidiEvent & ev);
+#ifdef ENABLE_TEST
+    std::vector<MidiEvent> process_test(MidiEvent const & ev)
+    {
+        std::vector<MidiEvent> v;
+        Patch::Events buffer;
 
-    static inline EventKey make_notekey(const MidiEvent & ev) {
+        process(buffer, ev);
+
+        v.insert(v.end(), buffer.begin(), buffer.end());
+        return v;
+    }
+#endif
+
+  private:
+
+    Patch::EventIterRange process(Patch::Events & buffer, MidiEvent const & ev);
+    Patch::EventIterRange init_events();
+
+    Patch * get_matching_patch(MidiEvent const & ev);
+
+    inline EventKey make_notekey(MidiEvent const & ev) const {
         return ev.port | ev.channel << 16 | ev.note.note << 24;
     }
-    static inline EventKey make_sustainkey(const MidiEvent & ev) {
+    inline EventKey make_sustainkey(MidiEvent const & ev) const {
         return ev.port | ev.channel << 16;
     }
 
     PyObject * _self;
     bool _verbose;
-    bool _remove_duplicates;
+    int _num_out_ports;
 
     boost::shared_ptr<Backend> _backend;
-    int _num_out_ports;
 
     PatchMap _patches;
     PatchMap _init_patches;

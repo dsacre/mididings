@@ -30,8 +30,7 @@ class Engine(_mididings.Engine):
             main._config['client_name'],
             misc.make_string_vector(self.in_ports),
             misc.make_string_vector(self.out_ports),
-            main._config['verbose'],
-            main._config['remove_duplicates']
+            main._config['verbose']
         )
 
         for i, p in patches.items():

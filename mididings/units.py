@@ -72,8 +72,10 @@ class Pass(_mididings.Pass, _Unit):
     def __init__(self, p=True):
         _mididings.Pass.__init__(self, p)
 
-def Discard():
-    return Pass(False)
+
+class Discard(_mididings.Pass, _Unit):
+    def __init__(self):
+        _mididings.Pass.__init__(self, False)
 
 
 ### filters ###
@@ -296,13 +298,16 @@ class _CallBase(_mididings.Call, _Unit):
         ev.__class__ = _event.MidiEvent
         return self.fun(ev)
 
+
 class Call(_CallBase):
     def __init__(self, fun):
         _CallBase.__init__(self, fun, False, False)
 
+
 class CallAsync(_CallBase):
     def __init__(self, fun):
         _CallBase.__init__(self, fun, True, True)
+
 
 class CallThread(_CallBase):
     def __init__(self, fun):

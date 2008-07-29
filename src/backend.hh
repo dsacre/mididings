@@ -29,8 +29,9 @@ class Backend
     {
     }
 
-    virtual bool get_event(MidiEvent & ev) = 0;
+    virtual bool input_event(MidiEvent & ev) = 0;
     virtual void output_event(MidiEvent const & ev) = 0;
+    virtual void drop_input() = 0;
     virtual void flush_output() = 0;
 
     template <typename C>
@@ -42,8 +43,10 @@ class Backend
     }
 
   protected:
-    struct BackendError : public std::runtime_error {
-        BackendError(const std::string & w)
+    struct BackendError
+      : public std::runtime_error
+    {
+        BackendError(std::string const & w)
           : std::runtime_error(w) { }
     };
 };

@@ -25,20 +25,19 @@ class BackendAlsa
   : public Backend
 {
   public:
-    BackendAlsa(const std::string & client_name,
-                const std::vector<std::string> & in_ports,
-                const std::vector<std::string> & out_ports);
+    BackendAlsa(std::string const & client_name,
+                std::vector<std::string> const & in_ports,
+                std::vector<std::string> const & out_ports);
     virtual ~BackendAlsa();
 
-//    virtual void run(class Engine & engine);
-
-    virtual bool get_event(MidiEvent & ev);
+    virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
+    virtual void drop_input();
     virtual void flush_output();
 
   private:
-    MidiEvent alsa_to_midi_event(const snd_seq_event_t & alsa_ev);
-    snd_seq_event_t midi_event_to_alsa(const MidiEvent & ev);
+    MidiEvent alsa_to_midi_event(snd_seq_event_t const & alsa_ev);
+    snd_seq_event_t midi_event_to_alsa(MidiEvent const & ev);
 
     snd_seq_t *_seq_handle;
     std::vector<int> _portid_in;        // alsa input port ids

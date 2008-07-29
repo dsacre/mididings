@@ -39,22 +39,6 @@ static inline void midi_event_set_type(MidiEvent & ev, int t) {
     ev.type = (MidiEventType)t;
 }
 
-#ifdef ENABLE_TEST
-
-vector<MidiEvent> engine_process_test(Engine * this_, MidiEvent const & ev)
-{
-    vector<MidiEvent> v;
-    Patch::Events buffer;
-
-    this_->process(buffer, ev);
-
-    v.insert(v.end(), buffer.begin(), buffer.end());
-    return v;
-}
-
-#endif // ENABLE_TEST
-
-
 
 BOOST_PYTHON_MODULE(_mididings)
 {
@@ -89,14 +73,13 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<Call, bases<Unit>, noncopyable>("Call", init<object, bool, bool>());
 
     class_<Engine, Engine, noncopyable>("Engine", init<const string &, const string &,
-                                                       const vector<string> &, const vector<string> &,
-                                                       bool, bool>())
+                                                       const vector<string> &, const vector<string> &, bool>())
         .def("add_patch", &Engine::add_patch)
         .def("set_processing", &Engine::set_processing)
         .def("run", &Engine::run)
         .def("switch_patch", &Engine::switch_patch)
 #ifdef ENABLE_TEST
-        .def("process", &engine_process_test)
+        .def("process", &Engine::process_test)
 #endif // ENABLE_TEST
     ;
 

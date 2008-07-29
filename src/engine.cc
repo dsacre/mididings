@@ -22,22 +22,18 @@
 
 #include <boost/python/call_method.hpp>
 
-using namespace std;
-
 
 Engine * TheEngine = NULL;
 
 
 Engine::Engine(PyObject * self,
-               const string & backend_name,
-               const string & client_name,
-               const vector<string> & in_ports,
-               const vector<string> & out_ports,
-               bool verbose,
-               bool remove_duplicates)
+               std::string const & backend_name,
+               std::string const & client_name,
+               std::vector<std::string> const & in_ports,
+               std::vector<std::string> const & out_ports,
+               bool verbose)
   : _self(self),
     _verbose(verbose),
-    _remove_duplicates(remove_duplicates),
     _current(NULL),
     _noteon_patches(MAX_SIMULTANEOUS_NOTES),
     _sustain_patches(MAX_SUSTAIN_PEDALS),
@@ -92,7 +88,7 @@ void Engine::run()
 
     MidiEvent ev;
 
-    while (_backend->get_event(ev)) {
+    while (_backend->input_event(ev)) {
         Patch::Events buffer;
 
         Patch::EventIterRange r = process(buffer, ev);
@@ -139,23 +135,18 @@ Patch::EventIterRange Engine::process(Patch::Events & buffer, MidiEvent const & 
 
 #ifdef ENABLE_BENCHMARK
     gettimeofday(&tv2, NULL);
-    cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec) << endl;
+    std::cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec) << std::endl;
 #endif
-/*
-    static std::vector<MidiEvent> foo;
-    foo.clear();
-    foo.insert(foo.end(), buffer.begin(), buffer.end());
-    return foo;
-*/
+
     return range;
 }
 
 
-Patch * Engine::get_matching_patch(const MidiEvent & ev)
+Patch * Engine::get_matching_patch(MidiEvent const & ev)
 {
     // note on: store current patch
     if (ev.type == MIDI_EVENT_NOTEON) {
-        _noteon_patches.insert(make_pair(make_notekey(ev), _current));
+        _noteon_patches.insert(std::make_pair(make_notekey(ev), _current));
         return _current;
     }
     // note off: retrieve and remove stored patch
@@ -168,7 +159,7 @@ Patch * Engine::get_matching_patch(const MidiEvent & ev)
     }
     // sustain pressed
     else if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == 64 && ev.ctrl.value == 127) {
-        _sustain_patches.insert(make_pair(make_sustainkey(ev), _current));
+        _sustain_patches.insert(std::make_pair(make_sustainkey(ev), _current));
         return _current;
     }
     // sustain released
@@ -208,8 +199,9 @@ Patch::EventIterRange Engine::init_events()
 }
 
 
-void Engine::switch_patch(int n, const MidiEvent & ev)
+void Engine::switch_patch(int n, MidiEvent const & ev)
 {
+#if 0
     boost::recursive_mutex::scoped_lock lock(_process_mutex);
 
     PatchMap::iterator i = _patches.find(n);
@@ -236,18 +228,19 @@ void Engine::switch_patch(int n, const MidiEvent & ev)
 */
         }
     }
+#endif
 }
 
 
 bool Engine::sanitize_event(MidiEvent & ev) const
 {
     if (ev.port < 0 || ev.port >= num_out_ports()) {
-        if (_verbose) cout << "invalid port, event discarded" << endl;
+        if (_verbose) std::cout << "invalid port, event discarded" << std::endl;
         return false;
     }
 
     if (ev.channel < 0 || ev.channel > 15) {
-        if (_verbose) cout << "invalid channel, event discarded" << endl;
+        if (_verbose) std::cout << "invalid channel, event discarded" << std::endl;
         return false;
     }
 
@@ -255,7 +248,7 @@ bool Engine::sanitize_event(MidiEvent & ev) const
         case MIDI_EVENT_NOTEON:
         case MIDI_EVENT_NOTEOFF:
             if (ev.note.note < 0 || ev.note.note > 127) {
-                if (_verbose) cout << "invalid note number, event discarded" << endl;
+                if (_verbose) std::cout << "invalid note number, event discarded" << std::endl;
             }
             if (ev.note.velocity < 0) ev.note.velocity = 0;
             if (ev.note.velocity > 127) ev.note.velocity = 127;
@@ -263,7 +256,7 @@ bool Engine::sanitize_event(MidiEvent & ev) const
             return true;
         case MIDI_EVENT_CTRL:
             if (ev.ctrl.param < 0 || ev.ctrl.param > 127) {
-                if (_verbose) cout << "invalid controller number, event discarded" << endl;
+                if (_verbose) std::cout << "invalid controller number, event discarded" << std::endl;
             }
             if (ev.ctrl.value < 0) ev.ctrl.value = 0;
             if (ev.ctrl.value > 127) ev.ctrl.value = 127;
@@ -274,7 +267,7 @@ bool Engine::sanitize_event(MidiEvent & ev) const
             return true;
         case MIDI_EVENT_PROGRAM:
             if (ev.ctrl.value < 0 || ev.ctrl.value > 127) {
-                if (_verbose) cout << "invalid program number, event discarded" << endl;
+                if (_verbose) std::cout << "invalid program number, event discarded" << std::endl;
             }
             return true;
         default:

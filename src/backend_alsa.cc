@@ -10,16 +10,16 @@
  */
 
 #include "backend_alsa.hh"
-
-#include "engine.hh"
 #include "midi_event.hh"
 
 #include <alsa/asoundlib.h>
 
+#include "util/debug.hh"
 
-BackendAlsa::BackendAlsa(const std::string & client_name,
-                         const std::vector<std::string> & in_ports,
-                         const std::vector<std::string> & out_ports)
+
+BackendAlsa::BackendAlsa(std::string const & client_name,
+                         std::vector<std::string> const & in_ports,
+                         std::vector<std::string> const & out_ports)
   : _portid_in(in_ports.size())
   , _portid_out(out_ports.size())
 {
@@ -163,33 +163,7 @@ snd_seq_event_t BackendAlsa::midi_event_to_alsa(const MidiEvent & ev)
 }
 
 
-
-
-//    snd_seq_event_t *alsa_ev;
-//
-//    // clean input queue
-//    snd_seq_drop_input(_seq_handle);
-//
-//
-//    // handle init events
-//    const Engine::MidiEventVector & out_events = engine.init_events();
-//
-//    for (vector<MidiEvent>::const_iterator i = out_events.begin(); i != out_events.end(); ++i) {
-//        snd_seq_event_t alsa_ev = midi_event_to_alsa(*i);
-//
-//        snd_seq_ev_set_subs(&alsa_ev);
-//        snd_seq_ev_set_direct(&alsa_ev);
-//        snd_seq_ev_set_source(&alsa_ev, _portid_out[i->port]);
-//        snd_seq_event_output_buffer(_seq_handle, &alsa_ev);
-//    }
-//
-//    snd_seq_drain_output(_seq_handle);
-
-
-
-
-
-bool BackendAlsa::get_event(MidiEvent & ev)
+bool BackendAlsa::input_event(MidiEvent & ev)
 {
     snd_seq_event_t *alsa_ev;
 
@@ -219,6 +193,12 @@ void BackendAlsa::output_event(MidiEvent const & ev)
     snd_seq_ev_set_direct(&alsa_ev);
     snd_seq_ev_set_source(&alsa_ev, _portid_out[ev.port]);
     snd_seq_event_output_buffer(_seq_handle, &alsa_ev);
+}
+
+
+void BackendAlsa::drop_input()
+{
+    snd_seq_drop_input(_seq_handle);
 }
 
 
