@@ -39,7 +39,7 @@ PythonCaller::~PythonCaller()
 }
 
 
-bool PythonCaller::call_now(boost::python::object & fun, MidiEvent & ev)
+bool PythonCaller::call_now(boost::python::object const & fun, MidiEvent & ev)
 {
     scoped_gil_lock gil;
 
@@ -58,7 +58,7 @@ bool PythonCaller::call_now(boost::python::object & fun, MidiEvent & ev)
 }
 
 
-void PythonCaller::call_deferred(boost::python::object & fun, MidiEvent const & ev)
+void PythonCaller::call_deferred(boost::python::object const & fun, MidiEvent const & ev)
 {
     AsyncCallInfo c = { &fun, ev };
     VERIFY(_rb->write(c));

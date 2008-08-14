@@ -69,11 +69,11 @@ class Engine
     void switch_patch(int n/*, MidiEvent const & ev*/);
     bool sanitize_event(MidiEvent & ev) const;
 
-    bool call_now(boost::python::object & fun, MidiEvent & ev) {
+    bool call_now(boost::python::object const & fun, MidiEvent & ev) {
         return _python_caller->call_now(fun, ev);
     }
 
-    void call_deferred(boost::python::object & fun, MidiEvent const & ev) {
+    void call_deferred(boost::python::object const & fun, MidiEvent const & ev) {
         _python_caller->call_deferred(fun, ev);
     }
 

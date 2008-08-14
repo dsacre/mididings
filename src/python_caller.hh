@@ -33,8 +33,8 @@ class PythonCaller
     PythonCaller();
     ~PythonCaller();
 
-    bool call_now(boost::python::object & fun, MidiEvent & ev);
-    void call_deferred(boost::python::object & fun, MidiEvent const & ev);
+    bool call_now(boost::python::object const & fun, MidiEvent & ev);
+    void call_deferred(boost::python::object const & fun, MidiEvent const & ev);
 
   private:
     void async_thread();
