@@ -31,6 +31,16 @@ typedef unsigned int MidiEventTypes;
 
 struct MidiEvent
 {
+    MidiEvent()
+      : type(MIDI_EVENT_NONE), port(0), channel(0), data1(0), data2(0)
+    {
+    }
+
+    MidiEvent(MidiEventType type_, int port_, int channel_, int data1_, int data2_)
+      : type(type_), port(port_), channel(channel_), data1(data1_), data2(data2_)
+    {
+    }
+
     MidiEventType type;
     int port;
     int channel;

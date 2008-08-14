@@ -16,12 +16,19 @@ class SimpleTestCase(unittest.TestCase):
         pass
 
     def testFork(self):
+        config(remove_duplicates = False)
         r = test_run(Fork([ Pass(), Pass() ]), self.noteon1)
         assert len(r) == 2
         assert r[0] == r[1] == self.noteon1
         r = test_run(Fork([ Pass(), Discard() ]), self.ctrl1)
         assert len(r) == 1
         assert r[0] == self.ctrl1
+
+    def testRemoveDuplicates(self):
+        config(remove_duplicates = True)
+        r = test_run(Fork([ Pass(), Pass() ]), self.noteon1)
+        assert len(r) == 1
+        assert r[0] == self.noteon1
 
     def testPassDiscard(self):
         r = test_run(Pass(), self.noteon1)

@@ -14,9 +14,6 @@
 
 #include <cmath>
 
-using namespace std;
-using namespace das;
-
 
 enum VelocityMode {
     VELOCITY_MODE_OFFSET = 1,
@@ -160,7 +157,7 @@ bool Sanitize::process(MidiEvent & ev)
 
 bool PatchSwitch::process(MidiEvent & ev)
 {
-    TheEngine->switch_patch(get_parameter(_num, ev), ev);
+    TheEngine->switch_patch(get_parameter(_num, ev)/*, ev*/);
     return false;
 }
 

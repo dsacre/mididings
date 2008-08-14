@@ -16,6 +16,8 @@
 #include <algorithm>
 #include <iterator>
 
+#include <boost/foreach.hpp>
+
 #include "util/debug.hh"
 #include "util/string.hh"
 
@@ -24,6 +26,17 @@ Patch::EventIterRange Patch::Chain::process(Events & buf, EventIterRange r)
 {
     DEBUG_PRINT(Patch::debug_range("Chain in", buf, r));
 
+    BOOST_FOREACH (ModulePtr m, _modules)
+    {
+        if (r.empty()) {
+            // nothing to do
+            break;
+        }
+
+        r = m->process(buf, r);
+    }
+
+#if 0
     for (ModuleVector::iterator m = _modules.begin(); m != _modules.end(); ++m)
     {
         if (r.empty()) {
@@ -33,7 +46,7 @@ Patch::EventIterRange Patch::Chain::process(Events & buf, EventIterRange r)
 
         r = (*m)->process(buf, r);
     }
-
+#endif
     DEBUG_PRINT(Patch::debug_range("Chain out", buf, r));
 
     return r;
@@ -103,21 +116,24 @@ Patch::EventIterRange Patch::Fork::process(Events & buf, EventIterRange r)
     r = EventIterRange(r.end(), r.end());
 
     for (MidiEvent * ev = in; ev != in + sizeof(in)/sizeof(*in); ++ev)
+//    BOOST_FOREACH (MidiEvent & ev, std::make_pair(in, in + r.size()))
     {
-        EventIterRange q(r.end(), r.end());
+        EventIterRange q(r);
 
-        for (ModuleVector::iterator m = _modules.begin(); m != _modules.end(); ++m)
+//        for (ModuleVector::iterator m = _modules.begin(); m != _modules.end(); ++m)
+        BOOST_FOREACH (ModulePtr m, _modules)
         {
             // insert one event, process it
             EventIter it = buf.insert(q.end(), *ev);
-            EventIterRange p = (*m)->process(buf, EventIterRange(it, q.end()));
+//            EventIterRange p = (*m)->process(buf, EventIterRange(it, q.end()));
+            EventIterRange p = m->process(buf, EventIterRange(it, q.end()));
 
             if (!p.empty() && q.empty()) {
                 // set start of p and q if they're still empty
                 if (r.empty()) {
-                    r = EventIterRange(p.begin(), p.end());
+                    r = p; //EventIterRange(p.begin(), p.end());
                 }
-                q = EventIterRange(p.begin(), p.end());
+                q = p; //EventIterRange(p.begin(), p.end());
             }
 
             if (_remove_duplicates) {
@@ -153,7 +169,8 @@ Patch::EventIterRange Patch::Single::process(Events & buf, EventIterRange r)
             // remove event
             if (it == r.begin()) {
                 // adjust the range to keep it valid
-                r = EventIterRange(++r.begin(), r.end());
+//                r = EventIterRange(++r.begin(), r.end());
+                r.advance_begin(1);
             }
             it = buf.erase(it);
         }
@@ -178,6 +195,7 @@ Patch::EventIterRange Patch::process(Events & buf, EventIterRange r)
 }
 
 
-std::string Patch::debug_range(std::string const & str, Events & buf, EventIterRange r) {
+std::string Patch::debug_range(std::string const & str, Events & buf, EventIterRange r)
+{
     return das::make_string() << str << ": " << std::distance(buf.begin(), r.begin()) << ", " << r.size();
 }

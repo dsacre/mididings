@@ -14,6 +14,8 @@
 
 #include <alsa/asoundlib.h>
 
+#include <boost/foreach.hpp>
+
 #include "util/debug.hh"
 
 
@@ -65,12 +67,12 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
 
 BackendAlsa::~BackendAlsa()
 {
-    for (std::vector<int>::iterator it = _portid_in.begin(); it != _portid_in.end(); ++it) {
-        snd_seq_delete_port(_seq_handle, *it);
+    BOOST_FOREACH (int i, _portid_in) {
+        snd_seq_delete_port(_seq_handle, i);
     }
 
-    for (std::vector<int>::iterator it = _portid_out.begin(); it != _portid_out.end(); ++it) {
-        snd_seq_delete_port(_seq_handle, *it);
+    BOOST_FOREACH (int i, _portid_out) {
+        snd_seq_delete_port(_seq_handle, i);
     }
 
     snd_seq_close(_seq_handle);

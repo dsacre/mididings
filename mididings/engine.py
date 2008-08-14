@@ -52,10 +52,10 @@ class Engine(_mididings.Engine):
             else:
                 raw_input("press enter to start midi processing...")
 
-        self.switch_patch(0, event._DummyEvent())
+#        self.switch_patch(0, event._DummyEvent())
+#        self.switch_patch(0)
 
-        global TheEngine
-        TheEngine = weakref.proxy(self)
+        main.TheEngine = weakref.proxy(self)
 
     def make_portnames(self, ports, prefix):
         return ports if misc.issequence(ports) else \

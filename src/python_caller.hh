@@ -12,23 +12,23 @@
 #ifndef _PYTHON_CALL_HH
 #define _PYTHON_CALL_HH
 
-#include "units.hh"
 #include "midi_event.hh"
 
-#include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 
-#include <boost/python/object.hpp>
-
+#include <boost/python/object_fwd.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
+#include <boost/noncopyable.hpp>
 
-#include <jack/ringbuffer.h>
+#include "util/ringbuffer.hh"
 
 
 class PythonCaller
+  : boost::noncopyable
 {
   public:
-    static const int MAX_ASYNC_CALLS = 64;
+    static int const MAX_ASYNC_CALLS = 64;
 
     PythonCaller();
     ~PythonCaller();
@@ -44,12 +44,12 @@ class PythonCaller
         MidiEvent ev;
     };
 
-    boost::shared_ptr<boost::thread> _thrd;
+    boost::scoped_ptr<das::ringbuffer<AsyncCallInfo> > _rb;
 
-    jack_ringbuffer_t * _rb;
-    boost::condition    _rb_cond;
-    volatile bool       _quit;
+    boost::scoped_ptr<boost::thread> _thrd;
 
+    boost::condition _cond;
+    volatile bool _quit;
 };
 
 

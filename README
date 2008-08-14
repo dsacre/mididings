@@ -7,14 +7,13 @@ Requirements:
 =============
 
 * Python >= 2.5 [http://www.python.org/]
-* Boost / Boost.Python [http://www.boost.org/]
+* Boost (Boost.Python, Boost.Thread) [http://www.boost.org/]
 * ALSA [http://www.alsa-project.org/]
+* JACK [http://jackaudio.org/]
 
 
 Installation:
 =============
-
-In the mididings source directory, run:
 
 ./setup.py build
 ./setup.py install

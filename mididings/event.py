@@ -104,9 +104,9 @@ class MidiEvent(_mididings.MidiEvent):
     program   = property(*_make_get_set(PROGRAM, 'data2', lambda: _main._config['data_offset']))
 
 
-class _DummyEvent(MidiEvent):
-    def __init__(self):
-        MidiEvent.__init__(self, DUMMY)
+#class _DummyEvent(MidiEvent):
+#    def __init__(self):
+#        MidiEvent.__init__(self, DUMMY)
 
 
 __all__ = [x for x in dir() if not x.startswith('_')]

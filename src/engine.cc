@@ -11,7 +11,7 @@
 
 #include "engine.hh"
 #include "backend_alsa.hh"
-#include "util/debug.hh"
+#include "python_util.hh"
 
 #include <iostream>
 
@@ -21,6 +21,8 @@
 #endif
 
 #include <boost/python/call_method.hpp>
+
+#include "util/debug.hh"
 
 
 Engine * TheEngine = NULL;
@@ -35,6 +37,7 @@ Engine::Engine(PyObject * self,
   : _self(self),
     _verbose(verbose),
     _current(NULL),
+    _new_patch(-1),
     _noteon_patches(MAX_SIMULTANEOUS_NOTES),
     _sustain_patches(MAX_SUSTAIN_PEDALS),
     _python_caller(new PythonCaller())
@@ -86,12 +89,32 @@ void Engine::run()
     // we'll stay in C++ land from now on, except for Call()
     Py_BEGIN_ALLOW_THREADS
 
+    // XXX
+    _current = &*_patches.find(0)->second;
+
+
     MidiEvent ev;
 
-    while (_backend->input_event(ev)) {
+    while (_backend->input_event(ev))
+    {
+#ifdef ENABLE_BENCHMARK
+        timeval tv1, tv2;
+        gettimeofday(&tv1, NULL);
+#endif
+
         Patch::Events buffer;
 
         Patch::EventIterRange r = process(buffer, ev);
+
+        if (_new_patch != -1) {
+            process_patch_switch(buffer, r, _new_patch);
+            _new_patch = -1;
+        }
+
+#ifdef ENABLE_BENCHMARK
+        gettimeofday(&tv2, NULL);
+        std::cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec) << std::endl;
+#endif
 
         _backend->output_events(r);
         _backend->flush_output();
@@ -103,12 +126,7 @@ void Engine::run()
 
 Patch::EventIterRange Engine::process(Patch::Events & buffer, MidiEvent const & ev)
 {
-    boost::recursive_mutex::scoped_lock lock(_process_mutex);
-
-#ifdef ENABLE_BENCHMARK
-    timeval tv1, tv2;
-    gettimeofday(&tv1, NULL);
-#endif
+    boost::/*recursive_*/mutex::scoped_lock lock(_process_mutex);
 
     buffer.insert(buffer.end(), ev);
 
@@ -132,11 +150,6 @@ Patch::EventIterRange Engine::process(Patch::Events & buffer, MidiEvent const & 
     if (_post_patch) {
         range = _post_patch->process(buffer, range);
     }
-
-#ifdef ENABLE_BENCHMARK
-    gettimeofday(&tv2, NULL);
-    std::cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec) << std::endl;
-#endif
 
     return range;
 }
@@ -199,17 +212,18 @@ Patch::EventIterRange Engine::init_events()
 }
 
 
-void Engine::switch_patch(int n, MidiEvent const & ev)
+void Engine::switch_patch(int n/*, MidiEvent const & ev*/)
 {
+    _new_patch = n;
+
 #if 0
     boost::recursive_mutex::scoped_lock lock(_process_mutex);
 
     PatchMap::iterator i = _patches.find(n);
 
     if (_patches.size() > 1) {
-        PyGILState_STATE gil = PyGILState_Ensure();
+        scoped_gil_lock gil;
         boost::python::call_method<void>(_self, "print_switch_patch", n, i != _patches.end());
-        PyGILState_Release(gil);
     }
 
     if (i != _patches.end()) {
@@ -230,6 +244,38 @@ void Engine::switch_patch(int n, MidiEvent const & ev)
     }
 #endif
 }
+
+
+Patch::EventIterRange Engine::process_patch_switch(Patch::Events & buffer, Patch::EventIterRange range, int n)
+{
+    boost::mutex::scoped_lock lock(_process_mutex);
+
+    PatchMap::iterator i = _patches.find(n);
+
+    if (_patches.size() > 1) {
+        scoped_gil_lock gil;
+        boost::python::call_method<void>(_self, "print_switch_patch", n, i != _patches.end());
+    }
+
+    if (i != _patches.end()) {
+        _current = &*i->second;
+
+        PatchMap::iterator k = _init_patches.find(n);
+
+        if (k != _init_patches.end()) {
+            MidiEvent ev(MIDI_EVENT_DUMMY, 0, 0, 0, 0);
+
+            Patch::EventIter it = buffer.insert(range.end(), ev);
+
+            range = k->second->process(buffer, Patch::EventIterRange(it, range.end()));
+            range = _post_patch->process(buffer, range);
+        }
+    }
+
+    return range;
+}
+
+
 
 
 bool Engine::sanitize_event(MidiEvent & ev) const

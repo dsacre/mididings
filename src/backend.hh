@@ -14,11 +14,13 @@
 
 #include <string>
 #include <stdexcept>
+#include <boost/noncopyable.hpp>
 
 #include "midi_event.hh"
 
 
 class Backend
+  : boost::noncopyable
 {
   public:
     Backend()
@@ -47,7 +49,9 @@ class Backend
       : public std::runtime_error
     {
         BackendError(std::string const & w)
-          : std::runtime_error(w) { }
+          : std::runtime_error(w)
+        {
+        }
     };
 };
 

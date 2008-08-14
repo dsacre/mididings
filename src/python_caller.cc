@@ -10,19 +10,21 @@
  */
 
 #include "python_caller.hh"
-#include "util/debug.hh"
+#include "python_util.hh"
 
 #include <boost/bind.hpp>
 
+#include <boost/python/object.hpp>
 #include <boost/python/ptr.hpp>
 #include <boost/python/extract.hpp>
 
+#include "util/debug.hh"
+
 
 PythonCaller::PythonCaller()
-  : _quit(false)
+  : _rb(new das::ringbuffer<AsyncCallInfo>(MAX_ASYNC_CALLS))
+  , _quit(false)
 {
-    _rb = jack_ringbuffer_create(MAX_ASYNC_CALLS * sizeof(AsyncCallInfo));
-
     _thrd.reset(new boost::thread(boost::bind(&PythonCaller::async_thread, this)));
 }
 
@@ -30,49 +32,37 @@ PythonCaller::PythonCaller()
 PythonCaller::~PythonCaller()
 {
     _quit = true;
-    _rb_cond.notify_one();
+    _cond.notify_one();
+
     // what if the thread doesn't terminate, due to a long-running python function?
     _thrd->join();
-
-    jack_ringbuffer_free(_rb);
 }
 
 
 bool PythonCaller::call_now(boost::python::object & fun, MidiEvent & ev)
 {
-    PyGILState_STATE gil = PyGILState_Ensure();
-    bool ret;
+    scoped_gil_lock gil;
 
     try {
-        boost::python::object obj = fun(boost::python::ptr(&ev));
+        boost::python::object ret = fun(boost::python::ptr(&ev));
 
-        if (obj.ptr() == Py_None) {
-            ret = true;
+        if (ret.ptr() == Py_None) {
+            return true;
         } else {
-            ret = boost::python::extract<bool>(obj);
+            return boost::python::extract<bool>(ret);
         }
     } catch (boost::python::error_already_set &) {
         PyErr_Print();
-        ret = false;
+        return false;
     }
-
-    PyGILState_Release(gil);
-    return ret;
 }
 
 
 void PythonCaller::call_deferred(boost::python::object & fun, MidiEvent const & ev)
 {
-    ASSERT(_rb);
-
     AsyncCallInfo c = { &fun, ev };
-
-    if (jack_ringbuffer_write_space(_rb) >= sizeof(AsyncCallInfo)) {
-        jack_ringbuffer_write(_rb, reinterpret_cast<char const *>(&c), sizeof(AsyncCallInfo));
-        _rb_cond.notify_one();
-    } else {
-        FAIL();
-    }
+    VERIFY(_rb->write(c));
+    _cond.notify_one();
 }
 
 
@@ -85,11 +75,11 @@ void PythonCaller::async_thread()
             return;
         }
 
-        if (jack_ringbuffer_read_space(_rb) >= sizeof(AsyncCallInfo)) {
-            PyGILState_STATE gil = PyGILState_Ensure();
+        if (_rb->read_space()) {
+            scoped_gil_lock gil;
 
             AsyncCallInfo c;
-            jack_ringbuffer_read(_rb, reinterpret_cast<char *>(&c), sizeof(AsyncCallInfo));
+            _rb->read(c);
 
             try {
                 (*c.fun)(boost::python::ptr(&c.ev));
@@ -97,12 +87,10 @@ void PythonCaller::async_thread()
             catch (boost::python::error_already_set &) {
                 PyErr_Print();
             }
-
-            PyGILState_Release(gil);
         }
         else {
             boost::mutex::scoped_lock lock(mutex);
-            _rb_cond.wait(lock);
+            _cond.wait(lock);
         }
     }
 }

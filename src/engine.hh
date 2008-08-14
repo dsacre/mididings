@@ -24,7 +24,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
 
-#include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/mutex.hpp>
+//#include <boost/thread/recursive_mutex.hpp>
 
 #include <boost/python/object.hpp>
 
@@ -65,7 +66,7 @@ class Engine
 
     void run();
 
-    void switch_patch(int n, MidiEvent const & ev);
+    void switch_patch(int n/*, MidiEvent const & ev*/);
     bool sanitize_event(MidiEvent & ev) const;
 
     bool call_now(boost::python::object & fun, MidiEvent & ev) {
@@ -82,6 +83,9 @@ class Engine
         std::vector<MidiEvent> v;
         Patch::Events buffer;
 
+        // XXX
+        _current = &*_patches.find(0)->second;
+
         process(buffer, ev);
 
         v.insert(v.end(), buffer.begin(), buffer.end());
@@ -95,6 +99,9 @@ class Engine
     Patch::EventIterRange init_events();
 
     Patch * get_matching_patch(MidiEvent const & ev);
+
+    Patch::EventIterRange process_patch_switch(Patch::Events & buffer, Patch::EventIterRange, int n);
+
 
     inline EventKey make_notekey(MidiEvent const & ev) const {
         return ev.port | ev.channel << 16 | ev.note.note << 24;
@@ -118,10 +125,12 @@ class Engine
 
     Patch * _current;
 
+    int _new_patch;
+
     NotePatchMap _noteon_patches;
     SustainPatchMap _sustain_patches;
 
-    boost::recursive_mutex _process_mutex;
+    boost::/*recursive_*/mutex _process_mutex;
 
     boost::scoped_ptr<PythonCaller> _python_caller;
 };

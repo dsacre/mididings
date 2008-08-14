@@ -63,7 +63,8 @@ def test_run_patches(patches, events):
 
 
 def switch_patch(n):
-    TheEngine.switch_patch(n, event._DummyEvent())
+#    TheEngine.switch_patch(n, event._DummyEvent())
+    TheEngine.switch_patch(n)
 
 
 
