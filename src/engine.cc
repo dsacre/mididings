@@ -12,6 +12,7 @@
 #include "engine.hh"
 #include "backend_alsa.hh"
 #include "python_util.hh"
+#include "units.hh"
 
 #include <iostream>
 
@@ -34,13 +35,13 @@ Engine::Engine(PyObject * self,
                std::vector<std::string> const & in_ports,
                std::vector<std::string> const & out_ports,
                bool verbose)
-  : _self(self),
-    _verbose(verbose),
-    _current(NULL),
-    _new_patch(-1),
-    _noteon_patches(MAX_SIMULTANEOUS_NOTES),
-    _sustain_patches(MAX_SUSTAIN_PEDALS),
-    _python_caller(new PythonCaller())
+  : _self(self)
+  , _verbose(verbose)
+  , _current(NULL)
+  , _new_patch(-1)
+  , _noteon_patches(MAX_SIMULTANEOUS_NOTES)
+  , _sustain_patches(MAX_SUSTAIN_PEDALS)
+  , _python_caller(new PythonCaller())
 {
     DEBUG_FN();
 
@@ -49,6 +50,10 @@ Engine::Engine(PyObject * self,
     }
 
     _num_out_ports = (int)out_ports.size();
+
+    Patch::UnitPtr sani(new Sanitize);
+    Patch::ModulePtr mod(new Patch::Single(sani));
+    _sanitize_patch.reset(new Patch(mod));
 }
 
 
@@ -104,8 +109,10 @@ void Engine::run()
 
         Patch::Events buffer;
 
+        // process the event
         Patch::EventIterRange r = process(buffer, ev);
 
+        // handle patch switches
         if (_new_patch != -1) {
             process_patch_switch(buffer, r, _new_patch);
             _new_patch = -1;
@@ -126,32 +133,33 @@ void Engine::run()
 
 Patch::EventIterRange Engine::process(Patch::Events & buffer, MidiEvent const & ev)
 {
-    boost::/*recursive_*/mutex::scoped_lock lock(_process_mutex);
+    boost::mutex::scoped_lock lock(_process_mutex);
 
-    buffer.insert(buffer.end(), ev);
-
-    Patch::EventIterRange range(buffer);
+    ASSERT(buffer.empty());
 
     Patch * patch = get_matching_patch(ev);
 
     if (_ctrl_patch) {
-        _ctrl_patch->process(buffer, range);
-
-        Patch::EventIter it = buffer.insert(buffer.end(), ev);
-        range = Patch::EventIterRange(it, buffer.end());
+        buffer.insert(buffer.end(), ev);
+        _ctrl_patch->process(buffer, buffer);
     }
+
+    Patch::EventIter it = buffer.insert(buffer.end(), ev);
+    Patch::EventIterRange r = Patch::EventIterRange(it, buffer.end());
 
     if (_pre_patch) {
-        range = _pre_patch->process(buffer, range);
+        r = _pre_patch->process(buffer, r);
     }
 
-    range = patch->process(buffer, range);
+    r = patch->process(buffer, r);
 
     if (_post_patch) {
-        range = _post_patch->process(buffer, range);
+        r = _post_patch->process(buffer, r);
     }
 
-    return range;
+    _sanitize_patch->process(buffer, r);
+
+    return buffer;
 }
 
 
@@ -189,64 +197,13 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
 }
 
 
-Patch::EventIterRange Engine::init_events()
-{
-/*
-    boost::recursive_mutex::scoped_lock lock(_process_mutex);
-
-    _event_buffer_final.clear();
-
-    // apply postprocessing
-    _output_buffer = &_event_buffer_final;
-    for (MidiEventVector::const_iterator i = _event_buffer_patch_out.begin(); i != _event_buffer_patch_out.end(); ++i) {
-        if (_post_patch) {
-            _post_patch->process(*i);
-        } else {
-            buffer_event(*i);
-        }
-    }
-
-    return _event_buffer_final;
-*/
-    return Patch::EventIterRange();
-}
-
-
-void Engine::switch_patch(int n/*, MidiEvent const & ev*/)
+void Engine::switch_patch(int n)
 {
     _new_patch = n;
-
-#if 0
-    boost::recursive_mutex::scoped_lock lock(_process_mutex);
-
-    PatchMap::iterator i = _patches.find(n);
-
-    if (_patches.size() > 1) {
-        scoped_gil_lock gil;
-        boost::python::call_method<void>(_self, "print_switch_patch", n, i != _patches.end());
-    }
-
-    if (i != _patches.end()) {
-        _current = &*i->second;
-
-        PatchMap::iterator k = _init_patches.find(n);
-        if (k != _init_patches.end()) {
-/*
-            // temporarily redirect output to patch_out so events will go through postprocessing
-            MidiEventVector *p = _output_buffer;
-            _output_buffer = &_event_buffer_patch_out;
-
-            k->second->process(ev);
-
-            _output_buffer = p;
-*/
-        }
-    }
-#endif
 }
 
 
-Patch::EventIterRange Engine::process_patch_switch(Patch::Events & buffer, Patch::EventIterRange range, int n)
+Patch::EventIterRange Engine::process_patch_switch(Patch::Events & buffer, Patch::EventIterRange r, int n)
 {
     boost::mutex::scoped_lock lock(_process_mutex);
 
@@ -265,14 +222,17 @@ Patch::EventIterRange Engine::process_patch_switch(Patch::Events & buffer, Patch
         if (k != _init_patches.end()) {
             MidiEvent ev(MIDI_EVENT_DUMMY, 0, 0, 0, 0);
 
-            Patch::EventIter it = buffer.insert(range.end(), ev);
+            Patch::EventIter it = buffer.insert(r.end(), ev);
 
-            range = k->second->process(buffer, Patch::EventIterRange(it, range.end()));
-            range = _post_patch->process(buffer, range);
+            r = k->second->process(buffer, Patch::EventIterRange(it, r.end()));
+            if (_post_patch) {
+                r = _post_patch->process(buffer, r);
+            }
+            r = _sanitize_patch->process(buffer, r);
         }
     }
 
-    return range;
+    return r;
 }
 
 

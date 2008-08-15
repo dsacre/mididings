@@ -25,7 +25,6 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <boost/thread/mutex.hpp>
-//#include <boost/thread/recursive_mutex.hpp>
 
 #include <boost/python/object.hpp>
 
@@ -66,7 +65,7 @@ class Engine
 
     void run();
 
-    void switch_patch(int n/*, MidiEvent const & ev*/);
+    void switch_patch(int n);
     bool sanitize_event(MidiEvent & ev) const;
 
     bool call_now(boost::python::object const & fun, MidiEvent & ev) {
@@ -122,6 +121,7 @@ class Engine
     PatchPtr _ctrl_patch;
     PatchPtr _pre_patch;
     PatchPtr _post_patch;
+    PatchPtr _sanitize_patch;
 
     Patch * _current;
 
@@ -130,7 +130,7 @@ class Engine
     NotePatchMap _noteon_patches;
     SustainPatchMap _sustain_patches;
 
-    boost::/*recursive_*/mutex _process_mutex;
+    boost::mutex _process_mutex;
 
     boost::scoped_ptr<PythonCaller> _python_caller;
 };

@@ -17,6 +17,7 @@
 #include <iterator>
 
 #include <boost/foreach.hpp>
+#include <boost/range/distance.hpp>
 
 #include "util/debug.hh"
 #include "util/string.hh"
@@ -47,7 +48,7 @@ Patch::EventIterRange Patch::Fork::process(Events & buf, EventIterRange r)
     DEBUG_PRINT(Patch::debug_range("Fork in", buf, r));
 
     // make a copy of all incoming events
-    MidiEvent in[r.size()];
+    MidiEvent in[boost::distance(r)];
     std::copy(r.begin(), r.end(), in);
 
     // remove all incoming events
@@ -55,14 +56,14 @@ Patch::EventIterRange Patch::Fork::process(Events & buf, EventIterRange r)
     // events to be returned: none so far
     r = EventIterRange(r.end(), r.end());
 
-    BOOST_FOREACH (MidiEvent & ev, std::make_pair(in, in + r.size()))
+    for (MidiEvent * ev = in; ev != in + sizeof(in)/sizeof(*in); ++ev)
     {
         EventIterRange q(r);
 
         BOOST_FOREACH (ModulePtr m, _modules)
         {
             // insert one event, process it
-            EventIter it = buf.insert(q.end(), ev);
+            EventIter it = buf.insert(q.end(), *ev);
             EventIterRange p = m->process(buf, EventIterRange(it, q.end()));
 
             if (!p.empty() && q.empty()) {
@@ -120,11 +121,11 @@ Patch::EventIterRange Patch::Single::process(Events & buf, EventIterRange r)
 
 Patch::EventIterRange Patch::process(Events & buf, EventIterRange r)
 {
-    DEBUG_PRINT(Patch::debug_range("Patch in", buf, r));
+    DEBUG_PRINT(debug_range("Patch in", buf, r));
 
     r = _module->process(buf, r);
 
-    DEBUG_PRINT(Patch::debug_range("Patch out", buf, r));
+    DEBUG_PRINT(debug_range("Patch out", buf, r));
 
     return r;
 }
@@ -132,5 +133,5 @@ Patch::EventIterRange Patch::process(Events & buf, EventIterRange r)
 
 std::string Patch::debug_range(std::string const & str, Events & buf, EventIterRange r)
 {
-    return das::make_string() << str << ": " << std::distance(buf.begin(), r.begin()) << ", " << r.size();
+    return das::make_string() << str << ": " << std::distance(buf.begin(), r.begin()) << ", " << boost::distance(r);
 }

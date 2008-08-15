@@ -33,6 +33,8 @@ class Patch
     typedef Events::iterator EventIter;
     typedef boost::iterator_range<EventIter> EventIterRange;
 
+    typedef boost::shared_ptr<Unit> UnitPtr;
+
 
     class Module
     {
@@ -92,7 +94,7 @@ class Patch
       : public Module
     {
       public:
-        Single(boost::shared_ptr<Unit> unit)
+        Single(UnitPtr unit)
           : _unit(unit)
         {
         }
@@ -100,7 +102,7 @@ class Patch
         virtual EventIterRange process(Events &, EventIterRange);
 
       private:
-        boost::shared_ptr<Unit> _unit;
+        UnitPtr _unit;
     };
 
 
