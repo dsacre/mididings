@@ -17,7 +17,6 @@
 #include <iterator>
 
 #include <boost/foreach.hpp>
-#include <boost/range/distance.hpp>
 
 #include "util/debug.hh"
 #include "util/string.hh"
@@ -48,7 +47,7 @@ Patch::EventIterRange Patch::Fork::process(Events & buf, EventIterRange r)
     DEBUG_PRINT(Patch::debug_range("Fork in", buf, r));
 
     // make a copy of all incoming events
-    MidiEvent in[boost::distance(r)];
+    MidiEvent in[std::distance(r.begin(), r.end())];
     std::copy(r.begin(), r.end(), in);
 
     // remove all incoming events
@@ -133,5 +132,5 @@ Patch::EventIterRange Patch::process(Events & buf, EventIterRange r)
 
 std::string Patch::debug_range(std::string const & str, Events & buf, EventIterRange r)
 {
-    return das::make_string() << str << ": " << std::distance(buf.begin(), r.begin()) << ", " << boost::distance(r);
+    return das::make_string() << str << ": " << std::distance(buf.begin(), r.begin()) << ", " << std::distance(r.begin(), r.end());
 }
