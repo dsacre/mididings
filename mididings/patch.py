@@ -13,6 +13,7 @@
 import _mididings
 import main
 import units
+import misc
 
 
 class Patch(_mididings.Patch):
@@ -43,7 +44,30 @@ class Patch(_mididings.Patch):
                 units.Filter(t) >> w for t, w in p.items()
             ])
 
+        elif isinstance(p, units.InitAction):
+            return self.build(p.proc)
+
         elif isinstance(p, units._Unit):
             return Patch.Single(p)
 
         raise TypeError("type '%s' not allowed in patch" % type(p).__name__)
+
+
+
+def get_init_actions(patch):
+    if isinstance(patch, units._Chain):
+        r = [get_init_actions(p) for p in patch.units]
+
+    elif isinstance(patch, list):
+        r = [get_init_actions(p) for p in patch]
+
+    elif isinstance(patch, dict):
+        r = [get_init_actions(p) for p in patch.values()]
+
+    elif isinstance(patch, units.InitAction):
+        r = [patch.init]
+
+    else:
+        r = []
+
+    return misc.flatten(r)

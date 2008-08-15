@@ -94,12 +94,11 @@ class Engine
 
   private:
 
-    Patch::EventIterRange process(Patch::Events & buffer, MidiEvent const & ev);
-    Patch::EventIterRange init_events();
+    void process(Patch::Events & buffer, MidiEvent const & ev);
+    void process_patch_switch(Patch::Events & buffer, int n);
+
 
     Patch * get_matching_patch(MidiEvent const & ev);
-
-    Patch::EventIterRange process_patch_switch(Patch::Events & buffer, Patch::EventIterRange, int n);
 
 
     inline EventKey make_notekey(MidiEvent const & ev) const {

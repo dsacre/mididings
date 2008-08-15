@@ -132,5 +132,7 @@ Patch::EventIterRange Patch::process(Events & buf, EventIterRange r)
 
 std::string Patch::debug_range(std::string const & str, Events & buf, EventIterRange r)
 {
-    return das::make_string() << str << ": " << std::distance(buf.begin(), r.begin()) << ", " << std::distance(r.begin(), r.end());
+    return das::make_string() << str << ": "
+                              << std::distance(buf.begin(), r.begin()) << ", "
+                              << std::distance(r.begin(), r.end());
 }

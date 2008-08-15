@@ -78,6 +78,21 @@ class Discard(_mididings.Pass, _Unit):
         _mididings.Pass.__init__(self, False)
 
 
+
+class InitAction(_Unit):
+    def __init__(self, init, proc):
+        self.init = init
+        self.proc = proc
+
+
+class Output(InitAction):
+    def __init__(self, port, channel, program=None):
+        InitAction.__init__(self,
+            ProgChange(port, channel, program) if program != None else None,
+            Port(port) >> Channel(channel),
+        )
+
+
 ### filters ###
 
 class Filter(_mididings.Filter, _Filter):

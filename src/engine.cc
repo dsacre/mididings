@@ -94,11 +94,18 @@ void Engine::run()
     // we'll stay in C++ land from now on, except for Call()
     Py_BEGIN_ALLOW_THREADS
 
-    // XXX
-    _current = &*_patches.find(0)->second;
-
-
+    Patch::Events buffer;
     MidiEvent ev;
+
+    // XXX
+//    _current = &*_patches.find(0)->second;
+
+    buffer.clear();
+    process_patch_switch(buffer, 0);
+
+    _backend->output_events(buffer);
+    _backend->flush_output();
+
 
     while (_backend->input_event(ev))
     {
@@ -107,14 +114,14 @@ void Engine::run()
         gettimeofday(&tv1, NULL);
 #endif
 
-        Patch::Events buffer;
+        buffer.clear();
 
         // process the event
-        Patch::EventIterRange r = process(buffer, ev);
+        process(buffer, ev);
 
         // handle patch switches
         if (_new_patch != -1) {
-            process_patch_switch(buffer, r, _new_patch);
+            process_patch_switch(buffer, _new_patch);
             _new_patch = -1;
         }
 
@@ -123,7 +130,7 @@ void Engine::run()
         std::cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec) << std::endl;
 #endif
 
-        _backend->output_events(r);
+        _backend->output_events(buffer);
         _backend->flush_output();
     }
 
@@ -131,7 +138,7 @@ void Engine::run()
 }
 
 
-Patch::EventIterRange Engine::process(Patch::Events & buffer, MidiEvent const & ev)
+void Engine::process(Patch::Events & buffer, MidiEvent const & ev)
 {
     boost::mutex::scoped_lock lock(_process_mutex);
 
@@ -158,8 +165,6 @@ Patch::EventIterRange Engine::process(Patch::Events & buffer, MidiEvent const & 
     }
 
     _sanitize_patch->process(buffer, r);
-
-    return buffer;
 }
 
 
@@ -203,7 +208,7 @@ void Engine::switch_patch(int n)
 }
 
 
-Patch::EventIterRange Engine::process_patch_switch(Patch::Events & buffer, Patch::EventIterRange r, int n)
+void Engine::process_patch_switch(Patch::Events & buffer, int n)
 {
     boost::mutex::scoped_lock lock(_process_mutex);
 
@@ -222,17 +227,15 @@ Patch::EventIterRange Engine::process_patch_switch(Patch::Events & buffer, Patch
         if (k != _init_patches.end()) {
             MidiEvent ev(MIDI_EVENT_DUMMY, 0, 0, 0, 0);
 
-            Patch::EventIter it = buffer.insert(r.end(), ev);
+            Patch::EventIter it = buffer.insert(buffer.end(), ev);
 
-            r = k->second->process(buffer, Patch::EventIterRange(it, r.end()));
+            Patch::EventIterRange r = k->second->process(buffer, Patch::EventIterRange(it, buffer.end()));
             if (_post_patch) {
                 r = _post_patch->process(buffer, r);
             }
-            r = _sanitize_patch->process(buffer, r);
+            _sanitize_patch->process(buffer, r);
         }
     }
-
-    return r;
 }
 
 

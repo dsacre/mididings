@@ -34,11 +34,16 @@ class Engine(_mididings.Engine):
         )
 
         for i, p in patches.items():
-            if isinstance(p, tuple):
-                init_patch, process_patch = patch.Patch(p[0]), patch.Patch(p[1])
+            if not isinstance(p, tuple):
+                init = []
+                proc = p
             else:
-                init_patch, process_patch = None, patch.Patch(p)
-            self.add_patch(i - main._config['data_offset'], process_patch, init_patch)
+                init = [p[0]]
+                proc = p[1]
+
+            init += patch.get_init_actions(proc)
+
+            self.add_patch(i - main._config['data_offset'], patch.Patch(proc), patch.Patch(init))
 
         ctrl = patch.Patch(control) if control else None
         pre_patch = patch.Patch(pre) if pre else None
@@ -51,9 +56,6 @@ class Engine(_mididings.Engine):
                 time.sleep(main._config['start_delay'])
             else:
                 raw_input("press enter to start midi processing...")
-
-#        self.switch_patch(0, event._DummyEvent())
-#        self.switch_patch(0)
 
         main.TheEngine = weakref.proxy(self)
 
