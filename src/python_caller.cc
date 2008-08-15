@@ -34,8 +34,12 @@ PythonCaller::~PythonCaller()
     _quit = true;
     _cond.notify_one();
 
+#if BOOST_VERSION >= 103500
+    _thrd->timed_join(boost::posix_time::milliseconds(3000));
+#else
     // what if the thread doesn't terminate, due to a long-running python function?
     _thrd->join();
+#endif
 }
 
 
