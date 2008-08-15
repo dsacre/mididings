@@ -63,7 +63,7 @@ def test_run_patches(patches, events):
 
 
 def switch_patch(n):
-    TheEngine.switch_patch(n)
+    TheEngine.switch_patch(n - _config['data_offset'])
 
 
 
