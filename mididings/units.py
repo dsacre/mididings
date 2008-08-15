@@ -80,7 +80,7 @@ class Discard(_mididings.Pass, _Unit):
 
 
 class InitAction(_Unit):
-    def __init__(self, init, proc):
+    def __init__(self, init, proc=Discard()):
         self.init = init
         self.proc = proc
 
