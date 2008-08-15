@@ -66,4 +66,3 @@ class Engine(_mididings.Engine):
             n += main._config['data_offset']
             if found: print "switching to patch: %d" % n
             else: print "no such patch: %d" % n
-

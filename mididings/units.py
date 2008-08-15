@@ -327,6 +327,7 @@ class Print(_CallBase):
 
     max_name_length = -1
     max_portname_length = -1
+    portnames_used = False
 
     def __init__(self, name=None, types=_event.ANY, portnames=PORTNAMES_NONE):
         self.name = name
@@ -335,6 +336,9 @@ class Print(_CallBase):
 
         # to be calculated later
         self.ports = None
+
+        if portnames != Print.PORTNAMES_NONE:
+            Print.portnames_used = True
 
         # find maximum name length
         if name:
@@ -354,7 +358,7 @@ class Print(_CallBase):
                 self.ports = []
 
         # find maximum port name length (delayed for the same reason as above)
-        if Print.max_portname_length == -1:
+        if Print.portnames_used and Print.max_portname_length == -1:
             all_ports = _main.TheEngine.in_ports + _main.TheEngine.out_ports
             Print.max_portname_length = max((len(p) for p in all_ports))
 
