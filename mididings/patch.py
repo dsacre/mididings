@@ -21,7 +21,7 @@ class Patch(_mididings.Patch):
         _mididings.Patch.__init__(self, self.build(p))
 
     def build(self, p):
-        if isinstance(p, units._Chain):
+        if isinstance(p, units.base._Chain):
             v = Patch.ModuleVector()
             for i in p.units:
                 v.push_back(self.build(i))
@@ -41,13 +41,13 @@ class Patch(_mididings.Patch):
 
         elif isinstance(p, dict):
             return self.build([
-                units.Filter(t) >> w for t, w in p.items()
+                units.base.Filter(t) >> w for t, w in p.items()
             ])
 
-        elif isinstance(p, units.InitAction):
+        elif isinstance(p, units.init_action.InitAction):
             return self.build(p.proc)
 
-        elif isinstance(p, units._Unit):
+        elif isinstance(p, units.base._Unit):
             return Patch.Single(p)
 
         raise TypeError("type '%s' not allowed in patch" % type(p).__name__)
@@ -55,7 +55,7 @@ class Patch(_mididings.Patch):
 
 
 def get_init_actions(patch):
-    if isinstance(patch, units._Chain):
+    if isinstance(patch, units.base._Chain):
         r = [get_init_actions(p) for p in patch.units]
 
     elif isinstance(patch, list):
@@ -64,7 +64,7 @@ def get_init_actions(patch):
     elif isinstance(patch, dict):
         r = [get_init_actions(p) for p in patch.values()]
 
-    elif isinstance(patch, units.InitAction):
+    elif isinstance(patch, units.init_action.InitAction):
         r = [patch.init]
 
     else:

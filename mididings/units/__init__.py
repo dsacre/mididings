@@ -10,9 +10,14 @@
 # (at your option) any later version.
 #
 
-from units import *
-from event import *
-from main import config, run, run_patches, switch_patch
+from base import *
+from filters import *
+from splits import *
+from modifiers import *
+from generators import *
+from call import *
+from printer import *
+from init_action import *
 
 
-__all__ = main.__all__ + units.__all__ + event.__all__
+__all__ = [x for x in dir() if x[0].isupper()]
