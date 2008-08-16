@@ -68,12 +68,14 @@ class InvertedFilter
 {
   public:
     InvertedFilter(boost::shared_ptr<Filter> filter, bool check_type)
-      : _filter(filter), _check_type(check_type)
+      : _filter(filter)
+      , _check_type(check_type)
     {
     }
 
     virtual bool process(MidiEvent & ev) {
-        return (((_filter->types() & ev.type) || !_check_type) && !_filter->process(ev));
+//        return (((_filter->types() & ev.type) || !_check_type) && !_filter->process(ev));
+        return (!(_filter->types() & ev.type) || !_filter->process(ev));
     }
 
   private:
@@ -155,7 +157,7 @@ class KeyFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (!match_type(ev)) return false;
+        if (!match_type(ev)) return true; ////
         return (ev.note.note >= _lower && ev.note.note <= _upper);
     }
 
@@ -175,7 +177,7 @@ class VelocityFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (!match_type(ev)) return false;
+        if (!match_type(ev)) return true; ////
         return (ev.note.velocity >= _lower && ev.note.velocity <= _upper);
     }
 
@@ -195,7 +197,7 @@ class CtrlFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (!match_type(ev)) return false;
+        if (!match_type(ev)) return true; ////
         for (std::vector<int>::iterator i = _ctrls.begin(); i != _ctrls.end(); ++i) {
             if (ev.ctrl.param == *i) return true;
         }
@@ -218,7 +220,7 @@ class CtrlValueFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (!match_type(ev)) return false;
+        if (!match_type(ev)) return true; ////
         return ((ev.ctrl.value >= _lower && ev.ctrl.value <= _upper) || (ev.ctrl.value == _lower && !_upper));
     }
 
@@ -238,7 +240,7 @@ class ProgFilter
     }
 
     virtual bool process(MidiEvent & ev) {
-        if (!match_type(ev)) return false;
+        if (!match_type(ev)) return true; ////
         for (std::vector<int>::iterator i = _progs.begin(); i != _progs.end(); ++i) {
             if (ev.ctrl.value == *i) return true;
         }
