@@ -33,17 +33,8 @@ env.ParseConfig(
     'pkg-config --cflags --libs alsa jack'
 )
 
-#env.SharedLibrary('_mididings',
-#    [ 'backend_alsa.cc',
-#      'engine.cc', 'patch.cc', 'units.cc',
-#      'python_caller.cc', 'python_module.cc' ],
-#    SHLIBPREFIX='', SHOBJSUFFIX='.o')
-
-env.SharedObject('python_module.o', 'python_module.cc', CCFLAGS = [f for f in env['CCFLAGS'] if f != '-W'])
-#env.Ignore('python_module.o', glob.glob('*.h'))
-
 env.SharedLibrary('_mididings',
     [ 'backend_alsa.cc',
       'engine.cc', 'patch.cc', 'units.cc',
-      'python_caller.cc', 'python_module.o' ],
+      'python_caller.cc', 'python_module.cc' ],
     SHLIBPREFIX='', SHOBJSUFFIX='.o')
