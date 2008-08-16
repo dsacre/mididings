@@ -50,7 +50,7 @@ BOOST_PYTHON_MODULE(_mididings)
 
     class_<Pass, bases<Unit>, noncopyable>("Pass", init<bool>());
     class_<Filter, bases<Unit>, noncopyable>("Filter", init<int>());
-    class_<InvertedFilter, bases<Unit>, noncopyable>("InvertedFilter", init<boost::shared_ptr<Filter>, bool>());
+    class_<InvertedFilter, bases<Unit>, noncopyable>("InvertedFilter", init<boost::shared_ptr<Filter> >());
 
     class_<PortFilter, bases<Filter>, noncopyable>("PortFilter", init<std::vector<int> const &>());
     class_<ChannelFilter, bases<Filter>, noncopyable>("ChannelFilter", init<std::vector<int> const &>());

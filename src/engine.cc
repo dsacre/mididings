@@ -97,9 +97,6 @@ void Engine::run()
     Patch::Events buffer;
     MidiEvent ev;
 
-    // XXX
-//    _current = &*_patches.find(0)->second;
-
     buffer.clear();
     process_patch_switch(buffer, 0);
 

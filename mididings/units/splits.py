@@ -28,9 +28,6 @@ def ChannelSplit(d):
 def KeySplit(*args):
     if len(args) == 1:
         # KeySplit(d)
-#        return Fork([
-#            (Fork([ KeyFilter(k), ~Filter(_event.NOTE) ]) >> w) for k, w in args[0].items()
-#        ])
         return Fork([
             (KeyFilter(k) >> w) for k, w in args[0].items()
         ])
@@ -38,10 +35,6 @@ def KeySplit(*args):
         # KeySplit(key, unit_lower, unit_upper)
         key, unit_lower, unit_upper = args
         filt = KeyFilter(0, key)
-#        return Fork([
-#            Fork([  filt, ~Filter(_event.NOTE) ]) >> unit_lower,
-#            Fork([ ~filt, ~Filter(_event.NOTE) ]) >> unit_upper
-#        ])
         return Fork([
             filt  >> unit_lower,
             ~filt >> unit_upper

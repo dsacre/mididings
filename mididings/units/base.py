@@ -56,12 +56,12 @@ class Split(dict, _Unit):
 # base class for all filters, supporting operator ~
 class _Filter(_Unit):
     def __invert__(self):
-        return _InvertedFilter(self, not isinstance(self, Filter))
+        return _InvertedFilter(self)
 
 
 class _InvertedFilter(_mididings.InvertedFilter, _Unit):
-    def __init__(self, filt, check_type):
-        _mididings.InvertedFilter.__init__(self, filt, check_type)
+    def __init__(self, filt):
+        _mididings.InvertedFilter.__init__(self, filt)
 
 
 # filters by event type
