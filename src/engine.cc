@@ -161,6 +161,7 @@ void Engine::process(Patch::Events & buffer, MidiEvent const & ev)
         r = _post_patch->process(buffer, r);
     }
 
+    // FIXME
     _sanitize_patch->process(buffer, r);
 }
 
@@ -177,7 +178,7 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
         NotePatchMap::iterator i = _noteon_patches.find(make_notekey(ev));
         if (i != _noteon_patches.end()) {
             _noteon_patches.erase(i);
-            return i->second;
+            return i->second; // FIXME
         }
     }
     // sustain pressed

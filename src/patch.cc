@@ -16,33 +16,29 @@
 #include <algorithm>
 #include <iterator>
 
-#include <boost/foreach.hpp>
-
 #include "util/debug.hh"
 #include "util/string.hh"
 
 
-Patch::EventIterRange Patch::Chain::process(Events & buf, EventIterRange r)
+void Patch::Chain::process(Events & buf, EventIterRange & r)
 {
     DEBUG_PRINT(Patch::debug_range("Chain in", buf, r));
 
-    BOOST_FOREACH (ModulePtr m, _modules)
+    for (ModuleVector::iterator m = _modules.begin(); m != _modules.end(); ++m)
     {
         if (r.empty()) {
             // nothing to do
             break;
         }
 
-        r = m->process(buf, r);
+        (*m)->process(buf, r);
     }
 
     DEBUG_PRINT(Patch::debug_range("Chain out", buf, r));
-
-    return r;
 }
 
 
-Patch::EventIterRange Patch::Fork::process(Events & buf, EventIterRange r)
+void Patch::Fork::process(Events & buf, EventIterRange & r)
 {
     DEBUG_PRINT(Patch::debug_range("Fork in", buf, r));
 
@@ -59,11 +55,12 @@ Patch::EventIterRange Patch::Fork::process(Events & buf, EventIterRange r)
     {
         EventIterRange q(r);
 
-        BOOST_FOREACH (ModulePtr m, _modules)
+        for (ModuleVector::iterator m = _modules.begin(); m != _modules.end(); ++m)
         {
             // insert one event, process it
             EventIter it = buf.insert(q.end(), *ev);
-            EventIterRange p = m->process(buf, EventIterRange(it, q.end()));
+            EventIterRange p(it, q.end());
+            (*m)->process(buf, p);
 
             if (!p.empty() && q.empty()) {
                 // set start of p and q if they're still empty
@@ -87,12 +84,10 @@ Patch::EventIterRange Patch::Fork::process(Events & buf, EventIterRange r)
     }
 
     DEBUG_PRINT(Patch::debug_range("Fork out", buf, r));
-
-    return r;
 }
 
 
-Patch::EventIterRange Patch::Single::process(Events & buf, EventIterRange r)
+void Patch::Single::process(Events & buf, EventIterRange & r)
 {
     DEBUG_PRINT(Patch::debug_range("Single in", buf, r));
 
@@ -112,8 +107,6 @@ Patch::EventIterRange Patch::Single::process(Events & buf, EventIterRange r)
     }
 
     DEBUG_PRINT(Patch::debug_range("Single out", buf, r));
-
-    return r;
 }
 
 
@@ -122,7 +115,7 @@ Patch::EventIterRange Patch::process(Events & buf, EventIterRange r)
 {
     DEBUG_PRINT(debug_range("Patch in", buf, r));
 
-    r = _module->process(buf, r);
+    _module->process(buf, r);
 
     DEBUG_PRINT(debug_range("Patch out", buf, r));
 
@@ -130,7 +123,7 @@ Patch::EventIterRange Patch::process(Events & buf, EventIterRange r)
 }
 
 
-std::string Patch::debug_range(std::string const & str, Events & buf, EventIterRange r)
+std::string Patch::debug_range(std::string const & str, Events & buf, EventIterRange & r)
 {
     return das::make_string() << str << ": "
                               << std::distance(buf.begin(), r.begin()) << ", "

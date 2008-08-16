@@ -5,19 +5,18 @@ from distutils import sysconfig
 import glob
 
 env = Environment(
-#    CCFLAGS = [ '-O2', '-W', '-Wall' ],
-    CCFLAGS = [ '-g', '-W', '-Wall' ],
+    CCFLAGS = [ '-O2', '-W', '-Wall' ],
+#    CCFLAGS = [ '-g', '-W', '-Wall' ],
     CPPDEFINES = [
-        'ENABLE_DEBUG',
+#        'NDEBUG',
 #        'ENABLE_DEBUG_FN',
 #        'ENABLE_DEBUG_PRINT',
-        'ENABLE_TEST',
+#        'ENABLE_TEST',
 #        'ENABLE_BENCHMARK',
     ],
     CPPPATH = ['.'],
     ENV = os.environ,
     LIBS = [ 'boost_python-mt', 'boost_thread-mt' ],
-
 )
 
 # hack to remove compiler flags from the distutils default.
@@ -33,8 +32,10 @@ env.ParseConfig(
     'pkg-config --cflags --libs alsa jack'
 )
 
-env.SharedLibrary('_mididings',
-    [ 'backend_alsa.cc',
-      'engine.cc', 'patch.cc', 'units.cc',
-      'python_caller.cc', 'python_module.cc' ],
-    SHLIBPREFIX='', SHOBJSUFFIX='.o')
+env.SharedLibrary('_mididings', [
+        'backend_alsa.cc',
+        'engine.cc', 'patch.cc', 'units.cc',
+        'python_caller.cc', 'python_module.cc'
+    ],
+    SHLIBPREFIX='', SHOBJSUFFIX='.o'
+)

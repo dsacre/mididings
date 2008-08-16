@@ -23,13 +23,19 @@ class Unit;
 #include <boost/range/iterator_range.hpp>
 
 #include "util/debug.hh"
+#include "util/curious_alloc.hh"
 
 
 class Patch
 {
   public:
 
-    typedef std::list<MidiEvent> Events;
+    static int const MAX_EVENTS = 1024;
+
+    typedef std::list<
+            MidiEvent,
+            das::curious_alloc<MidiEvent, MAX_EVENTS>
+        > Events;
     typedef Events::iterator EventIter;
     typedef boost::iterator_range<EventIter> EventIterRange;
 
@@ -49,7 +55,7 @@ class Patch
             DEBUG_FN();
         }
 
-        virtual EventIterRange process(Events &, EventIterRange) = 0;
+        virtual void process(Events &, EventIterRange &) = 0;
     };
 
     typedef boost::shared_ptr<Module> ModulePtr;
@@ -65,7 +71,7 @@ class Patch
         {
         }
 
-        virtual EventIterRange process(Events &, EventIterRange);
+        virtual void process(Events &, EventIterRange &);
 
       private:
         ModuleVector _modules;
@@ -82,7 +88,7 @@ class Patch
         {
         }
 
-        virtual EventIterRange process(Events &, EventIterRange);
+        virtual void process(Events &, EventIterRange &);
 
       private:
         ModuleVector _modules;
@@ -99,7 +105,7 @@ class Patch
         {
         }
 
-        virtual EventIterRange process(Events &, EventIterRange);
+        virtual void process(Events &, EventIterRange &);
 
       private:
         UnitPtr _unit;
@@ -124,12 +130,11 @@ class Patch
 
   private:
 
-    static std::string debug_range(std::string const & str, Events & buf, EventIterRange r);
+    static std::string debug_range(std::string const & str, Events & buf, EventIterRange & r);
 
 
     ModulePtr _module;
 };
-
 
 
 #endif // _PATCH_HH
