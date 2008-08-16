@@ -44,7 +44,7 @@ class SimpleTestCase(unittest.TestCase):
         r = test_run(p, self.noteon2)
         assert len(r) == 0
         r = test_run(p, self.prog1)
-        assert len(r) == 0
+        assert len(r) == 1 ####
 
     def testFilter(self):
         p = Filter(PROGRAM)
@@ -76,7 +76,7 @@ class SimpleTestCase(unittest.TestCase):
         r = test_run(p, self.noteon2)
         assert len(r) == 1
         r = test_run(p, self.prog1)
-        assert len(r) == 0
+        assert len(r) == 1 ####
 
     def testSplit(self):
         p = Split({ NOTE: Channel(1), PROGRAM: Channel(2) })

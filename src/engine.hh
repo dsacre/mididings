@@ -82,10 +82,16 @@ class Engine
         std::vector<MidiEvent> v;
         Patch::Events buffer;
 
-        // XXX
-        _current = &*_patches.find(0)->second;
+        if (!_current) {
+            _current = &*_patches.find(0)->second;
+        }
 
         process(buffer, ev);
+
+        if (_new_patch != -1) {
+            process_patch_switch(buffer, _new_patch);
+            _new_patch = -1;
+        }
 
         v.insert(v.end(), buffer.begin(), buffer.end());
         return v;
