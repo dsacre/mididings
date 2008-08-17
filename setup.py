@@ -16,7 +16,7 @@ sysconfig.get_config_vars()['CFLAGS'] = ' '.join(cv_opt.split())
 
 setup(
     name = 'mididings',
-    version = '20080721',
+    version = '20080818',
     author = 'Dominic Sacre',
     author_email = 'dominic.sacre@gmx.de',
     url = '',
@@ -24,11 +24,13 @@ setup(
     license = "GPL",
     ext_modules = [
         Extension('_mididings',
-                  [ 'src/backend_alsa.cc',
-                    'src/engine.cc', 'src/patch.cc', 'src/units.cc',
-                    'src/python_caller.cc', 'src/python_module.cc' ],
-                  include_dirs = ['src'],
-                  libraries = ['asound', 'jack', 'boost_python-mt', 'boost_thread-mt']
+            [
+                'src/backend_alsa.cc',
+                'src/engine.cc', 'src/patch.cc', 'src/units.cc',
+                'src/python_caller.cc', 'src/python_module.cc'
+            ],
+            include_dirs = ['src'],
+            libraries = ['asound', 'jack', 'boost_python-mt', 'boost_thread-mt']
         ),
     ],
     packages = ['mididings'],
