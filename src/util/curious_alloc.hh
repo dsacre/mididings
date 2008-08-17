@@ -48,8 +48,9 @@ class curious_alloc
     pointer address(reference x) const { return &x; }
     const_pointer address(const_reference x) const { return &x; }
 
-    pointer allocate(size_type size, void const * /*hint*/ = 0) {
-        ASSERT(size == 1);
+    pointer allocate(size_type n, void const * /*hint*/ = 0) {
+        (void)n;
+        ASSERT(n == 1);
         ASSERT(index_ < N);
 
         if (index_ >= N) {
@@ -69,7 +70,10 @@ class curious_alloc
     void deallocate(pointer p, size_type n) {
         deallocate(static_cast<void *>(p), n);
     }
-    void deallocate(void * p, size_type /*n*/) {
+    void deallocate(void * p, size_type n) {
+        (void)n;
+        ASSERT(n == 1);
+
         if (p == pool_ + index_ - 1) {
             // removing last element, can be reused
             --index_;
