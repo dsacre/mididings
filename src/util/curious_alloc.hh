@@ -14,8 +14,6 @@
 
 #include "util/debug.hh"
 
-//#include <iostream> /////
-
 
 namespace das {
 
@@ -41,9 +39,11 @@ class curious_alloc
     };
 
     curious_alloc() { }
-
+    curious_alloc(curious_alloc<T, N> const &) { }
     template <class U>
     curious_alloc(curious_alloc<U, N> const &) { }
+
+    ~curious_alloc() { }
 
     pointer address(reference x) const { return &x; }
     const_pointer address(const_reference x) const { return &x; }
@@ -56,13 +56,6 @@ class curious_alloc
         if (index_ >= N) {
             throw std::bad_alloc();
         }
-
-//        static std::size_t max_index = 0;
-//        if (index_ > max_index) {
-//            max_index = index_;
-//            std::cout << "max_index: " << max_index << std::endl;
-//        }
-
         ++count_;
         return pool_ + (index_++);
     }

@@ -103,6 +103,8 @@ void Engine::run()
     _backend->output_events(buffer);
     _backend->flush_output();
 
+    _backend->drop_input();
+
 
     while (_backend->input_event(ev))
     {
