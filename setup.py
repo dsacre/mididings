@@ -16,7 +16,7 @@ sysconfig.get_config_vars()['CFLAGS'] = ' '.join(cv_opt.split())
 
 setup(
     name = 'mididings',
-    version = '20080818',
+    version = '20080817',
     author = 'Dominic Sacre',
     author_email = 'dominic.sacre@gmx.de',
     url = '',
