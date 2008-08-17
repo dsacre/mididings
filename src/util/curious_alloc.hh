@@ -10,6 +10,8 @@
 #ifndef _DAS_CURIOUS_ALLOC_HH
 #define _DAS_CURIOUS_ALLOC_HH
 
+#include <new>
+
 #include "util/debug.hh"
 
 //#include <iostream> /////
@@ -17,7 +19,10 @@
 
 namespace das {
 
-
+/*
+ * constant-time allocation/deallocation from a fixed size pool of N elements.
+ * deleted elements are not reclaimed until all (!) elements are deallocated.
+ */
 template <typename T, std::size_t N>
 class curious_alloc
 {
@@ -46,13 +51,18 @@ class curious_alloc
     pointer allocate(size_type size, void const * /*hint*/ = 0) {
         ASSERT(size == 1);
         ASSERT(index_ < N);
-        ++count_;
+
+        if (index_ >= N) {
+            throw std::bad_alloc();
+        }
 
 //        static std::size_t max_index = 0;
 //        if (index_ > max_index) {
 //            max_index = index_;
 //            std::cout << "max_index: " << max_index << std::endl;
 //        }
+
+        ++count_;
         return pool_ + (index_++);
     }
 
@@ -60,11 +70,19 @@ class curious_alloc
         deallocate(static_cast<void *>(p), n);
     }
     void deallocate(void * p, size_type /*n*/) {
-        if (p == pool_ + index_ - 1) --index_;
-        if (!(--count_)) index_ = 0;
+        if (p == pool_ + index_ - 1) {
+            // removing last element, can be reused
+            --index_;
+        }
+        if (!(--count_)) {
+            // no allocations left, start over
+            index_ = 0;
+        }
     }
 
-    size_type max_size() const throw() { return N; }
+    size_type max_size() const throw() {
+        return N;
+    }
 
     void construct(pointer p, T const & val) {
         new (static_cast<void *>(p)) T(val);
@@ -72,7 +90,9 @@ class curious_alloc
     void construct(pointer p) {
         new (static_cast<void *>(p)) T();
     }
-    void destroy(pointer /*p*/) { }
+    void destroy(pointer p) {
+        p->~T();
+    }
 
 private:
     static T pool_[N];
