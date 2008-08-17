@@ -32,10 +32,7 @@ class Patch
 
     static int const MAX_EVENTS = 1024;
 
-    typedef std::list<
-            MidiEvent,
-            das::curious_alloc<MidiEvent, MAX_EVENTS>
-        > Events;
+    typedef std::list<MidiEvent, das::curious_alloc<MidiEvent, MAX_EVENTS> > Events;
     typedef Events::iterator EventIter;
     typedef boost::iterator_range<EventIter> EventIterRange;
 
@@ -125,12 +122,12 @@ class Patch
         DEBUG_FN();
     }
 
-    EventIterRange process(Events &, EventIterRange);
+    void process(Events &, EventIterRange &);
 
 
   private:
 
-    static std::string debug_range(std::string const & str, Events & buf, EventIterRange & r);
+    static std::string debug_range(std::string const & str, Events & buf, EventIterRange const & r);
 
 
     ModulePtr _module;

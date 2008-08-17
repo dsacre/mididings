@@ -111,19 +111,17 @@ void Patch::Single::process(Events & buf, EventIterRange & r)
 
 
 
-Patch::EventIterRange Patch::process(Events & buf, EventIterRange r)
+void Patch::process(Events & buf, EventIterRange & r)
 {
     DEBUG_PRINT(debug_range("Patch in", buf, r));
 
     _module->process(buf, r);
 
     DEBUG_PRINT(debug_range("Patch out", buf, r));
-
-    return r;
 }
 
 
-std::string Patch::debug_range(std::string const & str, Events & buf, EventIterRange & r)
+std::string Patch::debug_range(std::string const & str, Events & buf, EventIterRange const & r)
 {
     return das::make_string() << str << ": "
                               << std::distance(buf.begin(), r.begin()) << ", "

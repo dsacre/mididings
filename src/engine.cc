@@ -145,20 +145,21 @@ void Engine::process(Patch::Events & buffer, MidiEvent const & ev)
 
     if (_ctrl_patch) {
         buffer.insert(buffer.end(), ev);
-        _ctrl_patch->process(buffer, buffer);
+        Patch::EventIterRange r(buffer);
+        _ctrl_patch->process(buffer, r);
     }
 
     Patch::EventIter it = buffer.insert(buffer.end(), ev);
     Patch::EventIterRange r = Patch::EventIterRange(it, buffer.end());
 
     if (_pre_patch) {
-        r = _pre_patch->process(buffer, r);
+        _pre_patch->process(buffer, r);
     }
 
-    r = patch->process(buffer, r);
+    patch->process(buffer, r);
 
     if (_post_patch) {
-        r = _post_patch->process(buffer, r);
+        _post_patch->process(buffer, r);
     }
 
     // FIXME
@@ -226,10 +227,12 @@ void Engine::process_patch_switch(Patch::Events & buffer, int n)
             MidiEvent ev(MIDI_EVENT_DUMMY, 0, 0, 0, 0);
 
             Patch::EventIter it = buffer.insert(buffer.end(), ev);
+            Patch::EventIterRange r(Patch::EventIterRange(it, buffer.end()));
 
-            Patch::EventIterRange r = k->second->process(buffer, Patch::EventIterRange(it, buffer.end()));
+            k->second->process(buffer, r);
+
             if (_post_patch) {
-                r = _post_patch->process(buffer, r);
+                _post_patch->process(buffer, r);
             }
             _sanitize_patch->process(buffer, r);
         }
