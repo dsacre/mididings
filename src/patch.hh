@@ -124,6 +124,12 @@ class Patch
 
     void process(Events &, EventIterRange &);
 
+    void process(Events & buf, EventIterRange const & r)
+    {
+        EventIterRange q(r);
+        process(buf, q);
+    }
+
 
   private:
 

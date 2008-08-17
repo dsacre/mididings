@@ -122,6 +122,8 @@ void Engine::run()
             _new_patch = -1;
         }
 
+        _sanitize_patch->process(buffer, buffer);
+
 #ifdef ENABLE_BENCHMARK
         gettimeofday(&tv2, NULL);
         std::cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec) << std::endl;
@@ -145,8 +147,7 @@ void Engine::process(Patch::Events & buffer, MidiEvent const & ev)
 
     if (_ctrl_patch) {
         buffer.insert(buffer.end(), ev);
-        Patch::EventIterRange r(buffer);
-        _ctrl_patch->process(buffer, r);
+        _ctrl_patch->process(buffer, buffer);
     }
 
     Patch::EventIter it = buffer.insert(buffer.end(), ev);
@@ -161,9 +162,6 @@ void Engine::process(Patch::Events & buffer, MidiEvent const & ev)
     if (_post_patch) {
         _post_patch->process(buffer, r);
     }
-
-    // FIXME
-    _sanitize_patch->process(buffer, r);
 }
 
 
@@ -261,6 +259,7 @@ bool Engine::sanitize_event(MidiEvent & ev) const
         case MIDI_EVENT_NOTEOFF:
             if (ev.note.note < 0 || ev.note.note > 127) {
                 if (_verbose) std::cout << "invalid note number, event discarded" << std::endl;
+                return false;
             }
             if (ev.note.velocity < 0) ev.note.velocity = 0;
             if (ev.note.velocity > 127) ev.note.velocity = 127;
@@ -269,6 +268,7 @@ bool Engine::sanitize_event(MidiEvent & ev) const
         case MIDI_EVENT_CTRL:
             if (ev.ctrl.param < 0 || ev.ctrl.param > 127) {
                 if (_verbose) std::cout << "invalid controller number, event discarded" << std::endl;
+                return false;
             }
             if (ev.ctrl.value < 0) ev.ctrl.value = 0;
             if (ev.ctrl.value > 127) ev.ctrl.value = 127;
@@ -280,6 +280,7 @@ bool Engine::sanitize_event(MidiEvent & ev) const
         case MIDI_EVENT_PROGRAM:
             if (ev.ctrl.value < 0 || ev.ctrl.value > 127) {
                 if (_verbose) std::cout << "invalid program number, event discarded" << std::endl;
+                return false;
             }
             return true;
         default:
