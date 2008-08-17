@@ -33,5 +33,5 @@ setup(
             libraries = ['asound', 'jack', 'boost_python-mt', 'boost_thread-mt']
         ),
     ],
-    packages = ['mididings'],
+    packages = ['mididings', 'mididings.units'],
 )
