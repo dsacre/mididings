@@ -178,8 +178,9 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
     else if (ev.type == MIDI_EVENT_NOTEOFF) {
         NotePatchMap::iterator i = _noteon_patches.find(make_notekey(ev));
         if (i != _noteon_patches.end()) {
+            Patch * p = i->second;
             _noteon_patches.erase(i);
-            return i->second; // FIXME
+            return p;
         }
     }
     // sustain pressed
@@ -191,8 +192,9 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
     else if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == 64 && ev.ctrl.value == 0) {
         SustainPatchMap::iterator i = _sustain_patches.find(make_sustainkey(ev));
         if (i != _sustain_patches.end()) {
+            Patch * p = i->second;
             _sustain_patches.erase(i);
-            return i->second;
+            return p;
         }
     }
 
