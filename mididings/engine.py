@@ -18,6 +18,7 @@ import misc
 
 import time
 import weakref
+import gc
 
 
 class Engine(_mididings.Engine):
@@ -58,6 +59,9 @@ class Engine(_mididings.Engine):
                 raw_input("press enter to start midi processing...")
 
         main.TheEngine = weakref.proxy(self)
+
+        gc.collect()
+        gc.disable()
 
     def make_portnames(self, ports, prefix):
         return ports if misc.issequence(ports) else \
