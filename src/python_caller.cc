@@ -17,8 +17,12 @@
 #include <boost/python/object.hpp>
 #include <boost/python/ptr.hpp>
 #include <boost/python/extract.hpp>
+#include <boost/python/list.hpp>
+#include <boost/python/stl_iterator.hpp>
 
 #include "util/debug.hh"
+
+namespace bp = boost::python;
 
 
 PythonCaller::PythonCaller()
@@ -43,28 +47,68 @@ PythonCaller::~PythonCaller()
 }
 
 
-bool PythonCaller::call_now(boost::python::object const & fun, MidiEvent & ev)
+Patch::EventIterRange PythonCaller::call_now(Patch::Events & buf, Patch::EventIter it, bp::object const & fun)
 {
     scoped_gil_lock gil;
 
     try {
-        boost::python::object ret = fun(boost::python::ptr(&ev));
+        bp::object ret = fun(*it);
 
         if (ret.ptr() == Py_None) {
-            return true;
-        } else {
-            return boost::python::extract<bool>(ret);
+            // returned none
+            it = buf.erase(it);
+            return Patch::EventIterRange(it, it);
         }
-    } catch (boost::python::error_already_set &) {
+
+        bp::extract<bp::list> e(ret);
+
+        if (e.check()) {
+            // returned python list
+            it = buf.erase(it);
+
+            if (bp::len(e())) {
+                bp::stl_input_iterator<MidiEvent> begin(ret), end;
+
+                Patch::EventIter first = buf.insert(it, *begin);
+                buf.insert(it, ++begin, end);
+
+                return Patch::EventIterRange(first, it);
+            } else {
+                return Patch::EventIterRange(it, it);
+            }
+        }
+
+        bp::extract<bool> b(ret);
+
+        if (b.check()) {
+            // returned single event
+            if (b) {
+                Patch::EventIterRange r(it, it);
+                r.advance_end(1);
+                return r;
+            } else {
+                it = buf.erase(it);
+                return Patch::EventIterRange(it, it);
+            }
+        }
+
+        *it = bp::extract<MidiEvent>(ret);
+        Patch::EventIterRange r(it, it);
+        r.advance_end(1);
+        return r;
+    }
+    catch (bp::error_already_set &) {
         PyErr_Print();
-        return false;
+        it = buf.erase(it);
+        return Patch::EventIterRange(it, it);
     }
 }
 
 
-void PythonCaller::call_deferred(boost::python::object const & fun, MidiEvent const & ev)
+void PythonCaller::call_deferred(bp::object const & fun, MidiEvent const & ev)
 {
     AsyncCallInfo c = { &fun, ev };
+
     VERIFY(_rb->write(c));
     _cond.notify_one();
 }
@@ -86,9 +130,9 @@ void PythonCaller::async_thread()
             _rb->read(c);
 
             try {
-                (*c.fun)(boost::python::ptr(&c.ev));
+                (*c.fun)(bp::ptr(&c.ev));
             }
-            catch (boost::python::error_already_set &) {
+            catch (bp::error_already_set &) {
                 PyErr_Print();
             }
         }

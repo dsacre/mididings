@@ -47,6 +47,7 @@ BOOST_PYTHON_MODULE(_mididings)
     PyEval_InitThreads();
 
     class_<Unit, noncopyable>("Unit", bp::no_init);
+    class_<UnitEx, noncopyable>("UnitEx", bp::no_init);
 
     class_<Pass, bases<Unit>, noncopyable>("Pass", init<bool>());
     class_<Filter, bases<Unit>, noncopyable>("Filter", init<int>());
@@ -72,7 +73,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<GenerateEvent, bases<Unit>, noncopyable>("GenerateEvent", init<int, int, int, int, int>());
     class_<Sanitize, bases<Unit>, noncopyable>("Sanitize", init<>());
     class_<PatchSwitch, bases<Unit>, noncopyable>("PatchSwitch", init<int>());
-    class_<Call, bases<Unit>, noncopyable>("Call", init<bp::object, bool, bool>());
+    class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
 
     class_<Engine, Engine, noncopyable>("Engine", init<std::string const &,
                                                        std::string const &,
@@ -100,6 +101,7 @@ BOOST_PYTHON_MODULE(_mididings)
         class_<Patch::Chain, bases<Patch::Module>, noncopyable>("Chain", init<Patch::ModuleVector>());
         class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector, bool>());
         class_<Patch::Single, bases<Patch::Module>, noncopyable>("Single", init<boost::shared_ptr<Unit> >());
+        class_<Patch::Extended, bases<Patch::Module>, noncopyable>("Extended", init<boost::shared_ptr<UnitEx> >());
     }
 
     class_<std::vector<int>, noncopyable>("int_vector")

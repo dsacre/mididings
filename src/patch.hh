@@ -14,6 +14,7 @@
 
 #include "midi_event.hh"
 class Unit;
+class UnitEx;
 
 #include <vector>
 #include <list>
@@ -37,6 +38,7 @@ class Patch
     typedef boost::iterator_range<EventIter> EventIterRange;
 
     typedef boost::shared_ptr<Unit> UnitPtr;
+    typedef boost::shared_ptr<UnitEx> UnitExPtr;
 
 
     class Module
@@ -106,6 +108,22 @@ class Patch
 
       private:
         UnitPtr _unit;
+    };
+
+
+    class Extended
+      : public Module
+    {
+      public:
+        Extended(UnitExPtr unit)
+          : _unit(unit)
+        {
+        }
+
+        virtual void process(Events &, EventIterRange &);
+
+      private:
+        UnitExPtr _unit;
     };
 
 

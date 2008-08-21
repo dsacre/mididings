@@ -100,7 +100,7 @@ void Engine::run()
     buffer.clear();
     process_patch_switch(buffer, 0);
 
-    _backend->output_events(buffer);
+    _backend->output_events(buffer.begin(), buffer.end());
     _backend->flush_output();
 
     _backend->drop_input();
@@ -131,7 +131,7 @@ void Engine::run()
         std::cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec) << std::endl;
 #endif
 
-        _backend->output_events(buffer);
+        _backend->output_events(buffer.begin(), buffer.end());
         _backend->flush_output();
     }
 
@@ -240,8 +240,6 @@ void Engine::process_patch_switch(Patch::Events & buffer, int n)
         }
     }
 }
-
-
 
 
 bool Engine::sanitize_event(MidiEvent & ev) const

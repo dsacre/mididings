@@ -13,6 +13,7 @@
 #define _PYTHON_CALL_HH
 
 #include "midi_event.hh"
+#include "patch.hh" //////
 
 #include <boost/scoped_ptr.hpp>
 
@@ -28,12 +29,12 @@ class PythonCaller
   : boost::noncopyable
 {
   public:
-    static int const MAX_ASYNC_CALLS = 64;
+    static int const MAX_ASYNC_CALLS = 256;
 
     PythonCaller();
     ~PythonCaller();
 
-    bool call_now(boost::python::object const & fun, MidiEvent & ev);
+    Patch::EventIterRange call_now(Patch::Events & buf, Patch::EventIter it, boost::python::object const & fun);
     void call_deferred(boost::python::object const & fun, MidiEvent const & ev);
 
   private:

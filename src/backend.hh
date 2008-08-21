@@ -36,10 +36,10 @@ class Backend
     virtual void drop_input() = 0;
     virtual void flush_output() = 0;
 
-    template <typename C>
-    void output_events(C const & events)
+    template <typename IterT>
+    void output_events(IterT begin, IterT end)
     {
-        for (typename C::const_iterator it = events.begin(); it != events.end(); ++it) {
+        for (IterT it = begin; it != end; ++it) {
             output_event(*it);
         }
     }

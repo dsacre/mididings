@@ -110,6 +110,28 @@ void Patch::Single::process(Events & buf, EventIterRange & r)
 }
 
 
+void Patch::Extended::process(Events & buf, EventIterRange & r)
+{
+    DEBUG_PRINT(Patch::debug_range("Extended in", buf, r));
+
+    EventIterRange p(r);
+    r = EventIterRange(r.end(), r.end());
+
+    for (EventIter it = p.begin(); it != p.end(); )
+    {
+        EventIterRange q = _unit->process(buf, it);
+
+        if (r.empty() && !q.empty()) {
+            r = q;
+        }
+
+        it = q.end();
+    }
+
+    DEBUG_PRINT(Patch::debug_range("Extended out", buf, r));
+}
+
+
 
 void Patch::process(Events & buf, EventIterRange & r)
 {

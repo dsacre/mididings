@@ -68,13 +68,7 @@ class Engine
     void switch_patch(int n);
     bool sanitize_event(MidiEvent & ev) const;
 
-    bool call_now(boost::python::object const & fun, MidiEvent & ev) {
-        return _python_caller->call_now(fun, ev);
-    }
-
-    void call_deferred(boost::python::object const & fun, MidiEvent const & ev) {
-        _python_caller->call_deferred(fun, ev);
-    }
+    PythonCaller & python_caller() const { return *_python_caller; }
 
 #ifdef ENABLE_TEST
     std::vector<MidiEvent> process_test(MidiEvent const & ev)

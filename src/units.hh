@@ -13,12 +13,13 @@
 #define _UNITS_HH
 
 #include "midi_event.hh"
+#include "patch.hh" //////
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include "util/debug.hh"
-
 #include <boost/python/object.hpp>
+
+#include "util/debug.hh"
 
 
 class Unit
@@ -34,6 +35,22 @@ class Unit
 
     virtual bool process(MidiEvent & ev) = 0;
 };
+
+
+class UnitEx
+{
+  public:
+    UnitEx() {
+        DEBUG_FN();
+    }
+
+    virtual ~UnitEx() {
+        DEBUG_FN();
+    }
+
+    virtual Patch::EventIterRange process(Patch::Events & buf, Patch::EventIter it) = 0;
+};
+
 
 
 class Filter
@@ -457,7 +474,7 @@ class PatchSwitch
 
 
 class Call
-  : public Unit
+  : public UnitEx
 {
   public:
     Call(boost::python::object fun, bool async, bool cont)
@@ -467,7 +484,7 @@ class Call
     {
     }
 
-    bool process(MidiEvent & ev);
+    virtual Patch::EventIterRange process(Patch::Events & buf, Patch::EventIter it);
 
   private:
     boost::python::object _fun;

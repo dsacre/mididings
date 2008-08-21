@@ -47,8 +47,11 @@ class Patch(_mididings.Patch):
         elif isinstance(p, units.init_action.InitAction):
             return self.build(p.proc)
 
-        elif isinstance(p, units.base._Unit):
+        elif isinstance(p, _mididings.Unit):
             return Patch.Single(p)
+
+        elif isinstance(p, _mididings.UnitEx):
+            return Patch.Extended(p)
 
         raise TypeError("type '%s' not allowed in patch" % type(p).__name__)
 
