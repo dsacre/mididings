@@ -13,9 +13,9 @@
 #include <boost/python/def.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/scope.hpp>
+#include <boost/python/operators.hpp>
 
 #ifdef ENABLE_TEST
-    #include <boost/python/operators.hpp>
     #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #endif // ENABLE_TEST
 
@@ -117,9 +117,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .def_readwrite("channel_", &MidiEvent::channel)
         .def_readwrite("data1", &MidiEvent::data1)
         .def_readwrite("data2", &MidiEvent::data2)
-#ifdef ENABLE_TEST
         .def(bp::self == bp::self)
-#endif // ENABLE_TEST
     ;
 
 #ifdef ENABLE_TEST

@@ -104,9 +104,37 @@ class MidiEvent(_mididings.MidiEvent):
     program   = property(*_make_get_set(PROGRAM, 'data2', lambda: _main._config['data_offset']))
 
 
-#class _DummyEvent(MidiEvent):
-#    def __init__(self):
-#        MidiEvent.__init__(self, DUMMY)
+class NoteonEvent(MidiEvent):
+    def __init__(self, port, channel, note, velocity):
+        MidiEvent.__init__(self, NOTEON,
+            port - _main._config['data_offset'],
+            channel - _main._config['data_offset'],
+            note, velocity
+        )
+
+class NoteoffEvent(MidiEvent):
+    def __init__(self, port, channel, note, velocity=0):
+        MidiEvent.__init__(self, NOTEOFF,
+            port - _main._config['data_offset'],
+            channel - _main._config['data_offset'],
+            note, velocity
+        )
+
+class ControlEvent(MidiEvent):
+    def __init__(self, port, channel, param, value):
+        MidiEvent.__init__(self, CTRL,
+            port - _main._config['data_offset'],
+            channel - _main._config['data_offset'],
+            param, value
+        )
+
+class ProgramEvent(MidiEvent):
+    def __init__(self, port, channel, program):
+        MidiEvent.__init__(self, PROGRAM,
+            port - _main._config['data_offset'],
+            channel - _main._config['data_offset'],
+            0, program - _main._config['data_offset']
+        )
 
 
 __all__ = [x for x in dir() if not x.startswith('_')]
