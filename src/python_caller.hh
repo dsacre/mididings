@@ -30,8 +30,6 @@ class PythonCaller
 {
   public:
 
-    static int const MAX_ASYNC_CALLS = 256;
-
     typedef Patch::Events Events;
     typedef Patch::EventIter EventIter;
     typedef Patch::EventRange EventRange;

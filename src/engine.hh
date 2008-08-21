@@ -39,9 +39,6 @@ class Engine
 {
   public:
 
-    static int const MAX_SIMULTANEOUS_NOTES = 64;
-    static int const MAX_SUSTAIN_PEDALS = 4;
-
     typedef boost::shared_ptr<Patch> PatchPtr;
     typedef std::map<int, PatchPtr> PatchMap;
     typedef unsigned int EventKey;

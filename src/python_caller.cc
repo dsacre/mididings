@@ -9,6 +9,7 @@
  * (at your option) any later version.
  */
 
+#include "config.hh"
 #include "python_caller.hh"
 #include "python_util.hh"
 
@@ -26,7 +27,7 @@ namespace bp = boost::python;
 
 
 PythonCaller::PythonCaller()
-  : _rb(new das::ringbuffer<AsyncCallInfo>(MAX_ASYNC_CALLS))
+  : _rb(new das::ringbuffer<AsyncCallInfo>(Config::MAX_ASYNC_CALLS))
   , _quit(false)
 {
     _thrd.reset(new boost::thread(boost::bind(&PythonCaller::async_thread, this)));
@@ -39,7 +40,7 @@ PythonCaller::~PythonCaller()
     _cond.notify_one();
 
 #if BOOST_VERSION >= 103500
-    _thrd->timed_join(boost::posix_time::milliseconds(3000));
+    _thrd->timed_join(boost::posix_time::milliseconds(Config::ASYNC_JOIN_TIMEOUT));
 #else
     // what if the thread doesn't terminate, due to a long-running python function?
     _thrd->join();

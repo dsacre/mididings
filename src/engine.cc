@@ -9,6 +9,7 @@
  * (at your option) any later version.
  */
 
+#include "config.hh"
 #include "engine.hh"
 #include "backend_alsa.hh"
 #include "python_util.hh"
@@ -39,8 +40,8 @@ Engine::Engine(PyObject * self,
   , _verbose(verbose)
   , _current(NULL)
   , _new_patch(-1)
-  , _noteon_patches(MAX_SIMULTANEOUS_NOTES)
-  , _sustain_patches(MAX_SUSTAIN_PEDALS)
+  , _noteon_patches(Config::MAX_SIMULTANEOUS_NOTES)
+  , _sustain_patches(Config::MAX_SUSTAIN_PEDALS)
   , _python_caller(new PythonCaller())
 {
     DEBUG_FN();

@@ -12,6 +12,7 @@
 #ifndef _PATCH_HH
 #define _PATCH_HH
 
+#include "config.hh"
 #include "midi_event.hh"
 class Unit;
 class UnitEx;
@@ -31,9 +32,7 @@ class Patch
 {
   public:
 
-    static int const MAX_EVENTS = 1024;
-
-    typedef std::list<MidiEvent, das::curious_alloc<MidiEvent, MAX_EVENTS> > Events;
+    typedef std::list<MidiEvent, das::curious_alloc<MidiEvent, Config::MAX_EVENTS> > Events;
     typedef Events::iterator EventIter;
     typedef boost::iterator_range<EventIter> EventRange;
 
