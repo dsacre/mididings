@@ -13,7 +13,7 @@
 #define _UNITS_HH
 
 #include "midi_event.hh"
-#include "patch.hh" //////
+#include "patch.hh"
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
@@ -48,7 +48,7 @@ class UnitEx
         DEBUG_FN();
     }
 
-    virtual Patch::EventIterRange process(Patch::Events & buf, Patch::EventIter it) = 0;
+    virtual Patch::EventRange process(Patch::Events & buf, Patch::EventIter it) = 0;
 };
 
 
@@ -484,7 +484,7 @@ class Call
     {
     }
 
-    virtual Patch::EventIterRange process(Patch::Events & buf, Patch::EventIter it);
+    virtual Patch::EventRange process(Patch::Events & buf, Patch::EventIter it);
 
   private:
     boost::python::object _fun;

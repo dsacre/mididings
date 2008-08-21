@@ -162,7 +162,7 @@ bool PatchSwitch::process(MidiEvent & ev)
 }
 
 
-Patch::EventIterRange Call::process(Patch::Events & buf, Patch::EventIter it)
+Patch::EventRange Call::process(Patch::Events & buf, Patch::EventIter it)
 {
     PythonCaller & c = TheEngine->python_caller();
 

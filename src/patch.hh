@@ -35,7 +35,7 @@ class Patch
 
     typedef std::list<MidiEvent, das::curious_alloc<MidiEvent, MAX_EVENTS> > Events;
     typedef Events::iterator EventIter;
-    typedef boost::iterator_range<EventIter> EventIterRange;
+    typedef boost::iterator_range<EventIter> EventRange;
 
     typedef boost::shared_ptr<Unit> UnitPtr;
     typedef boost::shared_ptr<UnitEx> UnitExPtr;
@@ -54,7 +54,7 @@ class Patch
             DEBUG_FN();
         }
 
-        virtual void process(Events &, EventIterRange &) = 0;
+        virtual void process(Events &, EventRange &) = 0;
     };
 
     typedef boost::shared_ptr<Module> ModulePtr;
@@ -70,7 +70,7 @@ class Patch
         {
         }
 
-        virtual void process(Events &, EventIterRange &);
+        virtual void process(Events &, EventRange &);
 
       private:
         ModuleVector _modules;
@@ -87,7 +87,7 @@ class Patch
         {
         }
 
-        virtual void process(Events &, EventIterRange &);
+        virtual void process(Events &, EventRange &);
 
       private:
         ModuleVector _modules;
@@ -104,7 +104,7 @@ class Patch
         {
         }
 
-        virtual void process(Events &, EventIterRange &);
+        virtual void process(Events &, EventRange &);
 
       private:
         UnitPtr _unit;
@@ -120,7 +120,7 @@ class Patch
         {
         }
 
-        virtual void process(Events &, EventIterRange &);
+        virtual void process(Events &, EventRange &);
 
       private:
         UnitExPtr _unit;
@@ -140,18 +140,18 @@ class Patch
         DEBUG_FN();
     }
 
-    void process(Events &, EventIterRange &);
+    void process(Events &, EventRange &);
 
-    void process(Events & buf, EventIterRange const & r)
+    void process(Events & buf, EventRange const & r)
     {
-        EventIterRange q(r);
+        EventRange q(r);
         process(buf, q);
     }
 
 
   private:
 
-    static std::string debug_range(std::string const & str, Events & buf, EventIterRange const & r);
+    static std::string debug_range(std::string const & str, Events & buf, EventRange const & r);
 
 
     ModulePtr _module;

@@ -20,7 +20,7 @@
 #include "util/string.hh"
 
 
-void Patch::Chain::process(Events & buf, EventIterRange & r)
+void Patch::Chain::process(Events & buf, EventRange & r)
 {
     DEBUG_PRINT(Patch::debug_range("Chain in", buf, r));
 
@@ -38,7 +38,7 @@ void Patch::Chain::process(Events & buf, EventIterRange & r)
 }
 
 
-void Patch::Fork::process(Events & buf, EventIterRange & r)
+void Patch::Fork::process(Events & buf, EventRange & r)
 {
     DEBUG_PRINT(Patch::debug_range("Fork in", buf, r));
 
@@ -49,17 +49,17 @@ void Patch::Fork::process(Events & buf, EventIterRange & r)
     // remove all incoming events
     buf.erase(r.begin(), r.end());
     // events to be returned: none so far
-    r = EventIterRange(r.end(), r.end());
+    r = EventRange(r.end(), r.end());
 
     for (MidiEvent * ev = in; ev != in + sizeof(in)/sizeof(*in); ++ev)
     {
-        EventIterRange q(r);
+        EventRange q(r);
 
         for (ModuleVector::iterator m = _modules.begin(); m != _modules.end(); ++m)
         {
             // insert one event, process it
             EventIter it = buf.insert(q.end(), *ev);
-            EventIterRange p(it, q.end());
+            EventRange p(it, q.end());
             (*m)->process(buf, p);
 
             if (!p.empty() && q.empty()) {
@@ -87,7 +87,7 @@ void Patch::Fork::process(Events & buf, EventIterRange & r)
 }
 
 
-void Patch::Single::process(Events & buf, EventIterRange & r)
+void Patch::Single::process(Events & buf, EventRange & r)
 {
     DEBUG_PRINT(Patch::debug_range("Single in", buf, r));
 
@@ -110,16 +110,16 @@ void Patch::Single::process(Events & buf, EventIterRange & r)
 }
 
 
-void Patch::Extended::process(Events & buf, EventIterRange & r)
+void Patch::Extended::process(Events & buf, EventRange & r)
 {
     DEBUG_PRINT(Patch::debug_range("Extended in", buf, r));
 
-    EventIterRange p(r);
-    r = EventIterRange(r.end(), r.end());
+    EventRange p(r);
+    r = EventRange(r.end(), r.end());
 
     for (EventIter it = p.begin(); it != p.end(); )
     {
-        EventIterRange q = _unit->process(buf, it);
+        EventRange q = _unit->process(buf, it);
 
         if (r.empty() && !q.empty()) {
             r = q;
@@ -133,7 +133,7 @@ void Patch::Extended::process(Events & buf, EventIterRange & r)
 
 
 
-void Patch::process(Events & buf, EventIterRange & r)
+void Patch::process(Events & buf, EventRange & r)
 {
     DEBUG_PRINT(debug_range("Patch in", buf, r));
 
@@ -143,7 +143,7 @@ void Patch::process(Events & buf, EventIterRange & r)
 }
 
 
-std::string Patch::debug_range(std::string const & str, Events & buf, EventIterRange const & r)
+std::string Patch::debug_range(std::string const & str, Events & buf, EventRange const & r)
 {
     return das::make_string() << str << ": "
                               << std::distance(buf.begin(), r.begin()) << ", "

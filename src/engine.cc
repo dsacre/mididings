@@ -94,7 +94,7 @@ void Engine::run()
     // we'll stay in C++ land from now on, except for Call()
     Py_BEGIN_ALLOW_THREADS
 
-    Patch::Events buffer;
+    Events buffer;
     MidiEvent ev;
 
     buffer.clear();
@@ -139,7 +139,7 @@ void Engine::run()
 }
 
 
-void Engine::process(Patch::Events & buffer, MidiEvent const & ev)
+void Engine::process(Events & buffer, MidiEvent const & ev)
 {
     boost::mutex::scoped_lock lock(_process_mutex);
 
@@ -152,8 +152,8 @@ void Engine::process(Patch::Events & buffer, MidiEvent const & ev)
         _ctrl_patch->process(buffer, buffer);
     }
 
-    Patch::EventIter it = buffer.insert(buffer.end(), ev);
-    Patch::EventIterRange r = Patch::EventIterRange(it, buffer.end());
+    EventIter it = buffer.insert(buffer.end(), ev);
+    EventRange r = EventRange(it, buffer.end());
 
     if (_pre_patch) {
         _pre_patch->process(buffer, r);
@@ -209,7 +209,7 @@ void Engine::switch_patch(int n)
 }
 
 
-void Engine::process_patch_switch(Patch::Events & buffer, int n)
+void Engine::process_patch_switch(Events & buffer, int n)
 {
     boost::mutex::scoped_lock lock(_process_mutex);
 
@@ -228,8 +228,8 @@ void Engine::process_patch_switch(Patch::Events & buffer, int n)
         if (k != _init_patches.end()) {
             MidiEvent ev(MIDI_EVENT_DUMMY, 0, 0, 0, 0);
 
-            Patch::EventIter it = buffer.insert(buffer.end(), ev);
-            Patch::EventIterRange r(Patch::EventIterRange(it, buffer.end()));
+            EventIter it = buffer.insert(buffer.end(), ev);
+            EventRange r(EventRange(it, buffer.end()));
 
             k->second->process(buffer, r);
 

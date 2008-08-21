@@ -47,7 +47,7 @@ PythonCaller::~PythonCaller()
 }
 
 
-Patch::EventIterRange PythonCaller::call_now(Patch::Events & buf, Patch::EventIter it, bp::object const & fun)
+PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::object const & fun)
 {
     scoped_gil_lock gil;
 
@@ -92,7 +92,7 @@ Patch::EventIterRange PythonCaller::call_now(Patch::Events & buf, Patch::EventIt
 }
 
 
-Patch::EventIterRange PythonCaller::call_deferred(Patch::Events & buf, Patch::EventIter it, bp::object const & fun, bool keep)
+PythonCaller::EventRange PythonCaller::call_deferred(Events & buf, EventIter it, bp::object const & fun, bool keep)
 {
     AsyncCallInfo c = { &fun, *it };
 

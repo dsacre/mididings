@@ -48,6 +48,10 @@ class Engine
     typedef std::tr1::unordered_map<EventKey, Patch *> NotePatchMap;
     typedef std::tr1::unordered_map<EventKey, Patch *> SustainPatchMap;
 
+    typedef Patch::Events Events;
+    typedef Patch::EventIter EventIter;
+    typedef Patch::EventRange EventRange;
+
 
     Engine(PyObject * self,
            std::string const & backend_name,
@@ -74,7 +78,7 @@ class Engine
     std::vector<MidiEvent> process_test(MidiEvent const & ev)
     {
         std::vector<MidiEvent> v;
-        Patch::Events buffer;
+        Events buffer;
 
         if (!_current) {
             _current = &*_patches.find(0)->second;
@@ -94,8 +98,8 @@ class Engine
 
   private:
 
-    void process(Patch::Events & buffer, MidiEvent const & ev);
-    void process_patch_switch(Patch::Events & buffer, int n);
+    void process(Events & buffer, MidiEvent const & ev);
+    void process_patch_switch(Events & buffer, int n);
 
 
     Patch * get_matching_patch(MidiEvent const & ev);

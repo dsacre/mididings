@@ -13,7 +13,7 @@
 #define _PYTHON_CALL_HH
 
 #include "midi_event.hh"
-#include "patch.hh" //////
+#include "patch.hh"
 
 #include <boost/scoped_ptr.hpp>
 
@@ -32,36 +32,40 @@ class PythonCaller
 
     static int const MAX_ASYNC_CALLS = 256;
 
+    typedef Patch::Events Events;
+    typedef Patch::EventIter EventIter;
+    typedef Patch::EventRange EventRange;
+
     PythonCaller();
     ~PythonCaller();
 
-    Patch::EventIterRange call_now(Patch::Events & buf, Patch::EventIter it, boost::python::object const & fun);
-    Patch::EventIterRange call_deferred(Patch::Events & buf, Patch::EventIter it, boost::python::object const & fun, bool keep);
+    EventRange call_now(Events & buf, EventIter it, boost::python::object const & fun);
+    EventRange call_deferred(Events & buf, EventIter it, boost::python::object const & fun, bool keep);
 
   private:
 
     template <typename IterT>
-    inline Patch::EventIterRange replace_event(Patch::Events & buf, Patch::EventIter it, IterT begin, IterT end)
+    inline EventRange replace_event(Events & buf, EventIter it, IterT begin, IterT end)
     {
         it = buf.erase(it);
 
-        Patch::EventIter first = buf.insert(it, *begin);
+        EventIter first = buf.insert(it, *begin);
         buf.insert(it, ++begin, end);
 
-        return Patch::EventIterRange(first, it);
+        return EventRange(first, it);
     }
 
-    inline Patch::EventIterRange keep_event(Patch::Events & /*buf*/, Patch::EventIter it)
+    inline EventRange keep_event(Events & /*buf*/, EventIter it)
     {
-        Patch::EventIterRange r(it, it);
+        EventRange r(it, it);
         r.advance_end(1);
         return r;
     }
 
-    inline Patch::EventIterRange delete_event(Patch::Events & buf, Patch::EventIter it)
+    inline EventRange delete_event(Events & buf, EventIter it)
     {
         it = buf.erase(it);
-        return Patch::EventIterRange(it, it);
+        return EventRange(it, it);
     }
 
 
