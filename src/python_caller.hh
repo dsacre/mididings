@@ -29,16 +29,44 @@ class PythonCaller
   : boost::noncopyable
 {
   public:
+
     static int const MAX_ASYNC_CALLS = 256;
 
     PythonCaller();
     ~PythonCaller();
 
     Patch::EventIterRange call_now(Patch::Events & buf, Patch::EventIter it, boost::python::object const & fun);
-    void call_deferred(boost::python::object const & fun, MidiEvent const & ev);
+    Patch::EventIterRange call_deferred(Patch::Events & buf, Patch::EventIter it, boost::python::object const & fun, bool keep);
 
   private:
+
+    template <typename IterT>
+    inline Patch::EventIterRange replace_event(Patch::Events & buf, Patch::EventIter it, IterT begin, IterT end)
+    {
+        it = buf.erase(it);
+
+        Patch::EventIter first = buf.insert(it, *begin);
+        buf.insert(it, ++begin, end);
+
+        return Patch::EventIterRange(first, it);
+    }
+
+    inline Patch::EventIterRange keep_event(Patch::Events & /*buf*/, Patch::EventIter it)
+    {
+        Patch::EventIterRange r(it, it);
+        r.advance_end(1);
+        return r;
+    }
+
+    inline Patch::EventIterRange delete_event(Patch::Events & buf, Patch::EventIter it)
+    {
+        it = buf.erase(it);
+        return Patch::EventIterRange(it, it);
+    }
+
+
     void async_thread();
+
 
     struct AsyncCallInfo {
         boost::python::object const * fun;

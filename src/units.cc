@@ -164,18 +164,11 @@ bool PatchSwitch::process(MidiEvent & ev)
 
 Patch::EventIterRange Call::process(Patch::Events & buf, Patch::EventIter it)
 {
+    PythonCaller & c = TheEngine->python_caller();
+
     if (!_async) {
-        return TheEngine->python_caller().call_now(buf, it, _fun);
-    }
-    else {
-        TheEngine->python_caller().call_deferred(_fun, *it);
-        if (_cont) {
-            Patch::EventIterRange r(it, it);
-            r.advance_end(1);
-            return r;
-        } else {
-            it = buf.erase(it);
-            return Patch::EventIterRange(it, it);
-        }
+        return c.call_now(buf, it, _fun);
+    } else {
+        return c.call_deferred(buf, it, _fun, _cont);
     }
 }

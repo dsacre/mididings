@@ -56,25 +56,18 @@ Patch::EventIterRange PythonCaller::call_now(Patch::Events & buf, Patch::EventIt
 
         if (ret.ptr() == Py_None) {
             // returned none
-            it = buf.erase(it);
-            return Patch::EventIterRange(it, it);
+            return delete_event(buf, it);
         }
 
         bp::extract<bp::list> e(ret);
 
         if (e.check()) {
             // returned python list
-            it = buf.erase(it);
-
             if (bp::len(e())) {
                 bp::stl_input_iterator<MidiEvent> begin(ret), end;
-
-                Patch::EventIter first = buf.insert(it, *begin);
-                buf.insert(it, ++begin, end);
-
-                return Patch::EventIterRange(first, it);
+                return replace_event(buf, it, begin, end);
             } else {
-                return Patch::EventIterRange(it, it);
+                return delete_event(buf, it);
             }
         }
 
@@ -83,34 +76,34 @@ Patch::EventIterRange PythonCaller::call_now(Patch::Events & buf, Patch::EventIt
         if (b.check()) {
             // returned single event
             if (b) {
-                Patch::EventIterRange r(it, it);
-                r.advance_end(1);
-                return r;
+                return keep_event(buf, it);
             } else {
-                it = buf.erase(it);
-                return Patch::EventIterRange(it, it);
+                return delete_event(buf, it);
             }
         }
 
         *it = bp::extract<MidiEvent>(ret);
-        Patch::EventIterRange r(it, it);
-        r.advance_end(1);
-        return r;
+        return keep_event(buf, it);
     }
     catch (bp::error_already_set &) {
         PyErr_Print();
-        it = buf.erase(it);
-        return Patch::EventIterRange(it, it);
+        return delete_event(buf, it);
     }
 }
 
 
-void PythonCaller::call_deferred(bp::object const & fun, MidiEvent const & ev)
+Patch::EventIterRange PythonCaller::call_deferred(Patch::Events & buf, Patch::EventIter it, bp::object const & fun, bool keep)
 {
-    AsyncCallInfo c = { &fun, ev };
+    AsyncCallInfo c = { &fun, *it };
 
     VERIFY(_rb->write(c));
     _cond.notify_one();
+
+    if (keep) {
+        return keep_event(buf, it);
+    } else {
+        return delete_event(buf, it);
+    }
 }
 
 
