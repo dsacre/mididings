@@ -19,7 +19,7 @@ setup(
     version = '20080817',
     author = 'Dominic Sacre',
     author_email = 'dominic.sacre@gmx.de',
-    url = '',
+    url = 'http://das.nasophon.de/mididings',
     description = '',
     license = "GPL",
     ext_modules = [
