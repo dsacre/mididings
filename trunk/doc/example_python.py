@@ -10,9 +10,9 @@ def process(ev):
     if ev.channel == 1:
         if ev.type_ == NOTEON:
             ev.velocity = 127 - ev.velocity
-        return True
+        return ev
     else:
-        return False
+        return None
 
 
 run(Call(process))

@@ -323,8 +323,14 @@ Calls a Python function. This will stall any other MIDI processing until the fun
 </p>
 <ul>
   <li><b>function</b>: A function (or any other callable object) that will be called with a MidiEvent
-  object as its only argument. All of the event's data members may be modified.
-  The function should return True to continue processing the event, or False to discard it.</li>
+  object as its only argument.<br>
+  Possible return values are:
+  <ul>
+    <li>A single MidiEvent object: output one event and continue processing it.</li>
+    <li>A list of MidiEvent objects: output multiple events.</li>
+    <li>An empty list or None: discard current event.</li>
+  </ul>
+  </li>
 </ul>
 
 <h4>CallAsync(function)</h4>
