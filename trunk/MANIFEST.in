@@ -3,6 +3,7 @@ include README
 include COPYING
 include mididings/*.py
 include mididings/units/*.py
+include mididings/extra/*.py
 include src/SConstruct
 include src/*.hh
 include src/*.cc
