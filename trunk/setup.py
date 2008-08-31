@@ -25,7 +25,7 @@ setup(
     ext_modules = [
         Extension('_mididings',
             [
-                'src/backend_alsa.cc',
+                'src/backend_alsa.cc', 'src/backend_jack.cc',
                 'src/engine.cc', 'src/patch.cc', 'src/units.cc',
                 'src/python_caller.cc', 'src/python_module.cc'
             ],

@@ -33,7 +33,7 @@ env.ParseConfig(
 )
 
 env.SharedLibrary('_mididings', [
-        'backend_alsa.cc',
+        'backend_alsa.cc', 'backend_jack.cc',
         'engine.cc', 'patch.cc', 'units.cc',
         'python_caller.cc', 'python_module.cc'
     ],

@@ -52,6 +52,10 @@ class ringbuffer
         return jack_ringbuffer_read_space(_rb) / sizeof(T);
     }
 
+    void reset() {
+        jack_ringbuffer_reset(_rb);
+    }
+
   private:
     jack_ringbuffer_t * _rb;
 };

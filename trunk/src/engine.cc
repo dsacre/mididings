@@ -12,6 +12,7 @@
 #include "config.hh"
 #include "engine.hh"
 #include "backend_alsa.hh"
+#include "backend_jack.hh"
 #include "python_util.hh"
 #include "units.hh"
 
@@ -48,6 +49,9 @@ Engine::Engine(PyObject * self,
 
     if (backend_name == "alsa") {
         _backend.reset(new BackendAlsa(client_name, in_ports, out_ports));
+    }
+    else if (backend_name == "jack") {
+        _backend.reset(new BackendJack(client_name, in_ports, out_ports));
     }
 
     _num_out_ports = (int)out_ports.size();
@@ -106,9 +110,10 @@ void Engine::run()
 
     _backend->drop_input();
 
-
-    while (_backend->input_event(ev))
+    for (;;)
     {
+        _backend->input_event(ev);
+
 #ifdef ENABLE_BENCHMARK
         timeval tv1, tv2;
         gettimeofday(&tv1, NULL);

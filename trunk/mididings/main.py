@@ -14,6 +14,9 @@ import engine
 import event
 import misc
 
+import thread
+import time
+
 
 _config = {
     'backend':              'alsa',
@@ -42,7 +45,9 @@ def run(patch):
 def run_patches(patches, control=None, pre=None, post=None):
     e = engine.Engine(patches, control, pre, post)
     try:
-        e.run()
+        thread.start_new_thread(e.run, ())
+        while True:
+            time.sleep(3600)
     except KeyboardInterrupt:
         return
 

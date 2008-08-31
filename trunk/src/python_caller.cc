@@ -15,6 +15,8 @@
 
 #include <boost/bind.hpp>
 
+#include <boost/thread/mutex.hpp>
+
 #include <boost/python/object.hpp>
 #include <boost/python/ptr.hpp>
 #include <boost/python/extract.hpp>

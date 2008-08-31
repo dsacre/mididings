@@ -165,23 +165,20 @@ snd_seq_event_t BackendAlsa::midi_event_to_alsa(const MidiEvent & ev)
 }
 
 
-bool BackendAlsa::input_event(MidiEvent & ev)
+void BackendAlsa::input_event(MidiEvent & ev)
 {
     snd_seq_event_t *alsa_ev;
 
     for (;;) {
         snd_seq_event_input(_seq_handle, &alsa_ev);
 
-        if (!alsa_ev) {
-            // terminated by user?
-            return false;
-        }
+        if (alsa_ev) {
+            // convert event from alsa
+            ev = alsa_to_midi_event(*alsa_ev);
 
-        // convert event from alsa
-        ev = alsa_to_midi_event(*alsa_ev);
-
-        if (ev.type != MIDI_EVENT_NONE) {
-            return true;
+            if (ev.type != MIDI_EVENT_NONE) {
+                return;
+            }
         }
     }
 }
