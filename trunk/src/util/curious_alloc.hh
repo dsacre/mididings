@@ -45,6 +45,13 @@ class curious_alloc
 
     ~curious_alloc() { }
 
+    bool operator==(curious_alloc<T, N> const &) {
+        return true;
+    }
+    bool operator!=(curious_alloc<T, N> const &) {
+        return false;
+    }
+
     pointer address(reference x) const { return &x; }
     const_pointer address(const_reference x) const { return &x; }
 
