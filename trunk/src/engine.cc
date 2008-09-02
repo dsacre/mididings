@@ -16,6 +16,9 @@
 #include "python_util.hh"
 #include "units.hh"
 
+#include <boost/thread/thread.hpp>
+#include <boost/bind.hpp>
+
 #include <iostream>
 
 #ifdef ENABLE_BENCHMARK
@@ -50,8 +53,16 @@ Engine::Engine(PyObject * self,
     if (backend_name == "alsa") {
         _backend.reset(new BackendAlsa(client_name, in_ports, out_ports));
     }
+#ifdef ENABLE_JACK_MIDI
     else if (backend_name == "jack") {
-        _backend.reset(new BackendJack(client_name, in_ports, out_ports));
+        _backend.reset(new BackendJackBuffered(client_name, in_ports, out_ports));
+    }
+    else if (backend_name == "jack-rt") {
+        _backend.reset(new BackendJackRealtime(client_name, in_ports, out_ports));
+    }
+#endif
+    else {
+        throw std::runtime_error("invalid backend selected: " + backend_name);
     }
 
     _num_out_ports = (int)out_ports.size();
@@ -90,58 +101,72 @@ void Engine::set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr po
 }
 
 
+void Engine::start()
+{
+    boost::shared_ptr<BackendJackRealtime> b = boost::dynamic_pointer_cast<BackendJackRealtime>(_backend);
+
+    if (!b) {
+        boost::thread thrd(boost::bind(&Engine::run, this));
+    } else {
+        b->set_process_funcs(
+            boost::bind(&Engine::run_init, this),
+            boost::bind(&Engine::run_cycle, this)
+        );
+    }
+}
+
+
 void Engine::run()
 {
-    if (!_backend) {
-        return;
-    }
+    run_init();
+    run_cycle();
+}
 
-    // we'll stay in C++ land from now on, except for Call()
-    Py_BEGIN_ALLOW_THREADS
 
-    Events buffer;
-    MidiEvent ev;
+void Engine::run_init()
+{
+    _buffer.clear();
+    process_patch_switch(_buffer, 0);
 
-    buffer.clear();
-    process_patch_switch(buffer, 0);
-
-    _backend->output_events(buffer.begin(), buffer.end());
+    _backend->output_events(_buffer.begin(), _buffer.end());
     _backend->flush_output();
 
     _backend->drop_input();
+}
 
-    for (;;)
+
+void Engine::run_cycle()
+{
+    MidiEvent ev;
+
+    while (_backend->input_event(ev))
     {
-        _backend->input_event(ev);
-
 #ifdef ENABLE_BENCHMARK
         timeval tv1, tv2;
         gettimeofday(&tv1, NULL);
 #endif
 
-        buffer.clear();
+        _buffer.clear();
 
         // process the event
-        process(buffer, ev);
+        process(_buffer, ev);
 
         // handle patch switches
         if (_new_patch != -1) {
-            process_patch_switch(buffer, _new_patch);
+            process_patch_switch(_buffer, _new_patch);
             _new_patch = -1;
         }
 
-        _sanitize_patch->process(buffer, buffer);
+        _sanitize_patch->process(_buffer, _buffer);
 
 #ifdef ENABLE_BENCHMARK
         gettimeofday(&tv2, NULL);
         std::cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec) << std::endl;
 #endif
 
-        _backend->output_events(buffer.begin(), buffer.end());
+        _backend->output_events(_buffer.begin(), _buffer.end());
         _backend->flush_output();
     }
-
-    Py_END_ALLOW_THREADS
 }
 
 

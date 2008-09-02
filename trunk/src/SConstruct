@@ -13,6 +13,7 @@ env = Environment(
 #        'ENABLE_DEBUG_PRINT',
 #        'ENABLE_TEST',
 #        'ENABLE_BENCHMARK',
+        'ENABLE_JACK_MIDI',
     ],
     CPPPATH = ['.'],
     ENV = os.environ,

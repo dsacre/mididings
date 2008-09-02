@@ -12,6 +12,10 @@
 #ifndef _MIDI_EVENT_HH
 #define _MIDI_EVENT_HH
 
+#ifdef ENABLE_JACK_MIDI
+#include <jack/types.h>
+#endif
+
 
 enum MidiEventType
 {
@@ -61,6 +65,10 @@ struct MidiEvent
             int data2;
         };
     };
+
+#ifdef ENABLE_JACK_MIDI
+    jack_nframes_t frame;
+#endif
 };
 
 

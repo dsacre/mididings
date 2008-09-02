@@ -9,6 +9,8 @@
  * (at your option) any later version.
  */
 
+#ifdef ENABLE_JACK_MIDI
+
 #include "backend_jack.hh"
 #include "midi_event.hh"
 #include "config.hh"
@@ -24,8 +26,7 @@ BackendJack::BackendJack(std::string const & client_name,
                          std::vector<std::string> const & out_portnames)
   : _in_ports(in_portnames.size())
   , _out_ports(out_portnames.size())
-  , _in_rb(Config::MAX_JACK_EVENTS)
-  , _out_rb(Config::MAX_JACK_EVENTS)
+  , _frame(0)
 {
     ASSERT(!client_name.empty());
     ASSERT(!in_portnames.empty());
@@ -67,54 +68,9 @@ BackendJack::~BackendJack()
 int BackendJack::process_(jack_nframes_t nframes, void *arg)
 {
     BackendJack *this_ = static_cast<BackendJack*>(arg);
-    return this_->process(nframes);
-}
-
-
-int BackendJack::process(jack_nframes_t nframes)
-{
-    for (int n = 0; n < (int)_in_ports.size(); ++n)
-    {
-        void *port_buffer = jack_port_get_buffer(_in_ports[n], nframes);
-        int num_events = jack_midi_get_event_count(port_buffer);
-
-        for (int c = 0; c < num_events; c++) {
-            jack_midi_event_t jack_ev;
-            jack_midi_event_get(&jack_ev, port_buffer, c);
-
-            MidiEvent ev = jack_to_midi_event(jack_ev, n);
-
-            _in_rb.write(ev);
-        }
-
-        if (num_events) {
-            _cond.notify_one();
-        }
-    }
-
-    for (int n = 0; n < (int)_out_ports.size(); ++n)
-    {
-        void *port_buffer = jack_port_get_buffer(_out_ports[n], nframes);
-        jack_midi_clear_buffer(port_buffer);
-    }
-
-    while (_out_rb.read_space())
-    {
-        MidiEvent ev;
-        _out_rb.read(ev);
-
-        unsigned char data[3];
-        std::size_t len;
-        int port;
-        midi_event_to_jack(ev, data, len, port);
-
-        if (len) {
-            void *port_buffer = jack_port_get_buffer(_out_ports[port], nframes);
-            jack_midi_event_write(port_buffer, 0, data, len);
-        }
-    }
-
-    return 0;
+    int r = this_->process(nframes);
+    this_->_frame += nframes;
+    return r;
 }
 
 
@@ -204,7 +160,68 @@ void BackendJack::midi_event_to_jack(MidiEvent const & ev, unsigned char *data, 
 }
 
 
-void BackendJack::input_event(MidiEvent & ev)
+
+BackendJackBuffered::BackendJackBuffered(std::string const & client_name,
+                                         std::vector<std::string> const & in_portnames,
+                                         std::vector<std::string> const & out_portnames)
+  : BackendJack(client_name, in_portnames, out_portnames)
+  , _in_rb(Config::MAX_JACK_EVENTS)
+  , _out_rb(Config::MAX_JACK_EVENTS)
+{
+}
+
+
+int BackendJackBuffered::process(jack_nframes_t nframes)
+{
+    for (int n = 0; n < (int)_in_ports.size(); ++n)
+    {
+        void *port_buffer = jack_port_get_buffer(_in_ports[n], nframes);
+        int num_events = jack_midi_get_event_count(port_buffer);
+
+        for (int c = 0; c < num_events; c++) {
+            jack_midi_event_t jack_ev;
+            jack_midi_event_get(&jack_ev, port_buffer, c);
+
+            MidiEvent ev = jack_to_midi_event(jack_ev, n);
+            ev.frame = _frame + jack_ev.time;
+
+            _in_rb.write(ev);
+            _cond.notify_one();
+        }
+    }
+
+    for (int n = 0; n < (int)_out_ports.size(); ++n)
+    {
+        void *port_buffer = jack_port_get_buffer(_out_ports[n], nframes);
+        jack_midi_clear_buffer(port_buffer);
+    }
+
+    while (_out_rb.read_space())
+    {
+        MidiEvent ev;
+        _out_rb.read(ev);
+
+        unsigned char data[3];
+        std::size_t len;
+        int port;
+        midi_event_to_jack(ev, data, len, port);
+
+        if (len) {
+            void *port_buffer = jack_port_get_buffer(_out_ports[port], nframes);
+
+            jack_nframes_t f = 0;
+            if (ev.frame >= _frame - nframes) {
+                f = ev.frame - (_frame - nframes);
+            }
+            jack_midi_event_write(port_buffer, f, data, len);
+        }
+    }
+
+    return 0;
+}
+
+
+bool BackendJackBuffered::input_event(MidiEvent & ev)
 {
     while (!_in_rb.read_space()) {
         boost::mutex::scoped_lock lock(_mutex);
@@ -212,21 +229,104 @@ void BackendJack::input_event(MidiEvent & ev)
     }
 
     _in_rb.read(ev);
+
+    return true;
 }
 
 
-void BackendJack::output_event(MidiEvent const & ev)
+void BackendJackBuffered::output_event(MidiEvent const & ev)
 {
     _out_rb.write(ev);
 }
 
 
-void BackendJack::drop_input()
+void BackendJackBuffered::drop_input()
 {
     _in_rb.reset();
 }
 
 
-void BackendJack::flush_output()
+
+BackendJackRealtime::BackendJackRealtime(std::string const & client_name,
+                                         std::vector<std::string> const & in_portnames,
+                                         std::vector<std::string> const & out_portnames)
+  : BackendJack(client_name, in_portnames, out_portnames)
 {
 }
+
+
+void BackendJackRealtime::set_process_funcs(InitFunction init, CycleFunction cycle)
+{
+    _run_init = init;
+    _run_cycle = cycle;
+}
+
+
+int BackendJackRealtime::process(jack_nframes_t nframes)
+{
+    for (int n = 0; n < (int)_out_ports.size(); ++n) {
+        void *port_buffer = jack_port_get_buffer(_out_ports[n], nframes);
+        jack_midi_clear_buffer(port_buffer);
+    }
+
+    _nframes = nframes;
+    _input_port = 0;
+    _input_count = 0;
+
+    if (_run_init) {
+        _run_init();
+        _run_init.clear();
+    }
+
+    if (_run_cycle) {
+        _run_cycle();
+    }
+
+    return 0;
+}
+
+
+bool BackendJackRealtime::input_event(MidiEvent & ev)
+{
+    while (_input_port < (int)_in_ports.size())
+    {
+        void *port_buffer = jack_port_get_buffer(_in_ports[_input_port], _nframes);
+        int num_events = jack_midi_get_event_count(port_buffer);
+
+        if (_input_count < num_events) {
+            jack_midi_event_t jack_ev;
+            jack_midi_event_get(&jack_ev, port_buffer, _input_count);
+
+            ev = jack_to_midi_event(jack_ev, _input_port);
+            ev.frame = _frame + jack_ev.time;
+
+            if (++_input_count >= num_events) {
+                ++_input_port;
+                _input_count = 0;
+            }
+
+            return true;
+        }
+
+        ++_input_port;
+    }
+
+    return false;
+}
+
+
+void BackendJackRealtime::output_event(MidiEvent const & ev)
+{
+    unsigned char data[3];
+    std::size_t len;
+    int port;
+    midi_event_to_jack(ev, data, len, port);
+
+    if (len) {
+        void *port_buffer = jack_port_get_buffer(_out_ports[port], _nframes);
+        jack_midi_event_write(port_buffer, ev.frame - _frame, data, len);
+    }
+}
+
+
+#endif // ENABLE_JACK_MIDI

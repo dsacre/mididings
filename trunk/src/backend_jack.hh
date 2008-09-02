@@ -12,6 +12,8 @@
 #ifndef _BACKEND_JACK_HH
 #define _BACKEND_JACK_HH
 
+#ifdef ENABLE_JACK_MIDI
+
 #include "backend.hh"
 #include "midi_event.hh"
 
@@ -20,6 +22,8 @@
 
 #include <boost/thread/condition.hpp>
 #include <boost/thread/mutex.hpp>
+
+#include <boost/function.hpp>
 
 #include <jack/types.h>
 #include <jack/midiport.h>
@@ -36,15 +40,8 @@ class BackendJack
                 std::vector<std::string> const & out_portnames);
     virtual ~BackendJack();
 
-    virtual void input_event(MidiEvent & ev);
-    virtual void output_event(MidiEvent const & ev);
-    virtual void drop_input();
-    virtual void flush_output();
-
-  private:
-    int process(jack_nframes_t);
-
-    static int process_(jack_nframes_t, void *);
+  protected:
+    virtual int process(jack_nframes_t) = 0;
 
     MidiEvent jack_to_midi_event(jack_midi_event_t const & jack_ev, int port);
     void midi_event_to_jack(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port);
@@ -53,6 +50,29 @@ class BackendJack
     std::vector<jack_port_t *> _in_ports;
     std::vector<jack_port_t *> _out_ports;
 
+    jack_nframes_t _frame;
+
+  private:
+    static int process_(jack_nframes_t, void *);
+};
+
+
+
+class BackendJackBuffered
+  : public BackendJack
+{
+  public:
+    BackendJackBuffered(std::string const & client_name,
+                        std::vector<std::string> const & in_portnames,
+                        std::vector<std::string> const & out_portnames);
+
+    virtual bool input_event(MidiEvent & ev);
+    virtual void output_event(MidiEvent const & ev);
+    virtual void drop_input();
+
+  private:
+    virtual int process(jack_nframes_t);
+
     das::ringbuffer<MidiEvent> _in_rb;
     das::ringbuffer<MidiEvent> _out_rb;
 
@@ -60,5 +80,37 @@ class BackendJack
     boost::mutex _mutex;
 };
 
+
+
+class BackendJackRealtime
+  : public BackendJack
+{
+  public:
+    typedef boost::function<void ()> InitFunction;
+    typedef boost::function<void ()> CycleFunction;
+
+    BackendJackRealtime(std::string const & client_name,
+                        std::vector<std::string> const & in_portnames,
+                        std::vector<std::string> const & out_portnames);
+
+    void set_process_funcs(InitFunction init, CycleFunction cycle);
+
+    virtual bool input_event(MidiEvent & ev);
+    virtual void output_event(MidiEvent const & ev);
+
+  private:
+    virtual int process(jack_nframes_t);
+
+    InitFunction _run_init;
+    CycleFunction _run_cycle;
+
+    jack_nframes_t _nframes;
+
+    int _input_port;
+    int _input_count;
+};
+
+
+#endif // ENABLE_JACK_MIDI
 
 #endif // _BACKEND_JACK_HH

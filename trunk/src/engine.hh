@@ -64,7 +64,7 @@ class Engine
 
     int num_out_ports() const { return _num_out_ports; }
 
-    void run();
+    void start();
 
     void switch_patch(int n);
     bool sanitize_event(MidiEvent & ev) const;
@@ -94,6 +94,10 @@ class Engine
 #endif
 
   private:
+
+    void run();
+    void run_init();
+    void run_cycle();
 
     void process(Events & buffer, MidiEvent const & ev);
     void process_patch_switch(Events & buffer, int n);
@@ -129,6 +133,8 @@ class Engine
 
     NotePatchMap _noteon_patches;
     SustainPatchMap _sustain_patches;
+
+    Events _buffer;
 
     boost::mutex _process_mutex;
 

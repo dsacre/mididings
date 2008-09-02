@@ -30,7 +30,7 @@ class BackendAlsa
                 std::vector<std::string> const & out_ports);
     virtual ~BackendAlsa();
 
-    virtual void input_event(MidiEvent & ev);
+    virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
     virtual void drop_input();
     virtual void flush_output();

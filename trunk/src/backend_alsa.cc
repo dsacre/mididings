@@ -79,7 +79,7 @@ BackendAlsa::~BackendAlsa()
 }
 
 
-MidiEvent BackendAlsa::alsa_to_midi_event(const snd_seq_event_t & alsa_ev)
+MidiEvent BackendAlsa::alsa_to_midi_event(snd_seq_event_t const & alsa_ev)
 {
     MidiEvent ev;
 
@@ -126,7 +126,7 @@ MidiEvent BackendAlsa::alsa_to_midi_event(const snd_seq_event_t & alsa_ev)
 }
 
 
-snd_seq_event_t BackendAlsa::midi_event_to_alsa(const MidiEvent & ev)
+snd_seq_event_t BackendAlsa::midi_event_to_alsa(MidiEvent const & ev)
 {
     ASSERT(ev.type != MIDI_EVENT_NONE);
     ASSERT((uint)ev.port < _portid_out.size());
@@ -165,7 +165,7 @@ snd_seq_event_t BackendAlsa::midi_event_to_alsa(const MidiEvent & ev)
 }
 
 
-void BackendAlsa::input_event(MidiEvent & ev)
+bool BackendAlsa::input_event(MidiEvent & ev)
 {
     snd_seq_event_t *alsa_ev;
 
@@ -177,7 +177,7 @@ void BackendAlsa::input_event(MidiEvent & ev)
             ev = alsa_to_midi_event(*alsa_ev);
 
             if (ev.type != MIDI_EVENT_NONE) {
-                return;
+                return true;
             }
         }
     }

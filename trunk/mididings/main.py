@@ -14,7 +14,6 @@ import engine
 import event
 import misc
 
-import thread
 import time
 
 
@@ -45,7 +44,7 @@ def run(patch):
 def run_patches(patches, control=None, pre=None, post=None):
     e = engine.Engine(patches, control, pre, post)
     try:
-        thread.start_new_thread(e.run, ())
+        e.start()
         while True:
             time.sleep(3600)
     except KeyboardInterrupt:

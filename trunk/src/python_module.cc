@@ -82,7 +82,7 @@ BOOST_PYTHON_MODULE(_mididings)
                                                        bool>())
         .def("add_patch", &Engine::add_patch)
         .def("set_processing", &Engine::set_processing)
-        .def("run", &Engine::run)
+        .def("start", &Engine::start)
         .def("switch_patch", &Engine::switch_patch)
 #ifdef ENABLE_TEST
         .def("process", &Engine::process_test)

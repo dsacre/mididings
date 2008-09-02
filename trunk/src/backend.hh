@@ -31,10 +31,10 @@ class Backend
     {
     }
 
-    virtual void input_event(MidiEvent & ev) = 0;
+    virtual bool input_event(MidiEvent & ev) = 0;
     virtual void output_event(MidiEvent const & ev) = 0;
-    virtual void drop_input() = 0;
-    virtual void flush_output() = 0;
+    virtual void drop_input() { };
+    virtual void flush_output() { };
 
     template <typename IterT>
     void output_events(IterT begin, IterT end)
