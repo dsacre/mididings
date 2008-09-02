@@ -23,15 +23,30 @@ setup(
     description = '',
     license = "GPL",
     ext_modules = [
-        Extension('_mididings',
-            [
-                'src/backend_alsa.cc', 'src/backend_jack.cc',
-                'src/engine.cc', 'src/patch.cc', 'src/units.cc',
-                'src/python_caller.cc', 'src/python_module.cc'
+        Extension(
+            '_mididings', [
+                'src/backend_alsa.cc',
+                'src/backend_jack.cc',
+                'src/engine.cc',
+                'src/patch.cc',
+                'src/units.cc',
+                'src/python_caller.cc',
+                'src/python_module.cc',
             ],
-            include_dirs = ['src'],
-            libraries = ['asound', 'jack', 'boost_python-mt', 'boost_thread-mt']
+            include_dirs = [
+                'src',
+            ],
+            libraries = [
+                'asound',
+                'jack',
+                'boost_python-mt',
+                'boost_thread-mt',
+            ]
         ),
     ],
-    packages = ['mididings', 'mididings.units'],
+    packages = [
+        'mididings',
+        'mididings.units',
+        'mididings.extra',
+    ],
 )
