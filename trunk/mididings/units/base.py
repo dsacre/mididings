@@ -92,3 +92,8 @@ class Sanitize(_mididings.Sanitize, _Unit):
 class PatchSwitch(_mididings.PatchSwitch, _Unit):
     def __init__(self, num=_event.EVENT_PROGRAM):
         _mididings.PatchSwitch.__init__(self, num)
+
+
+class InitAction(_Unit):
+    def __init__(self, action):
+        self.action = action

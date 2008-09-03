@@ -13,8 +13,6 @@
 from mididings import *
 
 
-# suppress program change if the program is the same as the one previously selected on this port/channel
-
 class _Suppressor:
     def __init__(self):
         self.current = { }

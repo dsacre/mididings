@@ -67,7 +67,7 @@ class _Harmonizer:
             return False
 
 
-def Harmonize(tonic, scale, interval, non_harmonic='skip'):
+def Harmonize(tonic, scale, interval, non_harmonic='below'):
     t = _util.tonic_note_number(tonic)
 
     if _misc.issequence(scale):

@@ -10,8 +10,14 @@
 # (at your option) any later version.
 #
 
-from harmonizer import *
-from suppress_pc import *
-from pedal_noteoff import *
-from black_keys import *
-from output import *
+from mididings import *
+
+
+def Output(port, channel, program=None):
+    if program != None:
+        return Fork([
+            InitAction(ProgChange(port, channel, program)),
+            Port(port) >> Channel(channel),
+        ])
+    else:
+        return Port(port) >> Channel(channel)
