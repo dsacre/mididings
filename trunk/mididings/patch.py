@@ -44,7 +44,7 @@ class Patch(_mididings.Patch):
                 units.base.Filter(t) >> w for t, w in p.items()
             ])
 
-        elif isinstance(p, units.base.InitAction):
+        elif isinstance(p, units.init_action.InitAction):
             return Patch.Single(units.Discard())
 
         elif isinstance(p, _mididings.Unit):
@@ -67,7 +67,7 @@ def get_init_actions(patch):
     elif isinstance(patch, dict):
         r = [get_init_actions(p) for p in patch.values()]
 
-    elif isinstance(patch, units.base.InitAction):
+    elif isinstance(patch, units.init_action.InitAction):
         r = [patch.action]
 
     else:

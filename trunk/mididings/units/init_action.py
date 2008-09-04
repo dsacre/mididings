@@ -10,7 +10,15 @@
 # (at your option) any later version.
 #
 
-from mididings import *
+from base import *
+from base import _Unit
+from generators import *
+from modifiers import *
+
+
+class InitAction(_Unit):
+    def __init__(self, action):
+        self.action = action
 
 
 def Output(port, channel, program=None):
@@ -21,3 +29,4 @@ def Output(port, channel, program=None):
         ])
     else:
         return Port(port) >> Channel(channel)
+

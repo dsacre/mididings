@@ -17,6 +17,7 @@ from modifiers import *
 from generators import *
 from call import *
 from printing import *
+from init_action import *
 
 
 __all__ = [x for x in dir() if x[0].isupper()]
