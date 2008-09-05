@@ -12,8 +12,8 @@
 
 import _mididings
 
-from base import *
-from filters import *
+from .base import Fork
+from .filters import PortFilter, ChannelFilter, KeyFilter, VelocityFilter
 
 from .. import event as _event
 

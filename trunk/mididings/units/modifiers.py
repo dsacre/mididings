@@ -12,8 +12,7 @@
 
 import _mididings
 
-from base import *
-from base import _Unit
+from .base import _Unit
 
 from .. import util as _util
 

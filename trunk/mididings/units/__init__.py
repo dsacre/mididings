@@ -10,14 +10,14 @@
 # (at your option) any later version.
 #
 
-from base import *
-from filters import *
-from splits import *
-from modifiers import *
-from generators import *
-from call import *
-from printing import *
-from init_action import *
+from mididings.units.base import *
+from mididings.units.filters import *
+from mididings.units.splits import *
+from mididings.units.modifiers import *
+from mididings.units.generators import *
+from mididings.units.call import *
+from mididings.units.printing import *
+from mididings.units.init_action import *
 
 
 __all__ = [x for x in dir() if x[0].isupper()]

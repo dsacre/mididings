@@ -12,8 +12,7 @@
 
 import _mididings
 
-from call import *
-from call import _CallBase
+from .call import _CallBase
 
 from .. import main as _main
 from .. import event as _event

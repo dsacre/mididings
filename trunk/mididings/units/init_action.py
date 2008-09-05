@@ -10,10 +10,9 @@
 # (at your option) any later version.
 #
 
-from base import *
-from base import _Unit
-from generators import *
-from modifiers import *
+from .base import _Unit, Fork
+from .generators import ProgChange
+from .modifiers import Port, Channel
 
 
 class InitAction(_Unit):

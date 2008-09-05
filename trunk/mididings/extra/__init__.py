@@ -10,8 +10,7 @@
 # (at your option) any later version.
 #
 
-from harmonizer import *
-from suppress_pc import *
-from pedal_noteoff import *
-from black_keys import *
-from output import *
+from mididings.extra.harmonizer import *
+from mididings.extra.suppress_pc import *
+from mididings.extra.pedal_noteoff import *
+from mididings.extra.black_keys import *

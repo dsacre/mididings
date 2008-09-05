@@ -12,8 +12,7 @@
 
 import _mididings
 
-from base import *
-from base import _Filter
+from .base import _Filter
 
 from .. import util as _util
 from .. import misc as _misc
