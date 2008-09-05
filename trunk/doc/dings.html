@@ -47,6 +47,8 @@
     </ul>
   </li>
 
+  <li><a href="#extra">Additional Units</a></li>
+
   <li><a href="#examples">Examples</a></li>
 </ul>
 
@@ -71,6 +73,16 @@ Changes global mididings settings. This should be called only once, before const
 Possible keyword arguments are:
 </p>
 <ul>
+  <li><b>backend</b>: MIDI backend to be used:
+  <ul>
+    <li>'alsa': Use the ALSA sequencer (this is the default).</li>
+    <li>'jack': Use JACK MIDI. All MIDI events are buffered and processed outside the JACK process callback,
+    and will thus be delayed by (at least) one period.</li>
+    <li>'jack-rt': MIDI events are processed directly in the JACK process callback. It's not safe to run Python
+    code in a realtime context, so it's recommended to avoid Call(), which <i>might</i> cause xruns (or worse).
+    All other units should be safe to use.</li>
+  </ul>
+  </li>
   <li><b>client_name</b>: MIDI client name to be used.</li>
   <li><b>in_ports/out_ports</b>: Integers indicating the number of input/output ports to create (named in_<i>n</i>
   or out_<i>n</i>), or lists of port names, in which case the list's length determines the number of ports.</li>
@@ -80,6 +92,8 @@ Possible keyword arguments are:
   <li><b>start_delay</b>: The number of seconds before sending any MIDI events (i.e. switching to the first patch).
   A small value like 0.5 can be used to give tools like qjackctl's patchbay time to connect the ports.
   A value of 0 instructs mididings to wait for the user to press enter. Default is None.</li>
+  <li><b>remove_duplicates</b>: Whether, when two or more units connected in parallel yield identical MIDI events,
+  the duplicates should be discarded (default is True).</li>
 </ul>
 
 
@@ -99,7 +113,7 @@ Starts the actual MIDI processing, using multiple patches.
   <li><b>patches</b>: A dictionary with program numbers as keys, and patches as values.
   Values can also be tuple with two items, the first being an init-patch that's executed once every time the
   patch is selected, and the second being the actual patch that processes incoming events.</li>
-  <li><b>control</b>: The "control" patch, which is always active, and run in parallel to the current patch.</li>
+  <li><b>control</b>: The "control" patch, which is always active, and runs in parallel to the current patch.</li>
   <li><b>pre/post</b>: Allows processing to take place before/after every patch. Does not affect
   the control patch.</li>
 </ul>
@@ -171,9 +185,28 @@ Connects two or more units in parallel. All units will be called with identical 
 events. The output will be the sum of all the units' outputs.
 </p>
 
+<h4>Fork([ A, B, ... ], types=ANY, remove_duplicates=None)</h4>
+<p>
+Same as the above, with some additional features:
+</p>
+<ul>
+  <li><b>types</b>: Pass something other than ANY to process only certain types of events, and leave
+  other events unchanged.</li>
+  <li><b>remove_duplicates</b>: True or False overrides the global remove_duplicates setting (see config()).</li>
+</ul>
+<p>
+Using Fork() explicitly (instead of just a list) is also useful in situations where both sides of operator &gt;&gt;
+would otherwise be lists, which Python does not allow.
+</p>
+
 <h4>{ T1: A, T2: B, ... }</h4>
 <p>
 Splits by event type. Equivalent to [ Filter(T1) &gt;&gt; A, Filter(T2) &gt;&gt; B, ... ].
+</p>
+
+<h4>Split({ T1: A, T2: B, ... })</h4>
+<p>
+Same as the above. Like Fork(), this can be useful to make operator &gt;&gt; work.
 </p>
 
 
@@ -368,9 +401,23 @@ number should be a patch number, or one of the EVENT_* constants.
 Without parameters, the program number of the incoming event (should be a program change) will be used.
 </p>
 
+<h4>InitAction(init, proc=Discard())</h4>
+<p>
+Executes init when switching to the patch containing this unit (essentially adding it to the init-patch,
+see run_patches() for more information).<br>
+proc is inserted into the regular patch.
+</p>
+
+<h4>Output(port, channel, program=None)</h4>
+<p>
+Based on InitAction(), this sends a program change when the patch is selected,
+and routes all incoming events to the specified port/channel.
+</p>
+
 <h4>Print(name=None, types=ANY, portnames=Print.PORTNAMES_NONE)</h4>
 <p>
 Prints event data.
+</p>
 <ul>
   <li><b>name</b>: A string to be printed before each event.</li>
   <li><b>types</b>: Restricts printing to certain event types, using a combination of the event type constants described above.</li>
@@ -391,12 +438,64 @@ discarded, note velocity and controller values are confined to the range 0-127.
 
 
 
+<h2><a name="extra"></a>Additional Units</h2>
+
+<p>
+These units are defined in the mididings.extra module, and offer some more advanced/specific functionality,
+based on the more basic mididings units.<br>
+Some of this are implemented in Python using Call(), and thus not safe to use with the jack-rt backend.
+</p>
+
+
+<h4>Harmonize(tonic, scale, interval, non_harmonic='below')</h4>
+<p>
+A diatonic harmonizer.
+</p>
+<ul>
+  <li><b>tonic</b>: The tonic of the scale.</li>
+  <li><b>scale</b>: One of:<br>
+  'major', 'minor', 'minor_harmonic', 'ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'.</li>
+  <li><b>interval</b>: The number of steps to transpose the notes by, or one of these interval names:<br>
+  'unison', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'octave',
+  'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth'.<br>
+  It's also possible to pass a list of intervals, to create multiple harmonized voices.</li>
+  <li><b>non_harmonic</b>: What to do with out-of-scale notes:
+  <ul>
+    <li>'skip': Ignore note.</li>
+    <li>'same': Output note as is, without transposing it.</li>
+    <li>'below'/'above': Transpose by the same interval as the next on-scale note below/above.</li>
+  </ul>
+  </li>
+</ul>
+
+<h4>SuppressPC()</h4>
+<p>
+Filters out program changes if the same program had previously been selected on the same port/channel.
+</p>
+
+<h4>PedalToNoteoff(ctrl=64)</h4>
+<p>
+Converts sustain pedal CCs to note-off events (delaying note-offs until the pedal is released).
+</p>
+
+<h4>BlackKeys()<br>
+WhiteKeys()</h4>
+<p>
+Filters notes by key color.
+</p>
+
+
+
 <h2><a name="examples"></a>Examples</h2>
 
 <ul>
-  <li><a href="./example.py">example.py</a> - a very simple mididings setup</li>
-  <li><a href="./example_patches.py">example_patches.py</a> - a simple example setup, demonstrating patch switching</li>
-  <li><a href="./example_python.py">example_python.py</a> - shows how to process MIDI events in Python</li>
+  <li><a href="./examples/transpose.py">transpose.py</a> - probably the most simple example that actually does something useful ;)</li>
+  <li><a href="./examples/connections.py">connections.py</a> - how to connect units in series or in parallel, and how to split by event type or channel</li>
+  <li><a href="./examples/filters.py">filters.py</a> - how to use filters</li>
+  <li><a href="./examples/print.py">print.py</a> - printing MIDI events to stdout</li>
+  <li><a href="./examples/output.py">output.py</a> - uses the Output() unit to simplify MIDI routing and sending program changes</li>
+  <li><a href="./examples/call.py">call.py</a> - shows how to process MIDI events in Python</li>
+  <li><a href="./examples/harmonizer.py">harmonizer.py</a> - example usage of the diatonic harmonizer</li>
 </ul>
 
 
