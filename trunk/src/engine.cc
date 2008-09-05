@@ -61,7 +61,7 @@ Engine::Engine(PyObject * self,
         _backend.reset(new BackendJackRealtime(client_name, in_ports, out_ports));
     }
 #endif
-    else {
+    else if (backend_name != "dummy") {
         throw std::runtime_error("invalid backend selected: " + backend_name);
     }
 
