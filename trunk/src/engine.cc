@@ -265,9 +265,9 @@ void Engine::process_patch_switch(Events & buffer, int n)
             k->second->process(buffer, r);
 
             if (_post_patch) {
-                _post_patch->process(buffer, r);
+                _post_patch->process(buffer, buffer);
             }
-            _sanitize_patch->process(buffer, r);
+            _sanitize_patch->process(buffer, buffer);
         }
     }
 }
