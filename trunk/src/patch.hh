@@ -141,10 +141,10 @@ class Patch
 
     void process(Events &, EventRange &);
 
-    void process(Events & buf, EventRange const & r)
+    void process(Events & buf)
     {
-        EventRange q(r);
-        process(buf, q);
+        EventRange r(buf);
+        process(buf, r);
     }
 
 

@@ -157,7 +157,7 @@ void Engine::run_cycle()
             _new_patch = -1;
         }
 
-        _sanitize_patch->process(_buffer, _buffer);
+        _sanitize_patch->process(_buffer);
 
 #ifdef ENABLE_BENCHMARK
         gettimeofday(&tv2, NULL);
@@ -180,7 +180,7 @@ void Engine::process(Events & buffer, MidiEvent const & ev)
 
     if (_ctrl_patch) {
         buffer.insert(buffer.end(), ev);
-        _ctrl_patch->process(buffer, buffer);
+        _ctrl_patch->process(buffer);
     }
 
     EventIter it = buffer.insert(buffer.end(), ev);
@@ -265,9 +265,9 @@ void Engine::process_patch_switch(Events & buffer, int n)
             k->second->process(buffer, r);
 
             if (_post_patch) {
-                _post_patch->process(buffer, buffer);
+                _post_patch->process(buffer, r);
             }
-            _sanitize_patch->process(buffer, buffer);
+            _sanitize_patch->process(buffer, r);
         }
     }
 }

@@ -122,7 +122,7 @@ void Patch::Extended::process(Events & buf, EventRange & r)
         EventRange q = _unit->process(buf, it);
 
         if (r.empty() && !q.empty()) {
-            r = q;
+            r = EventRange(q.begin(), r.end());
         }
 
         it = q.end();

@@ -166,9 +166,9 @@ Patch::EventRange Call::process(Patch::Events & buf, Patch::EventIter it)
 {
     PythonCaller & c = TheEngine->python_caller();
 
-    if (!_async) {
-        return c.call_now(buf, it, _fun);
-    } else {
+    if (_async) {
         return c.call_deferred(buf, it, _fun, _cont);
+    } else {
+        return c.call_now(buf, it, _fun);
     }
 }
