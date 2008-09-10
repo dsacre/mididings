@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <sstream>
 
 #include "util/debug.hh"
 #include "util/string.hh"
@@ -53,7 +54,7 @@ void Patch::Fork::process(Events & buf, EventRange & r)
 
     for (MidiEvent * ev = in; ev != in + sizeof(in)/sizeof(*in); ++ev)
     {
-        EventRange q(r);
+        EventRange q(r.end(), r.end());
 
         for (ModuleVector::iterator m = _modules.begin(); m != _modules.end(); ++m)
         {
@@ -63,7 +64,7 @@ void Patch::Fork::process(Events & buf, EventRange & r)
             (*m)->process(buf, p);
 
             if (!p.empty() && q.empty()) {
-                // set start of p and q if they're still empty
+                // set start of r and q if they're still empty
                 if (r.empty()) {
                     r = p;
                 }
@@ -73,10 +74,11 @@ void Patch::Fork::process(Events & buf, EventRange & r)
             if (_remove_duplicates) {
                 // for all events in p, look for previous occurrences in q \ p
                 for (EventIter it = p.begin(); it != p.end(); ) {
-                    if (std::find(q.begin(), p.begin(), *it) == p.begin()) {
-                        ++it;
-                    } else {
+                    if (std::find(q.begin(), p.begin(), *it) != p.begin()) {
+                        DEBUG_PRINT("Removing duplicate");
                         it = buf.erase(it);
+                    } else {
+                        ++it;
                     }
                 }
             }
@@ -145,7 +147,12 @@ void Patch::process(Events & buf, EventRange & r)
 
 std::string Patch::debug_range(std::string const & str, Events & buf, EventRange const & r)
 {
-    return das::make_string() << str << ": "
-                              << std::distance(buf.begin(), r.begin()) << ", "
-                              << std::distance(r.begin(), r.end());
+    std::ostringstream os;
+    os << str << ": "
+       << std::distance(buf.begin(), r.begin()) << " "
+       << std::distance(r.begin(), r.end());
+    for (EventIter it = r.begin(); it != r.end(); ++it) {
+        os << " [" << it->type << " " << it->port << " " << it->channel << " " << it->data1 << " " << it->data2 << "]";
+    }
+    return os.str();
 }
