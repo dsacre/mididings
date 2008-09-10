@@ -107,33 +107,33 @@ class MidiEvent(_mididings.MidiEvent):
 class NoteonEvent(MidiEvent):
     def __init__(self, port, channel, note, velocity):
         MidiEvent.__init__(self, NOTEON,
-            port - _main._config['data_offset'],
-            channel - _main._config['data_offset'],
+            _util.port_number(port),
+            _util.channel_number(channel),
             note, velocity
         )
 
 class NoteoffEvent(MidiEvent):
     def __init__(self, port, channel, note, velocity=0):
         MidiEvent.__init__(self, NOTEOFF,
-            port - _main._config['data_offset'],
-            channel - _main._config['data_offset'],
+            _util.port_number(port),
+            _util.channel_number(channel),
             note, velocity
         )
 
 class ControlEvent(MidiEvent):
     def __init__(self, port, channel, param, value):
         MidiEvent.__init__(self, CTRL,
-            port - _main._config['data_offset'],
-            channel - _main._config['data_offset'],
+            _util.port_number(port),
+            _util.channel_number(channel),
             param, value
         )
 
 class ProgramEvent(MidiEvent):
     def __init__(self, port, channel, program):
         MidiEvent.__init__(self, PROGRAM,
-            port - _main._config['data_offset'],
-            channel - _main._config['data_offset'],
-            0, program - _main._config['data_offset']
+            _util.port_number(port),
+            _util.channel_number(channel),
+            0, _util.program_number(program)
         )
 
 
