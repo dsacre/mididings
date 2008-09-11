@@ -17,6 +17,7 @@ from .base import _Unit
 from .. import event as _event
 
 import thread as _thread
+import subprocess as _subprocess
 
 
 class _CallBase(_mididings.Call, _Unit):
@@ -48,3 +49,12 @@ class CallThread(_CallBase):
         # the underlying C++ object will become invalid when this function returns
         ev_copy = _event.MidiEvent(ev.type_, ev.port_, ev.channel_, ev.data1, ev.data2)
         _thread.start_new_thread(self.fun_thread, (ev_copy,))
+
+
+class System(CallAsync):
+    def __init__(self, cmd):
+        self.cmd = cmd
+        CallAsync.__init__(self, self.do_system)
+    def do_system(self, ev):
+        cmd = self.cmd(ev) if callable(self.cmd) else self.cmd
+        _subprocess.Popen(cmd, shell=True)
