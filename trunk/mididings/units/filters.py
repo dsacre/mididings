@@ -47,16 +47,16 @@ class VelocityFilter(_mididings.VelocityFilter, _Filter):
 
 class CtrlFilter(_mididings.CtrlFilter, _Filter):
     def __init__(self, *args):
-        v = _misc.make_int_vector(_misc.flatten(args))
+        v = _misc.make_int_vector(_util.ctrl_number(c) for c in _misc.flatten(args))
         _mididings.CtrlFilter.__init__(self, v)
 
 
 class CtrlValueFilter(_mididings.CtrlValueFilter, _Filter):
     def __init__(self, lower, upper=0):
-        _mididings.CtrlValueFilter.__init__(self, lower, upper)
+        _mididings.CtrlValueFilter.__init__(self, _util.ctrl_value(lower), _util.ctrl_value(upper))
 
 
 class ProgFilter(_mididings.ProgFilter, _Filter):
     def __init__(self, *args):
-        v = _misc.make_int_vector((_util.program_number(p) for p in _misc.flatten(args)))
+        v = _misc.make_int_vector(_util.program_number(p) for p in _misc.flatten(args))
         _mididings.ProgFilter.__init__(self, v)

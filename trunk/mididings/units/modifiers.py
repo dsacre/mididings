@@ -56,9 +56,16 @@ class VelocityCurve(_mididings.VelocityCurve, _Unit):
 
 class VelocityGradient(_mididings.VelocityGradient, _Unit):
     def __init__(self, note_lower, note_upper, value_lower, value_upper, mode=Velocity.OFFSET):
-        _mididings.VelocityGradient.__init__(self,
-            _util.note_number(note_lower), _util.note_number(note_upper),
-            value_lower, value_upper, mode)
+        if not note_lower < note_upper:
+            raise ValueError("note_lower must be less than note_upper")
+        _mididings.VelocityGradient.__init__(
+            self,
+            _util.note_number(note_lower),
+            _util.note_number(note_upper),
+            value_lower,
+            value_upper,
+            mode
+        )
 
 def VelocityGradientOffset(note_lower, note_upper, value_lower, value_upper):
     return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.OFFSET)
@@ -72,9 +79,20 @@ def VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper):
 
 class CtrlMap(_mididings.CtrlMap, _Unit):
     def __init__(self, ctrl_in, ctrl_out):
-        _mididings.CtrlMap.__init__(self, ctrl_in, ctrl_out)
+        _mididings.CtrlMap.__init__(
+            self,
+            _util.ctrl_number(ctrl_in),
+            _util.ctrl_number(ctrl_out)
+        )
 
 
 class CtrlRange(_mididings.CtrlRange, _Unit):
     def __init__(self, ctrl, out_min, out_max, in_min=0, in_max=127):
-        _mididings.CtrlRange.__init__(self, ctrl, out_min, out_max, in_min, in_max)
+        if not in_min < in_max:
+            raise ValueError("in_min must be less than in_max")
+        _mididings.CtrlRange.__init__(
+            self,
+            _util.ctrl_number(ctrl),
+            out_min, out_max,
+            in_min, in_max
+        )

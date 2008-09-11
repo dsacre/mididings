@@ -65,14 +65,18 @@ CONTROLLER_NAMES = {
 def note_number(note):
     try:
         # already a number?
-        return int(note)
+        r = int(note)
     except ValueError:
         note = note.lower()
         # find first digit
         for i in range(len(note)):
             if note[i].isdigit() or note[i] == '-':
                 break
-        return NOTE_NUMBERS[note[:i]] + (int(note[i:]) + _main._config['octave_offset']) * 12
+        r = NOTE_NUMBERS[note[:i]] + (int(note[i:]) + _main._config['octave_offset']) * 12
+
+    if r < 0 or r > 127:
+        raise ValueError("note number %d out of range" % r)
+    return r
 
 
 # convert note range to tuple of MIDI note numbers
@@ -121,12 +125,36 @@ def port_number(port):
         elif is_out:
             return out_ports.index(port)
         else:
-            raise ValueError('invalid port name: %s' % port)
+            raise ValueError("invalid port name '%s'" % port)
 
 
 def channel_number(channel):
-    return channel - _main._config['data_offset']
+    r = channel - _main._config['data_offset']
+    if r < 0 or r > 15:
+        raise ValueError("channel number %d out of range" % channel)
+    return r
 
 
 def program_number(program):
-    return program - _main._config['data_offset']
+    r = program - _main._config['data_offset']
+    if r < 0 or r > 127:
+        raise ValueError("program number %d out of range" % program)
+    return r
+
+
+def ctrl_number(ctrl):
+    if ctrl < 0 or ctrl > 127:
+        raise ValueError("controller number %d out of range" % ctrl)
+    return ctrl
+
+
+def ctrl_value(value):
+    if value < 0 or value > 127:
+        raise ValueError("controller number %d out of range" % value)
+    return value
+
+
+def velocity_value(velocity):
+    if velocity < 0 or velocity > 127:
+        raise ValueError("velocity %d out of range" % velocity)
+    return velocity

@@ -40,7 +40,7 @@ def KeySplit(*args):
             ~filt >> unit_upper
         ])
     else:
-        raise ArgumentError()
+        raise TypeError("KeySplit() must be called with either one or three arguments")
 
 
 def VelocitySplit(*args):
@@ -58,4 +58,4 @@ def VelocitySplit(*args):
             ~filt >> unit_upper
         ])
     else:
-        raise ArgumentError()
+        raise TypeError("VelocitySplit() must be called with either one or three arguments")
