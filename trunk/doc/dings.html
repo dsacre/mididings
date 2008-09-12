@@ -308,9 +308,10 @@ Transposes all note events.
 </p>
 
 <h4>Velocity(offset)<br>
+VelocityMultiply(mult)<br>
 VelocityFixed(value)</h4>
 <p>
-Changes velocity, either by adding an offset, or by setting it to a fixed value.
+Changes velocity by adding an offset, multiplying with a factor, or setting it to a fixed value.
 </p>
 
 <h4>VelocityCurve(gamma)</h4>
@@ -319,19 +320,23 @@ Applies a "gamma"-curve to all velocity values.
 </p>
 
 <h4>VelocityGradient(note_lower, note_upper, value_lower, value_upper)<br>
+VelocityGradientMultiply(note_lower, note_upper, value_lower, value_upper)<br>
 VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper)</h4>
 <p>
-Changes velocity, using a gradient from lower to upper.
+Changes velocity, using a gradient from lower to upper.<br>
+This can be used for example to fade-in a sound over a region of the keyboard.
 </p>
 
 <h4>CtrlMap(ctrl_in, ctrl_out)</h4>
 <p>
-Maps one controller to another.
+Maps one controller to another (i.e. changes the CC number).
 </p>
 
 <h4>CtrlRange(ctrl, out_min, out_max, in_min=0, in_max=127)</h4>
 <p>
-Maps controller range in to out.
+Maps controller range in to out.<br>
+An input value of in_min or less results in an output value of out_min.
+Likewise, an in value of in_max or greater results in an output value of out_max.
 </p>
 
 
@@ -379,6 +384,14 @@ Schedules a Python function for execution, and continues MIDI processing immedia
 <p>
 Like CallAsync(), but runs the function in its own thread.
 </p>
+
+<h4>System(cmd)</h4>
+<p>
+Runs an arbitrary shell command, without waiting for the command to complete.
+</p>
+<ul>
+  <li><b>cmd</b>: The command as a string, or a Python function taking a single MidiEvent parameter and returning a string.</li>
+</ul>
 
 
 <h3><a name="misc"></a>Miscellaneous</h3>
@@ -443,7 +456,7 @@ discarded, note velocity and controller values are confined to the range 0-127.
 <p>
 These units are defined in the mididings.extra module, and offer some more advanced/specific functionality,
 based on the more basic mididings units.<br>
-Some of this are implemented in Python using Call(), and thus not safe to use with the jack-rt backend.
+Some of these are implemented in Python using Call(), and thus not safe to use with the jack-rt backend.
 </p>
 
 
@@ -484,18 +497,38 @@ WhiteKeys()</h4>
 Filters notes by key color.
 </p>
 
+<h4>SendOSC(target, path, ...)</h4>
+<p>
+<i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i><br>
+Sends an OSC message. Parameters are the same as for liblo.send().
+Additionally, rather than a concrete value, each data argument can be a Python function instead.
+The function should take a single MidiEvent parameter, and return the value to be sent.
+</p>
+
+<h4>SendDBUS(service, path, interface, method, ...)</h4>
+<p>
+<i>Defined in mididings.extra.dbus. Requires dbus-python.</i><br>
+Sends a DBUS message. Rather than a concrete value, each data argument can be a Python function instead.
+The function should take a single MidiEvent parameter, and return the value to be sent.
+</p>
+
 
 
 <h2><a name="examples"></a>Examples</h2>
 
 <ul>
   <li><a href="./examples/transpose.py">transpose.py</a> - probably the most simple example that actually does something useful ;)</li>
-  <li><a href="./examples/connections.py">connections.py</a> - how to connect units in series or in parallel, and how to split by event type or channel</li>
+  <li><a href="./examples/connections.py">connections.py</a> - how to connect units in series or in parallel,
+  and how to split by event type or channel</li>
   <li><a href="./examples/filters.py">filters.py</a> - how to use filters</li>
   <li><a href="./examples/print.py">print.py</a> - printing MIDI events to stdout</li>
   <li><a href="./examples/output.py">output.py</a> - uses the Output() unit to simplify MIDI routing and sending program changes</li>
   <li><a href="./examples/call.py">call.py</a> - shows how to process MIDI events in Python</li>
   <li><a href="./examples/harmonizer.py">harmonizer.py</a> - example usage of the diatonic harmonizer</li>
+  <li><a href="./examples/aeolus.py">aeolus.py</a> - <a href="http://www.kokkinizita.net/linuxaudio/aeolus/index.html">Aeolus</a>
+  stop control using one controller per stop</li>
+  <li><a href="./examples/klick.py">klick.py</a> - uses SendOSC() to start/stop <a href="http://das.nasophon.de/klick/">klick</a>,
+  or change its tempo</li>
 </ul>
 
 
