@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# mididings
+#
+# Copyright (C) 2008  Dominic Sacré  <dominic.sacre@gmx.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+
+import sys
+import mididings
+
+if __name__ == '__main__':
+    if len(sys.argv) == 2 and sys.argv[1] not in ('-h', '--help'):
+        config = ''
+        patch = sys.argv[1]
+    elif len(sys.argv) == 3:
+        config = sys.argv[1]
+        patch = sys.argv[2]
+    else:
+        sys.exit("Usage: mididings [config] patch")
+
+    mididings.config(**eval('{%s}' % config, mididings.__dict__))
+    mididings.run(eval(patch, mididings.__dict__))
