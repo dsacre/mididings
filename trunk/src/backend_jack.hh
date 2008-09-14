@@ -41,7 +41,9 @@ class BackendJack
     virtual ~BackendJack();
 
   protected:
-    virtual int process(jack_nframes_t) = 0;
+    // FIXME: this should be pure virtual.
+    // it isn't, because the process thread is started within the c'tor
+    virtual int process(jack_nframes_t) { return 0; } //= 0;
 
     MidiEvent jack_to_midi_event(jack_midi_event_t const & jack_ev, int port);
     void midi_event_to_jack(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port);
