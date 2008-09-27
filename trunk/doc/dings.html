@@ -219,8 +219,8 @@ These are the basic building blocks from which you can build your patches.
 <ul>
   <li><b>Filters</b>: These units filter by some property of the MIDI event. If the event matches, it's passed
   unmodified, otherwise it's discarded.
-  Events of different types (e.g. a note event going through a CtrlFilter) are also discarded.<br>
-  Filters can be inverted by prepending operator ~.</li>
+  Filters have no effect on different event types (e.g. a note event going through a CtrlFilter).<br>
+  Any filter can be inverted by prepending operator ~.</li>
   <li><b>Splits</b>: Basically just combinations of multiple filters of the same kind.</li>
   <li><b>Modifiers</b>: These units change some property of the MIDI event.</li>
   <li><b>Generators</b>: Converters from one event type to another.</li>
@@ -349,7 +349,7 @@ ProgChange(port, channel, program)</h4>
 <p>
 Changes the type of the event.
 If port and channel are omitted, the values of the input event are used.<br>
-To "reuse" values from the incoming event, one of the EVENT_* constants can be used in place of any parameter.
+To "reuse" other values from the incoming event, one of the EVENT_* constants can be used in place of any parameter.
 </p>
 
 
