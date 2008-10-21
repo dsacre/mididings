@@ -414,11 +414,10 @@ number should be a patch number, or one of the EVENT_* constants.
 Without parameters, the program number of the incoming event (should be a program change) will be used.
 </p>
 
-<h4>InitAction(init, proc=Discard())</h4>
+<h4>InitAction(action)</h4>
 <p>
-Executes init when switching to the patch containing this unit (essentially adding it to the init-patch,
-see run_patches() for more information).<br>
-proc is inserted into the regular patch.
+Executes action when switching to the patch containing this unit (essentially adding it to the init-patch,
+see run_patches() for more information).
 </p>
 
 <h4>Output(port, channel, program=None)</h4>
