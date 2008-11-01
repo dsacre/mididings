@@ -14,7 +14,6 @@ import _mididings
 import main
 import patch
 import event
-import util
 import misc
 
 import time
@@ -63,10 +62,6 @@ class Engine(_mididings.Engine):
 
         gc.collect()
         gc.disable()
-
-    def start(self, first_patch):
-        # hmmm...
-        _mididings.Engine.start(self, util.program_number(first_patch))
 
     def make_portnames(self, ports, prefix):
         return ports if misc.issequence(ports) else \

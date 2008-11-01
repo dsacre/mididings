@@ -41,12 +41,10 @@ def run(patch):
     run_patches({ _config['data_offset']: patch }, None, None, None)
 
 
-def run_patches(patches, control=None, pre=None, post=None, first_patch=-1):
-    if first_patch == -1:
-        first_patch = _config['data_offset']
+def run_patches(patches, control=None, pre=None, post=None):
     e = engine.Engine(patches, control, pre, post)
     try:
-        e.start(first_patch)
+        e.start()
         while True:
             time.sleep(3600)
     except KeyboardInterrupt:
