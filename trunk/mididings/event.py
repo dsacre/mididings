@@ -15,15 +15,16 @@ import main as _main
 import util as _util
 
 
-NONE      = 0
-NOTEON    = 1 << 0
-NOTEOFF   = 1 << 1
-NOTE      = NOTEON | NOTEOFF
-CTRL      = 1 << 2
-PITCHBEND = 1 << 3
-PROGRAM   = 1 << 4
-DUMMY     = 1 << 5
-ANY       = ~0
+NONE        = 0
+NOTEON      = 1 << 0
+NOTEOFF     = 1 << 1
+NOTE        = NOTEON | NOTEOFF
+CTRL        = 1 << 2
+PITCHBEND   = 1 << 3
+AFTERTOUCH  = 1 << 4
+PROGRAM     = 1 << 5
+DUMMY       = 1 << 6
+ANY         = ~0
 
 
 EVENT_PORT      = -1
@@ -85,6 +86,8 @@ class MidiEvent(_mididings.MidiEvent):
             if n: s += '  (%s)' % n
         elif self.type_ == PITCHBEND:
             s = 'Pitch bend: %+5d' % self.value
+        elif self.type_ == AFTERTOUCH:
+            s = 'Aftertouch:   %3d' % self.value
         elif self.type_ == PROGRAM:
             s = 'Program:      %3d' % self.program
         elif self.type_ == DUMMY:
@@ -100,7 +103,7 @@ class MidiEvent(_mididings.MidiEvent):
     note      = property(*_make_get_set(NOTE, 'data1'))
     velocity  = property(*_make_get_set(NOTE, 'data2'))
     param     = property(*_make_get_set(CTRL, 'data1'))
-    value     = property(*_make_get_set(CTRL | PITCHBEND, 'data2'))
+    value     = property(*_make_get_set(CTRL | PITCHBEND | AFTERTOUCH, 'data2'))
     program   = property(*_make_get_set(PROGRAM, 'data2', lambda: _main._config['data_offset']))
 
 

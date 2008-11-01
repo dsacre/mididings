@@ -116,6 +116,12 @@ MidiEvent BackendAlsa::alsa_to_midi_event(snd_seq_event_t const & alsa_ev)
         ev.ctrl.param = 0;
         ev.ctrl.value = alsa_ev.data.control.value;
         break;
+      case SND_SEQ_EVENT_CHANPRESS:
+        ev.type = MIDI_EVENT_AFTERTOUCH;
+        ev.channel = alsa_ev.data.control.channel;
+        ev.ctrl.param = 0;
+        ev.ctrl.value = alsa_ev.data.control.value;
+        break;
       default:
 //        DEBUG_PRINT("event type " << (int)alsa_ev.type << " isn't handled");
         ev.type = MIDI_EVENT_NONE;
@@ -155,6 +161,9 @@ snd_seq_event_t BackendAlsa::midi_event_to_alsa(MidiEvent const & ev)
         break;
       case MIDI_EVENT_PROGRAM:
         snd_seq_ev_set_pgmchange(&alsa_ev, ev.channel, ev.ctrl.value);
+        break;
+      case MIDI_EVENT_AFTERTOUCH:
+        snd_seq_ev_set_chanpress(&alsa_ev, ev.channel, ev.ctrl.value);
         break;
       default:
 //        DEBUG_PRINT("unhandled event");

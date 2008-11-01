@@ -25,8 +25,9 @@ enum MidiEventType
     MIDI_EVENT_NOTE       = MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF,
     MIDI_EVENT_CTRL       = 1 << 2,
     MIDI_EVENT_PITCHBEND  = 1 << 3,
-    MIDI_EVENT_PROGRAM    = 1 << 4,
-    MIDI_EVENT_DUMMY      = 1 << 5,
+    MIDI_EVENT_AFTERTOUCH = 1 << 4,
+    MIDI_EVENT_PROGRAM    = 1 << 5,
+    MIDI_EVENT_DUMMY      = 1 << 6,
     MIDI_EVENT_ANY        = ~0,
 };
 
