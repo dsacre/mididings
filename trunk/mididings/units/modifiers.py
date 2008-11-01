@@ -56,16 +56,11 @@ class VelocityCurve(_mididings.VelocityCurve, _Unit):
 
 class VelocityGradient(_mididings.VelocityGradient, _Unit):
     def __init__(self, note_lower, note_upper, value_lower, value_upper, mode=Velocity.OFFSET):
+        note_lower = _util.note_number(note_lower)
+        note_upper = _util.note_number(note_upper)
         if not note_lower < note_upper:
             raise ValueError("note_lower must be less than note_upper")
-        _mididings.VelocityGradient.__init__(
-            self,
-            _util.note_number(note_lower),
-            _util.note_number(note_upper),
-            value_lower,
-            value_upper,
-            mode
-        )
+        _mididings.VelocityGradient.__init__(self, note_lower, note_upper, value_lower, value_upper, mode)
 
 def VelocityGradientOffset(note_lower, note_upper, value_lower, value_upper):
     return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.OFFSET)
