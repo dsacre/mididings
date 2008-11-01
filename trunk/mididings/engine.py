@@ -14,6 +14,7 @@ import _mididings
 import main
 import patch
 import event
+import util
 import misc
 
 import time
@@ -51,6 +52,8 @@ class Engine(_mididings.Engine):
         post_patch = patch.Patch(post) if post else None
         self.set_processing(ctrl, pre_patch, post_patch)
 
+        self.patch_switch_callback = None
+
         # delay before actually sending any midi data (give qjackctl patchbay time to react...)
         if main._config['start_delay'] != None:
             if main._config['start_delay'] > 0:
@@ -63,12 +66,21 @@ class Engine(_mididings.Engine):
         gc.collect()
         gc.disable()
 
+    def start(self, first_patch, patch_switch_callback):
+        # hmmm...
+        self.patch_switch_callback = patch_switch_callback
+        _mididings.Engine.start(self, util.program_number(first_patch))
+
     def make_portnames(self, ports, prefix):
         return ports if misc.issequence(ports) else \
                [ prefix + str(n + main._config['data_offset']) for n in range(ports) ]
 
-    def print_switch_patch(self, n, found):
+    def patch_switch_handler(self, n, found):
+        n += main._config['data_offset']
+
         if main._config['verbose']:
-            n += main._config['data_offset']
             if found: print "switching to patch: %d" % n
             else: print "no such patch: %d" % n
+
+        if found and self.patch_switch_callback:
+            self.patch_switch_callback(n)

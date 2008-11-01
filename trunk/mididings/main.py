@@ -41,10 +41,12 @@ def run(patch):
     run_patches({ _config['data_offset']: patch }, None, None, None)
 
 
-def run_patches(patches, control=None, pre=None, post=None):
+def run_patches(patches, control=None, pre=None, post=None, first_patch=-1, patch_switch_callback=None):
+    if first_patch == -1:
+        first_patch = _config['data_offset']
     e = engine.Engine(patches, control, pre, post)
     try:
-        e.start()
+        e.start(first_patch, patch_switch_callback)
         while True:
             time.sleep(3600)
     except KeyboardInterrupt:
@@ -70,5 +72,9 @@ def switch_patch(n):
     TheEngine.switch_patch(n - _config['data_offset'])
 
 
+def current_patch():
+    return TheEngine.current_patch() + _config['data_offset']
 
-__all__ = ['config', 'run', 'run_patches', 'switch_patch']
+
+
+__all__ = ['config', 'run', 'run_patches', 'switch_patch', 'current_patch']

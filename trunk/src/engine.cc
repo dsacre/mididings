@@ -43,6 +43,7 @@ Engine::Engine(PyObject * self,
   : _self(self)
   , _verbose(verbose)
   , _current(NULL)
+  , _current_num(-1)
   , _new_patch(-1)
   , _noteon_patches(Config::MAX_SIMULTANEOUS_NOTES)
   , _sustain_patches(Config::MAX_SUSTAIN_PEDALS)
@@ -101,32 +102,32 @@ void Engine::set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr po
 }
 
 
-void Engine::start()
+void Engine::start(int first_patch)
 {
     boost::shared_ptr<BackendJackRealtime> b = boost::dynamic_pointer_cast<BackendJackRealtime>(_backend);
 
     if (!b) {
-        boost::thread thrd(boost::bind(&Engine::run, this));
+        boost::thread thrd(boost::bind(&Engine::run, this, first_patch));
     } else {
         b->set_process_funcs(
-            boost::bind(&Engine::run_init, this),
+            boost::bind(&Engine::run_init, this, first_patch),
             boost::bind(&Engine::run_cycle, this)
         );
     }
 }
 
 
-void Engine::run()
+void Engine::run(int first_patch)
 {
-    run_init();
+    run_init(first_patch);
     run_cycle();
 }
 
 
-void Engine::run_init()
+void Engine::run_init(int first_patch)
 {
     _buffer.clear();
-    process_patch_switch(_buffer, 0);
+    process_patch_switch(_buffer, first_patch);
 
     _backend->output_events(_buffer.begin(), _buffer.end());
     _backend->flush_output();
@@ -248,11 +249,12 @@ void Engine::process_patch_switch(Events & buffer, int n)
 
     if (_patches.size() > 1) {
         scoped_gil_lock gil;
-        boost::python::call_method<void>(_self, "print_switch_patch", n, i != _patches.end());
+        boost::python::call_method<void>(_self, "patch_switch_handler", n, i != _patches.end());
     }
 
     if (i != _patches.end()) {
         _current = &*i->second;
+        _current_num = n;
 
         PatchMap::iterator k = _init_patches.find(n);
 

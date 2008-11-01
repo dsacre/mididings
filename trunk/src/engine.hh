@@ -64,10 +64,12 @@ class Engine
 
     int num_out_ports() const { return _num_out_ports; }
 
-    void start();
+    void start(int first_patch);
 
     void switch_patch(int n);
     bool sanitize_event(MidiEvent & ev) const;
+
+    int current_patch() const { return _current_num; }
 
     PythonCaller & python_caller() const { return *_python_caller; }
 
@@ -95,8 +97,8 @@ class Engine
 
   private:
 
-    void run();
-    void run_init();
+    void run(int first_patch);
+    void run_init(int first_patch);
     void run_cycle();
 
     void process(Events & buffer, MidiEvent const & ev);
@@ -128,6 +130,7 @@ class Engine
     PatchPtr _sanitize_patch;
 
     Patch * _current;
+    int _current_num;
 
     int _new_patch;
 
