@@ -18,6 +18,8 @@
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
 
 #include <iostream>
 
@@ -107,20 +109,16 @@ void Engine::start(int first_patch)
     boost::shared_ptr<BackendJackRealtime> b = boost::dynamic_pointer_cast<BackendJackRealtime>(_backend);
 
     if (!b) {
-        boost::thread thrd(boost::bind(&Engine::run, this, first_patch));
+        boost::thread((
+            boost::lambda::bind(&Engine::run_init, this, first_patch),
+            boost::lambda::bind(&Engine::run_cycle, this)
+        ));
     } else {
         b->set_process_funcs(
             boost::bind(&Engine::run_init, this, first_patch),
             boost::bind(&Engine::run_cycle, this)
         );
     }
-}
-
-
-void Engine::run(int first_patch)
-{
-    run_init(first_patch);
-    run_cycle();
 }
 
 

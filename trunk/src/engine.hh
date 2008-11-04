@@ -97,7 +97,6 @@ class Engine
 
   private:
 
-    void run(int first_patch);
     void run_init(int first_patch);
     void run_cycle();
 
