@@ -43,28 +43,10 @@ class PythonCaller
   private:
 
     template <typename IterT>
-    inline EventRange replace_event(Events & buf, EventIter it, IterT begin, IterT end)
-    {
-        it = buf.erase(it);
+    inline EventRange replace_event(Events & buf, EventIter it, IterT begin, IterT end);
 
-        EventIter first = buf.insert(it, *begin);
-        buf.insert(it, ++begin, end);
-
-        return EventRange(first, it);
-    }
-
-    inline EventRange keep_event(Events & /*buf*/, EventIter it)
-    {
-        EventRange r(it, it);
-        r.advance_end(1);
-        return r;
-    }
-
-    inline EventRange delete_event(Events & buf, EventIter it)
-    {
-        it = buf.erase(it);
-        return EventRange(it, it);
-    }
+    inline EventRange keep_event(Events & buf, EventIter it);
+    inline EventRange delete_event(Events & buf, EventIter it);
 
 
     void async_thread();

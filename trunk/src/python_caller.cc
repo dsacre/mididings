@@ -23,6 +23,8 @@
 #include <boost/python/list.hpp>
 #include <boost/python/stl_iterator.hpp>
 
+#include <iostream>
+
 #include "util/debug.hh"
 
 namespace bp = boost::python;
@@ -55,6 +57,7 @@ PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::
     scoped_gil_lock gil;
 
     try {
+        // call the python function
         bp::object ret = fun(*it);
 
         if (ret.ptr() == Py_None) {
@@ -77,7 +80,9 @@ PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::
         bp::extract<bool> b(ret);
 
         if (b.check()) {
-            // returned single event
+            // returned bool
+            std::cout << "returning bool from Call() is deprecated" << std::endl;
+
             if (b) {
                 return keep_event(buf, it);
             } else {
@@ -85,6 +90,7 @@ PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::
             }
         }
 
+        // returned single event
         *it = bp::extract<MidiEvent>(ret);
         return keep_event(buf, it);
     }
@@ -99,6 +105,7 @@ PythonCaller::EventRange PythonCaller::call_deferred(Events & buf, EventIter it,
 {
     AsyncCallInfo c = { &fun, *it };
 
+    // queue function/event, notify async thread
     VERIFY(_rb->write(c));
     _cond.notify_one();
 
@@ -110,11 +117,37 @@ PythonCaller::EventRange PythonCaller::call_deferred(Events & buf, EventIter it,
 }
 
 
+template <typename IterT>
+inline PythonCaller::EventRange PythonCaller::replace_event(Events & buf, EventIter it, IterT begin, IterT end)
+{
+    it = buf.erase(it);
+
+    EventIter first = buf.insert(it, *begin);
+    buf.insert(it, ++begin, end);
+
+    return EventRange(first, it);
+}
+
+inline PythonCaller::EventRange PythonCaller::keep_event(Events & /*buf*/, EventIter it)
+{
+    EventRange r(it, it);
+    r.advance_end(1);
+    return r;
+}
+
+inline PythonCaller::EventRange PythonCaller::delete_event(Events & buf, EventIter it)
+{
+    it = buf.erase(it);
+    return EventRange(it, it);
+}
+
+
 void PythonCaller::async_thread()
 {
     boost::mutex mutex;
 
-    for (;;) {
+    for (;;)
+    {
         if (_quit) {
             return;
         }
