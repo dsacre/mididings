@@ -34,6 +34,7 @@ PythonCaller::PythonCaller()
   : _rb(new das::ringbuffer<AsyncCallInfo>(Config::MAX_ASYNC_CALLS))
   , _quit(false)
 {
+    // start async thread
     _thrd.reset(new boost::thread(boost::bind(&PythonCaller::async_thread, this)));
 }
 
@@ -148,6 +149,7 @@ void PythonCaller::async_thread()
 
     for (;;)
     {
+        // check for program termination
         if (_quit) {
             return;
         }
@@ -155,10 +157,12 @@ void PythonCaller::async_thread()
         if (_rb->read_space()) {
             scoped_gil_lock gil;
 
+            // read event from ringbuffer
             AsyncCallInfo c;
             _rb->read(c);
 
             try {
+                // call python function
                 (*c.fun)(bp::ptr(&c.ev));
             }
             catch (bp::error_already_set &) {
@@ -166,6 +170,7 @@ void PythonCaller::async_thread()
             }
         }
         else {
+            // wait until woken up again
             boost::mutex::scoped_lock lock(mutex);
             _cond.wait(lock);
         }

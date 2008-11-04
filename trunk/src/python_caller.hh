@@ -37,20 +37,23 @@ class PythonCaller
     PythonCaller();
     ~PythonCaller();
 
+    // calls python function immediately
     EventRange call_now(Events & buf, EventIter it, boost::python::object const & fun);
+    // queues python function to be called asynchronously
     EventRange call_deferred(Events & buf, EventIter it, boost::python::object const & fun, bool keep);
 
   private:
 
+    // replaces event with one or more events, returns the range containing the new events
     template <typename IterT>
     inline EventRange replace_event(Events & buf, EventIter it, IterT begin, IterT end);
-
+    // leaves event unchanged, returns a range containing the single event
     inline EventRange keep_event(Events & buf, EventIter it);
+    // removes event, returns empty range
     inline EventRange delete_event(Events & buf, EventIter it);
 
 
     void async_thread();
-
 
     struct AsyncCallInfo {
         boost::python::object const * fun;
