@@ -104,6 +104,11 @@ MidiEvent BackendJack::jack_to_midi_event(jack_midi_event_t const & jack_ev, int
         ev.ctrl.param = 0;
         ev.ctrl.value = (data[2] << 7 | data[1]) - 8192;
         break;
+      case 0xd0:
+        ev.type = MIDI_EVENT_AFTERTOUCH;
+        ev.ctrl.param = 0;
+        ev.ctrl.value = data[1];
+        break;
       case 0xc0:
         ev.type = MIDI_EVENT_PROGRAM;
         ev.ctrl.param = 0;
@@ -144,6 +149,11 @@ void BackendJack::midi_event_to_jack(MidiEvent const & ev, unsigned char *data, 
         data[0] = 0xe0;
         data[1] = (ev.ctrl.value + 8192) % 128;
         data[2] = (ev.ctrl.value + 8192) / 128;
+        break;
+      case MIDI_EVENT_AFTERTOUCH:
+        len = 2;
+        data[0] = 0xd0;
+        data[1] = ev.ctrl.value;
         break;
       case MIDI_EVENT_PROGRAM:
         len = 2;
