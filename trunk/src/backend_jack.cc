@@ -18,6 +18,9 @@
 #include <jack/jack.h>
 #include <jack/midiport.h>
 
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+
 #include "util/debug.hh"
 
 
@@ -38,14 +41,14 @@ BackendJack::BackendJack(std::string const & client_name,
 
     jack_set_process_callback(_client, &process_, static_cast<void*>(this));
 
-    for (int n = 0; n < (int)in_portnames.size(); n++) {
+    for (int n = 0; n < static_cast<int>(in_portnames.size()); n++) {
         _in_ports[n] = jack_port_register(_client, in_portnames[n].c_str(), JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
         if (_in_ports[n] == NULL) {
             throw BackendError("error creating input port");
         }
     }
 
-    for (int n = 0; n < (int)out_portnames.size(); n++) {
+    for (int n = 0; n < static_cast<int>(out_portnames.size()); n++) {
         _out_ports[n] = jack_port_register(_client, out_portnames[n].c_str(), JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
         if (_out_ports[n] == NULL) {
             throw BackendError("error creating output port");
@@ -177,13 +180,29 @@ BackendJackBuffered::BackendJackBuffered(std::string const & client_name,
   : BackendJack(client_name, in_portnames, out_portnames)
   , _in_rb(Config::MAX_JACK_EVENTS)
   , _out_rb(Config::MAX_JACK_EVENTS)
+  , _quit(false)
 {
+}
+
+
+BackendJackBuffered::~BackendJackBuffered()
+{
+    _quit = true;
+    _cond.notify_one();
+}
+
+
+void BackendJackBuffered::start(InitFunction init, CycleFunction cycle)
+{
+    _thrd.reset(new boost::thread((
+        boost::lambda::bind(init), boost::lambda::bind(cycle)
+    )));
 }
 
 
 int BackendJackBuffered::process(jack_nframes_t nframes)
 {
-    for (int n = 0; n < (int)_in_ports.size(); ++n)
+    for (int n = 0; n < static_cast<int>(_in_ports.size()); ++n)
     {
         void *port_buffer = jack_port_get_buffer(_in_ports[n], nframes);
         int num_events = jack_midi_get_event_count(port_buffer);
@@ -200,7 +219,7 @@ int BackendJackBuffered::process(jack_nframes_t nframes)
         }
     }
 
-    for (int n = 0; n < (int)_out_ports.size(); ++n)
+    for (int n = 0; n < static_cast<int>(_out_ports.size()); ++n)
     {
         void *port_buffer = jack_port_get_buffer(_out_ports[n], nframes);
         jack_midi_clear_buffer(port_buffer);
@@ -236,6 +255,11 @@ bool BackendJackBuffered::input_event(MidiEvent & ev)
     while (!_in_rb.read_space()) {
         boost::mutex::scoped_lock lock(_mutex);
         _cond.wait(lock);
+
+        // check for program termination
+        if (_quit) {
+            return false;
+        }
     }
 
     _in_rb.read(ev);
@@ -265,7 +289,12 @@ BackendJackRealtime::BackendJackRealtime(std::string const & client_name,
 }
 
 
-void BackendJackRealtime::set_process_funcs(InitFunction init, CycleFunction cycle)
+BackendJackRealtime::~BackendJackRealtime()
+{
+}
+
+
+void BackendJackRealtime::start(InitFunction init, CycleFunction cycle)
 {
     _run_init = init;
     _run_cycle = cycle;
@@ -274,7 +303,7 @@ void BackendJackRealtime::set_process_funcs(InitFunction init, CycleFunction cyc
 
 int BackendJackRealtime::process(jack_nframes_t nframes)
 {
-    for (int n = 0; n < (int)_out_ports.size(); ++n) {
+    for (int n = 0; n < static_cast<int>(_out_ports.size()); ++n) {
         void *port_buffer = jack_port_get_buffer(_out_ports[n], nframes);
         jack_midi_clear_buffer(port_buffer);
     }
@@ -298,7 +327,7 @@ int BackendJackRealtime::process(jack_nframes_t nframes)
 
 bool BackendJackRealtime::input_event(MidiEvent & ev)
 {
-    while (_input_port < (int)_in_ports.size())
+    while (_input_port < static_cast<int>(_in_ports.size()))
     {
         void *port_buffer = jack_port_get_buffer(_in_ports[_input_port], _nframes);
         int num_events = jack_midi_get_event_count(port_buffer);

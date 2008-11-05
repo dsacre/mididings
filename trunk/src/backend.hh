@@ -14,6 +14,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
 #include "midi_event.hh"
@@ -23,13 +24,13 @@ class Backend
   : boost::noncopyable
 {
   public:
-    Backend()
-    {
-    }
+    typedef boost::function<void ()> InitFunction;
+    typedef boost::function<void ()> CycleFunction;
 
-    virtual ~Backend()
-    {
-    }
+    Backend() { }
+    virtual ~Backend() { }
+
+    virtual void start(InitFunction init, CycleFunction cycle) = 0;
 
     virtual bool input_event(MidiEvent & ev) = 0;
     virtual void output_event(MidiEvent const & ev) = 0;

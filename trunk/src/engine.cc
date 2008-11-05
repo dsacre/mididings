@@ -18,8 +18,6 @@
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 
 #include <iostream>
 
@@ -79,6 +77,9 @@ Engine::Engine(PyObject * self,
 Engine::~Engine()
 {
     DEBUG_FN();
+
+    // needs to be gone before the engine can be destroyed
+    _backend.reset();
 }
 
 
@@ -106,19 +107,10 @@ void Engine::set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr po
 
 void Engine::start(int first_patch)
 {
-    boost::shared_ptr<BackendJackRealtime> b = boost::dynamic_pointer_cast<BackendJackRealtime>(_backend);
-
-    if (!b) {
-        boost::thread((
-            boost::lambda::bind(&Engine::run_init, this, first_patch),
-            boost::lambda::bind(&Engine::run_cycle, this)
-        ));
-    } else {
-        b->set_process_funcs(
-            boost::bind(&Engine::run_init, this, first_patch),
-            boost::bind(&Engine::run_cycle, this)
-        );
-    }
+    _backend->start(
+        boost::bind(&Engine::run_init, this, first_patch),
+        boost::bind(&Engine::run_cycle, this)
+    );
 }
 
 

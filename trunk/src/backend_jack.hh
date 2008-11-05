@@ -19,11 +19,11 @@
 
 #include <string>
 #include <vector>
+#include <boost/scoped_ptr.hpp>
 
+#include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/mutex.hpp>
-
-#include <boost/function.hpp>
 
 #include <jack/types.h>
 #include <jack/midiport.h>
@@ -67,6 +67,9 @@ class BackendJackBuffered
     BackendJackBuffered(std::string const & client_name,
                         std::vector<std::string> const & in_portnames,
                         std::vector<std::string> const & out_portnames);
+    virtual ~BackendJackBuffered();
+
+    virtual void start(InitFunction init, CycleFunction cycle);
 
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
@@ -78,8 +81,12 @@ class BackendJackBuffered
     das::ringbuffer<MidiEvent> _in_rb;
     das::ringbuffer<MidiEvent> _out_rb;
 
+    boost::scoped_ptr<boost::thread> _thrd;
+
     boost::condition _cond;
     boost::mutex _mutex;
+
+    volatile bool _quit;
 };
 
 
@@ -88,14 +95,12 @@ class BackendJackRealtime
   : public BackendJack
 {
   public:
-    typedef boost::function<void ()> InitFunction;
-    typedef boost::function<void ()> CycleFunction;
-
     BackendJackRealtime(std::string const & client_name,
                         std::vector<std::string> const & in_portnames,
                         std::vector<std::string> const & out_portnames);
+    virtual ~BackendJackRealtime();
 
-    void set_process_funcs(InitFunction init, CycleFunction cycle);
+    virtual void start(InitFunction init, CycleFunction cycle);
 
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);

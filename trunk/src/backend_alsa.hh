@@ -19,6 +19,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <boost/scoped_ptr.hpp>
+#include <boost/thread/thread.hpp>
 
 
 class BackendAlsa
@@ -30,6 +32,8 @@ class BackendAlsa
                 std::vector<std::string> const & out_ports);
     virtual ~BackendAlsa();
 
+    virtual void start(InitFunction init, CycleFunction cycle);
+
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
     virtual void drop_input();
@@ -39,10 +43,14 @@ class BackendAlsa
     MidiEvent alsa_to_midi_event(snd_seq_event_t const & alsa_ev);
     snd_seq_event_t midi_event_to_alsa(MidiEvent const & ev);
 
+    void terminate_thread();
+
     snd_seq_t *_seq_handle;
     std::vector<int> _portid_in;        // alsa input port ids
     std::map<int, int> _portid_in_rev;  // reverse mapping (port id -> port #)
     std::vector<int> _portid_out;       // alsa output port ids
+
+    boost::scoped_ptr<boost::thread> _thrd;
 };
 
 

@@ -15,6 +15,8 @@
 #include <alsa/asoundlib.h>
 
 #include <boost/foreach.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
 
 #include "util/debug.hh"
 
@@ -37,7 +39,7 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
     snd_seq_set_client_name(_seq_handle, client_name.c_str());
 
     // create input ports
-    for (int n = 0; n < (int)in_ports.size(); n++) {
+    for (int n = 0; n < static_cast<int>(in_ports.size()); n++) {
         int id = snd_seq_create_simple_port(_seq_handle, in_ports[n].c_str(),
                         SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
                         SND_SEQ_PORT_TYPE_APPLICATION);
@@ -51,7 +53,7 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
     }
 
     // create output ports
-    for (int n = 0; n < (int)out_ports.size(); n++) {
+    for (int n = 0; n < static_cast<int>(out_ports.size()); n++) {
         int id = snd_seq_create_simple_port(_seq_handle, out_ports[n].c_str(),
                         SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
                         SND_SEQ_PORT_TYPE_APPLICATION);
@@ -67,6 +69,9 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
 
 BackendAlsa::~BackendAlsa()
 {
+    terminate_thread();
+    _thrd->join();
+
     BOOST_FOREACH (int i, _portid_in) {
         snd_seq_delete_port(_seq_handle, i);
     }
@@ -76,6 +81,14 @@ BackendAlsa::~BackendAlsa()
     }
 
     snd_seq_close(_seq_handle);
+}
+
+
+void BackendAlsa::start(InitFunction init, CycleFunction cycle)
+{
+    _thrd.reset(new boost::thread((
+        boost::lambda::bind(init), boost::lambda::bind(cycle)
+    )));
 }
 
 
@@ -123,7 +136,7 @@ MidiEvent BackendAlsa::alsa_to_midi_event(snd_seq_event_t const & alsa_ev)
         ev.ctrl.value = alsa_ev.data.control.value;
         break;
       default:
-//        DEBUG_PRINT("event type " << (int)alsa_ev.type << " isn't handled");
+//        DEBUG_PRINT("event type " << static_cast<int>(alsa_ev.type) << " isn't handled");
         ev.type = MIDI_EVENT_NONE;
         break;
     }
@@ -182,6 +195,11 @@ bool BackendAlsa::input_event(MidiEvent & ev)
         snd_seq_event_input(_seq_handle, &alsa_ev);
 
         if (alsa_ev) {
+            // check for program termination
+            if (alsa_ev->type == SND_SEQ_EVENT_USR0) {
+                return false;
+            }
+
             // convert event from alsa
             ev = alsa_to_midi_event(*alsa_ev);
 
@@ -213,4 +231,19 @@ void BackendAlsa::drop_input()
 void BackendAlsa::flush_output()
 {
     snd_seq_drain_output(_seq_handle);
+}
+
+
+void BackendAlsa::terminate_thread()
+{
+    // send event to ourselves to make snd_seq_event_input() return
+    snd_seq_event_t ev;
+    snd_seq_ev_clear(&ev);
+
+    snd_seq_ev_set_direct(&ev);
+    ev.type = SND_SEQ_EVENT_USR0;
+    ev.source.port = _portid_out[0];
+    ev.dest.client = snd_seq_client_id(_seq_handle);
+    ev.dest.port = _portid_in[0];
+    snd_seq_event_output_direct(_seq_handle, &ev);
 }
