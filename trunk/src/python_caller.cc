@@ -23,8 +23,6 @@
 #include <boost/python/list.hpp>
 #include <boost/python/stl_iterator.hpp>
 
-#include <iostream>
-
 #include "util/debug.hh"
 
 namespace bp = boost::python;
@@ -82,8 +80,6 @@ PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::
 
         if (b.check()) {
             // returned bool
-            std::cout << "returning bool from Call() is deprecated" << std::endl;
-
             if (b) {
                 return keep_event(buf, it);
             } else {

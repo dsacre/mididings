@@ -19,10 +19,10 @@ class _Suppressor:
     def __call__(self, ev):
         k = (ev.port, ev.channel)
         if k in self.current and self.current[k] == ev.program:
-            return False
+            return None
         else:
             self.current[k] = ev.program
-            return True
+            return ev
 
 
 def SuppressPC():
