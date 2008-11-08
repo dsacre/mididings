@@ -28,8 +28,9 @@
 namespace bp = boost::python;
 
 
-PythonCaller::PythonCaller()
+PythonCaller::PythonCaller(EngineCallback engine_callback)
   : _rb(new das::ringbuffer<AsyncCallInfo>(Config::MAX_ASYNC_CALLS))
+  , _engine_callback(engine_callback)
   , _quit(false)
 {
     // start async thread
@@ -55,7 +56,8 @@ PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::
 {
     scoped_gil_lock gil;
 
-    try {
+    try
+    {
         // call the python function
         bp::object ret = fun(*it);
 
@@ -91,7 +93,8 @@ PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::
         *it = bp::extract<MidiEvent>(ret);
         return keep_event(buf, it);
     }
-    catch (bp::error_already_set &) {
+    catch (bp::error_already_set &)
+    {
         PyErr_Print();
         return delete_event(buf, it);
     }
@@ -125,12 +128,14 @@ inline PythonCaller::EventRange PythonCaller::replace_event(Events & buf, EventI
     return EventRange(first, it);
 }
 
+
 inline PythonCaller::EventRange PythonCaller::keep_event(Events & /*buf*/, EventIter it)
 {
     EventRange r(it, it);
     r.advance_end(1);
     return r;
 }
+
 
 inline PythonCaller::EventRange PythonCaller::delete_event(Events & buf, EventIter it)
 {
@@ -151,19 +156,23 @@ void PythonCaller::async_thread()
         }
 
         if (_rb->read_space()) {
-            scoped_gil_lock gil;
+            {
+                scoped_gil_lock gil;
 
-            // read event from ringbuffer
-            AsyncCallInfo c;
-            _rb->read(c);
+                // read event from ringbuffer
+                AsyncCallInfo c;
+                _rb->read(c);
 
-            try {
-                // call python function
-                (*c.fun)(bp::ptr(&c.ev));
+                try {
+                    // call python function
+                    (*c.fun)(bp::ptr(&c.ev));
+                }
+                catch (bp::error_already_set &) {
+                    PyErr_Print();
+                }
             }
-            catch (bp::error_already_set &) {
-                PyErr_Print();
-            }
+
+            _engine_callback();
         }
         else {
             // wait until woken up again

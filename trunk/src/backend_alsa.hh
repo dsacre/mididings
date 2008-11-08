@@ -36,7 +36,6 @@ class BackendAlsa
 
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
-    virtual void drop_input();
     virtual void flush_output();
 
   private:

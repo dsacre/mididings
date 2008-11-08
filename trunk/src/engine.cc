@@ -47,7 +47,7 @@ Engine::Engine(PyObject * self,
   , _new_patch(-1)
   , _noteon_patches(Config::MAX_SIMULTANEOUS_NOTES)
   , _sustain_patches(Config::MAX_SUSTAIN_PEDALS)
-  , _python_caller(new PythonCaller())
+  , _python_caller(new PythonCaller(boost::bind(&Engine::run_async, this)))
 {
     DEBUG_FN();
 
@@ -116,13 +116,13 @@ void Engine::start(int first_patch)
 
 void Engine::run_init(int first_patch)
 {
+    boost::mutex::scoped_lock lock(_process_mutex);
+
     _buffer.clear();
     process_patch_switch(_buffer, first_patch);
 
     _backend->output_events(_buffer.begin(), _buffer.end());
     _backend->flush_output();
-
-    _backend->drop_input();
 }
 
 
@@ -136,6 +136,8 @@ void Engine::run_cycle()
         timeval tv1, tv2;
         gettimeofday(&tv1, NULL);
 #endif
+
+        boost::mutex::scoped_lock lock(_process_mutex);
 
         _buffer.clear();
 
@@ -161,10 +163,49 @@ void Engine::run_cycle()
 }
 
 
-void Engine::process(Events & buffer, MidiEvent const & ev)
+void Engine::run_async()
 {
     boost::mutex::scoped_lock lock(_process_mutex);
 
+    _buffer.clear();
+
+    if (_new_patch != -1) {
+        process_patch_switch(_buffer, _new_patch);
+        _new_patch = -1;
+    }
+
+    _sanitize_patch->process(_buffer);
+
+    _backend->output_events(_buffer.begin(), _buffer.end());
+    _backend->flush_output();
+}
+
+
+#ifdef ENABLE_TEST
+std::vector<MidiEvent> Engine::process_test(MidiEvent const & ev)
+{
+    std::vector<MidiEvent> v;
+    Events buffer;
+
+    if (!_current) {
+        _current = &*_patches.find(0)->second;
+    }
+
+    process(buffer, ev);
+
+    if (_new_patch != -1) {
+        process_patch_switch(buffer, _new_patch);
+        _new_patch = -1;
+    }
+
+    v.insert(v.end(), buffer.begin(), buffer.end());
+    return v;
+}
+#endif
+
+
+void Engine::process(Events & buffer, MidiEvent const & ev)
+{
     ASSERT(buffer.empty());
 
     Patch * patch = get_matching_patch(ev);
@@ -200,7 +241,7 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
     else if (ev.type == MIDI_EVENT_NOTEOFF) {
         NotePatchMap::iterator i = _noteon_patches.find(make_notekey(ev));
         if (i != _noteon_patches.end()) {
-            Patch * p = i->second;
+            Patch *p = i->second;
             _noteon_patches.erase(i);
             return p;
         }
@@ -214,7 +255,7 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
     else if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == 64 && ev.ctrl.value == 0) {
         SustainPatchMap::iterator i = _sustain_patches.find(make_sustainkey(ev));
         if (i != _sustain_patches.end()) {
-            Patch * p = i->second;
+            Patch *p = i->second;
             _sustain_patches.erase(i);
             return p;
         }
@@ -233,8 +274,6 @@ void Engine::switch_patch(int n)
 
 void Engine::process_patch_switch(Events & buffer, int n)
 {
-    boost::mutex::scoped_lock lock(_process_mutex);
-
     PatchMap::iterator i = _patches.find(n);
 
     if (_patches.size() > 1) {

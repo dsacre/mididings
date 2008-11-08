@@ -31,6 +31,9 @@
 #include "util/ringbuffer.hh"
 
 
+/*
+ * JACK backend base class
+ */
 class BackendJack
   : public Backend
 {
@@ -41,9 +44,13 @@ class BackendJack
     virtual ~BackendJack();
 
   protected:
-    // FIXME: this should be pure virtual.
+    // this should be pure virtual.
     // it isn't, because the process thread is started within the c'tor
     virtual int process(jack_nframes_t) { return 0; } //= 0;
+
+    void clear_buffers(jack_nframes_t nframes);
+    bool read_event_from_buffer(MidiEvent & ev, jack_nframes_t nframes);
+    void write_event_to_buffer(MidiEvent const & ev, jack_nframes_t nframes);
 
     MidiEvent jack_to_midi_event(jack_midi_event_t const & jack_ev, int port);
     void midi_event_to_jack(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port);
@@ -56,10 +63,17 @@ class BackendJack
 
   private:
     static int process_(jack_nframes_t, void *);
+
+    // loop counters used by read_event_from_buffer()
+    int _input_port;
+    int _input_count;
 };
 
 
-
+/*
+ * buffered JACK backend.
+ * all events are written to a ringbuffer and processed in a separate thread.
+ */
 class BackendJackBuffered
   : public BackendJack
 {
@@ -73,7 +87,6 @@ class BackendJackBuffered
 
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
-    virtual void drop_input();
 
   private:
     virtual int process(jack_nframes_t);
@@ -90,7 +103,10 @@ class BackendJackBuffered
 };
 
 
-
+/*
+ * realtime JACK backend.
+ * events are processed inside the JACK callback.
+ */
 class BackendJackRealtime
   : public BackendJack
 {
@@ -98,7 +114,7 @@ class BackendJackRealtime
     BackendJackRealtime(std::string const & client_name,
                         std::vector<std::string> const & in_portnames,
                         std::vector<std::string> const & out_portnames);
-    virtual ~BackendJackRealtime();
+    virtual ~BackendJackRealtime() { }
 
     virtual void start(InitFunction init, CycleFunction cycle);
 
@@ -113,8 +129,7 @@ class BackendJackRealtime
 
     jack_nframes_t _nframes;
 
-    int _input_port;
-    int _input_count;
+    das::ringbuffer<MidiEvent> _out_rb;
 };
 
 

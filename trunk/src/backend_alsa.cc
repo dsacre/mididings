@@ -86,9 +86,11 @@ BackendAlsa::~BackendAlsa()
 
 void BackendAlsa::start(InitFunction init, CycleFunction cycle)
 {
-    _thrd.reset(new boost::thread((
-        boost::lambda::bind(init), boost::lambda::bind(cycle)
-    )));
+    snd_seq_drop_input(_seq_handle);
+
+    _thrd.reset(new boost::thread(
+        (boost::lambda::bind(init), boost::lambda::bind(cycle))
+    ));
 }
 
 
@@ -219,12 +221,6 @@ void BackendAlsa::output_event(MidiEvent const & ev)
     snd_seq_ev_set_direct(&alsa_ev);
     snd_seq_ev_set_source(&alsa_ev, _portid_out[ev.port]);
     snd_seq_event_output_buffer(_seq_handle, &alsa_ev);
-}
-
-
-void BackendAlsa::drop_input()
-{
-    snd_seq_drop_input(_seq_handle);
 }
 
 

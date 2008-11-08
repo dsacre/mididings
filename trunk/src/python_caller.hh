@@ -16,6 +16,7 @@
 #include "patch.hh"
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/function.hpp>
 
 #include <boost/python/object_fwd.hpp>
 #include <boost/thread/thread.hpp>
@@ -34,7 +35,9 @@ class PythonCaller
     typedef Patch::EventIter EventIter;
     typedef Patch::EventRange EventRange;
 
-    PythonCaller();
+    typedef boost::function<void ()> EngineCallback;
+
+    PythonCaller(EngineCallback engine_callback);
     ~PythonCaller();
 
     // calls python function immediately
@@ -63,6 +66,8 @@ class PythonCaller
     boost::scoped_ptr<das::ringbuffer<AsyncCallInfo> > _rb;
 
     boost::scoped_ptr<boost::thread> _thrd;
+
+    EngineCallback _engine_callback;
 
     boost::condition _cond;
     volatile bool _quit;

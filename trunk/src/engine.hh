@@ -74,31 +74,14 @@ class Engine
     PythonCaller & python_caller() const { return *_python_caller; }
 
 #ifdef ENABLE_TEST
-    std::vector<MidiEvent> process_test(MidiEvent const & ev)
-    {
-        std::vector<MidiEvent> v;
-        Events buffer;
-
-        if (!_current) {
-            _current = &*_patches.find(0)->second;
-        }
-
-        process(buffer, ev);
-
-        if (_new_patch != -1) {
-            process_patch_switch(buffer, _new_patch);
-            _new_patch = -1;
-        }
-
-        v.insert(v.end(), buffer.begin(), buffer.end());
-        return v;
-    }
+    std::vector<MidiEvent> process_test(MidiEvent const & ev);
 #endif
 
   private:
 
     void run_init(int first_patch);
     void run_cycle();
+    void run_async();
 
     void process(Events & buffer, MidiEvent const & ev);
     void process_patch_switch(Events & buffer, int n);
@@ -107,10 +90,10 @@ class Engine
     Patch * get_matching_patch(MidiEvent const & ev);
 
 
-    inline EventKey make_notekey(MidiEvent const & ev) const {
+    EventKey make_notekey(MidiEvent const & ev) const {
         return ev.port | ev.channel << 16 | ev.note.note << 24;
     }
-    inline EventKey make_sustainkey(MidiEvent const & ev) const {
+    EventKey make_sustainkey(MidiEvent const & ev) const {
         return ev.port | ev.channel << 16;
     }
 

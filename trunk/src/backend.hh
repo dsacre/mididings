@@ -34,7 +34,6 @@ class Backend
 
     virtual bool input_event(MidiEvent & ev) = 0;
     virtual void output_event(MidiEvent const & ev) = 0;
-    virtual void drop_input() { };
     virtual void flush_output() { };
 
     template <typename IterT>
