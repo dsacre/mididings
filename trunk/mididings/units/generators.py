@@ -32,46 +32,77 @@ def CtrlChange(*args):
     if len(args) == 2:
         # CrtlChange(ctrl, value)
         ctrl, value = args
-        return GenerateEvent(
-                _event.CTRL,
-                _event.EVENT_PORT,
-                _event.EVENT_CHANNEL,
-                _util.ctrl_number(ctrl) if ctrl >= 0 else ctrl,
-                _util.ctrl_value(value) if value >= 0 else value
-            )
+        port, channel = _event.EVENT_PORT, _event.EVENT_CHANNEL
     elif len(args) == 4:
         # CrtlChange(port, channel, ctrl, value)
         port, channel, ctrl, value = args
-        return GenerateEvent(
-                _event.CTRL,
-                port,
-                channel,
-                _util.ctrl_number(ctrl) if ctrl >= 0 else ctrl,
-                _util.ctrl_value(value) if value >= 0 else value
-            )
     else:
         raise TypeError("CtrlChange() must be called with either two or four arguments")
+
+    return GenerateEvent(
+            _event.CTRL,
+            port,
+            channel,
+            _util.ctrl_number(ctrl) if ctrl >= 0 else ctrl,
+            _util.ctrl_value(value) if value >= 0 else value
+        )
 
 
 def ProgChange(*args):
     if len(args) == 1:
         # ProgChange(program)
-        return GenerateEvent(
-                _event.PROGRAM,
-                _event.EVENT_PORT,
-                _event.EVENT_CHANNEL,
-                0,
-                _util.program_number(args[0])
-            )
+        program = args[0]
+        port, channel = _event.EVENT_PORT, _event.EVENT_CHANNEL
     elif len(args) == 3:
         # ProgChange(port, channel, program)
         port, channel, program = args
-        return GenerateEvent(
-                _event.PROGRAM,
-                port,
-                channel,
-                0,
-                _util.program_number(program)
-            )
     else:
         raise TypeError("ProgChange() must be called with either one or three arguments")
+
+    return GenerateEvent(
+            _event.PROGRAM,
+            port,
+            channel,
+            0,
+            _util.program_number(program)
+        )
+
+
+def NoteOn(*args):
+    if len(args) == 2:
+        # NoteOn(note, velocity)
+        note, velocity = args
+        port, channel = _event.EVENT_PORT, _event.EVENT_CHANNEL
+    elif len(args) == 4:
+        # NoteOn(port, channel, note, velocity)
+        port, channel, note, velocity = args
+    else:
+        raise TypeError("NoteOn() must be called with either two or four arguments")
+
+    return GenerateEvent(
+            _event.NOTEON,
+            port,
+            channel,
+            _util.note_number(note) if note >= 0 else note,
+            _util.velocity_value(velocity) if velocity >= 0 else velocity
+        )
+
+
+def NoteOff(*args):
+    if len(args) == 2:
+        # NoteOff(note, velocity)
+        note, velocity = args
+        port, channel = _event.EVENT_PORT, _event.EVENT_CHANNEL
+    elif len(args) == 4:
+        # NoteOff(port, channel, note, velocity)
+        port, channel, note, velocity = args
+    else:
+        raise TypeError("NoteOff() must be called with either two or four arguments")
+
+    return GenerateEvent(
+            _event.NOTEOFF,
+            port,
+            channel,
+            _util.note_number(note) if note >= 0 else note,
+            _util.velocity_value(velocity) if velocity >= 0 else velocity
+        )
