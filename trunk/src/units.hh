@@ -81,11 +81,11 @@ class Filter
 
 
 class InvertedFilter
-  : public Unit
+  : public Filter
 {
   public:
     InvertedFilter(boost::shared_ptr<Filter> filter)
-      : _filter(filter)
+      : Filter(MIDI_EVENT_ANY), _filter(filter)
     {
     }
 

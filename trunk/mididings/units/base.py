@@ -57,9 +57,11 @@ class Split(dict, _Unit):
 class _Filter(_Unit):
     def __invert__(self):
         return _InvertedFilter(self)
+    def __mod__(self, other):
+        return Fork([ self >> other, ~self ])
 
 
-class _InvertedFilter(_mididings.InvertedFilter, _Unit):
+class _InvertedFilter(_mididings.InvertedFilter, _Filter):
     def __init__(self, filt):
         _mididings.InvertedFilter.__init__(self, filt)
 
