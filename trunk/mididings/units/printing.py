@@ -10,8 +10,6 @@
 # (at your option) any later version.
 #
 
-import _mididings
-
 from .call import _CallBase
 
 from .. import main as _main

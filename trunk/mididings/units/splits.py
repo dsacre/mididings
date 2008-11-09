@@ -10,16 +10,16 @@
 # (at your option) any later version.
 #
 
-import _mididings
-
-from .base import Fork
+from .base import Fork, Filter
 from .filters import PortFilter, ChannelFilter, KeyFilter, VelocityFilter
+from .filters import CtrlFilter, CtrlValueFilter, ProgFilter
 
 from .. import event as _event
 
 
 def PortSplit(d):
     return Fork([ (PortFilter(p) >> w) for p, w in d.items() ])
+
 
 def ChannelSplit(d):
     return Fork([ (ChannelFilter(c) >> w) for c, w in d.items() ])
@@ -59,3 +59,15 @@ def VelocitySplit(*args):
         ])
     else:
         raise TypeError("VelocitySplit() must be called with either one or three arguments")
+
+
+def CtrlSplit(d):
+    return Filter(_event.CTRL) % [ (CtrlFilter(c) >> w) for c, w in d.items() ]
+
+
+def CtrlValueSplit(d):
+    return Filter(_event.CTRL) % [ (CtrlValueFilter(*v) >> w) for v, w in d.items() ]
+
+
+def ProgSplit(d):
+    return Filter(_event.PROGRAM) % [ (ProgFilter(p) >> w) for p, w in d.items() ]
