@@ -16,6 +16,9 @@
 #include <boost/bind.hpp>
 
 #include <boost/thread/mutex.hpp>
+#if BOOST_VERSION < 103500
+#  include <boost/thread/xtime.hpp>
+#endif
 
 #include <boost/python/object.hpp>
 #include <boost/python/ptr.hpp>
@@ -156,28 +159,34 @@ void PythonCaller::async_thread()
         }
 
         if (_rb->read_space()) {
-            {
-                scoped_gil_lock gil;
+            scoped_gil_lock gil;
 
-                // read event from ringbuffer
-                AsyncCallInfo c;
-                _rb->read(c);
+            // read event from ringbuffer
+            AsyncCallInfo c;
+            _rb->read(c);
 
-                try {
-                    // call python function
-                    (*c.fun)(bp::ptr(&c.ev));
-                }
-                catch (bp::error_already_set &) {
-                    PyErr_Print();
-                }
+            try {
+                // call python function
+                (*c.fun)(bp::ptr(&c.ev));
             }
-
-            _engine_callback();
+            catch (bp::error_already_set &) {
+                PyErr_Print();
+            }
         }
         else {
             // wait until woken up again
             boost::mutex::scoped_lock lock(mutex);
-            _cond.wait(lock);
+
+#if BOOST_VERSION >= 103500
+            _cond.timed_wait(lock, boost::posix_time::milliseconds(Config::ASYNC_CALLBACK_INTERVAL));
+#else
+            boost::xtime xt;
+            boost::xtime_get(&xt, boost::TIME_UTC);
+            xt.nsec += Config::ASYNC_CALLBACK_INTERVAL * 1000000;
+            _cond.timed_wait(lock, xt);
+#endif
         }
+
+        _engine_callback();
     }
 }

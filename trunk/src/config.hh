@@ -22,6 +22,7 @@ namespace Config
 
     static int const MAX_ASYNC_CALLS = 256;
     static int const ASYNC_JOIN_TIMEOUT = 3000;
+    static int const ASYNC_CALLBACK_INTERVAL = 50;
 
     static int const MAX_JACK_EVENTS = 128;
 }

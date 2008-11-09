@@ -150,8 +150,6 @@ void Engine::run_cycle()
             _new_patch = -1;
         }
 
-        _sanitize_patch->process(_buffer);
-
 #ifdef ENABLE_BENCHMARK
         gettimeofday(&tv2, NULL);
         std::cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec) << std::endl;
@@ -165,6 +163,11 @@ void Engine::run_cycle()
 
 void Engine::run_async()
 {
+    if (!_backend) {
+        // backend already destroyed
+        return;
+    }
+
     boost::mutex::scoped_lock lock(_process_mutex);
 
     _buffer.clear();
@@ -173,8 +176,6 @@ void Engine::run_async()
         process_patch_switch(_buffer, _new_patch);
         _new_patch = -1;
     }
-
-    _sanitize_patch->process(_buffer);
 
     _backend->output_events(_buffer.begin(), _buffer.end());
     _backend->flush_output();
@@ -227,6 +228,8 @@ void Engine::process(Events & buffer, MidiEvent const & ev)
     if (_post_patch) {
         _post_patch->process(buffer, r);
     }
+
+    _sanitize_patch->process(_buffer, r);
 }
 
 
@@ -298,6 +301,7 @@ void Engine::process_patch_switch(Events & buffer, int n)
             if (_post_patch) {
                 _post_patch->process(buffer, r);
             }
+
             _sanitize_patch->process(buffer, r);
         }
     }
