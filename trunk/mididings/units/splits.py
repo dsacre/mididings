@@ -66,7 +66,7 @@ def CtrlSplit(d):
 
 
 def CtrlValueSplit(d):
-    return Filter(_event.CTRL) % [ (CtrlValueFilter(*v) >> w) for v, w in d.items() ]
+    return Filter(_event.CTRL) % [ ((CtrlValueFilter(*v) if isinstance(v, tuple) else CtrlValueFilter(v)) >> w) for v, w in d.items() ]
 
 
 def ProgSplit(d):
