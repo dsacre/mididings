@@ -47,7 +47,7 @@
     </ul>
   </li>
 
-  <li><a href="#extra">Additional Units</a></li>
+  <li><a href="#extra">Additional Units and Functions</a></li>
 
   <li><a href="#examples">Examples</a></li>
 </ul>
@@ -111,7 +111,7 @@ Starts the actual MIDI processing, using multiple patches.
 </p>
 <ul>
   <li><b>patches</b>: A dictionary with program numbers as keys, and patches as values.
-  Values can also be tuple with two items, the first being an init-patch that's executed once every time the
+  Values can also be tuples with two items, the first being an init-patch that's executed once every time the
   patch is selected, and the second being the actual patch that processes incoming events.</li>
   <li><b>control</b>: The "control" patch, which is always active, and runs in parallel to the current patch.</li>
   <li><b>pre/post</b>: Allows processing to take place before/after every patch. Does not affect
@@ -201,7 +201,8 @@ would otherwise be lists, which Python does not allow.
 
 <h4>{ T1: A, T2: B, ... }</h4>
 <p>
-Splits by event type. Equivalent to [ Filter(T1) &gt;&gt; A, Filter(T2) &gt;&gt; B, ... ].
+Splits by event type.
+Equivalent to [ Filter(T1) &gt;&gt; A, Filter(T2) &gt;&gt; B, ... ].
 </p>
 
 <h4>Split({ T1: A, T2: B, ... })</h4>
@@ -209,6 +210,17 @@ Splits by event type. Equivalent to [ Filter(T1) &gt;&gt; A, Filter(T2) &gt;&gt;
 Same as the above. Like Fork(), this can be useful to make operator &gt;&gt; work.
 </p>
 
+<h4>~F</h4>
+<p>
+Inverts the filter F. Note that for filters which only affect certain kinds of events,
+other events will remain unaffected when the filter is inverted.
+</p>
+
+<h4>F % A</h4>
+<p>
+Runs only those events through A which match filter F, but keeps those which don't.
+Equivalent to [ F &gt;&gt; A, ~F ].
+</p>
 
 
 <h2><a name="units"></a>Units</h2>
@@ -219,8 +231,7 @@ These are the basic building blocks from which you can build your patches.
 <ul>
   <li><b>Filters</b>: These units filter by some property of the MIDI event. If the event matches, it's passed
   unmodified, otherwise it's discarded.
-  Filters have no effect on different event types (e.g. a note event going through a CtrlFilter).<br>
-  Any filter can be inverted by prepending operator ~.</li>
+  Filters have no effect on different event types (e.g. a note event going through a CtrlFilter).</li>
   <li><b>Splits</b>: Basically just combinations of multiple filters of the same kind.</li>
   <li><b>Modifiers</b>: These units change some property of the MIDI event.</li>
   <li><b>Generators</b>: Converters from one event type to another.</li>
@@ -275,7 +286,9 @@ Filters by PC number.
 <h3><a name="splits"></a>Splits</h3>
 
 <h4>PortSplit({port: units, ...})<br>
-ChannelSplit({channel: units, ...})</h4>
+PortSplit({(port, ...): units, ...})<br>
+ChannelSplit({channel: units, ...})<br>
+ChannelSplit({(channel, ...): units, ...})</h4>
 <p>
 Splits by port or channel.
 </p>
@@ -291,6 +304,27 @@ Splits by key. Non-note events are sent to all units.
 VelocitySplit({(min, max): units, ...})</h4>
 <p>
 Splits by velocity. Non-note events are sent to all units.
+</p>
+
+<h4>CtrlSplit({ctrl: units, ...})<br>
+CtrlSplit({(ctrl, ...): units, ...})</h4>
+<p>
+Splits by controller number.
+Non-controller events are left unchanged, but not sent to any of the units.
+</p>
+
+<h4>CtrlValueSplit({value, units, ...})<br>
+CtrlValueSplit({(min, max): units, ...})</h4>
+<p>
+Splits by controller value.
+Non-controller events are left unchanged, but not sent to any of the units.
+</p>
+
+<h4>ProgSplit({program: units, ...})<br>
+ProgSplit({(program, ...): units, ...})</h4>
+<p>
+Splits by program number.
+Non-program-change events are left unchanged, but not sent to any of the units.
 </p>
 
 
@@ -345,7 +379,11 @@ Likewise, an in value of in_max or greater results in an output value of out_max
 <h4>CtrlChange(ctrl, value)<br>
 CtrlChange(port, channel, ctrl, value)<br>
 ProgChange(program)<br>
-ProgChange(port, channel, program)</h4>
+ProgChange(port, channel, program)<br>
+NoteOn(note, velocity)<br>
+NoteOn(port, channel, note, velocity)<br>
+NoteOff(note, velocity)<br>
+NoteOff(port, channel, note, velocity)</h4>
 <p>
 Changes the type of the event.
 If port and channel are omitted, the values of the input event are used.<br>
@@ -450,7 +488,7 @@ discarded, note velocity and controller values are confined to the range 0-127.
 
 
 
-<h2><a name="extra"></a>Additional Units</h2>
+<h2><a name="extra"></a>Additional Units and Functions</h2>
 
 <p>
 These units are defined in the mididings.extra module, and offer some more advanced/specific functionality,
@@ -509,6 +547,12 @@ The function should take a single MidiEvent parameter, and return the value to b
 <i>Defined in mididings.extra.dbus. Requires dbus-python.</i><br>
 Sends a DBUS message. Rather than a concrete value, each data argument can be a Python function instead.
 The function should take a single MidiEvent parameter, and return the value to be sent.
+</p>
+
+<h4>run_patches_memorize(memo_file, patches, control=None, pre=None, post=None)</h4>
+<p>
+Like run_patches(), but saves the selected patch number to a file, and restores it the next time it's called.
+memo_file is the path of the file to be used to store the patch number.
 </p>
 
 
