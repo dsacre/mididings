@@ -313,7 +313,8 @@ Splits by controller number.
 Non-controller events are left unchanged, but not sent to any of the units.
 </p>
 
-<h4>CtrlValueSplit({value, units, ...})<br>
+<h4>CtrlValueSplit(threshold, units_lower, units_upper)<br>
+CtrlValueSplit({value: units, ...})<br>
 CtrlValueSplit({(min, max): units, ...})</h4>
 <p>
 Splits by controller value.

@@ -65,8 +65,21 @@ def CtrlSplit(d):
     return Filter(_event.CTRL) % [ (CtrlFilter(c) >> w) for c, w in d.items() ]
 
 
-def CtrlValueSplit(d):
-    return Filter(_event.CTRL) % [ ((CtrlValueFilter(*v) if isinstance(v, tuple) else CtrlValueFilter(v)) >> w) for v, w in d.items() ]
+def CtrlValueSplit(*args):
+    if len(args) == 1:
+        # CtrlValueSplit(d)
+        return Filter(_event.CTRL) % [
+            ((CtrlValueFilter(*v) if isinstance(v, tuple) else CtrlValueFilter(v)) >> w) for v, w in args[0].items()
+        ]
+    elif len(args) == 3:
+        # CtrlValueSplit(thresh, unit_lower, unit_upper)
+        thresh, unit_lower, unit_upper = args
+        filt = CtrlValueFilter(0, thresh - 1)
+        return Filter(_event.CTRL) % [
+            filt  >> unit_lower,
+            ~filt >> unit_upper
+        ]
+    raise TypeError("CtrlValueSplit() must be called with either one or three arguments")
 
 
 def ProgSplit(d):
