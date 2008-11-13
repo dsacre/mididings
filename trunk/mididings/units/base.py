@@ -27,6 +27,12 @@ class _Unit:
         b = self.units if isinstance(self, _Chain) else [self]
         return _Chain(a + b)
 
+    def __floordiv__(self, other):
+        return Fork([ self, other ])
+
+    def __rfloordiv__(self, other):
+        return Fork([ other, self ])
+
 
 # units connected in series
 class _Chain(_Unit):
