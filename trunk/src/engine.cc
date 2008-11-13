@@ -343,6 +343,10 @@ bool Engine::sanitize_event(MidiEvent & ev) const
             if (ev.ctrl.value < -8192) ev.ctrl.value = -8192;
             if (ev.ctrl.value >  8191) ev.ctrl.value =  8191;
             return true;
+        case MIDI_EVENT_AFTERTOUCH:
+            if (ev.ctrl.value < 0) ev.ctrl.value = 0;
+            if (ev.ctrl.value > 127) ev.ctrl.value = 127;
+            return true;
         case MIDI_EVENT_PROGRAM:
             if (ev.ctrl.value < 0 || ev.ctrl.value > 127) {
                 if (_verbose) std::cout << "invalid program number, event discarded" << std::endl;
