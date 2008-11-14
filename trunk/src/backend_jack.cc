@@ -274,8 +274,12 @@ BackendJackBuffered::BackendJackBuffered(std::string const & client_name,
 
 BackendJackBuffered::~BackendJackBuffered()
 {
-    _quit = true;
-    _cond.notify_one();
+    if (_thrd) {
+        _quit = true;
+        _cond.notify_one();
+
+        _thrd->join();
+    }
 }
 
 

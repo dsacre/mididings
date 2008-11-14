@@ -69,8 +69,10 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
 
 BackendAlsa::~BackendAlsa()
 {
-    terminate_thread();
-    _thrd->join();
+    if (_thrd) {
+        terminate_thread();
+        _thrd->join();
+    }
 
     BOOST_FOREACH (int i, _portid_in) {
         snd_seq_delete_port(_seq_handle, i);
