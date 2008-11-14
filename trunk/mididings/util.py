@@ -75,7 +75,7 @@ def note_number(note):
         r = NOTE_NUMBERS[note[:i]] + (int(note[i:]) + _main._config['octave_offset']) * 12
 
     if r < 0 or r > 127:
-        raise ValueError("note number %d out of range" % r)
+        raise ValueError("note number %d is out of range" % r)
     return r
 
 
@@ -131,30 +131,30 @@ def port_number(port):
 def channel_number(channel):
     r = channel - _main._config['data_offset']
     if r < 0 or r > 15:
-        raise ValueError("channel number %d out of range" % channel)
+        raise ValueError("channel number %d is out of range" % channel)
     return r
 
 
 def program_number(program):
     r = program - _main._config['data_offset']
     if r < 0 or r > 127:
-        raise ValueError("program number %d out of range" % program)
+        raise ValueError("program number %d is out of range" % program)
     return r
 
 
 def ctrl_number(ctrl):
     if ctrl < 0 or ctrl > 127:
-        raise ValueError("controller number %d out of range" % ctrl)
+        raise ValueError("controller number %d is out of range" % ctrl)
     return ctrl
 
 
 def ctrl_value(value):
     if value < 0 or value > 127:
-        raise ValueError("controller number %d out of range" % value)
+        raise ValueError("controller value %d is out of range" % value)
     return value
 
 
 def velocity_value(velocity):
     if velocity < 0 or velocity > 127:
-        raise ValueError("velocity %d out of range" % velocity)
+        raise ValueError("velocity %d is out of range" % velocity)
     return velocity
