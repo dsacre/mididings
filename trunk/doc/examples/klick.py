@@ -3,8 +3,8 @@
 #
 # klick: http://das.nasophon.de/klick/
 #
-# For this script to work, run klick listening on OSC port 1234
-# (klick -o 1234), or use CC 13 to start it
+# CC 13 runs/terminates the klick process (alternatively, run "klick -o 1234"),
+# CC 14 starts/stops the metronome, and CC 15 changes tempo.
 #
 
 from mididings import *
