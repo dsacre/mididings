@@ -16,7 +16,7 @@ sysconfig.get_config_vars()['CFLAGS'] = ' '.join(cv_opt.split())
 
 setup(
     name = 'mididings',
-    version = '20081109',
+    version = '20081122',
     author = 'Dominic Sacre',
     author_email = 'dominic.sacre@gmx.de',
     url = 'http://das.nasophon.de/mididings',
@@ -41,7 +41,7 @@ setup(
                 'jack',
                 'boost_python-mt',
                 'boost_thread-mt',
-            ]
+            ],
         ),
     ],
     packages = [
