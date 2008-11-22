@@ -11,7 +11,7 @@
 #
 
 from .base import _Unit, Fork
-from .generators import ProgChange
+from .generators import ProgChange, CtrlChange
 from .modifiers import Port, Channel
 
 
@@ -20,12 +20,20 @@ class InitAction(_Unit):
         self.action = action
 
 
-def Output(port, channel, program=None):
-    if program != None:
+def Output(port, channel, program=None, bank=None):
+    if bank != None:
+        return Fork([
+            InitAction([
+                CtrlChange(port, channel, 0, bank // 128),
+                CtrlChange(port, channel, 32, bank % 128),
+                ProgChange(port, channel, program),
+            ]),
+            Port(port) >> Channel(channel),
+        ])
+    elif program != None:
         return Fork([
             InitAction(ProgChange(port, channel, program)),
             Port(port) >> Channel(channel),
         ])
     else:
         return Port(port) >> Channel(channel)
-
