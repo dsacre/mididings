@@ -22,9 +22,6 @@
 #include "util/debug.hh"
 
 
-#include <iostream>
-
-
 /*
  * JACK backend base class
  */
