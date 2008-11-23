@@ -13,6 +13,7 @@
 import _mididings
 
 from .. import event as _event
+from .. import util as _util
 
 
 # base class for all units
@@ -99,4 +100,4 @@ class Sanitize(_mididings.Sanitize, _Unit):
 
 class PatchSwitch(_mididings.PatchSwitch, _Unit):
     def __init__(self, num=_event.EVENT_PROGRAM):
-        _mididings.PatchSwitch.__init__(self, num)
+        _mididings.PatchSwitch.__init__(self, _util.patch_number(num) if num >= 0 else num)

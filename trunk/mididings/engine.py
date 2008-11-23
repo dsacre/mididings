@@ -69,7 +69,7 @@ class Engine(_mididings.Engine):
     def start(self, first_patch, patch_switch_callback):
         # hmmm...
         self.patch_switch_callback = patch_switch_callback
-        _mididings.Engine.start(self, util.program_number(first_patch))
+        _mididings.Engine.start(self, util.patch_number(first_patch))
 
     def make_portnames(self, ports, prefix):
         return ports if misc.issequence(ports) else \

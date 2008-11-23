@@ -158,3 +158,7 @@ def velocity_value(velocity):
     if velocity < 0 or velocity > 127:
         raise ValueError("velocity %d is out of range" % velocity)
     return velocity
+
+
+def patch_number(patch):
+    return patch - _main._config['data_offset']
