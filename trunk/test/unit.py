@@ -146,8 +146,10 @@ class SimpleTestCase(unittest.TestCase):
 
     def testSanitize(self):
         def foo(ev):
+            ev.port = 42
+        def bar(ev):
             assert False
-        p = Port(42) >> Sanitize() >> Call(foo)
+        p = Call(foo) >> Sanitize() >> Call(bar)
         test_run(p, self.noteon1)
         p = Velocity(+666) >> Sanitize()
         r = test_run(p, self.noteon1)

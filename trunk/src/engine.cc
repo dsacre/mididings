@@ -321,7 +321,7 @@ void Engine::process_patch_switch(Events & buffer, int n)
 
 bool Engine::sanitize_event(MidiEvent & ev) const
 {
-    if (ev.port < 0 || ev.port >= static_cast<int>(_backend->num_out_ports())) {
+    if (ev.port < 0 || (_backend && ev.port >= static_cast<int>(_backend->num_out_ports()))) {
         if (_verbose) std::cout << "invalid port, event discarded" << std::endl;
         return false;
     }
