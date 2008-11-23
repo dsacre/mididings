@@ -2,6 +2,7 @@ include setup.py
 include setup.cfg
 include README
 include COPYING
+include NEWS
 include mididings/*.py
 include mididings/units/*.py
 include mididings/extra/*.py

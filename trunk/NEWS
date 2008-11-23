@@ -1,0 +1,84 @@
+2008-11-22
+
+ * Terminate threads properly on exit.
+ * Aftertouch now actually works.
+ * Added 3 argument version of CtrlValueSplit().
+
+2008-11-09
+
+ * Lots of changes and cleanup of the JACK backend, should now work properly
+   with JACK 2.
+ * Added support for channel aftertouch.
+ * Implemented new operator % for filters.
+ * Added parameters to run_patches() to specify the first patch to be
+   selected, and a callback function to be called on every patch switch.
+ * New function: mididings.extra.run_patches_memorize().
+ * New units: NoteOn(), NoteOff(), CtrlSplit(), CtrlValueSplit(), ProgSplit().
+
+2008-09-13
+
+ * Added System() to run shell commands, as well as SendOSC() and SendDBUS()
+   to send OSC or DBUS messages.
+ * Do a lot more validity checking of function arguments.
+
+2008-09-09
+
+ * Fixed a bug that under certain circumstances caused events to not be
+   processed properly.
+
+2008-09-05
+
+ * Implemented experimental support for JACK MIDI.
+ * Added mididings.extra module for units with more advanced/specific
+   functionality than what's included in the main mididings module. This
+   includes, among other things, a diatonic harmonizer.
+ * Updated documentation, completely rewritten example scripts.
+
+2008-08-28
+
+ * Allow Call() to return more than one MIDI event at the same time.
+
+2008-08-17
+
+ * Complete rewrite of some crucial parts of the code. Lots of cleanup and
+   restructuring. This should not affect existing scripts, except for the
+   changes noted below.
+ * Filters no longer remove events of different types. For example, what used
+   to be CtrlFilter(num) should now be written as
+   Filter(CTRL) >> CtrlFilter(num).
+ * When units connected in parallel result in identical copies of the same
+   event, duplicates will be removed. For example, [ Pass(), Transpose(12) ]
+   no longer outputs two events when receiving program or control changes.
+ * Require Boost ≥ 1.34.1.
+ * Many minor fixes.
+
+2008-07-21
+
+ * Added CallAsync() and CallThread(), to start Python functions without
+   delaying event processing.
+ * Made Print() prettier, more informative, and faster.
+ * Added CtrlMap() and PrintString().
+ * ALSA event queue is now cleared before starting MIDI processing, to ignore
+   events received during start_delay.
+
+2008-07-13
+
+ * Added start_delay parameter to config().
+ * Added switch_patch() function.
+ * Init events for the first patch loaded at startup are now sent properly.
+ * Don't allow note on events with velocity < 1. This has the (side-)effect
+   that Velocity() and VelocityGradient() will never completely remove any
+   events. Use an additional VelocityFilter() if that's what you want.
+
+2008-04-16
+
+ * Moved port parameters from run() to config(), allow ports to be specified
+   by name rather than number.
+ * Changed parameter order of CtrlRange(), making input range [0;127] the
+   default.
+
+2008-04-06
+
+ * Added new Sanitize() unit to make sure MIDI events are valid. The same is
+   done automatically before sending events to the output ports.
+ * Added some more documentation.
