@@ -12,8 +12,6 @@
 #ifndef _BACKEND_JACK_HH
 #define _BACKEND_JACK_HH
 
-#ifdef ENABLE_JACK_MIDI
-
 #include "backend.hh"
 #include "midi_event.hh"
 
@@ -43,6 +41,8 @@ class BackendJack
                 std::vector<std::string> const & out_portnames);
     virtual ~BackendJack();
 
+    virtual std::size_t num_out_ports() const { return _out_ports.size(); }
+
   protected:
     // this should be pure virtual.
     // it isn't, because the process thread is started within the c'tor
@@ -52,14 +52,11 @@ class BackendJack
     bool read_event_from_buffer(MidiEvent & ev, jack_nframes_t nframes);
     void write_event_to_buffer(MidiEvent const & ev, jack_nframes_t nframes);
 
-    MidiEvent jack_to_midi_event(jack_midi_event_t const & jack_ev, int port);
-    void midi_event_to_jack(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port);
-
     jack_client_t *_client;
     std::vector<jack_port_t *> _in_ports;
     std::vector<jack_port_t *> _out_ports;
 
-    jack_nframes_t _frame;
+    jack_nframes_t _current_frame;
 
   private:
     static int process_(jack_nframes_t, void *);
@@ -132,7 +129,5 @@ class BackendJackRealtime
     das::ringbuffer<MidiEvent> _out_rb;
 };
 
-
-#endif // ENABLE_JACK_MIDI
 
 #endif // _BACKEND_JACK_HH

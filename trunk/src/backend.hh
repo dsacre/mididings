@@ -24,6 +24,15 @@ class Backend
   : boost::noncopyable
 {
   public:
+    struct BackendError
+      : public std::runtime_error
+    {
+        BackendError(std::string const & w)
+          : std::runtime_error(w)
+        {
+        }
+    };
+
     typedef boost::function<void ()> InitFunction;
     typedef boost::function<void ()> CycleFunction;
 
@@ -44,15 +53,11 @@ class Backend
         }
     }
 
+    virtual std::size_t num_out_ports() const = 0;
+
   protected:
-    struct BackendError
-      : public std::runtime_error
-    {
-        BackendError(std::string const & w)
-          : std::runtime_error(w)
-        {
-        }
-    };
+    static MidiEvent buffer_to_midi_event(unsigned char *data, int port, uint64_t frame);
+    static void midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame);
 };
 
 

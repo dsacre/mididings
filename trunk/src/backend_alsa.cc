@@ -90,9 +90,10 @@ void BackendAlsa::start(InitFunction init, CycleFunction cycle)
 {
     snd_seq_drop_input(_seq_handle);
 
-    _thrd.reset(new boost::thread(
-        (boost::lambda::bind(init), boost::lambda::bind(cycle))
-    ));
+    _thrd.reset(new boost::thread((
+        boost::lambda::bind(init),
+        boost::lambda::bind(cycle)
+    )));
 }
 
 

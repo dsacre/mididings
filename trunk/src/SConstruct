@@ -14,6 +14,7 @@ env = Environment(
         'ENABLE_TEST',
 #        'ENABLE_BENCHMARK',
         'ENABLE_JACK_MIDI',
+        'ENABLE_SMF',
     ],
     CPPPATH = ['.'],
     ENV = os.environ,
@@ -26,17 +27,30 @@ cv_opt = sysconfig.get_config_var('CFLAGS')
 cflags = [ x for x in cv_opt.split() if x not in ['-g', '-O2', '-Wstrict-prototypes', '-DNDEBUG'] ]
 env.Append(CCFLAGS = cflags)
 
-env.Append(CPPPATH = [sysconfig.get_python_inc(plat_specific=1)],
-           LIBPATH = [sysconfig.get_python_lib(plat_specific=1)])
+env.Append(
+    CPPPATH = [sysconfig.get_python_inc(plat_specific=1)],
+    LIBPATH = [sysconfig.get_python_lib(plat_specific=1)]
+)
 
 env.ParseConfig(
     'pkg-config --cflags --libs alsa jack'
 )
 
+if 'ENABLE_SMF' in env['CPPDEFINES']:
+    env.ParseConfig(
+        'pkg-config --cflags --libs smf'
+    )
+
 env.SharedLibrary('_mididings', [
-        'backend_alsa.cc', 'backend_jack.cc',
-        'engine.cc', 'patch.cc', 'units.cc',
-        'python_caller.cc', 'python_module.cc'
+        'backend.cc',
+        'backend_alsa.cc',
+        'backend_jack.cc',
+        'backend_smf.cc',
+        'engine.cc',
+        'patch.cc',
+        'units.cc',
+        'python_caller.cc',
+        'python_module.cc',
     ],
     SHLIBPREFIX='', SHOBJSUFFIX='.o'
 )

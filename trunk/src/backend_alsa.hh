@@ -38,6 +38,8 @@ class BackendAlsa
     virtual void output_event(MidiEvent const & ev);
     virtual void flush_output();
 
+    virtual std::size_t num_out_ports() const { return _portid_out.size(); }
+
   private:
     MidiEvent alsa_to_midi_event(snd_seq_event_t const & alsa_ev);
     snd_seq_event_t midi_event_to_alsa(MidiEvent const & ev);

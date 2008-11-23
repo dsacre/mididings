@@ -62,8 +62,6 @@ class Engine
     void add_patch(int i, PatchPtr patch, PatchPtr init_patch);
     void set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch);
 
-    int num_out_ports() const { return _num_out_ports; }
-
     void start(int first_patch);
 
     void switch_patch(int n);
@@ -99,7 +97,6 @@ class Engine
 
     PyObject * _self;
     bool _verbose;
-    int _num_out_ports;
 
     boost::shared_ptr<Backend> _backend;
 

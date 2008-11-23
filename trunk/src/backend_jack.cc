@@ -9,8 +9,6 @@
  * (at your option) any later version.
  */
 
-#ifdef ENABLE_JACK_MIDI
-
 #include "backend_jack.hh"
 #include "midi_event.hh"
 #include "config.hh"
@@ -36,7 +34,7 @@ BackendJack::BackendJack(std::string const & client_name,
                          std::vector<std::string> const & out_portnames)
   : _in_ports(in_portnames.size())
   , _out_ports(out_portnames.size())
-  , _frame(0)
+  , _current_frame(0)
 {
     ASSERT(!client_name.empty());
     ASSERT(!in_portnames.empty());
@@ -87,7 +85,7 @@ int BackendJack::process_(jack_nframes_t nframes, void *arg)
 
     int r = this_->process(nframes);
 
-    this_->_frame += nframes;
+    this_->_current_frame += nframes;
     return r;
 }
 
@@ -114,8 +112,7 @@ bool BackendJack::read_event_from_buffer(MidiEvent & ev, jack_nframes_t nframes)
 
             //std::cout << "in: " << jack_ev.time << std::endl;
 
-            ev = jack_to_midi_event(jack_ev, _input_port);
-            ev.frame = _frame + jack_ev.time;
+            ev = buffer_to_midi_event(jack_ev.buffer, _input_port, _current_frame + jack_ev.time);
 
             if (++_input_count >= num_events) {
                 ++_input_port;
@@ -137,19 +134,21 @@ void BackendJack::write_event_to_buffer(MidiEvent const & ev, jack_nframes_t nfr
     unsigned char data[3];
     std::size_t len;
     int port;
-    midi_event_to_jack(ev, data, len, port);
+    uint64_t frame;
+
+    midi_event_to_buffer(ev, data, len, port, frame);
 
     if (len) {
         void *port_buffer = jack_port_get_buffer(_out_ports[port], nframes);
 
         jack_nframes_t f;
 
-        if (ev.frame >= _frame) {
+        if (frame >= _current_frame) {
             // event received within current period, zero delay
-            f = ev.frame - _frame;
-        } else if (ev.frame >= _frame - nframes) {
+            f = frame - _current_frame;
+        } else if (frame >= _current_frame - nframes) {
             // event received during last period, exactly one period delay (minimize jitter)
-            f = ev.frame - _frame + nframes;
+            f = frame - _current_frame + nframes;
         } else {
             // event is older, send as soon as possible (minimize latency)
             f = 0;
@@ -158,102 +157,6 @@ void BackendJack::write_event_to_buffer(MidiEvent const & ev, jack_nframes_t nfr
         //std::cout << "out: " << f << std::endl;
         jack_midi_event_write(port_buffer, f, data, len);
     }
-}
-
-
-MidiEvent BackendJack::jack_to_midi_event(jack_midi_event_t const & jack_ev, int port)
-{
-    MidiEvent ev;
-
-    jack_midi_data_t *data = jack_ev.buffer;
-
-    ev.port = port;
-    ev.channel = data[0] & 0x0f;
-
-    switch (data[0] & 0xf0) {
-      case 0x90:
-        ev.type = MIDI_EVENT_NOTEON;
-        ev.note.note = data[1];
-        ev.note.velocity = data[2];
-        break;
-      case 0x80:
-        ev.type = MIDI_EVENT_NOTEOFF;
-        ev.note.note = data[1];
-        ev.note.velocity = data[2];
-        break;
-      case 0xb0:
-        ev.type = MIDI_EVENT_CTRL;
-        ev.ctrl.param = data[1];
-        ev.ctrl.value = data[2];
-        break;
-      case 0xe0:
-        ev.type = MIDI_EVENT_PITCHBEND;
-        ev.ctrl.param = 0;
-        ev.ctrl.value = (data[2] << 7 | data[1]) - 8192;
-        break;
-      case 0xd0:
-        ev.type = MIDI_EVENT_AFTERTOUCH;
-        ev.ctrl.param = 0;
-        ev.ctrl.value = data[1];
-        break;
-      case 0xc0:
-        ev.type = MIDI_EVENT_PROGRAM;
-        ev.ctrl.param = 0;
-        ev.ctrl.value = data[1];
-        break;
-      default:
-        ev.type = MIDI_EVENT_NONE;
-        break;
-    }
-
-    return ev;
-}
-
-
-void BackendJack::midi_event_to_jack(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port)
-{
-    switch (ev.type) {
-      case MIDI_EVENT_NOTEON:
-        len = 3;
-        data[0] = 0x90;
-        data[1] = ev.note.note;
-        data[2] = ev.note.velocity;
-        break;
-      case MIDI_EVENT_NOTEOFF:
-        len = 3;
-        data[0] = 0x80;
-        data[1] = ev.note.note;
-        data[2] = ev.note.velocity;
-        break;
-      case MIDI_EVENT_CTRL:
-        len = 3;
-        data[0] = 0xb0;
-        data[1] = ev.ctrl.param;
-        data[2] = ev.ctrl.value;
-        break;
-      case MIDI_EVENT_PITCHBEND:
-        len = 3;
-        data[0] = 0xe0;
-        data[1] = (ev.ctrl.value + 8192) % 128;
-        data[2] = (ev.ctrl.value + 8192) / 128;
-        break;
-      case MIDI_EVENT_AFTERTOUCH:
-        len = 2;
-        data[0] = 0xd0;
-        data[1] = ev.ctrl.value;
-        break;
-      case MIDI_EVENT_PROGRAM:
-        len = 2;
-        data[0] = 0xc0;
-        data[1] = ev.ctrl.value;
-        break;
-      default:
-        len = 0;
-    }
-
-    data[0] |= ev.channel;
-
-    port = ev.port;
 }
 
 
@@ -289,9 +192,10 @@ void BackendJackBuffered::start(InitFunction init, CycleFunction cycle)
     _in_rb.reset();
 
     // start processing thread
-    _thrd.reset(new boost::thread(
-        (boost::lambda::bind(init), boost::lambda::bind(cycle))
-    ));
+    _thrd.reset(new boost::thread((
+        boost::lambda::bind(init),
+        boost::lambda::bind(cycle)
+    )));
 }
 
 
@@ -405,6 +309,3 @@ void BackendJackRealtime::output_event(MidiEvent const & ev)
         _out_rb.write(ev);
     }
 }
-
-
-#endif // ENABLE_JACK_MIDI

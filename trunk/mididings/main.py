@@ -53,6 +53,16 @@ def run_patches(patches, control=None, pre=None, post=None, first_patch=-1, patc
         return
 
 
+def process_file(infile, outfile, patch):
+    config(
+        backend = 'smf',
+        in_ports = [infile],
+        out_ports = [outfile],
+    )
+    e = engine.Engine({ 0: patch }, None, None, None)
+    e.start(0, None)
+
+
 def test_run(patch, events):
     return test_run_patches({ _config['data_offset']: patch }, events)
 
@@ -77,4 +87,4 @@ def current_patch():
 
 
 
-__all__ = ['config', 'run', 'run_patches', 'switch_patch', 'current_patch']
+__all__ = ['config', 'run', 'run_patches', 'process_file', 'switch_patch', 'current_patch']

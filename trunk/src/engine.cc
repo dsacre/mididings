@@ -12,7 +12,14 @@
 #include "config.hh"
 #include "engine.hh"
 #include "backend_alsa.hh"
-#include "backend_jack.hh"
+
+#ifdef ENABLE_JACK_MIDI
+  #include "backend_jack.hh"
+#endif
+#ifdef ENABLE_SMF
+  #include "backend_smf.hh"
+#endif
+
 #include "python_util.hh"
 #include "units.hh"
 
@@ -62,11 +69,14 @@ Engine::Engine(PyObject * self,
         _backend.reset(new BackendJackRealtime(client_name, in_ports, out_ports));
     }
 #endif
+#ifdef ENABLE_SMF
+    else if (backend_name == "smf") {
+        _backend.reset(new BackendSmf(in_ports[0], out_ports[0]));
+    }
+#endif
     else if (backend_name != "dummy") {
         throw std::runtime_error("invalid backend selected: " + backend_name);
     }
-
-    _num_out_ports = (int)out_ports.size();
 
     Patch::UnitPtr sani(new Sanitize);
     Patch::ModulePtr mod(new Patch::Single(sani));
@@ -79,6 +89,7 @@ Engine::~Engine()
     DEBUG_FN();
 
     // needs to be gone before the engine can be destroyed
+    _python_caller.reset();
     _backend.reset();
 }
 
@@ -310,7 +321,7 @@ void Engine::process_patch_switch(Events & buffer, int n)
 
 bool Engine::sanitize_event(MidiEvent & ev) const
 {
-    if (ev.port < 0 || ev.port >= num_out_ports()) {
+    if (ev.port < 0 || ev.port >= static_cast<int>(_backend->num_out_ports())) {
         if (_verbose) std::cout << "invalid port, event discarded" << std::endl;
         return false;
     }

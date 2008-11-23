@@ -12,9 +12,7 @@
 #ifndef _MIDI_EVENT_HH
 #define _MIDI_EVENT_HH
 
-#ifdef ENABLE_JACK_MIDI
-#include <jack/types.h>
-#endif
+#include <boost/cstdint.hpp>
 
 
 enum MidiEventType
@@ -75,9 +73,7 @@ struct MidiEvent
         };
     };
 
-#ifdef ENABLE_JACK_MIDI
-    jack_nframes_t frame;
-#endif
+    uint64_t frame;
 };
 
 
