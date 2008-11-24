@@ -24,8 +24,11 @@ for arg in sys.argv[1:]:
     check_option('smf', arg)
 
 
-def pkgconfig(*pkgs):
-    for token in commands.getoutput('pkg-config --libs --cflags %s' % ' '.join(pkgs)).split():
+def pkgconfig(pkg):
+    status, output = commands.getstatusoutput('pkg-config --libs --cflags %s' % pkg)
+    if status:
+        sys.exit("couldn't find package '%s'" % pkg)
+    for token in output.split():
         opt, val = token[:2], token[2:]
         if opt == '-I':
             include_dirs.append(val)
@@ -51,7 +54,8 @@ libraries = []
 library_dirs = []
 
 
-pkgconfig('alsa', 'jack')
+pkgconfig('alsa')
+pkgconfig('jack')
 include_dirs.append('src')
 libraries.append('boost_python-mt')
 libraries.append('boost_thread-mt')
