@@ -15,10 +15,11 @@
 BackendSmf::BackendSmf(std::string const & infile, std::string const & outfile)
   : _outfile(outfile)
 {
-    _smf_in.reset(smf_load(infile.c_str()), smf_delete);
-    if (!_smf_in) {
+    smf_t *smf_in = smf_load(infile.c_str());
+    if (!smf_in) {
         throw BackendError("couldn't load input file");
     }
+    _smf_in.reset(smf_in, smf_delete);
 
     _smf_out.reset(smf_new(), smf_delete);
 
@@ -34,9 +35,6 @@ BackendSmf::BackendSmf(std::string const & infile, std::string const & outfile)
 
 BackendSmf::~BackendSmf()
 {
-    if (smf_save(_smf_out.get(), _outfile.c_str())) {
-        throw BackendError("couldn't save output file");
-    }
 }
 
 
@@ -44,6 +42,10 @@ void BackendSmf::start(InitFunction init, CycleFunction cycle)
 {
     init();
     cycle();
+
+    if (smf_save(_smf_out.get(), _outfile.c_str())) {
+        throw BackendError("couldn't save output file");
+    }
 }
 
 
