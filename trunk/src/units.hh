@@ -84,17 +84,24 @@ class InvertedFilter
   : public Filter
 {
   public:
-    InvertedFilter(boost::shared_ptr<Filter> filter)
-      : Filter(MIDI_EVENT_ANY), _filter(filter)
+    InvertedFilter(boost::shared_ptr<Filter> filter, bool ignore_types)
+      : Filter(MIDI_EVENT_ANY)
+      , _filter(filter)
+      , _ignore_types(ignore_types)
     {
     }
 
     virtual bool process(MidiEvent & ev) {
-        return (!(_filter->types() & ev.type) || !_filter->process(ev));
+        if (_ignore_types) {
+            return !_filter->process(ev);
+        } else {
+            return !(_filter->types() & ev.type) || !_filter->process(ev);
+        }
     }
 
   private:
     boost::shared_ptr<Filter> _filter;
+    bool _ignore_types;
 };
 
 

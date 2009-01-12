@@ -227,10 +227,15 @@ Inverts the filter F. Note that for filters which only affect certain kinds of e
 other events will remain unaffected when the filter is inverted.
 </p>
 
+<h4>-F</h4>
+<p>
+Inverts the filter F. Unlike ~F, -F matches exactly the events that F doesn't.
+</p>
+
 <h4>F % A</h4>
 <p>
 Runs only those events through A which match filter F, but keeps those which don't.
-Equivalent to [ F &gt;&gt; A, ~F ].
+Equivalent to [ F &gt;&gt; A, -F ].
 </p>
 
 

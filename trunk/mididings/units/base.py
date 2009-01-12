@@ -48,8 +48,7 @@ class Fork(list, _Unit):
             list.__init__(self, units)
         else:
             # fork only certain types of events
-            l = [ (Filter(types) >> x) for x in units ] + \
-                [ ~Filter(types) ]
+            l = [ (Filter(types) >> x) for x in units ] + [ -Filter(types) ]
             list.__init__(self, l)
         self.remove_duplicates = remove_duplicates
 
@@ -63,14 +62,16 @@ class Split(dict, _Unit):
 # base class for all filters, supporting operator ~
 class _Filter(_Unit):
     def __invert__(self):
-        return _InvertedFilter(self)
+        return _InvertedFilter(self, False)
+    def __neg__(self):
+        return _InvertedFilter(self, True)
     def __mod__(self, other):
-        return Fork([ self >> other, ~self ])
+        return Fork([ self >> other, -self ])
 
 
 class _InvertedFilter(_mididings.InvertedFilter, _Filter):
-    def __init__(self, filt):
-        _mididings.InvertedFilter.__init__(self, filt)
+    def __init__(self, filt, ignore_types):
+        _mididings.InvertedFilter.__init__(self, filt, ignore_types)
 
 
 # filters by event type

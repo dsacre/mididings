@@ -26,13 +26,6 @@
 #include "patch.hh"
 #include "units.hh"
 
-using boost::python::class_;
-using boost::python::bases;
-using boost::python::init;
-using boost::noncopyable;
-namespace bp = boost::python;
-
-
 static inline int midi_event_get_type(MidiEvent & ev) {
     return (int)ev.type;
 }
@@ -44,14 +37,21 @@ static inline void midi_event_set_type(MidiEvent & ev, int t) {
 
 BOOST_PYTHON_MODULE(_mididings)
 {
+    using boost::python::class_;
+    using boost::python::bases;
+    using boost::python::init;
+    using boost::noncopyable;
+    namespace bp = boost::python;
+
     PyEval_InitThreads();
+
 
     class_<Unit, noncopyable>("Unit", bp::no_init);
     class_<UnitEx, noncopyable>("UnitEx", bp::no_init);
 
     class_<Pass, bases<Unit>, noncopyable>("Pass", init<bool>());
     class_<Filter, bases<Unit>, noncopyable>("Filter", init<int>());
-    class_<InvertedFilter, bases<Filter>, noncopyable>("InvertedFilter", init<boost::shared_ptr<Filter> >());
+    class_<InvertedFilter, bases<Filter>, noncopyable>("InvertedFilter", init<boost::shared_ptr<Filter>, bool>());
 
     class_<PortFilter, bases<Filter>, noncopyable>("PortFilter", init<std::vector<int> const &>());
     class_<ChannelFilter, bases<Filter>, noncopyable>("ChannelFilter", init<std::vector<int> const &>());
