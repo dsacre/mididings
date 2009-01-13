@@ -279,7 +279,7 @@ Ranges can be 2-tuples of note numbers, or note names (e.g. 'g#3:c6').
 
 <h4>VelocityFilter(min, max)</h4>
 <p>
-Filters by note velocity.
+Filters by note velocity. A min or max value of 0 means no limit.
 </p>
 
 <h4>CtrlFilter(ctrl, ...)</h4>
@@ -534,6 +534,22 @@ A diatonic harmonizer.
   </ul>
   </li>
 </ul>
+
+<h4>LimitPolyphony(max_polyphony, remove_oldest=True)</h4>
+<p>
+Limits the "MIDI polyphony" to max_polyphony.
+If remove_oldest is true, the oldest notes will be stopped when the maximum polyphony is exceeded.
+If remove_oldest is false, no new notes are accepted while max_polyphony notes are held.<br>
+Note that the actual polyphony of a connected synthesizer can still be higher than the limit set here,
+e.g. due to a long release phase.
+</p>
+
+<h4>MakeMonophonic()</h4>
+<p>
+Makes the MIDI signal "monophonic", i.e. only one note can be played at any given time.
+When a note is released while another one is still held (but silent), the previous one will be retriggered.
+</p>
+
 
 <h4>SuppressPC()</h4>
 <p>
