@@ -11,19 +11,19 @@
 #
 
 from mididings import *
+from mididings.extra import CallPerChannel
 
 
 class _Suppressor:
     def __init__(self):
-        self.current = { }
+        self.current = None
     def __call__(self, ev):
-        k = (ev.port, ev.channel)
-        if k in self.current and self.current[k] == ev.program:
+        if ev.program == self.current:
             return None
         else:
-            self.current[k] = ev.program
+            self.current = ev.program
             return ev
 
 
 def SuppressPC():
-    return Split({ PROGRAM: Call(_Suppressor()), ~PROGRAM: Pass() })
+    return Filter(PROGRAM) % CallPerChannel(_Suppressor)

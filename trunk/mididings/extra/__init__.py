@@ -11,7 +11,9 @@
 #
 
 from mididings.extra.harmonizer import *
+from mididings.extra.call_per_channel import *
 from mididings.extra.suppress_pc import *
 from mididings.extra.pedal_noteoff import *
+from mididings.extra.polyphony import *
 from mididings.extra.black_keys import *
 from mididings.extra.memorize_patch import *

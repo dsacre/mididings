@@ -11,13 +11,14 @@
 #
 
 from mididings import *
+from mididings.extra import CallPerChannel
 
 
 class _PedalToNoteoff:
     def __init__(self, ctrl):
         self.ctrl = ctrl
         self.pedal = False
-        self.noteoffs = []
+        self.notes = []
 
     def __call__(self, ev):
         if ev.type_ == CTRL and ev.param == self.ctrl:
@@ -27,20 +28,19 @@ class _PedalToNoteoff:
                 return None
             else:
                 # pedal released
-                r = self.noteoffs
-                self.noteoffs = []
+                r = [NoteoffEvent(ev.port, ev.channel, x, 0) for x in self.notes]
+                self.notes = []
                 return r
         elif ev.type_ == NOTEON and self.pedal:
             try:
-                # remove noteoff if key is pressed again
-                # TODO: find a faster way to do this
-                self.noteoffs.remove(NoteoffEvent(ev.port, ev.channel, ev.note, 0))
+                # remove note if key is pressed again
+                self.notes.remove(ev.note)
             except ValueError:
                 pass
             return ev
         elif ev.type_ == NOTEOFF and self.pedal:
             # delay noteoff until pedal released
-            self.noteoffs.append(ev)
+            self.notes.append(ev.note)
             return None
 
         # everything else: return as is
@@ -48,4 +48,6 @@ class _PedalToNoteoff:
 
 
 def PedalToNoteoff(ctrl=64):
-    return Call(_PedalToNoteoff(ctrl))
+    return Filter(NOTE | CTRL) % (CtrlFilter(ctrl) %
+        CallPerChannel(lambda: _PedalToNoteoff(ctrl))
+    )
