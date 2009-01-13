@@ -76,7 +76,7 @@ class Filter
     }
 
   private:
-    const MidiEventTypes _types;
+    MidiEventTypes const _types;
 };
 
 
@@ -129,7 +129,7 @@ class PortFilter
   : public Filter
 {
   public:
-    PortFilter(const std::vector<int> & ports)
+    PortFilter(std::vector<int> const & ports)
       : Filter(MIDI_EVENT_ANY), _ports(ports)
     {
     }
@@ -150,7 +150,7 @@ class ChannelFilter
   : public Filter
 {
   public:
-    ChannelFilter(const std::vector<int> & channels)
+    ChannelFilter(std::vector<int> const & channels)
       : Filter(MIDI_EVENT_ANY), _channels(channels)
     {
     }
@@ -199,7 +199,8 @@ class VelocityFilter
 
     virtual bool process(MidiEvent & ev) {
         if (!match_type(ev)) return true;
-        return (ev.note.velocity >= _lower && ev.note.velocity <= _upper);
+        return ((ev.note.velocity >= _lower || _lower == 0) &&
+                (ev.note.velocity <= _upper || _upper == 0));
     }
 
   private:
@@ -211,7 +212,7 @@ class CtrlFilter
   : public Filter
 {
   public:
-    CtrlFilter(const std::vector<int> & ctrls)
+    CtrlFilter(std::vector<int> const & ctrls)
       : Filter(MIDI_EVENT_CTRL),
         _ctrls(ctrls)
     {
@@ -254,7 +255,7 @@ class ProgFilter
   : public Filter
 {
   public:
-    ProgFilter(const std::vector<int> & progs)
+    ProgFilter(std::vector<int> const & progs)
       : Filter(MIDI_EVENT_PROGRAM),
         _progs(progs)
     {

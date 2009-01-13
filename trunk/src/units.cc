@@ -111,7 +111,7 @@ enum ParameterIndices {
     PARAMETER_DATA2 = -4,
 };
 
-static inline int get_parameter(int value, const MidiEvent & ev)
+static inline int get_parameter(int value, MidiEvent const & ev)
 {
     if (value >= 0) {
         return value;
