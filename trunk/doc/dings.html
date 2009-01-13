@@ -475,10 +475,12 @@ Executes action when switching to the patch containing this unit (essentially ad
 see run_patches() for more information).
 </p>
 
-<h4>Output(port, channel, program=None, bank=None)</h4>
+<h4>Output(port, channel, program=None, volume=None)</h4>
 <p>
-Based on InitAction(), this sends a program change when the patch is selected,
-and routes all incoming events to the specified port/channel.
+Routes incoming events to the specified port/channel.
+Optionally, when switching to the patch containing this unit, a program change and/or volume change (CC 7) can be sent.
+To send a bank select in addition to the program change, program can be a tuple with two elements, where the first element
+is the bank number, and the second is the program number.
 </p>
 
 <h4>Print(name=None, types=ANY, portnames=Print.PORTNAMES_NONE)</h4>
@@ -549,7 +551,6 @@ e.g. due to a long release phase.
 Makes the MIDI signal "monophonic", i.e. only one note can be played at any given time.
 When a note is released while another one is still held (but silent), the previous one will be retriggered.
 </p>
-
 
 <h4>SuppressPC()</h4>
 <p>
