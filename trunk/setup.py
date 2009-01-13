@@ -82,7 +82,7 @@ sysconfig.get_config_vars()['CFLAGS'] = ' '.join(cv_opt.split())
 
 setup(
     name = 'mididings',
-    version = '20081123',
+    version = '20090113',
     author = 'Dominic Sacre',
     author_email = 'dominic.sacre@gmx.de',
     url = 'http://das.nasophon.de/mididings/',
