@@ -20,20 +20,25 @@ class InitAction(_Unit):
         self.action = action
 
 
-def Output(port, channel, program=None, bank=None):
-    if bank != None:
-        return Fork([
-            InitAction([
-                CtrlChange(port, channel, 0, bank // 128),
-                CtrlChange(port, channel, 32, bank % 128),
-                ProgChange(port, channel, program),
-            ]),
-            Port(port) >> Channel(channel),
-        ])
-    elif program != None:
-        return Fork([
-            InitAction(ProgChange(port, channel, program)),
-            Port(port) >> Channel(channel),
-        ])
+def Output(port, channel, program=None, volume=None):
+    if isinstance(program, tuple):
+        bank, program = program
     else:
-        return Port(port) >> Channel(channel)
+        bank = None
+
+    init = []
+
+    if bank != None:
+        init.append(CtrlChange(port, channel, 0, bank // 128))
+        init.append(CtrlChange(port, channel, 32, bank % 128))
+
+    if program != None:
+        init.append(ProgChange(port, channel, program))
+
+    if volume != None:
+        init.append(CtrlChange(port, channel, 7, volume))
+
+    return Fork([
+        InitAction(init),
+        Port(port) >> Channel(channel)
+    ])
