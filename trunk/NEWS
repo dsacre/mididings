@@ -1,10 +1,13 @@
+2009-01-14
+
+ * Output() now supports sending volume changes (CC 7).
+
 2009-01-13
 
  * New units in mididings.extra: MakeMonophonic() and LimitPolyphony()
  * Added event-type agnostic inversion operator - for filters.
  * VelocityFilter() can now be used with only an upper or lower limit when the
    other parameter is zero.
- * Output() now supports sending volume changes (CC 7).
 
 2008-11-23
 
