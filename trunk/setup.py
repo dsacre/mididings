@@ -79,6 +79,8 @@ for removal in removals:
     cv_opt = cv_opt.replace(removal, " ")
 sysconfig.get_config_vars()['CFLAGS'] = ' '.join(cv_opt.split())
 
+# reduce binary size
+sysconfig.get_config_vars()['CFLAGS'] += ' -finline-functions -fvisibility=hidden'
 
 setup(
     name = 'mididings',
