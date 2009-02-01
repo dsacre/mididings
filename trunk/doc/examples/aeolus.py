@@ -14,7 +14,7 @@ from mididings import *
 
 def aeolus_button(ctrl, group, button):
     return CtrlFilter(ctrl) >> [
-        CtrlValueFilter( 0,  63) >> [ CtrlChange(98, 0x50 | group), CtrlChange(98, button) ],
+        CtrlValueFilter( 0,  64) >> [ CtrlChange(98, 0x50 | group), CtrlChange(98, button) ],
         CtrlValueFilter(64, 127) >> [ CtrlChange(98, 0x60 | group), CtrlChange(98, button) ]
     ]
 

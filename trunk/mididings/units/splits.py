@@ -74,7 +74,7 @@ def CtrlValueSplit(*args):
     elif len(args) == 3:
         # CtrlValueSplit(thresh, unit_lower, unit_upper)
         thresh, unit_lower, unit_upper = args
-        filt = CtrlValueFilter(0, thresh - 1)
+        filt = CtrlValueFilter(0, thresh)
         return Filter(_event.CTRL) % [
             filt  >> unit_lower,
             ~filt >> unit_upper

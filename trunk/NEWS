@@ -1,3 +1,6 @@
+  * Made all key or value ranges half-open (excluding the upper limit) for
+    consistency with Python. This affects KeyFilter(), VelocityFilter(),
+    CtrlValueFilter() and the related *Splits.
   * New compiler options to significantly reduce the size of the resulting
     _mididings.so binary.
 

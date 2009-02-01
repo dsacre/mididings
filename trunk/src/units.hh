@@ -179,7 +179,7 @@ class KeyFilter
 
     virtual bool process(MidiEvent & ev) {
         if (!match_type(ev)) return true;
-        return (ev.note.note >= _lower && ev.note.note <= _upper);
+        return (ev.note.note >= _lower && ev.note.note < _upper);
     }
 
   private:
@@ -200,7 +200,7 @@ class VelocityFilter
     virtual bool process(MidiEvent & ev) {
         if (!match_type(ev)) return true;
         return ((ev.note.velocity >= _lower || _lower == 0) &&
-                (ev.note.velocity <= _upper || _upper == 0));
+                (ev.note.velocity < _upper || _upper == 0));
     }
 
   private:
@@ -243,7 +243,7 @@ class CtrlValueFilter
 
     virtual bool process(MidiEvent & ev) {
         if (!match_type(ev)) return true;
-        return ((ev.ctrl.value >= _lower && ev.ctrl.value <= _upper) || (ev.ctrl.value == _lower && !_upper));
+        return ((ev.ctrl.value >= _lower && ev.ctrl.value < _upper) || (ev.ctrl.value == _lower && !_upper));
     }
 
   private:

@@ -38,13 +38,13 @@ class SimpleTestCase(unittest.TestCase):
         assert len(r) == 0
 
     def testInvertedFilter(self):
-        p = ~VelocityFilter(64, 127)
+        p = ~VelocityFilter(64, 128)
         r = test_run(p, self.noteon1)
         assert len(r) == 1
         r = test_run(p, self.noteon2)
         assert len(r) == 0
         r = test_run(p, self.prog1)
-        assert len(r) == 1 ####
+        assert len(r) == 1
 
     def testFilter(self):
         p = Filter(PROGRAM)
@@ -70,13 +70,13 @@ class SimpleTestCase(unittest.TestCase):
         assert len(r) == 1
 
     def testVelocityFilter(self):
-        p = VelocityFilter(64, 127)
+        p = VelocityFilter(64, 128)
         r = test_run(p, self.noteon1)
         assert len(r) == 0
         r = test_run(p, self.noteon2)
         assert len(r) == 1
         r = test_run(p, self.prog1)
-        assert len(r) == 1 ####
+        assert len(r) == 1
 
     def testSplit(self):
         p = Split({ NOTE: Channel(1), PROGRAM: Channel(2) })
