@@ -12,10 +12,10 @@
 
 import _mididings
 
-from .base import _Unit
+from mididings.units.base import _Unit
 
-from .. import event as _event
-from .. import util as _util
+from mididings import event as _event
+from mididings import util as _util
 
 
 class GenerateEvent(_mididings.GenerateEvent, _Unit):

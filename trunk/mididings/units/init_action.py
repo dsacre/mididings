@@ -10,9 +10,9 @@
 # (at your option) any later version.
 #
 
-from .base import _Unit, Fork
-from .generators import ProgChange, CtrlChange
-from .modifiers import Port, Channel
+from mididings.units.base import _Unit, Fork
+from mididings.units.generators import ProgChange, CtrlChange
+from mididings.units.modifiers import Port, Channel
 
 
 class InitAction(_Unit):

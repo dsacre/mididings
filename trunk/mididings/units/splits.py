@@ -10,11 +10,11 @@
 # (at your option) any later version.
 #
 
-from .base import Fork, Filter
-from .filters import PortFilter, ChannelFilter, KeyFilter, VelocityFilter
-from .filters import CtrlFilter, CtrlValueFilter, ProgFilter
+from mididings.units.base import Fork, Filter
+from mididings.units.filters import PortFilter, ChannelFilter, KeyFilter, VelocityFilter
+from mididings.units.filters import CtrlFilter, CtrlValueFilter, ProgFilter
 
-from .. import event as _event
+from mididings import event as _event
 
 
 def PortSplit(d):

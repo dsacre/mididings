@@ -12,10 +12,10 @@
 
 import _mididings
 
-from .base import _Filter
+from mididings.units.base import _Filter
 
-from .. import util as _util
-from .. import misc as _misc
+from mididings import util as _util
+from mididings import misc as _misc
 
 
 class PortFilter(_mididings.PortFilter, _Filter):

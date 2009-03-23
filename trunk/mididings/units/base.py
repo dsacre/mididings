@@ -12,8 +12,8 @@
 
 import _mididings
 
-from .. import event as _event
-from .. import util as _util
+from mididings import event as _event
+from mididings import util as _util
 
 
 # base class for all units

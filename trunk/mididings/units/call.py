@@ -12,9 +12,9 @@
 
 import _mididings
 
-from .base import _Unit
+from mididings.units.base import _Unit
 
-from .. import event as _event
+from mididings import event as _event
 
 import thread as _thread
 import subprocess as _subprocess

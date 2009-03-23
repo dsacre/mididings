@@ -10,10 +10,10 @@
 # (at your option) any later version.
 #
 
-from .call import _CallBase
+from mididings.units.call import _CallBase
 
-from .. import main as _main
-from .. import event as _event
+from mididings import main as _main
+from mididings import event as _event
 
 
 class Print(_CallBase):

@@ -12,9 +12,9 @@
 
 import _mididings
 
-from .base import _Unit
+from mididings.units.base import _Unit
 
-from .. import util as _util
+from mididings import util as _util
 
 
 class Port(_mididings.Port, _Unit):
