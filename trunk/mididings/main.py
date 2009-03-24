@@ -10,11 +10,10 @@
 # (at your option) any later version.
 #
 
-import engine
-import event
-import misc
+import engine as _engine
+import misc as _misc
 
-import time
+import time as _time
 
 
 _config = {
@@ -44,11 +43,11 @@ def run(patch):
 def run_patches(patches, control=None, pre=None, post=None, first_patch=-1, patch_switch_callback=None):
     if first_patch == -1:
         first_patch = _config['data_offset']
-    e = engine.Engine(patches, control, pre, post)
+    e = _engine.Engine(patches, control, pre, post)
     try:
         e.start(first_patch, patch_switch_callback)
         while True:
-            time.sleep(3600)
+            _time.sleep(3600)
     except KeyboardInterrupt:
         return
 
@@ -59,7 +58,7 @@ def process_file(infile, outfile, patch):
         in_ports = [infile],
         out_ports = [outfile],
     )
-    e = engine.Engine({ 0: patch }, None, None, None)
+    e = _engine.Engine({ 0: patch }, None, None, None)
     e.start(0, None)
 
 
@@ -69,9 +68,9 @@ def test_run(patch, events):
 
 def test_run_patches(patches, events):
     config(backend = 'dummy')
-    e = engine.Engine(patches, None, None, None)
+    e = _engine.Engine(patches, None, None, None)
     r = []
-    if not misc.issequence(events):
+    if not _misc.issequence(events):
         events = [events]
     for ev in events:
         r += e.process(ev)[:]
@@ -87,4 +86,4 @@ def current_patch():
 
 
 
-__all__ = ['config', 'run', 'run_patches', 'process_file', 'switch_patch', 'current_patch']
+__all__ = ['config', 'run', 'run_patches', 'process_file', 'switch_patch', 'current_patch', 'output_event']
