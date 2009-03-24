@@ -23,7 +23,7 @@ MidiEvent Backend::buffer_to_midi_event(unsigned char *data, int port, uint64_t 
     switch (data[0] & 0xf0)
     {
       case 0x90:
-        ev.type = MIDI_EVENT_NOTEON;
+        ev.type = data[2] ? MIDI_EVENT_NOTEON : MIDI_EVENT_NOTEOFF;
         ev.note.note = data[1];
         ev.note.velocity = data[2];
         break;
