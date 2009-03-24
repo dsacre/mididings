@@ -86,4 +86,4 @@ def current_patch():
 
 
 
-__all__ = ['config', 'run', 'run_patches', 'process_file', 'switch_patch', 'current_patch', 'output_event']
+__all__ = ['config', 'run', 'run_patches', 'process_file', 'switch_patch', 'current_patch']
