@@ -1,0 +1,14 @@
+include setup.py
+include README
+include COPYING
+include NEWS
+include mididings/*.py
+include mididings/units/*.py
+include mididings/extra/*.py
+include src/SConstruct
+include src/*.hh
+include src/*.cc
+include src/util/*.hh
+include test/unit.py
+include doc/*.html
+include doc/examples/*.py
