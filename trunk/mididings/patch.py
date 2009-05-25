@@ -21,7 +21,7 @@ class Patch(_mididings.Patch):
         _mididings.Patch.__init__(self, self.build(p))
 
     def build(self, p):
-        if isinstance(p, units.base._Chain):
+        if isinstance(p, units.base.Chain):
             v = Patch.ModuleVector()
             for i in p.units:
                 v.push_back(self.build(i))
@@ -58,7 +58,7 @@ class Patch(_mididings.Patch):
 
 
 def get_init_actions(patch):
-    if isinstance(patch, units.base._Chain):
+    if isinstance(patch, units.base.Chain):
         r = [get_init_actions(p) for p in patch.units]
 
     elif isinstance(patch, list):
