@@ -56,7 +56,7 @@ class Print(_CallBase):
         # find maximum port name length (delayed for the same reason as above)
         if Print.portnames_used and Print.max_portname_length == -1:
             all_ports = _main.TheEngine.in_ports + _main.TheEngine.out_ports
-            Print.max_portname_length = max((len(p) for p in all_ports))
+            Print.max_portname_length = max(len(p) for p in all_ports)
 
         if ev.type_ & self.types:
             if self.name:

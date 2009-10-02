@@ -95,7 +95,7 @@ class MidiEvent(_mididings.MidiEvent):
         else:
             s = 'None'
 
-        return '[%*s, %2d] %s' % (portname_length, port, channel, s)
+        return '[%*s, %2d] %s' % (max(portname_length, 2), port, channel, s)
 
     type      = property(*_make_get_set(ANY, 'type_'))
     port      = property(*_make_get_set(ANY, 'port_', lambda: _main._config['data_offset']))
