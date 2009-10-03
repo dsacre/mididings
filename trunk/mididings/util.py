@@ -83,7 +83,7 @@ def note_number(note):
 def note_range(notes):
     try:
         # single note?
-        return (note_number(notes),) * 2
+        return (note_number(notes), note_number(notes) + 1)
     except:
         if not isinstance(notes, tuple):
             notes = notes.split(':', 1)
