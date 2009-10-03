@@ -71,20 +71,26 @@ if config['smf']:
     pkgconfig('smf')
 
 
-# hack to remove compiler flags from the distutils default.
-# -Wstrict-prototypes is not valid for C++
-removals = ['-g', '-Wstrict-prototypes']
-cv_opt = sysconfig.get_config_var('CFLAGS')
-for removal in removals:
-    cv_opt = cv_opt.replace(removal, " ")
-sysconfig.get_config_vars()['CFLAGS'] = ' '.join(cv_opt.split())
+# hack to modify the compiler flags from the distutils default
+distutils_customize_compiler = sysconfig.customize_compiler
+def my_customize_compiler(compiler):
+    retval = distutils_customize_compiler(compiler)
+    try:
+        # -Wstrict-prototypes is not valid for C++
+        compiler.compiler_so.remove('-Wstrict-prototypes')
+        # some options to reduce the size of the binary
+        compiler.compiler_so.remove('-g')
+        compiler.compiler_so.append('-finline-functions')
+        compiler.compiler_so.append('-fvisibility=hidden')
+    except (AttributeError, ValueError):
+        pass
+    return retval
+sysconfig.customize_compiler = my_customize_compiler
 
-# reduce binary size
-sysconfig.get_config_vars()['CFLAGS'] += ' -finline-functions -fvisibility=hidden'
 
 setup(
     name = 'mididings',
-    version = '20090114',
+    version = '20091003',
     author = 'Dominic Sacre',
     author_email = 'dominic.sacre@gmx.de',
     url = 'http://das.nasophon.de/mididings/',
