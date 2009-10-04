@@ -13,15 +13,16 @@
 from mididings import *
 
 def aeolus_button(ctrl, group, button):
-    return CtrlFilter(ctrl) >> [
-        CtrlValueFilter( 0,  64) >> [ CtrlChange(98, 0x50 | group), CtrlChange(98, button) ],
-        CtrlValueFilter(64, 127) >> [ CtrlChange(98, 0x60 | group), CtrlChange(98, button) ]
-    ]
+    return CtrlFilter(ctrl) >> CtrlValueSplit(64,
+        [ CtrlChange(98, 0x50 | group), CtrlChange(98, button) ],
+        [ CtrlChange(98, 0x60 | group), CtrlChange(98, button) ]
+    )
 
 run(
-    Filter(CTRL) >>
-    [ aeolus_button(     n, 0, n) for n in range(12) ] +
-    [ aeolus_button(12 + n, 1, n) for n in range(13) ] +
-    [ aeolus_button(25 + n, 2, n) for n in range(16) ] +
-    [ aeolus_button(41 + n, 3, n) for n in range(16) ]
+    Filter(CTRL) % (
+        [ aeolus_button(     n, 0, n) for n in range(12) ] +
+        [ aeolus_button(12 + n, 1, n) for n in range(13) ] +
+        [ aeolus_button(25 + n, 2, n) for n in range(16) ] +
+        [ aeolus_button(41 + n, 3, n) for n in range(16) ]
+    )
 )
