@@ -53,6 +53,7 @@ class Engine(_mididings.Engine):
         self.set_processing(ctrl, pre_patch, post_patch)
 
         self.patch_switch_callback = None
+        self.quit = False
 
         # delay before actually sending any midi data (give qjackctl patchbay time to react...)
         if main._config['start_delay'] != None:
@@ -66,10 +67,24 @@ class Engine(_mididings.Engine):
         gc.collect()
         gc.disable()
 
-    def start(self, first_patch, patch_switch_callback):
+    def run(self, first_patch, patch_switch_callback):
         # hmmm...
         self.patch_switch_callback = patch_switch_callback
-        _mididings.Engine.start(self, util.patch_number(first_patch))
+        self.start(util.patch_number(first_patch))
+
+        if main._config['osc_port']:
+            import liblo
+            s = liblo.Server(main._config['osc_port'])
+            s.add_method('/mididings/switch_scene', 'i', self.osc_switch_scene_cb)
+            s.add_method('/mididings/quit', '', self.osc_quit_cb)
+            while not self.quit:
+                s.recv(1000)
+        else:
+            while True:
+                _time.sleep(3600)
+
+    def process_file(self):
+        self.start(0)
 
     def make_portnames(self, ports, prefix):
         return ports if misc.issequence(ports) else \
@@ -82,5 +97,16 @@ class Engine(_mididings.Engine):
             if found: print "switching to patch: %d" % n
             else: print "no such patch: %d" % n
 
-        if found and self.patch_switch_callback:
-            self.patch_switch_callback(n)
+        if found:
+            if self.patch_switch_callback:
+                self.patch_switch_callback(n)
+
+            if main._config['osc_notify_port']:
+                import liblo
+                liblo.send(main._config['osc_notify_port'], '/mididings/scene', n)
+
+    def osc_switch_scene_cb(self, path, args):
+        self.switch_patch(args[0] - main._config['data_offset'])
+
+    def osc_quit_cb(self, path, args):
+        self.quit = True

@@ -26,6 +26,8 @@ _config = {
     'verbose':              True,
     'start_delay':          None,
     'remove_duplicates':    True,
+    'osc_port':             None,
+    'osc_notify_port':      None,
 }
 
 
@@ -45,9 +47,7 @@ def run_patches(patches, control=None, pre=None, post=None, first_patch=-1, patc
         first_patch = _config['data_offset']
     e = _engine.Engine(patches, control, pre, post)
     try:
-        e.start(first_patch, patch_switch_callback)
-        while True:
-            _time.sleep(3600)
+        e.run(first_patch, patch_switch_callback)
     except KeyboardInterrupt:
         return
 
@@ -59,7 +59,7 @@ def process_file(infile, outfile, patch):
         out_ports = [outfile],
     )
     e = _engine.Engine({ 0: patch }, None, None, None)
-    e.start(0, None)
+    e.process_file()
 
 
 def test_run(patch, events):
