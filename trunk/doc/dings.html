@@ -557,9 +557,10 @@ When a note is released while another one is still held (but silent), the previo
 Filters out program changes if the same program had previously been selected on the same port/channel.
 </p>
 
-<h4>PedalToNoteoff(ctrl=64)</h4>
+<h4>PedalToNoteoff(ctrl=64, sostenuto=False)</h4>
 <p>
 Converts sustain pedal CCs to note-off events (delaying note-offs until the pedal is released).
+Acts either like a regular sustain pedal (the default) or like a sostenuto pedal.
 </p>
 
 <h4>BlackKeys()<br>
