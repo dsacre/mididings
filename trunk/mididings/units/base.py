@@ -19,13 +19,13 @@ from mididings import util as _util
 # base class for all units
 class _Unit:
     def __rshift__(self, other):
-        a = self.units if isinstance(self, Chain) else [self]
-        b = other.units if isinstance(other, Chain) else [other]
+        a = self if isinstance(self, Chain) else [self]
+        b = other if isinstance(other, Chain) else [other]
         return Chain(a + b)
 
     def __rrshift__(self, other):
-        a = other.units if isinstance(other, Chain) else [other]
-        b = self.units if isinstance(self, Chain) else [self]
+        a = other if isinstance(other, Chain) else [other]
+        b = self if isinstance(self, Chain) else [self]
         return Chain(a + b)
 
     def __floordiv__(self, other):
@@ -36,9 +36,9 @@ class _Unit:
 
 
 # units connected in series
-class Chain(_Unit):
+class Chain(list, _Unit):
     def __init__(self, units):
-        self.units = units
+        list.__init__(self, units)
 
 
 # units connected in parallel

@@ -33,3 +33,8 @@ def run_scenes_memorize(memo_file, scenes, control=None, pre=None, post=None):
 
     f = open(memo_file, 'w')
     f.write(str(current_scene[0]))
+
+
+# for backward compatibility, deprecated
+def run_patches_memorize(memo_file, patches, control=None, pre=None, post=None):
+    run_scenes_memorize(memo_file, patches, control, pre, post)

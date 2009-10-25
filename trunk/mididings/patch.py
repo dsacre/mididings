@@ -13,7 +13,6 @@
 import _mididings
 import main
 import units
-import misc
 
 
 class Patch(_mididings.Patch):
@@ -23,7 +22,7 @@ class Patch(_mididings.Patch):
     def build(self, p):
         if isinstance(p, units.base.Chain):
             v = Patch.ModuleVector()
-            for i in p.units:
+            for i in p:
                 v.push_back(self.build(i))
             return Patch.Chain(v)
 
@@ -59,18 +58,26 @@ class Patch(_mididings.Patch):
 
 def get_init_actions(patch):
     if isinstance(patch, units.base.Chain):
-        r = [get_init_actions(p) for p in patch.units]
+        return flatten([get_init_actions(p) for p in patch])
 
     elif isinstance(patch, list):
-        r = [get_init_actions(p) for p in patch]
+        return flatten([get_init_actions(p) for p in patch])
 
     elif isinstance(patch, dict):
-        r = [get_init_actions(p) for p in patch.values()]
+        return flatten([get_init_actions(p) for p in patch.values()])
 
     elif isinstance(patch, units.init_action.InitAction):
-        r = [patch.action]
+        return [patch.action]
 
     else:
-        r = []
+        return []
 
-    return misc.flatten(r)
+
+def flatten(patch):
+    r = []
+    for i in patch:
+        if isinstance(i, list) and not isinstance(i, units.base.Chain):
+            r.extend(i)
+        else:
+            r.append(i)
+    return r
