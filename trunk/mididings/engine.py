@@ -81,7 +81,7 @@ class Engine(_mididings.Engine):
                 s.recv(1000)
         else:
             while True:
-                _time.sleep(3600)
+                time.sleep(3600)
 
     def process_file(self):
         self.start(0)

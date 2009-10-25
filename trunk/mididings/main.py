@@ -13,8 +13,6 @@
 import engine as _engine
 import misc as _misc
 
-import time as _time
-
 
 _config = {
     'backend':              'alsa',
