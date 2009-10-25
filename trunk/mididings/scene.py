@@ -10,13 +10,13 @@
 # (at your option) any later version.
 #
 
-from units import *
-from scene import *
-from event import *
-from main import *
+class Scene:
+    def __init__(self, name, patch, init_patch=None):
+        self.name = name
+        self.patch = patch
+        self.init_patch = init_patch
 
 
-__all__ = main.__all__ \
-        + units.__all__ \
-        + scene.__all__ \
-        + event.__all__
+__all__ = [
+    'Scene',
+]

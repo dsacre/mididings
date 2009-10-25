@@ -89,4 +89,12 @@ def current_scene():
 
 
 
-__all__ = ['config', 'run', 'run_scenes', 'run_patches', 'process_file', 'switch_scene', 'current_scene']
+__all__ = [
+    'config',
+    'run',
+    'run_scenes',
+    'run_patches',
+    'process_file',
+    'switch_scene',
+    'current_scene',
+]

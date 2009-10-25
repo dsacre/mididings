@@ -13,6 +13,7 @@
 import _mididings
 import main
 import patch
+import scene
 import event
 import util
 import misc
@@ -35,13 +36,20 @@ class Engine(_mididings.Engine):
             main._config['verbose']
         )
 
-        for i, p in scenes.items():
-            if not isinstance(p, tuple):
-                init = []
-                proc = p
+        self.scene_names = {}
+
+        for i, s in scenes.items():
+            if isinstance(s, scene.Scene):
+                init = [s.init_patch] if s.init_patch else []
+                proc = s.patch
+                if s.name:
+                    self.scene_names[i] = s.name
+            elif isinstance(s, tuple):
+                init = [s[0]]
+                proc = s[1]
             else:
-                init = [p[0]]
-                proc = p[1]
+                init = []
+                proc = s
 
             init += patch.get_init_actions(proc)
 
@@ -87,15 +95,23 @@ class Engine(_mididings.Engine):
         self.start(0)
 
     def make_portnames(self, ports, prefix):
-        return ports if misc.issequence(ports) else \
-               [ prefix + str(n + main._config['data_offset']) for n in range(ports) ]
+        if misc.issequence(ports):
+            return ports
+        else:
+            return [prefix + str(n + main._config['data_offset']) for n in range(ports)]
 
     def scene_switch_handler(self, n, found):
         n += main._config['data_offset']
+        name = self.scene_names[n] if n in self.scene_names else None
 
         if main._config['verbose']:
-            if found: print "switching to scene: %d" % n
-            else: print "no such scene: %d" % n
+            if found:
+                if name:
+                    print "switching to scene %d: %s" % (n, name)
+                else:
+                    print "switching to scene %d" % n
+            else:
+                print "no such scene: %d" % n
 
         if found:
             if self.scene_switch_callback:
