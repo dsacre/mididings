@@ -89,7 +89,7 @@ Possible keyword arguments are:
   <li><b>data_offset</b>: 1 (default) or 0. Determines whether program, port and channel numbers will be
   in the range 1-128 or 0-127.</li>
   <li><b>octave_offset</b>: Default is 2, meaning that "Middle C" is designated as C3.</li>
-  <li><b>start_delay</b>: The number of seconds before sending any MIDI events (i.e. switching to the first patch).
+  <li><b>start_delay</b>: The number of seconds before sending any MIDI events (i.e. switching to the first scene).
   A small value like 0.5 can be used to give tools like qjackctl's patchbay time to connect the ports.
   A value of 0 instructs mididings to wait for the user to press enter. Default is None.</li>
   <li><b>remove_duplicates</b>: Whether, when two or more units connected in parallel yield identical MIDI events,
@@ -105,28 +105,28 @@ Starts the actual MIDI processing. This is usually the last function called by a
   <li><b>patch</b>: A single patch.</li>
 </ul>
 
-<h4>run_patches(patches, control=None, pre=None, post=None)</h4>
+<h4>run_scenes(scenes, control=None, pre=None, post=None)</h4>
 <p>
 Starts the actual MIDI processing, using multiple patches.
 </p>
 <ul>
-  <li><b>patches</b>: A dictionary with program numbers as keys, and patches as values.
+  <li><b>scenes</b>: A dictionary with program numbers as keys, and patches as values.
   Values can also be tuples with two items, the first being an init-patch that's executed once every time the
-  patch is selected, and the second being the actual patch that processes incoming events.</li>
-  <li><b>control</b>: The "control" patch, which is always active, and runs in parallel to the current patch.</li>
-  <li><b>pre/post</b>: Allows processing to take place before/after every patch. Does not affect
+  scenes is selected, and the second being the actual patch that processes incoming events.</li>
+  <li><b>control</b>: The "control" patch, which is always active, and runs in parallel to the current scene.</li>
+  <li><b>pre/post</b>: Allows processing to take place before/after every scene. Does not affect
   the control patch.</li>
 </ul>
 
 
-<h4>switch_patch(number)</h4>
+<h4>switch_scene(number)</h4>
 <p>
-Switches to another patch. This function is similar to the PatchSwitch() object, but can be called from Python.
+Switches to another scene. This function is similar to the SceneSwitch() object, but can be called from Python.
 </p>
 
-<h4>current_patch()</h4>
+<h4>current_scene()</h4>
 <p>
-Returns the number of the currently selected patch.
+Returns the number of the currently selected scene.
 </p>
 
 <h4>process_file(infile, outfile, patch)</h4>
@@ -461,24 +461,24 @@ Does nothing.
 Discards the current event.
 </p>
 
-<h4>PatchSwitch()<br>
-PatchSwitch(number)</h4>
+<h4>SceneSwitch()<br>
+SceneSwitch(number)</h4>
 <p>
-Switches to another patch.
-number should be a patch number, or one of the EVENT_* constants.
+Switches to another scene.
+number should be a scene number, or one of the EVENT_* constants.
 Without parameters, the program number of the incoming event (should be a program change) will be used.
 </p>
 
 <h4>InitAction(action)</h4>
 <p>
 Executes action when switching to the patch containing this unit (essentially adding it to the init-patch,
-see run_patches() for more information).
+see run_scenes() for more information).
 </p>
 
 <h4>Output(port, channel, program=None, volume=None)</h4>
 <p>
 Routes incoming events to the specified port/channel.
-Optionally, when switching to the patch containing this unit, a program change and/or volume change (CC 7) can be sent.
+Optionally, when switching to the scene containing this unit, a program change and/or volume change (CC 7) can be sent.
 To send a bank select in addition to the program change, program can be a tuple with two elements, where the first element
 is the bank number, and the second is the program number.
 </p>
@@ -584,10 +584,10 @@ Sends a DBUS message. Rather than a concrete value, each data argument can be a 
 The function should take a single MidiEvent parameter, and return the value to be sent.
 </p>
 
-<h4>run_patches_memorize(memo_file, patches, control=None, pre=None, post=None)</h4>
+<h4>run_scenes_memorize(memo_file, scenes, control=None, pre=None, post=None)</h4>
 <p>
-Like run_patches(), but saves the selected patch number to a file, and restores it the next time it's called.
-memo_file is the path of the file to be used to store the patch number.
+Like run_scenes(), but saves the selected scene number to a file, and restores it the next time it's called.
+memo_file is the path of the file to be used to store the scene number.
 </p>
 
 

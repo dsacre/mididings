@@ -23,7 +23,7 @@ import gc
 
 
 class Engine(_mididings.Engine):
-    def __init__(self, patches, control, pre, post):
+    def __init__(self, scenes, control, pre, post):
         self.in_ports = self.make_portnames(main._config['in_ports'], 'in_')
         self.out_ports = self.make_portnames(main._config['out_ports'], 'out_')
 
@@ -35,7 +35,7 @@ class Engine(_mididings.Engine):
             main._config['verbose']
         )
 
-        for i, p in patches.items():
+        for i, p in scenes.items():
             if not isinstance(p, tuple):
                 init = []
                 proc = p
@@ -45,14 +45,14 @@ class Engine(_mididings.Engine):
 
             init += patch.get_init_actions(proc)
 
-            self.add_patch(i - main._config['data_offset'], patch.Patch(proc), patch.Patch(init))
+            self.add_scene(i - main._config['data_offset'], patch.Patch(proc), patch.Patch(init))
 
         ctrl = patch.Patch(control) if control else None
         pre_patch = patch.Patch(pre) if pre else None
         post_patch = patch.Patch(post) if post else None
         self.set_processing(ctrl, pre_patch, post_patch)
 
-        self.patch_switch_callback = None
+        self.scene_switch_callback = None
         self.quit = False
 
         # delay before actually sending any midi data (give qjackctl patchbay time to react...)
@@ -67,10 +67,10 @@ class Engine(_mididings.Engine):
         gc.collect()
         gc.disable()
 
-    def run(self, first_patch, patch_switch_callback):
+    def run(self, first_scene, scene_switch_callback):
         # hmmm...
-        self.patch_switch_callback = patch_switch_callback
-        self.start(util.patch_number(first_patch))
+        self.scene_switch_callback = scene_switch_callback
+        self.start(util.scene_number(first_scene))
 
         if main._config['osc_port']:
             import liblo
@@ -90,23 +90,23 @@ class Engine(_mididings.Engine):
         return ports if misc.issequence(ports) else \
                [ prefix + str(n + main._config['data_offset']) for n in range(ports) ]
 
-    def patch_switch_handler(self, n, found):
+    def scene_switch_handler(self, n, found):
         n += main._config['data_offset']
 
         if main._config['verbose']:
-            if found: print "switching to patch: %d" % n
-            else: print "no such patch: %d" % n
+            if found: print "switching to scene: %d" % n
+            else: print "no such scene: %d" % n
 
         if found:
-            if self.patch_switch_callback:
-                self.patch_switch_callback(n)
+            if self.scene_switch_callback:
+                self.scene_switch_callback(n)
 
             if main._config['osc_notify_port']:
                 import liblo
                 liblo.send(main._config['osc_notify_port'], '/mididings/scene', n)
 
     def osc_switch_scene_cb(self, path, args):
-        self.switch_patch(args[0] - main._config['data_offset'])
+        self.switch_scene(args[0] - main._config['data_offset'])
 
     def osc_quit_cb(self, path, args):
         self.quit = True

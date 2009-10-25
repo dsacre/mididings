@@ -160,5 +160,5 @@ def velocity_value(velocity):
     return velocity
 
 
-def patch_number(patch):
-    return patch - _main._config['data_offset']
+def scene_number(scene):
+    return scene - _main._config['data_offset']

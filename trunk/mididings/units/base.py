@@ -99,6 +99,9 @@ class Sanitize(_mididings.Sanitize, _Unit):
         _mididings.Sanitize.__init__(self)
 
 
-class PatchSwitch(_mididings.PatchSwitch, _Unit):
+class SceneSwitch(_mididings.SceneSwitch, _Unit):
     def __init__(self, num=_event.EVENT_PROGRAM):
-        _mididings.PatchSwitch.__init__(self, _util.patch_number(num) if num >= 0 else num)
+        _mididings.SceneSwitch.__init__(self, _util.scene_number(num) if num >= 0 else num)
+
+# for backward compatibility, deprecated
+PatchSwitch = SceneSwitch

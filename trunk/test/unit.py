@@ -1,6 +1,6 @@
 import unittest
 from mididings import *
-from mididings.main import test_run, test_run_patches
+from mididings.main import test_run, test_run_scenes
 
 
 class SimpleTestCase(unittest.TestCase):
@@ -156,10 +156,10 @@ class SimpleTestCase(unittest.TestCase):
         assert len(r) == 1
         assert r[0].data2 == 127
 
-    def testPatchSwitch(self):
+    def testSceneSwitch(self):
         p = {
             0:  Split({
-                    PROGRAM:  PatchSwitch(),
+                    PROGRAM:  SceneSwitch(),
                     ~PROGRAM: Channel(7),
                 }),
             1: Channel(13),
@@ -170,7 +170,7 @@ class SimpleTestCase(unittest.TestCase):
             MidiEvent(NOTEON, 0, 0, 23, 42),
             MidiEvent(NOTEOFF, 0, 0, 69, 0)
         ]
-        r = test_run_patches(p, events)
+        r = test_run_scenes(p, events)
         assert len(r) == 3
         assert r[0].type_ == NOTEON
         assert r[0].channel_ == 7

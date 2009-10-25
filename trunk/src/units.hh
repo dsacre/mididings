@@ -467,11 +467,11 @@ class Sanitize
 };
 
 
-class PatchSwitch
+class SceneSwitch
   : public Unit
 {
   public:
-    PatchSwitch(int num)
+    SceneSwitch(int num)
       : _num(num) { }
 
     virtual bool process(MidiEvent & ev);

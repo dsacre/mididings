@@ -51,7 +51,7 @@ Engine::Engine(PyObject * self,
   , _verbose(verbose)
   , _current(NULL)
   , _current_num(-1)
-  , _new_patch(-1)
+  , _new_scene(-1)
   , _noteon_patches(Config::MAX_SIMULTANEOUS_NOTES)
   , _sustain_patches(Config::MAX_SUSTAIN_PEDALS)
   , _python_caller(new PythonCaller(boost::bind(&Engine::run_async, this)))
@@ -88,13 +88,13 @@ Engine::~Engine()
 {
     DEBUG_FN();
 
-    // needs to be gone before the engine can be destroyed
+    // needs to be gone before the engine can safely be destroyed
     _python_caller.reset();
     _backend.reset();
 }
 
 
-void Engine::add_patch(int i, PatchPtr patch, PatchPtr init_patch)
+void Engine::add_scene(int i, PatchPtr patch, PatchPtr init_patch)
 {
     ASSERT(_patches.find(i) == _patches.end());
 
@@ -116,21 +116,21 @@ void Engine::set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr po
 }
 
 
-void Engine::start(int first_patch)
+void Engine::start(int first_scene)
 {
     _backend->start(
-        boost::bind(&Engine::run_init, this, first_patch),
+        boost::bind(&Engine::run_init, this, first_scene),
         boost::bind(&Engine::run_cycle, this)
     );
 }
 
 
-void Engine::run_init(int first_patch)
+void Engine::run_init(int first_scene)
 {
     boost::mutex::scoped_lock lock(_process_mutex);
 
     _buffer.clear();
-    process_patch_switch(_buffer, first_patch);
+    process_scene_switch(_buffer, first_scene);
 
     _backend->output_events(_buffer.begin(), _buffer.end());
     _backend->flush_output();
@@ -155,10 +155,10 @@ void Engine::run_cycle()
         // process the event
         process(_buffer, ev);
 
-        // handle patch switches
-        if (_new_patch != -1) {
-            process_patch_switch(_buffer, _new_patch);
-            _new_patch = -1;
+        // handle scene switches
+        if (_new_scene != -1) {
+            process_scene_switch(_buffer, _new_scene);
+            _new_scene = -1;
         }
 
 #ifdef ENABLE_BENCHMARK
@@ -183,9 +183,9 @@ void Engine::run_async()
 
     _buffer.clear();
 
-    if (_new_patch != -1) {
-        process_patch_switch(_buffer, _new_patch);
-        _new_patch = -1;
+    if (_new_scene != -1) {
+        process_scene_switch(_buffer, _new_scene);
+        _new_scene = -1;
     }
 
     _backend->output_events(_buffer.begin(), _buffer.end());
@@ -205,9 +205,9 @@ std::vector<MidiEvent> Engine::process_test(MidiEvent const & ev)
 
     process(buffer, ev);
 
-    if (_new_patch != -1) {
-        process_patch_switch(buffer, _new_patch);
-        _new_patch = -1;
+    if (_new_scene != -1) {
+        process_scene_switch(buffer, _new_scene);
+        _new_scene = -1;
     }
 
     v.insert(v.end(), buffer.begin(), buffer.end());
@@ -280,19 +280,19 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
 }
 
 
-void Engine::switch_patch(int n)
+void Engine::switch_scene(int n)
 {
-    _new_patch = n;
+    _new_scene = n;
 }
 
 
-void Engine::process_patch_switch(Events & buffer, int n)
+void Engine::process_scene_switch(Events & buffer, int n)
 {
     PatchMap::iterator i = _patches.find(n);
 
     if (_patches.size() > 1) {
         scoped_gil_lock gil;
-        boost::python::call_method<void>(_self, "patch_switch_handler", n, i != _patches.end());
+        boost::python::call_method<void>(_self, "scene_switch_handler", n, i != _patches.end());
     }
 
     if (i != _patches.end()) {

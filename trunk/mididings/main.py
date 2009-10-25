@@ -37,17 +37,22 @@ def config(**kwargs):
 
 
 def run(patch):
-    run_patches({ _config['data_offset']: patch }, None, None, None)
+    run_scenes({ _config['data_offset']: patch }, None, None, None)
 
 
-def run_patches(patches, control=None, pre=None, post=None, first_patch=-1, patch_switch_callback=None):
-    if first_patch == -1:
-        first_patch = _config['data_offset']
-    e = _engine.Engine(patches, control, pre, post)
+def run_scenes(scenes, control=None, pre=None, post=None, first_scene=-1, scene_switch_callback=None):
+    if first_scene == -1:
+        first_scene = _config['data_offset']
+    e = _engine.Engine(scenes, control, pre, post)
     try:
-        e.run(first_patch, patch_switch_callback)
+        e.run(first_scene, scene_switch_callback)
     except KeyboardInterrupt:
         return
+
+
+# for backward compatibility, deprecated
+def run_patches(patches, control=None, pre=None, post=None, first_patch=-1, patch_switch_callback=None):
+    run_scenes(patches, control, pre, post, first_patch, patch_switch_callback)
 
 
 def process_file(infile, outfile, patch):
@@ -61,12 +66,12 @@ def process_file(infile, outfile, patch):
 
 
 def test_run(patch, events):
-    return test_run_patches({ _config['data_offset']: patch }, events)
+    return test_run_scenes({ _config['data_offset']: patch }, events)
 
 
-def test_run_patches(patches, events):
+def test_run_scenes(scenes, events):
     config(backend = 'dummy')
-    e = _engine.Engine(patches, None, None, None)
+    e = _engine.Engine(scenes, None, None, None)
     r = []
     if not _misc.issequence(events):
         events = [events]
@@ -75,13 +80,13 @@ def test_run_patches(patches, events):
     return r
 
 
-def switch_patch(n):
-    TheEngine.switch_patch(n - _config['data_offset'])
+def switch_scene(n):
+    TheEngine.switch_scene(n - _config['data_offset'])
 
 
-def current_patch():
-    return TheEngine.current_patch() + _config['data_offset']
+def current_scene():
+    return TheEngine.current_scene() + _config['data_offset']
 
 
 
-__all__ = ['config', 'run', 'run_patches', 'process_file', 'switch_patch', 'current_patch']
+__all__ = ['config', 'run', 'run_scenes', 'run_patches', 'process_file', 'switch_scene', 'current_scene']

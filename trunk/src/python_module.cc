@@ -72,7 +72,7 @@ BOOST_PYTHON_MODULE(_mididings)
 
     class_<GenerateEvent, bases<Unit>, noncopyable>("GenerateEvent", init<int, int, int, int, int>());
     class_<Sanitize, bases<Unit>, noncopyable>("Sanitize", init<>());
-    class_<PatchSwitch, bases<Unit>, noncopyable>("PatchSwitch", init<int>());
+    class_<SceneSwitch, bases<Unit>, noncopyable>("SceneSwitch", init<int>());
     class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
 
     class_<Engine, Engine, noncopyable>("Engine", init<std::string const &,
@@ -80,11 +80,11 @@ BOOST_PYTHON_MODULE(_mididings)
                                                        std::vector<std::string> const &,
                                                        std::vector<std::string> const &,
                                                        bool>())
-        .def("add_patch", &Engine::add_patch)
+        .def("add_scene", &Engine::add_scene)
         .def("set_processing", &Engine::set_processing)
         .def("start", &Engine::start)
-        .def("switch_patch", &Engine::switch_patch)
-        .def("current_patch", &Engine::current_patch)
+        .def("switch_scene", &Engine::switch_scene)
+        .def("current_scene", &Engine::current_scene)
 #ifdef ENABLE_TEST
         .def("process", &Engine::process_test)
 #endif // ENABLE_TEST

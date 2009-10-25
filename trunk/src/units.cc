@@ -155,9 +155,9 @@ bool Sanitize::process(MidiEvent & ev)
 }
 
 
-bool PatchSwitch::process(MidiEvent & ev)
+bool SceneSwitch::process(MidiEvent & ev)
 {
-    TheEngine->switch_patch(get_parameter(_num, ev));
+    TheEngine->switch_scene(get_parameter(_num, ev));
     return false;
 }
 

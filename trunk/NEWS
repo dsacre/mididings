@@ -1,8 +1,11 @@
+2009-10-03
+
   * Made all key or value ranges half-open (excluding the upper limit) for
     consistency with Python. This affects KeyFilter(), VelocityFilter(),
-    CtrlValueFilter() and the related *Splits.
+    CtrlValueFilter() and the related *Split units.
   * New compiler options to significantly reduce the size of the resulting
     _mididings.so binary.
+  * Several bugfixes.
 
 2009-01-14
 
@@ -10,7 +13,7 @@
 
 2009-01-13
 
-  * New units in mididings.extra: MakeMonophonic() and LimitPolyphony()
+  * New units in mididings.extra: MakeMonophonic() and LimitPolyphony().
   * Added event-type agnostic inversion operator - for filters.
   * VelocityFilter() can now be used with only an upper or lower limit when the
     other parameter is zero.

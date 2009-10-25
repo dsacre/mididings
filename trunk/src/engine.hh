@@ -59,15 +59,15 @@ class Engine
 
     ~Engine();
 
-    void add_patch(int i, PatchPtr patch, PatchPtr init_patch);
+    void add_scene(int i, PatchPtr patch, PatchPtr init_patch);
     void set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch);
 
-    void start(int first_patch);
+    void start(int first_scene);
 
-    void switch_patch(int n);
+    void switch_scene(int n);
     bool sanitize_event(MidiEvent & ev) const;
 
-    int current_patch() const { return _current_num; }
+    int current_scene() const { return _current_num; }
 
     PythonCaller & python_caller() const { return *_python_caller; }
 
@@ -77,12 +77,12 @@ class Engine
 
   private:
 
-    void run_init(int first_patch);
+    void run_init(int first_scene);
     void run_cycle();
     void run_async();
 
     void process(Events & buffer, MidiEvent const & ev);
-    void process_patch_switch(Events & buffer, int n);
+    void process_scene_switch(Events & buffer, int n);
 
 
     Patch * get_matching_patch(MidiEvent const & ev);
@@ -111,7 +111,7 @@ class Engine
     Patch * _current;
     int _current_num;
 
-    int _new_patch;
+    int _new_scene;
 
     NotePatchMap _noteon_patches;
     SustainPatchMap _sustain_patches;
