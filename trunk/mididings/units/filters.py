@@ -18,45 +18,45 @@ from mididings import util as _util
 from mididings import misc as _misc
 
 
-class PortFilter(_mididings.PortFilter, _Filter):
+class PortFilter(_Filter):
     def __init__(self, *args):
         v = _misc.make_int_vector((_util.port_number(p) for p in _misc.flatten(args)))
-        _mididings.PortFilter.__init__(self, v)
+        _Filter.__init__(self, _mididings.PortFilter(v))
 
 
-class ChannelFilter(_mididings.ChannelFilter, _Filter):
+class ChannelFilter(_Filter):
     def __init__(self, *args):
         v = _misc.make_int_vector((_util.channel_number(c) for c in _misc.flatten(args)))
-        _mididings.ChannelFilter.__init__(self, v)
+        _Filter.__init__(self, _mididings.ChannelFilter(v))
 
 
-class KeyFilter(_mididings.KeyFilter, _Filter):
+class KeyFilter(_Filter):
     def __init__(self, *args):
         if len(args) == 1:
             args = args[0]
         r = _util.note_range(args)
-        _mididings.KeyFilter.__init__(self, r[0], r[1])
+        _Filter.__init__(self, _mididings.KeyFilter(r[0], r[1]))
 
 
-class VelocityFilter(_mididings.VelocityFilter, _Filter):
+class VelocityFilter(_Filter):
     def __init__(self, *args):
         if len(args) == 1:
             args = args[0]
-        _mididings.VelocityFilter.__init__(self, args[0], args[1])
+        _Filter.__init__(self, _mididings.VelocityFilter(args[0], args[1]))
 
 
-class CtrlFilter(_mididings.CtrlFilter, _Filter):
+class CtrlFilter(_Filter):
     def __init__(self, *args):
         v = _misc.make_int_vector(_util.ctrl_number(c) for c in _misc.flatten(args))
-        _mididings.CtrlFilter.__init__(self, v)
+        _Filter.__init__(self, _mididings.CtrlFilter(v))
 
 
-class CtrlValueFilter(_mididings.CtrlValueFilter, _Filter):
+class CtrlValueFilter(_Filter):
     def __init__(self, lower, upper=0):
-        _mididings.CtrlValueFilter.__init__(self, _util.ctrl_value(lower), _util.ctrl_value(upper))
+        _Filter.__init__(self, _mididings.CtrlValueFilter(_util.ctrl_value(lower), _util.ctrl_value(upper)))
 
 
-class ProgFilter(_mididings.ProgFilter, _Filter):
+class ProgFilter(_Filter):
     def __init__(self, *args):
         v = _misc.make_int_vector(_util.program_number(p) for p in _misc.flatten(args))
-        _mididings.ProgFilter.__init__(self, v)
+        _Filter.__init__(self, _mididings.ProgFilter(v))

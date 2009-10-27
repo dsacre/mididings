@@ -18,14 +18,14 @@ from mididings import event as _event
 from mididings import util as _util
 
 
-class GenerateEvent(_mididings.GenerateEvent, _Unit):
+class GenerateEvent(_Unit):
     def __init__(self, type_, port, channel, data1, data2):
-        _mididings.GenerateEvent.__init__(
-            self, type_,
+        _Unit.__init__(self, _mididings.GenerateEvent(
+            type_,
             _util.port_number(port) if isinstance(port, str) or port >= 0 else port,
             _util.channel_number(channel) if channel >= 0 else channel,
             data1, data2
-        )
+        ))
 
 
 def CtrlChange(*args):

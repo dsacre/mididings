@@ -20,10 +20,10 @@ import thread as _thread
 import subprocess as _subprocess
 
 
-class _CallBase(_mididings.Call, _Unit):
+class _CallBase(_Unit):
     def __init__(self, fun, async, cont):
         self.fun = fun
-        _mididings.Call.__init__(self, self.do_call, async, cont)
+        _Unit.__init__(self, _mididings.Call(self.do_call, async, cont))
     def do_call(self, ev):
         # add additional properties
         ev.__class__ = _event.MidiEvent
