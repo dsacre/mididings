@@ -11,21 +11,22 @@
 #
 
 from mididings.units.call import _CallBase
+from mididings.units.base import _unit_repr
 
 from mididings import main as _main
 from mididings import event as _event
 
 
-class Print(_CallBase):
-    PORTNAMES_NONE = 0
-    PORTNAMES_IN   = 1
-    PORTNAMES_OUT  = 2
+PORTNAMES_IN   = 1
+PORTNAMES_OUT  = 2
 
+
+class _Print(_CallBase):
     max_name_length = -1
     max_portname_length = -1
     portnames_used = False
 
-    def __init__(self, name=None, types=_event.ANY, portnames=PORTNAMES_NONE):
+    def __init__(self, name, types, portnames):
         self.name = name
         self.types = types
         self.portnames = portnames
@@ -33,12 +34,12 @@ class Print(_CallBase):
         # to be calculated later
         self.ports = None
 
-        if portnames != Print.PORTNAMES_NONE:
-            Print.portnames_used = True
+        if portnames != None:
+            _Print.portnames_used = True
 
         # find maximum name length
         if name:
-            Print.max_name_length = max(Print.max_name_length, len(name))
+            _Print.max_name_length = max(_Print.max_name_length, len(name))
 
         _CallBase.__init__(self, self.do_print, True, True)
 
@@ -46,31 +47,47 @@ class Print(_CallBase):
         # get list of port names to be used
         # (delayed 'til first use, because _main.TheEngine doesn't yet exist during __init__)
         if self.ports == None:
-            if self.portnames == Print.PORTNAMES_IN:
+            if self.portnames == PORTNAMES_IN:
                 self.ports = _main.TheEngine.in_ports
-            elif self.portnames == Print.PORTNAMES_OUT:
+            elif self.portnames == PORTNAMES_OUT:
                 self.ports = _main.TheEngine.out_ports
             else:
                 self.ports = []
 
         # find maximum port name length (delayed for the same reason as above)
-        if Print.portnames_used and Print.max_portname_length == -1:
+        if _Print.portnames_used and _Print.max_portname_length == -1:
             all_ports = _main.TheEngine.in_ports + _main.TheEngine.out_ports
-            Print.max_portname_length = max(len(p) for p in all_ports)
+            _Print.max_portname_length = max(len(p) for p in all_ports)
 
         if ev.type_ & self.types:
             if self.name:
-                print '%-*s' % (Print.max_name_length + 1, self.name + ':'),
-            elif Print.max_name_length != -1:
+                print '%-*s' % (_Print.max_name_length + 1, self.name + ':'),
+            elif _Print.max_name_length != -1:
                 # no name, but names used elsewhere, so indent appropriately
-                print ' ' * (Print.max_name_length + 1),
+                print ' ' * (_Print.max_name_length + 1),
 
-            print ev.to_string(self.ports, Print.max_portname_length)
+            print ev.to_string(self.ports, _Print.max_portname_length)
 
 
-class PrintString(_CallBase):
+@_unit_repr
+def Print(name=None, types=_event.ANY, portnames=None):
+    return _Print(name, types, portnames)
+
+
+# for backward compatibility
+Print.PORTNAMES_NONE = None
+Print.PORTNAMES_IN = PORTNAMES_IN
+Print.PORTNAMES_OUT = PORTNAMES_OUT
+
+
+class _PrintString(_CallBase):
     def __init__(self, string):
         self.string = string
         _CallBase.__init__(self, self.do_print, True, True)
     def do_print(self, ev):
         print self.string
+
+
+@_unit_repr
+def PrintString(string):
+    return _PrintString(string)

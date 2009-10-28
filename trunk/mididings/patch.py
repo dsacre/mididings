@@ -43,7 +43,7 @@ class Patch(_mididings.Patch):
                 units.base.Filter(t) >> w for t, w in p.items()
             ])
 
-        elif isinstance(p, units.init_action.InitAction):
+        elif isinstance(p, units.init_action._InitAction):
             return Patch.Single(_mididings.Pass(False))
 
         elif isinstance(p, units.base._Unit):
@@ -52,8 +52,8 @@ class Patch(_mididings.Patch):
             elif isinstance(p.unit, _mididings.UnitEx):
                 return Patch.Extended(p.unit)
 
-        raise TypeError("type '%s' not allowed in patch" % type(p).__name__)
-
+        raise TypeError("type '%s' not allowed in patch:\n"
+                        "offending object is: %s" % (type(p).__name__, repr(p)))
 
 
 def get_init_actions(patch):
@@ -66,7 +66,7 @@ def get_init_actions(patch):
     elif isinstance(patch, dict):
         return flatten([get_init_actions(p) for p in patch.values()])
 
-    elif isinstance(patch, units.init_action.InitAction):
+    elif isinstance(patch, units.init_action._InitAction):
         return [patch.action]
 
     else:

@@ -15,37 +15,21 @@ import _mididings
 from mididings import event as _event
 from mididings import util as _util
 
-import functools
 
-
-class _UnitMeta(type):
-    """
-    meta class for all units.
-    changes the c'tor to save its arguments as instance members.
-    """
-    def __new__(cls, name, bases, attrs):
-        if not name.startswith('_') and '__init__' in attrs:
-            init = attrs['__init__']
-
-            @functools.wraps(init)
-            def init_wrapper(self, *args, **kwargs):
-                self._args = args
-                self._kwargs = kwargs
-
-                # TODO: this would be a good place to do some argument checking and improve error messages
-                return init(self, *args, **kwargs)
-
-            attrs['__init__'] = init_wrapper
-
-        return super(_UnitMeta, cls).__new__(cls, name, bases, attrs)
+def _unit_repr(f):
+    def unit_wrapper(*args, **kwargs):
+        u = f(*args, **kwargs)
+        u._name = f.__name__
+        u._args = args
+        u._kwargs = kwargs
+        return u
+    return unit_wrapper
 
 
 class _Unit:
     """
     base class for all units.
     """
-    __metaclass__ = _UnitMeta
-
     def __init__(self, unit):
         self.unit = unit
 
@@ -68,15 +52,15 @@ class _Unit:
         return Fork([ other, self ])
 
     def __repr__(self):
+        name = self._name if hasattr(self, '_name') else self.__class__.__name__
+
         if hasattr(self, '_args') and hasattr(self, '_kwargs'):
             args = ', '.join(repr(a) for a in self._args)
-            if len(self._kwargs):
-                kwargs = ', ' + ', '.join('%s=%s' % (k, repr(self._kwargs[k])) for k in self._kwargs)
-            else:
-                kwargs = ''
-            return '%s(%s%s)' % (self.__class__.__name__, args, kwargs)
+            kwargs = ', '.join('%s=%s' % (k, repr(self._kwargs[k])) for k in self._kwargs)
+            sep = ', ' if args and kwargs else ''
+            return '%s(%s%s%s)' % (name, args, sep, kwargs)
         else:
-            return self.__class__.__name__
+            return name
 
 
 class Chain(_Unit, list):
@@ -147,36 +131,36 @@ class _InvertedFilter(_Filter):
         return '%s%s' % (prefix, repr(self.filt))
 
 
-class Filter(_Filter):
+@_unit_repr
+def Filter(*args):
     """
     filter by event type.
     """
-    def __init__(self, *args):
-        if len(args) > 1:
-            types = reduce(lambda x,y: x|y, args)
-        else:
-            types = args[0]
-        _Filter.__init__(self, _mididings.Filter(types))
+    if len(args) > 1:
+        types = reduce(lambda x,y: x|y, args)
+    else:
+        types = args[0]
+    return _Filter(_mididings.Filter(types))
 
 
-class Pass(_Unit):
-    def __init__(self, p=True):
-        _Unit.__init__(self, _mididings.Pass(p))
+@_unit_repr
+def Pass(p=True):
+    return _Unit(_mididings.Pass(p))
 
 
-class Discard(_Unit):
-    def __init__(self):
-        _Unit.__init__(self, _mididings.Pass(False))
+@_unit_repr
+def Discard():
+    return _Unit(_mididings.Pass(False))
 
 
-class Sanitize(_Unit):
-    def __init__(self):
-        _Unit.__init__(self, _mididings.Sanitize())
+@_unit_repr
+def Sanitize():
+    return _Unit(_mididings.Sanitize())
 
 
-class SceneSwitch(_Unit):
-    def __init__(self, num=_event.EVENT_PROGRAM):
-        _Unit.__init__(self, _mididings.SceneSwitch(_util.scene_number(num) if num >= 0 else num))
+@_unit_repr
+def SceneSwitch(num=_event.EVENT_PROGRAM):
+    return _Unit(_mididings.SceneSwitch(_util.scene_number(num) if num >= 0 else num))
 
 # for backward compatibility, deprecated
 PatchSwitch = SceneSwitch

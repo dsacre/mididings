@@ -12,22 +12,22 @@
 
 import _mididings
 
-from mididings.units.base import _Unit
+from mididings.units.base import _Unit, _unit_repr
 
 from mididings import event as _event
 from mididings import util as _util
 
 
-class GenerateEvent(_Unit):
-    def __init__(self, type_, port, channel, data1, data2):
-        _Unit.__init__(self, _mididings.GenerateEvent(
-            type_,
-            _util.port_number(port) if isinstance(port, str) or port >= 0 else port,
-            _util.channel_number(channel) if channel >= 0 else channel,
-            data1, data2
-        ))
+def GenerateEvent(type_, port, channel, data1, data2):
+    return _Unit(_mididings.GenerateEvent(
+        type_,
+        _util.port_number(port) if isinstance(port, str) or port >= 0 else port,
+        _util.channel_number(channel) if channel >= 0 else channel,
+        data1, data2
+    ))
 
 
+@_unit_repr
 def CtrlChange(*args):
     if len(args) == 2:
         # CrtlChange(ctrl, value)
@@ -48,6 +48,7 @@ def CtrlChange(*args):
         )
 
 
+@_unit_repr
 def ProgChange(*args):
     if len(args) == 1:
         # ProgChange(program)
@@ -68,6 +69,7 @@ def ProgChange(*args):
         )
 
 
+@_unit_repr
 def NoteOn(*args):
     if len(args) == 2:
         # NoteOn(note, velocity)
@@ -88,6 +90,7 @@ def NoteOn(*args):
         )
 
 
+@_unit_repr
 def NoteOff(*args):
     if len(args) == 2:
         # NoteOff(note, velocity)

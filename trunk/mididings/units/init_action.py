@@ -10,14 +10,19 @@
 # (at your option) any later version.
 #
 
-from mididings.units.base import _Unit, Fork
+from mididings.units.base import _Unit, Fork, _unit_repr
 from mididings.units.generators import ProgChange, CtrlChange
 from mididings.units.modifiers import Port, Channel
 
 
-class InitAction(_Unit):
+class _InitAction(_Unit):
     def __init__(self, action):
         self.action = action
+
+
+@_unit_repr
+def InitAction(action):
+    return _InitAction(action)
 
 
 def Output(port, channel, program=None, volume=None):

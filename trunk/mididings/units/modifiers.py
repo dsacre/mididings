@@ -12,80 +12,104 @@
 
 import _mididings
 
-from mididings.units.base import _Unit
+from mididings.units.base import _Unit, _unit_repr
 
 from mididings import util as _util
 
 
-class Port(_Unit):
-    def __init__(self, port):
-        _Unit.__init__(self, _mididings.Port(_util.port_number(port)))
+@_unit_repr
+def Port(port):
+    return _Unit(_mididings.Port(_util.port_number(port)))
 
 
-class Channel(_Unit):
-    def __init__(self, channel):
-        _Unit.__init__(self, _mididings.Channel(_util.channel_number(channel)))
+@_unit_repr
+def Channel(channel):
+    return _Unit(_mididings.Channel(_util.channel_number(channel)))
 
 
-class Transpose(_Unit):
-    def __init__(self, offset):
-        _Unit.__init__(self, _mididings.Transpose(offset))
+@_unit_repr
+def Transpose(offset):
+    return _Unit(_mididings.Transpose(offset))
 
 
-class Velocity(_Unit):
-    OFFSET = 1
-    MULTIPLY = 2
-    FIXED = 3
-    def __init__(self, value, mode=OFFSET):
-        _Unit.__init__(self, _mididings.Velocity(value, mode))
+@_unit_repr
+def Velocity(offset=None, multiply=None, fixed=None):
+    if sum(x != None for x in (offset, multiply, fixed)) != 1:
+        raise ValueError("arguments offset, multiply and fixed are mutually exclusive")
 
+    if offset != None:
+        return _Unit(_mididings.Velocity(offset, 1))
+    elif multiply != None:
+        return _Unit(_mididings.Velocity(multiply, 2))
+    elif fixed != None:
+        return _Unit(_mididings.Velocity(fixed, 3))
+
+
+# for backward compatibility, deprecated
 def VelocityOffset(value):
-    return Velocity(value, Velocity.OFFSET)
+    return Velocity(offset=value)
 
 def VelocityMultiply(value):
-    return Velocity(value, Velocity.MULTIPLY)
+    return Velocity(multiply=value)
 
 def VelocityFixed(value):
-    return Velocity(value, Velocity.FIXED)
+    return Velocity(fixed=value)
 
 
-class VelocityCurve(_Unit):
-    def __init__(self, gamma):
-        _Unit.__init__(self, _mididings.VelocityCurve(gamma))
+@_unit_repr
+def VelocityCurve(gamma):
+    return _Unit(_mididings.VelocityCurve(gamma))
 
 
-class VelocityGradient(_Unit):
-    def __init__(self, note_lower, note_upper, value_lower, value_upper, mode=Velocity.OFFSET):
-        note_lower = _util.note_number(note_lower)
-        note_upper = _util.note_number(note_upper)
-        if not note_lower < note_upper:
-            raise ValueError("note_lower must be less than note_upper")
-        _Unit.__init__(self, _mididings.VelocityGradient(note_lower, note_upper, value_lower, value_upper, mode))
+@_unit_repr
+def VelocityGradient(notes, offset=None, multiply=None, fixed=None):
+    if offset != None and multiply != None and fixed != None:
+        # for backward compatibility
+        notes = (notes, offset)
+        offset = (multiply, fixed)
+        multiply = fixed = None
+
+    try:
+        note_lower, note_upper = _util.note_range(notes)
+    except Exception:
+        raise ValueError("invalid note range")
+    if not note_lower < note_upper:
+        raise ValueError("note numbers must be in ascending order")
+
+    if sum(x != None for x in (offset, multiply, fixed)) != 1:
+        raise ValueError("arguments offset, multiply and fixed are mutually exclusive")
+
+    if offset != None:
+        return _Unit(_mididings.VelocityGradient(note_lower, note_upper, offset[0], offset[1], 1))
+    elif multiply != None:
+        return _Unit(_mididings.VelocityGradient(note_lower, note_upper, multiply[0], multiply[1], 2))
+    elif fixed != None:
+        return _Unit(_mididings.VelocityGradient(note_lower, note_upper, fixed[0], fixed[1], 3))
+
 
 def VelocityGradientOffset(note_lower, note_upper, value_lower, value_upper):
-    return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.OFFSET)
+    return VelocityGradient((note_lower, note_upper), offset=(value_lower, value_upper))
 
 def VelocityGradientMultiply(note_lower, note_upper, value_lower, value_upper):
-    return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.MULTIPLY)
+    return VelocityGradient((note_lower, note_upper), multiply=(value_lower, value_upper))
 
 def VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper):
-    return VelocityGradient(note_lower, note_upper, value_lower, value_upper, Velocity.FIXED)
+    return VelocityGradient((note_lower, note_upper), fixed=(value_lower, value_upper))
 
 
-class CtrlMap(_Unit):
-    def __init__(self, ctrl_in, ctrl_out):
-        _Unit.__init__(self, _mididings.CtrlMap(
-            _util.ctrl_number(ctrl_in),
-            _util.ctrl_number(ctrl_out)
-        ))
+@_unit_repr
+def CtrlMap(ctrl_in, ctrl_out):
+    return _Unit(_mididings.CtrlMap(
+        _util.ctrl_number(ctrl_in),
+        _util.ctrl_number(ctrl_out)
+    ))
 
 
-class CtrlRange(_Unit):
-    def __init__(self, ctrl, out_min, out_max, in_min=0, in_max=127):
-        if not in_min < in_max:
-            raise ValueError("in_min must be less than in_max")
-        _Unit.__init__(self, _mididings.CtrlRange(
-            _util.ctrl_number(ctrl),
-            out_min, out_max,
-            in_min, in_max
-        ))
+@_unit_repr
+def CtrlRange(ctrl, out_min, out_max, in_min=0, in_max=127):
+    if not in_min < in_max:
+        raise ValueError("in_min must be less than in_max")
+    return _Unit(_mididings.CtrlRange(
+        _util.ctrl_number(ctrl),
+        out_min, out_max, in_min, in_max
+    ))

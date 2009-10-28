@@ -12,51 +12,51 @@
 
 import _mididings
 
-from mididings.units.base import _Filter
+from mididings.units.base import _Filter, _unit_repr
 
 from mididings import util as _util
 from mididings import misc as _misc
 
 
-class PortFilter(_Filter):
-    def __init__(self, *args):
-        v = _misc.make_int_vector((_util.port_number(p) for p in _misc.flatten(args)))
-        _Filter.__init__(self, _mididings.PortFilter(v))
+@_unit_repr
+def PortFilter(*args):
+    v = _misc.make_int_vector((_util.port_number(p) for p in _misc.flatten(args)))
+    return _Filter(_mididings.PortFilter(v))
 
 
-class ChannelFilter(_Filter):
-    def __init__(self, *args):
-        v = _misc.make_int_vector((_util.channel_number(c) for c in _misc.flatten(args)))
-        _Filter.__init__(self, _mididings.ChannelFilter(v))
+@_unit_repr
+def ChannelFilter(*args):
+    v = _misc.make_int_vector((_util.channel_number(c) for c in _misc.flatten(args)))
+    return _Filter(_mididings.ChannelFilter(v))
 
 
-class KeyFilter(_Filter):
-    def __init__(self, *args):
-        if len(args) == 1:
-            args = args[0]
-        r = _util.note_range(args)
-        _Filter.__init__(self, _mididings.KeyFilter(r[0], r[1]))
+@_unit_repr
+def KeyFilter(*args):
+    if len(args) == 1:
+        args = args[0]
+    r = _util.note_range(args)
+    return _Filter(_mididings.KeyFilter(r[0], r[1]))
 
 
-class VelocityFilter(_Filter):
-    def __init__(self, *args):
-        if len(args) == 1:
-            args = args[0]
-        _Filter.__init__(self, _mididings.VelocityFilter(args[0], args[1]))
+@_unit_repr
+def VelocityFilter(*args):
+    if len(args) == 1:
+        args = args[0]
+    return _Filter(_mididings.VelocityFilter(args[0], args[1]))
 
 
-class CtrlFilter(_Filter):
-    def __init__(self, *args):
-        v = _misc.make_int_vector(_util.ctrl_number(c) for c in _misc.flatten(args))
-        _Filter.__init__(self, _mididings.CtrlFilter(v))
+@_unit_repr
+def CtrlFilter(*args):
+    v = _misc.make_int_vector(_util.ctrl_number(c) for c in _misc.flatten(args))
+    return _Filter(_mididings.CtrlFilter(v))
 
 
-class CtrlValueFilter(_Filter):
-    def __init__(self, lower, upper=0):
-        _Filter.__init__(self, _mididings.CtrlValueFilter(_util.ctrl_value(lower), _util.ctrl_value(upper)))
+@_unit_repr
+def CtrlValueFilter(lower, upper=0):
+    return _Filter(_mididings.CtrlValueFilter(_util.ctrl_value(lower), _util.ctrl_value(upper)))
 
 
-class ProgFilter(_Filter):
-    def __init__(self, *args):
-        v = _misc.make_int_vector(_util.program_number(p) for p in _misc.flatten(args))
-        _Filter.__init__(self, _mididings.ProgFilter(v))
+@_unit_repr
+def ProgFilter(*args):
+    v = _misc.make_int_vector(_util.program_number(p) for p in _misc.flatten(args))
+    return _Filter(_mididings.ProgFilter(v))
