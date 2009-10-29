@@ -14,10 +14,12 @@ import _mididings
 
 from mididings.units.base import _Unit, _unit_repr
 
-from mididings import event as _event
-from mididings import util as _util
+import mididings.event as _event
+import mididings.util as _util
+import mididings.misc as _misc
 
 
+@_unit_repr
 def GenerateEvent(type_, port, channel, data1, data2):
     return _Unit(_mididings.GenerateEvent(
         type_,
@@ -28,84 +30,63 @@ def GenerateEvent(type_, port, channel, data1, data2):
 
 
 @_unit_repr
-def CtrlChange(*args):
-    if len(args) == 2:
-        # CrtlChange(ctrl, value)
-        ctrl, value = args
-        port, channel = _event.EVENT_PORT, _event.EVENT_CHANNEL
-    elif len(args) == 4:
-        # CrtlChange(port, channel, ctrl, value)
-        port, channel, ctrl, value = args
-    else:
-        raise TypeError("CtrlChange() must be called with either two or four arguments")
-
+def CtrlChange(*args, **kwargs):
+    port, channel, ctrl, value = _misc.call_overload(
+        'CtrlChange', args, kwargs, [
+            lambda ctrl, value: (_event.EVENT_PORT, _event.EVENT_CHANNEL, ctrl, value),
+            lambda port, channel, ctrl, value: (port, channel, ctrl, value)
+        ]
+    )
     return GenerateEvent(
-            _event.CTRL,
-            port,
-            channel,
-            _util.ctrl_number(ctrl) if ctrl >= 0 else ctrl,
-            _util.ctrl_value(value) if value >= 0 else value
-        )
+        _event.CTRL,
+        port, channel,
+        _util.ctrl_number(ctrl) if ctrl >= 0 else ctrl,
+        _util.ctrl_value(value) if value >= 0 else value
+    )
 
 
 @_unit_repr
-def ProgChange(*args):
-    if len(args) == 1:
-        # ProgChange(program)
-        program = args[0]
-        port, channel = _event.EVENT_PORT, _event.EVENT_CHANNEL
-    elif len(args) == 3:
-        # ProgChange(port, channel, program)
-        port, channel, program = args
-    else:
-        raise TypeError("ProgChange() must be called with either one or three arguments")
-
+def ProgChange(*args, **kwargs):
+    port, channel, program = _misc.call_overload(
+        'ProgChange', args, kwargs, [
+            lambda program: (_event.EVENT_PORT, _event.EVENT_CHANNEL, program),
+            lambda port, channel, program: (port, channel, program)
+        ]
+    )
     return GenerateEvent(
-            _event.PROGRAM,
-            port,
-            channel,
-            0,
-            _util.program_number(program)
-        )
+        _event.PROGRAM,
+        port, channel,
+        0, _util.program_number(program)
+    )
 
 
 @_unit_repr
-def NoteOn(*args):
-    if len(args) == 2:
-        # NoteOn(note, velocity)
-        note, velocity = args
-        port, channel = _event.EVENT_PORT, _event.EVENT_CHANNEL
-    elif len(args) == 4:
-        # NoteOn(port, channel, note, velocity)
-        port, channel, note, velocity = args
-    else:
-        raise TypeError("NoteOn() must be called with either two or four arguments")
-
+def NoteOn(*args, **kwargs):
+    port, channel, note, velocity = _misc.call_overload(
+        'NoteOn', args, kwargs, [
+            lambda note, velocity: (_event.EVENT_PORT, _event.EVENT_CHANNEL, note, velocity),
+            lambda port, channel, note, velocity: (port, channel, note, velocity)
+        ]
+    )
     return GenerateEvent(
-            _event.NOTEON,
-            port,
-            channel,
-            _util.note_number(note) if note >= 0 else note,
-            _util.velocity_value(velocity) if velocity >= 0 else velocity
-        )
+        _event.NOTEON,
+        port, channel,
+        _util.note_number(note) if note >= 0 else note,
+        _util.velocity_value(velocity) if velocity >= 0 else velocity
+    )
 
 
 @_unit_repr
-def NoteOff(*args):
-    if len(args) == 2:
-        # NoteOff(note, velocity)
-        note, velocity = args
-        port, channel = _event.EVENT_PORT, _event.EVENT_CHANNEL
-    elif len(args) == 4:
-        # NoteOff(port, channel, note, velocity)
-        port, channel, note, velocity = args
-    else:
-        raise TypeError("NoteOff() must be called with either two or four arguments")
-
+def NoteOff(*args, **kwargs):
+    port, channel, note, velocity = _misc.call_overload(
+        'NoteOff', args, kwargs, [
+            lambda note, velocity: (_event.EVENT_PORT, _event.EVENT_CHANNEL, note, velocity),
+            lambda port, channel, note, velocity: (port, channel, note, velocity)
+        ]
+    )
     return GenerateEvent(
-            _event.NOTEOFF,
-            port,
-            channel,
-            _util.note_number(note) if note >= 0 else note,
-            _util.velocity_value(velocity) if velocity >= 0 else velocity
-        )
+        _event.NOTEOFF,
+        port, channel,
+        _util.note_number(note) if note >= 0 else note,
+        _util.velocity_value(velocity) if velocity >= 0 else velocity
+    )

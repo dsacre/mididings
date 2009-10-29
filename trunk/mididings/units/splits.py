@@ -14,7 +14,8 @@ from mididings.units.base import Fork, Filter
 from mididings.units.filters import PortFilter, ChannelFilter, KeyFilter, VelocityFilter
 from mididings.units.filters import CtrlFilter, CtrlValueFilter, ProgFilter
 
-from mididings import event as _event
+import mididings.event as _event
+import mididings.misc as _misc
 
 
 def PortSplit(d):
@@ -25,61 +26,59 @@ def ChannelSplit(d):
     return Fork([ (ChannelFilter(c) >> w) for c, w in d.items() ])
 
 
-def KeySplit(*args):
-    if len(args) == 1:
-        # KeySplit(d)
+def KeySplit(*args, **kwargs):
+    def KeySplitDict(d):
         return Fork([
             (KeyFilter(k) >> w) for k, w in args[0].items()
         ])
-    elif len(args) == 3:
-        # KeySplit(key, unit_lower, unit_upper)
-        key, unit_lower, unit_upper = args
+    def KeySplitThreshold(key, patch_lower, patch_upper):
         filt = KeyFilter(0, key)
         return Fork([
-            filt  >> unit_lower,
-            ~filt >> unit_upper
+            filt  >> patch_lower,
+            ~filt >> patch_upper
         ])
-    else:
-        raise TypeError("KeySplit() must be called with either one or three arguments")
+    return _misc.call_overload(
+        'KeySplit', args, kwargs,
+        [KeySplitDict, KeySplitThreshold]
+    )
 
 
-def VelocitySplit(*args):
-    if len(args) == 1:
-        # VelocitySplit(d)
+def VelocitySplit(*args, **kwargs):
+    def VelocitySplitDict(d):
         return Fork([
-            (VelocityFilter(v) >> w) for v, w in args[0].items()
+            (VelocityFilter(*v) >> w) for v, w in args[0].items()
         ])
-    elif len(args) == 3:
-        # VelocitySplit(thresh, unit_lower, unit_upper)
-        thresh, unit_lower, unit_upper = args
-        filt = VelocityFilter(0, thresh)
+    def VelocitySplitThreshold(threshold, patch_lower, patch_upper):
+        filt = VelocityFilter(0, threshold)
         return Fork([
-            filt  >> unit_lower,
-            ~filt >> unit_upper
+            filt  >> patch_lower,
+            ~filt >> patch_upper
         ])
-    else:
-        raise TypeError("VelocitySplit() must be called with either one or three arguments")
+    return _misc.call_overload(
+        'VelocitySplit', args, kwargs,
+        [VelocitySplitDict, VelocitySplitThreshold]
+    )
 
 
 def CtrlSplit(d):
     return Filter(_event.CTRL) % [ (CtrlFilter(c) >> w) for c, w in d.items() ]
 
 
-def CtrlValueSplit(*args):
-    if len(args) == 1:
-        # CtrlValueSplit(d)
+def CtrlValueSplit(*args, **kwargs):
+    def CtrlValueSplitDict(d):
         return Filter(_event.CTRL) % [
             ((CtrlValueFilter(*v) if isinstance(v, tuple) else CtrlValueFilter(v)) >> w) for v, w in args[0].items()
         ]
-    elif len(args) == 3:
-        # CtrlValueSplit(thresh, unit_lower, unit_upper)
-        thresh, unit_lower, unit_upper = args
-        filt = CtrlValueFilter(0, thresh)
+    def CtrlValueSplitThreshold(threshold, patch_lower, patch_upper):
+        filt = CtrlValueFilter(0, threshold)
         return Filter(_event.CTRL) % [
-            filt  >> unit_lower,
-            ~filt >> unit_upper
+            filt  >> patch_lower,
+            ~filt >> patch_upper
         ]
-    raise TypeError("CtrlValueSplit() must be called with either one or three arguments")
+    return _misc.call_overload(
+        'CtrlValueSplit', args, kwargs,
+        [CtrlValueSplitDict, CtrlValueSplitThreshold]
+    )
 
 
 def ProgSplit(d):

@@ -12,18 +12,8 @@
 
 import _mididings
 
-from mididings import event as _event
-from mididings import util as _util
-
-
-def _unit_repr(f):
-    def unit_wrapper(*args, **kwargs):
-        u = f(*args, **kwargs)
-        u._name = f.__name__
-        u._args = args
-        u._kwargs = kwargs
-        return u
-    return unit_wrapper
+import mididings.event as _event
+import mididings.util as _util
 
 
 class _Unit:
@@ -61,6 +51,19 @@ class _Unit:
             return '%s(%s%s%s)' % (name, args, sep, kwargs)
         else:
             return name
+
+
+def _unit_repr(f):
+    """
+    decorator that modifies the target function f to store its arguments in the returned unit.
+    """
+    def unit_wrapper(*args, **kwargs):
+        u = f(*args, **kwargs)
+        u._name = f.__name__
+        u._args = args
+        u._kwargs = kwargs
+        return u
+    return unit_wrapper
 
 
 class Chain(_Unit, list):

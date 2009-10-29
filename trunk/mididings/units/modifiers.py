@@ -14,7 +14,7 @@ import _mididings
 
 from mididings.units.base import _Unit, _unit_repr
 
-from mididings import util as _util
+import mididings.util as _util
 
 
 @_unit_repr

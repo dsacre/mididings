@@ -12,6 +12,8 @@
 
 import _mididings
 
+import inspect as _inspect
+
 
 def flatten(seq):
     r = []
@@ -45,3 +47,22 @@ def make_int_vector(seq):
     for i in seq:
         vec.push_back(i)
     return vec
+
+
+def call_overload(name, args, kwargs, funcs):
+    """
+    searches funcs for a function with parameters such that args and kwargs
+    can be applied, and calls it if a suitable function is found.
+    """
+    for f in funcs:
+        argspec = _inspect.getargspec(f)[0]
+        n = len(args)
+        # check if the number of positional arguments fits, and if
+        # the remaining parameters can be filled with keyword arguments
+        if n <= len(argspec) and set(kwargs) == set(argspec[n:]):
+            # make a dict of all positional arguments
+            kw = dict(zip(argspec, args))
+            # add the keyword arguments
+            kw.update(kwargs)
+            return f(**kw)
+    raise TypeError("no suitable overload for %s() found" % name)

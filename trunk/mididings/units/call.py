@@ -14,7 +14,7 @@ import _mididings
 
 from mididings.units.base import _Unit, _unit_repr
 
-from mididings import event as _event
+import mididings.event as _event
 
 import thread as _thread
 import subprocess as _subprocess

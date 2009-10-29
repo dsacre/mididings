@@ -13,8 +13,8 @@
 from mididings.units.call import _CallBase
 from mididings.units.base import _unit_repr
 
-from mididings import main as _main
-from mididings import event as _event
+import mididings.main as _main
+import mididings.event as _event
 
 
 PORTNAMES_IN   = 1

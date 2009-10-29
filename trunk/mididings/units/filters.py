@@ -14,8 +14,8 @@ import _mididings
 
 from mididings.units.base import _Filter, _unit_repr
 
-from mididings import util as _util
-from mididings import misc as _misc
+import mididings.util as _util
+import mididings.misc as _misc
 
 
 @_unit_repr
@@ -39,10 +39,8 @@ def KeyFilter(*args):
 
 
 @_unit_repr
-def VelocityFilter(*args):
-    if len(args) == 1:
-        args = args[0]
-    return _Filter(_mididings.VelocityFilter(args[0], args[1]))
+def VelocityFilter(min, max):
+    return _Filter(_mididings.VelocityFilter(min, max))
 
 
 @_unit_repr
