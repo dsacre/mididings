@@ -39,7 +39,8 @@ def Velocity(*args, **kwargs):
         'Velocity', args, kwargs, [
             lambda offset: (offset, 1),
             lambda multiply: (multiply, 2),
-            lambda fixed: (fixed, 3)
+            lambda fixed: (fixed, 3),
+            lambda gamma: (gamma, 4),
         ]
     )
     return _Unit(_mididings.Velocity(value, mode))
@@ -51,10 +52,8 @@ def VelocityMultiply(value):
 def VelocityFixed(value):
     return Velocity(fixed=value)
 
-
-@_unit_repr
 def VelocityCurve(gamma):
-    return _Unit(_mididings.VelocityCurve(gamma))
+    return Velocity(gamma=gamma)
 
 
 @_unit_repr
@@ -63,14 +62,23 @@ def VelocitySlope(*args, **kwargs):
         'VelocitySlope', args, kwargs, [
             lambda notes, offset: (notes, offset, 1),
             lambda notes, multiply: (notes, multiply, 2),
-            lambda notes, fixed: (notes, fixed, 3)
+            lambda notes, fixed: (notes, fixed, 3),
+            lambda notes, gamma: (notes, gamma, 4),
         ]
     )
-    # FIXME: allow arbitrary number of notes/values
-    assert len(notes) == len(values) == 2
-    note_lower = _util.note_number(notes[0])
-    note_upper = _util.note_number(notes[1])
-    return _Unit(_mididings.VelocityGradient(note_lower, note_upper, values[0], values[1], mode))
+    note_numbers = [_util.note_number(n) for n in notes]
+
+    if len(notes) != len(values):
+        raise ValueError("notes and velocity values must be sequences of the same length")
+    if len(notes) < 2:
+        raise ValueError("need at least two notes")
+    if sorted(note_numbers) != note_numbers:
+        raise ValueError("notes must be in ascending order")
+
+    return _Unit(_mididings.VelocitySlope(
+        _misc.make_int_vector(note_numbers),
+        _misc.make_float_vector(values), mode
+    ))
 
 
 # for backward compatibility, deprecated

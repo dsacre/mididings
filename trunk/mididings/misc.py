@@ -35,15 +35,22 @@ def issequence(seq, accept_string=False):
         return False
 
 
-def make_string_vector(seq):
-    vec = _mididings.string_vector()
+def make_int_vector(seq):
+    vec = _mididings.int_vector()
     for i in seq:
         vec.push_back(i)
     return vec
 
 
-def make_int_vector(seq):
-    vec = _mididings.int_vector()
+def make_float_vector(seq):
+    vec = _mididings.float_vector()
+    for i in seq:
+        vec.push_back(i)
+    return vec
+
+
+def make_string_vector(seq):
+    vec = _mididings.string_vector()
     for i in seq:
         vec.push_back(i)
     return vec

@@ -346,41 +346,27 @@ class Velocity
 };
 
 
-class VelocityCurve
+class VelocitySlope
   : public Unit
 {
   public:
-    VelocityCurve(float gamma)
-      : _gamma(gamma) { }
-
-    virtual bool process(MidiEvent & ev);
-
-  private:
-    float _gamma;
-};
-
-
-class VelocityGradient
-  : public Unit
-{
-  public:
-    VelocityGradient(int note_lower, int note_upper,
-                 float value_lower, float value_upper,
-                 int mode)
-      : _note_lower(note_lower),
-        _note_upper(note_upper),
-        _value_lower(value_lower),
-        _value_upper(value_upper),
-        _mode(mode)
+    VelocitySlope(std::vector<int> notes, std::vector<float> values, int mode)
+      : _notes(notes)
+      , _values(values)
+      , _mode(mode)
     {
-        ASSERT(note_lower < note_upper);
+        ASSERT(notes.size() == values.size());
+        ASSERT(notes.size() > 1);
+        for (unsigned int n = 0; n < notes.size() - 1; ++n) {
+            ASSERT(notes[n] <= notes[n + 1]);
+        }
     }
 
     virtual bool process(MidiEvent & ev);
 
   private:
-    int _note_lower, _note_upper;
-    float _value_lower, _value_upper;
+    std::vector<int> _notes;
+    std::vector<float> _values;
     int _mode;
 };
 

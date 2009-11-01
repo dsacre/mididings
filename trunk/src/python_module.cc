@@ -65,8 +65,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<Channel, bases<Unit>, noncopyable>("Channel", init<int>());
     class_<Transpose, bases<Unit>, noncopyable>("Transpose", init<int>());
     class_<Velocity, bases<Unit>, noncopyable>("Velocity", init<float, int>());
-    class_<VelocityCurve, bases<Unit>, noncopyable>("VelocityCurve", init<float>());
-    class_<VelocityGradient, bases<Unit>, noncopyable>("VelocityGradient", init<int, int, float, float, int>());
+    class_<VelocitySlope, bases<Unit>, noncopyable>("VelocitySlope", init<std::vector<int> const &, std::vector<float> const &, int>());
     class_<CtrlMap, bases<Unit>, noncopyable>("CtrlMap", init<int, int>());
     class_<CtrlRange, bases<Unit>, noncopyable>("CtrlRange", init<int, int, int, int, int>());
 
@@ -107,6 +106,9 @@ BOOST_PYTHON_MODULE(_mididings)
 
     class_<std::vector<int>, noncopyable>("int_vector")
         .def("push_back", &std::vector<int>::push_back)
+    ;
+    class_<std::vector<float>, noncopyable>("float_vector")
+        .def("push_back", &std::vector<float>::push_back)
     ;
     class_<std::vector<std::string>, noncopyable>("string_vector")
         .def("push_back", &std::vector<std::string>::push_back)

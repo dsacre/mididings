@@ -19,6 +19,7 @@ enum VelocityMode {
     VELOCITY_MODE_OFFSET = 1,
     VELOCITY_MODE_MULTIPLY = 2,
     VELOCITY_MODE_FIXED = 3,
+    VELOCITY_MODE_GAMMA = 4,
 };
 
 static inline int apply_velocity(int velocity, float value, VelocityMode mode)
@@ -30,10 +31,21 @@ static inline int apply_velocity(int velocity, float value, VelocityMode mode)
     switch (mode) {
       case VELOCITY_MODE_OFFSET:
         return velocity + (int)value;
+
       case VELOCITY_MODE_MULTIPLY:
         return (int)(velocity * value);
+
       case VELOCITY_MODE_FIXED:
         return (int)value;
+
+      case VELOCITY_MODE_GAMMA:
+        if (velocity > 0) {
+            float x = (float)velocity / 127.0f;
+            float y = powf(x, 1.0f / value);
+            return (int)rintf(y * 127.0f);
+        } else {
+            return velocity;
+        }
       default:
         return 0;
     }
@@ -44,17 +56,6 @@ bool Velocity::process(MidiEvent & ev)
 {
     if (ev.type == MIDI_EVENT_NOTEON) {
         ev.note.velocity = apply_velocity(ev.note.velocity, _value, (VelocityMode)_mode);
-    }
-    return true;
-}
-
-
-bool VelocityCurve::process(MidiEvent & ev)
-{
-    if (ev.type == MIDI_EVENT_NOTEON && ev.note.velocity > 0) {
-        float x = (float)ev.note.velocity / 127.0f;
-        float y = powf(x, 1.0f / _gamma);
-        ev.note.velocity = (int)rintf(y * 127.0f);
     }
     return true;
 }
@@ -74,8 +75,8 @@ static V map_range(A arg, A arg_lower, A arg_upper, V val_lower, V val_upper)
     } else if (arg >= arg_upper) {
         value = val_upper;
     } else {
-        float dx = arg_upper - arg_lower;
-        float dy = val_upper - val_lower;
+        A dx = arg_upper - arg_lower;
+        V dy = val_upper - val_lower;
         value = (V)((dy / dx) * (arg - arg_lower) + val_lower);
     }
 
@@ -83,12 +84,17 @@ static V map_range(A arg, A arg_lower, A arg_upper, V val_lower, V val_upper)
 }
 
 
-bool VelocityGradient::process(MidiEvent & ev)
+bool VelocitySlope::process(MidiEvent & ev)
 {
     if (ev.type == MIDI_EVENT_NOTEON) {
-        ev.note.velocity = apply_velocity(ev.note.velocity,
-                map_range(ev.note.note, _note_lower, _note_upper, _value_lower, _value_upper),
-                (VelocityMode)_mode);
+        unsigned int n = 0;
+        while (n < _notes.size() - 2 && _notes[n + 1] < ev.note.note) ++n;
+
+        ev.note.velocity = apply_velocity(
+            ev.note.velocity,
+            map_range(ev.note.note, _notes[n], _notes[n + 1], _values[n], _values[n + 1]),
+            (VelocityMode)_mode
+        );
     }
     return true;
 }

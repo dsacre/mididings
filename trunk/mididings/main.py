@@ -32,7 +32,7 @@ _config = {
 def config(**kwargs):
     for k in kwargs:
         if k not in _config:
-            raise TypeError('unknown config variable: %s' % k)
+            raise ValueError('unknown config variable: %s' % k)
         _config[k] = kwargs[k]
 
 
