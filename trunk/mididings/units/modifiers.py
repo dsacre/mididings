@@ -15,6 +15,7 @@ import _mididings
 from mididings.units.base import _Unit, _unit_repr
 
 import mididings.util as _util
+import mididings.misc as _misc
 
 
 @_unit_repr
@@ -33,22 +34,17 @@ def Transpose(offset):
 
 
 @_unit_repr
-def Velocity(offset=None, multiply=None, fixed=None):
-    if sum(x != None for x in (offset, multiply, fixed)) != 1:
-        raise ValueError("arguments offset, multiply and fixed are mutually exclusive")
-
-    if offset != None:
-        return _Unit(_mididings.Velocity(offset, 1))
-    elif multiply != None:
-        return _Unit(_mididings.Velocity(multiply, 2))
-    elif fixed != None:
-        return _Unit(_mididings.Velocity(fixed, 3))
-
+def Velocity(*args, **kwargs):
+    value, mode = _misc.call_overload(
+        'Velocity', args, kwargs, [
+            lambda offset: (offset, 1),
+            lambda multiply: (multiply, 2),
+            lambda fixed: (fixed, 3)
+        ]
+    )
+    return _Unit(_mididings.Velocity(value, mode))
 
 # for backward compatibility, deprecated
-def VelocityOffset(value):
-    return Velocity(offset=value)
-
 def VelocityMultiply(value):
     return Velocity(multiply=value)
 
@@ -62,39 +58,30 @@ def VelocityCurve(gamma):
 
 
 @_unit_repr
-def VelocityGradient(notes, offset=None, multiply=None, fixed=None):
-    if offset != None and multiply != None and fixed != None:
-        # for backward compatibility
-        notes = (notes, offset)
-        offset = (multiply, fixed)
-        multiply = fixed = None
-
-    try:
-        note_lower, note_upper = _util.note_range(notes)
-    except Exception:
-        raise ValueError("invalid note range")
-    if not note_lower < note_upper:
-        raise ValueError("note numbers must be in ascending order")
-
-    if sum(x != None for x in (offset, multiply, fixed)) != 1:
-        raise ValueError("arguments offset, multiply and fixed are mutually exclusive")
-
-    if offset != None:
-        return _Unit(_mididings.VelocityGradient(note_lower, note_upper, offset[0], offset[1], 1))
-    elif multiply != None:
-        return _Unit(_mididings.VelocityGradient(note_lower, note_upper, multiply[0], multiply[1], 2))
-    elif fixed != None:
-        return _Unit(_mididings.VelocityGradient(note_lower, note_upper, fixed[0], fixed[1], 3))
+def VelocitySlope(*args, **kwargs):
+    notes, values, mode = _misc.call_overload(
+        'VelocitySlope', args, kwargs, [
+            lambda notes, offset: (notes, offset, 1),
+            lambda notes, multiply: (notes, multiply, 2),
+            lambda notes, fixed: (notes, fixed, 3)
+        ]
+    )
+    # FIXME: allow arbitrary number of notes/values
+    assert len(notes) == len(values) == 2
+    note_lower = _util.note_number(notes[0])
+    note_upper = _util.note_number(notes[1])
+    return _Unit(_mididings.VelocityGradient(note_lower, note_upper, values[0], values[1], mode))
 
 
-def VelocityGradientOffset(note_lower, note_upper, value_lower, value_upper):
-    return VelocityGradient((note_lower, note_upper), offset=(value_lower, value_upper))
+# for backward compatibility, deprecated
+def VelocityGradient(note_lower, note_upper, value_lower, value_upper):
+    return VelocitySlope((note_lower, note_upper), offset=(value_lower, value_upper))
 
 def VelocityGradientMultiply(note_lower, note_upper, value_lower, value_upper):
-    return VelocityGradient((note_lower, note_upper), multiply=(value_lower, value_upper))
+    return VelocitySlope((note_lower, note_upper), multiply=(value_lower, value_upper))
 
 def VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper):
-    return VelocityGradient((note_lower, note_upper), fixed=(value_lower, value_upper))
+    return VelocitySlope((note_lower, note_upper), fixed=(value_lower, value_upper))
 
 
 @_unit_repr

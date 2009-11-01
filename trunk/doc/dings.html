@@ -196,6 +196,11 @@ Connects two or more units in parallel. All units will be called with identical 
 events. The output will be the sum of all the units' outputs.
 </p>
 
+<h4>A // B</h4>
+<p>
+Alternative syntax for the above. Note that operator // has higher precedence than &gt;&gt;.
+</p>
+
 <h4>Fork([ A, B, ... ], types=ANY, remove_duplicates=None)</h4>
 <p>
 Same as the above, with some additional features:
@@ -277,7 +282,7 @@ Filters by key or key-range. Keys can be MIDI note numbers or note names (e.g. '
 Ranges can be 2-tuples of note numbers, or note names (e.g. 'g#3:c6').
 </p>
 
-<h4>VelocityFilter(min, max)</h4>
+<h4>VelocityFilter(lower, upper)</h4>
 <p>
 Filters by note velocity. A min or max value of 0 means no limit.
 </p>
@@ -288,7 +293,7 @@ Filters by CC number.
 </p>
 
 <h4>CtrlValueFilter(value)<br>
-CtrlValueFilter(min, max)</h4>
+CtrlValueFilter(lower, upper)</h4>
 <p>
 Filters by CC value.
 </p>
@@ -301,44 +306,44 @@ Filters by PC number.
 
 <h3><a name="splits"></a>Splits</h3>
 
-<h4>PortSplit({port: units, ...})<br>
-PortSplit({(port, ...): units, ...})<br>
-ChannelSplit({channel: units, ...})<br>
-ChannelSplit({(channel, ...): units, ...})</h4>
+<h4>PortSplit({port: patch, ...})<br>
+PortSplit({(port, ...): patch, ...})<br>
+ChannelSplit({channel: patch, ...})<br>
+ChannelSplit({(channel, ...): patch, ...})</h4>
 <p>
 Splits by port or channel.
 </p>
 
-<h4>KeySplit(key, units_lower, units_upper)<br>
-KeySplit({(lower, upper): units, ...})<br>
-KeySplit({range: units, ...})</h4>
+<h4>KeySplit(key, patch_lower, patch_upper)<br>
+KeySplit({(lower, upper): patch, ...})<br>
+KeySplit({range: patch, ...})</h4>
 <p>
 Splits by key. Non-note events are sent to all units.
 </p>
 
-<h4>VelocitySplit(threshold, units_lower, units_upper)<br>
-VelocitySplit({(min, max): units, ...})</h4>
+<h4>VelocitySplit(threshold, patch_lower, patch_upper)<br>
+VelocitySplit({(lower, upper): patch, ...})</h4>
 <p>
 Splits by velocity. Non-note events are sent to all units.
 </p>
 
-<h4>CtrlSplit({ctrl: units, ...})<br>
-CtrlSplit({(ctrl, ...): units, ...})</h4>
+<h4>CtrlSplit({ctrl: patch, ...})<br>
+CtrlSplit({(ctrl, ...): patch, ...})</h4>
 <p>
 Splits by controller number.
 Non-controller events are left unchanged, but not sent to any of the units.
 </p>
 
-<h4>CtrlValueSplit(threshold, units_lower, units_upper)<br>
-CtrlValueSplit({value: units, ...})<br>
-CtrlValueSplit({(min, max): units, ...})</h4>
+<h4>CtrlValueSplit(threshold, patch_lower, patch_upper)<br>
+CtrlValueSplit({value: patch, ...})<br>
+CtrlValueSplit({(lower, upper): patch, ...})</h4>
 <p>
 Splits by controller value.
 Non-controller events are left unchanged, but not sent to any of the units.
 </p>
 
-<h4>ProgSplit({program: units, ...})<br>
-ProgSplit({(program, ...): units, ...})</h4>
+<h4>ProgSplit({program: patch, ...})<br>
+ProgSplit({(program, ...): patch, ...})</h4>
 <p>
 Splits by program number.
 Non-program-change events are left unchanged, but not sent to any of the units.
@@ -359,22 +364,23 @@ Transposes all note events.
 </p>
 
 <h4>Velocity(offset)<br>
-VelocityMultiply(mult)<br>
-VelocityFixed(value)</h4>
+Velocity(multiply=...)<br>
+Velocity(fixed=...)</h4>
 <p>
 Changes velocity by adding an offset, multiplying with a factor, or setting it to a fixed value.
 </p>
 
 <h4>VelocityCurve(gamma)</h4>
 <p>
-Applies a "gamma"-curve to all velocity values.
+Applies an exponential curve to all velocity values.
 </p>
 
-<h4>VelocityGradient(note_lower, note_upper, value_lower, value_upper)<br>
-VelocityGradientMultiply(note_lower, note_upper, value_lower, value_upper)<br>
-VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper)</h4>
+<h4>VelocitySlope(notes, offset)<br>
+VelocitySlope(notes, multiply=...)<br>
+VelocitySlope(notes, fixed=...)</h4>
 <p>
-Changes velocity, using a gradient from lower to upper.<br>
+Changes velocity, applying a linear slope between different notes.
+Both parameters must be lists/tuples of the same length, where one velocity value corresponds to each note.<br>
 This can be used for example to fade-in a sound over a region of the keyboard.
 </p>
 
@@ -483,14 +489,14 @@ To send a bank select in addition to the program change, program can be a tuple 
 is the bank number, and the second is the program number.
 </p>
 
-<h4>Print(name=None, types=ANY, portnames=Print.PORTNAMES_NONE)</h4>
+<h4>Print(name=None, types=ANY, portnames=None)</h4>
 <p>
 Prints event data.
 </p>
 <ul>
   <li><b>name</b>: A string to be printed before each event.</li>
   <li><b>types</b>: Restricts printing to certain event types, using a combination of the event type constants described above.</li>
-  <li><b>portnames</b>: Pass Print.PORTNAMES_IN or Print.PORTNAMES_OUT to print input or output portnames,
+  <li><b>portnames</b>: Pass PORTNAMES_IN or PORTNAMES_OUT to print input or output portnames,
   rather than just numbers.</li>
 </ul>
 

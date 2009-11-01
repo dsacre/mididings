@@ -21,8 +21,8 @@ import subprocess as _subprocess
 
 
 class _CallBase(_Unit):
-    def __init__(self, fun, async, cont):
-        self.fun = fun
+    def __init__(self, function, async, cont):
+        self.fun = function
         _Unit.__init__(self, _mididings.Call(self.do_call, async, cont))
     def do_call(self, ev):
         # add additional properties that don't exist on the C++ side
@@ -31,8 +31,8 @@ class _CallBase(_Unit):
 
 
 class _CallThread(_CallBase):
-    def __init__(self, fun):
-        self.fun_thread = fun
+    def __init__(self, function):
+        self.fun_thread = function
         _CallBase.__init__(self, self.do_thread, True, True)
     def do_thread(self, ev):
         # need to make a copy of the event.
@@ -42,18 +42,18 @@ class _CallThread(_CallBase):
 
 
 @_unit_repr
-def Call(fun):
-    return _CallBase(fun, False, False)
+def Call(function):
+    return _CallBase(function, False, False)
 
 
 @_unit_repr
-def CallAsync(fun):
-    return _CallBase(fun, True, True)
+def CallAsync(function):
+    return _CallBase(function, True, True)
 
 
 @_unit_repr
-def CallThread(fun):
-    return _CallThread(fun)
+def CallThread(function):
+    return _CallThread(function)
 
 
 class _System(_CallBase):

@@ -32,6 +32,7 @@ def ChannelFilter(*args):
 
 @_unit_repr
 def KeyFilter(*args):
+    # TODO: allow keyword arguments
     if len(args) == 1:
         args = args[0]
     r = _util.note_range(args)
@@ -39,8 +40,8 @@ def KeyFilter(*args):
 
 
 @_unit_repr
-def VelocityFilter(min, max):
-    return _Filter(_mididings.VelocityFilter(min, max))
+def VelocityFilter(lower, upper):
+    return _Filter(_mididings.VelocityFilter(lower, upper))
 
 
 @_unit_repr
@@ -51,6 +52,7 @@ def CtrlFilter(*args):
 
 @_unit_repr
 def CtrlValueFilter(lower, upper=0):
+    # TODO: allow "value" keyword argument
     return _Filter(_mididings.CtrlValueFilter(_util.ctrl_value(lower), _util.ctrl_value(upper)))
 
 
