@@ -45,13 +45,16 @@ def Velocity(*args, **kwargs):
     )
     return _Unit(_mididings.Velocity(value, mode))
 
-# for backward compatibility, deprecated
+
+@_misc.deprecated('Velocity')
 def VelocityMultiply(value):
     return Velocity(multiply=value)
 
+@_misc.deprecated('Velocity')
 def VelocityFixed(value):
     return Velocity(fixed=value)
 
+@_misc.deprecated('Velocity')
 def VelocityCurve(gamma):
     return Velocity(gamma=gamma)
 
@@ -81,13 +84,15 @@ def VelocitySlope(*args, **kwargs):
     ))
 
 
-# for backward compatibility, deprecated
+@_misc.deprecated('VelocitySlope')
 def VelocityGradient(note_lower, note_upper, value_lower, value_upper):
     return VelocitySlope((note_lower, note_upper), offset=(value_lower, value_upper))
 
+@_misc.deprecated('VelocitySlope')
 def VelocityGradientMultiply(note_lower, note_upper, value_lower, value_upper):
     return VelocitySlope((note_lower, note_upper), multiply=(value_lower, value_upper))
 
+@_misc.deprecated('VelocitySlope')
 def VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper):
     return VelocitySlope((note_lower, note_upper), fixed=(value_lower, value_upper))
 

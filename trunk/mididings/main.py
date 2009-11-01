@@ -50,7 +50,7 @@ def run_scenes(scenes, control=None, pre=None, post=None, first_scene=-1, scene_
         return
 
 
-# for backward compatibility, deprecated
+_misc.deprecated('run_scenes')
 def run_patches(patches, control=None, pre=None, post=None, first_patch=-1, patch_switch_callback=None):
     run_scenes(patches, control, pre, post, first_patch, patch_switch_callback)
 

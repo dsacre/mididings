@@ -13,6 +13,7 @@
 import _mididings
 
 import inspect as _inspect
+import main as _main
 
 
 def flatten(seq):
@@ -73,3 +74,24 @@ def call_overload(name, args, kwargs, funcs):
             kw.update(kwargs)
             return f(**kw)
     raise TypeError("no suitable overload for %s() found" % name)
+
+
+class deprecated:
+    """
+    marks a function as deprecated, optionally suggesting a replacement.
+    """
+    already_used = []
+
+    def __init__(self, replacement=None):
+        self.replacement = replacement
+
+    def __call__(self, f):
+        def deprecated_wrapper(*args, **kwargs):
+            if _main._config['verbose'] and f not in deprecated.already_used:
+                if self.replacement:
+                    print "'%s' is deprecated, please use '%s' instead" % (f.func_name, self.replacement)
+                else:
+                    print "'%s' is deprecated" % f.func_name
+                deprecated.already_used.append(f)
+            return f(*args, **kwargs)
+        return deprecated_wrapper

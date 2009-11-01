@@ -14,6 +14,7 @@ import _mididings
 
 import mididings.event as _event
 import mididings.util as _util
+import mididings.misc as _misc
 
 
 class _Unit:
@@ -162,8 +163,9 @@ def Sanitize():
 
 
 @_unit_repr
-def SceneSwitch(num=_event.EVENT_PROGRAM):
-    return _Unit(_mididings.SceneSwitch(_util.scene_number(num) if num >= 0 else num))
+def SceneSwitch(number=_event.EVENT_PROGRAM):
+    return _Unit(_mididings.SceneSwitch(_util.scene_number(number) if number >= 0 else number))
 
-# for backward compatibility, deprecated
-PatchSwitch = SceneSwitch
+@_misc.deprecated('SceneSwitch')
+def PatchSwitch(number=_event.EVENT_PROGRAM):
+    return SceneSwitch(number)
