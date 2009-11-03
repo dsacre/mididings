@@ -179,7 +179,8 @@ class KeyFilter
 
     virtual bool process(MidiEvent & ev) {
         if (!match_type(ev)) return true;
-        return (ev.note.note >= _lower && ev.note.note < _upper);
+        return ((ev.note.note == _lower && _upper == 0) ||
+                (ev.note.note >= _lower && ev.note.note < _upper));
     }
 
   private:

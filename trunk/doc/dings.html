@@ -276,13 +276,14 @@ Filters by event port or channel.
 
 <h4>KeyFilter(key)<br>
 KeyFilter(lower, upper)<br>
-KeyFilter(range)</h4>
+KeyFilter(key_range)</h4>
 <p>
 Filters by key or key-range. Keys can be MIDI note numbers or note names (e.g. 'g#3').
 Ranges can be 2-tuples of note numbers, or note names (e.g. 'g#3:c6').
 </p>
 
-<h4>VelocityFilter(lower, upper)</h4>
+<h4>VelocityFilter(value)<br>
+VelocityFilter(lower, upper)</h4>
 <p>
 Filters by note velocity. A min or max value of 0 means no limit.
 </p>
@@ -316,7 +317,7 @@ Splits by port or channel.
 
 <h4>KeySplit(key, patch_lower, patch_upper)<br>
 KeySplit({(lower, upper): patch, ...})<br>
-KeySplit({range: patch, ...})</h4>
+KeySplit({key_range: patch, ...})</h4>
 <p>
 Splits by key. Non-note events are sent to all units.
 </p>

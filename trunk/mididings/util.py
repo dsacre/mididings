@@ -66,13 +66,18 @@ def note_number(note):
     try:
         # already a number?
         r = int(note)
-    except ValueError:
+    except Exception:
         note = note.lower()
         # find first digit
         for i in range(len(note)):
             if note[i].isdigit() or note[i] == '-':
                 break
-        r = NOTE_NUMBERS[note[:i]] + (int(note[i:]) + _main._config['octave_offset']) * 12
+        try:
+            name = note[:i]
+            octave = int(note[i:])
+            r = NOTE_NUMBERS[name] + (octave + _main._config['octave_offset']) * 12
+        except Exception:
+            raise ValueError("invalid note name '%s'" % note)
 
     if r < 0 or r > 127:
         raise ValueError("note number %d is out of range" % r)
@@ -83,11 +88,17 @@ def note_number(note):
 def note_range(notes):
     try:
         # single note?
-        return (note_number(notes), note_number(notes) + 1)
-    except:
-        if not isinstance(notes, tuple):
-            notes = notes.split(':', 1)
-        return note_number(notes[0]), note_number(notes[1])
+        n = note_number(notes)
+        return (n, n + 1)
+    except Exception:
+        if isinstance(notes, tuple):
+            return note_number(notes[0]), note_number(notes[1])
+        else:
+            try:
+                nn = notes.split(':', 1)
+                return note_number(nn[0]), note_number(nn[1])
+            except ValueError:
+                raise ValueError("invalid note range '%s'" % notes)
 
 
 # get note name from MIDI note number
