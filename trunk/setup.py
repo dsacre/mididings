@@ -4,6 +4,7 @@ from distutils.core import setup, Extension
 from distutils import sysconfig
 import sys
 import commands
+import os.path
 
 
 config = {
@@ -37,6 +38,12 @@ def pkgconfig(pkg):
         elif opt == '-L':
             library_dirs.append(val)
 
+def boost_lib_name(lib):
+    for libdir in ('/usr/lib', '/usr/local/lib'):
+        for suffix in ('', '-mt'):
+            libname = 'lib' + lib + suffix + '.so'
+            if os.path.isfile(os.path.join(libdir, libname)):
+                return lib + suffix
 
 sources = [
     'src/backend.cc',
@@ -56,9 +63,9 @@ library_dirs = []
 
 pkgconfig('alsa')
 pkgconfig('jack')
+libraries.append(boost_lib_name('boost_python'))
+libraries.append(boost_lib_name('boost_thread'))
 include_dirs.append('src')
-libraries.append('boost_python-mt')
-libraries.append('boost_thread-mt')
 
 
 if config['jack-midi']:
