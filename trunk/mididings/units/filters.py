@@ -39,7 +39,6 @@ def KeyFilter(*args, **kwargs):
             lambda lower, upper: _util.note_range((lower, upper)),
         ]
     )
-    print note_range
     return _Filter(_mididings.KeyFilter(*note_range))
 
 

@@ -87,14 +87,16 @@ def note_number(note):
 # convert note range to tuple of MIDI note numbers
 def note_range(notes):
     try:
-        # single note?
+        # single note
         n = note_number(notes)
         return (n, n + 1)
     except Exception:
         if isinstance(notes, tuple):
+            # tuple of note numbers
             return note_number(notes[0]), note_number(notes[1])
         else:
             try:
+                # note range string
                 nn = notes.split(':', 1)
                 return note_number(nn[0]), note_number(nn[1])
             except ValueError:
