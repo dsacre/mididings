@@ -9,6 +9,7 @@ def boost_lib_name(lib):
             libname = 'lib' + lib + suffix + '.so'
             if os.path.isfile(os.path.join(libdir, libname)):
                 return lib + suffix
+    return lib
 
 env = Environment(
 #    CCFLAGS = [ '-O2', '-W', '-Wall', '-finline-functions', '-fvisibility=hidden' ],

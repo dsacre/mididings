@@ -44,6 +44,7 @@ def boost_lib_name(lib):
             libname = 'lib' + lib + suffix + '.so'
             if os.path.isfile(os.path.join(libdir, libname)):
                 return lib + suffix
+    return lib
 
 sources = [
     'src/backend.cc',
