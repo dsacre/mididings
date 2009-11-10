@@ -6,7 +6,7 @@ from distutils import sysconfig
 def boost_lib_name(lib):
     for libdir in ('/usr/lib', '/usr/local/lib'):
         for suffix in ('', '-mt'):
-            libname = 'lib' + lib + suffix + '.so'
+            libname = 'lib%s%s.so' % (lib, suffix)
             if os.path.isfile(os.path.join(libdir, libname)):
                 return lib + suffix
     return lib

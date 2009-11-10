@@ -41,7 +41,7 @@ def pkgconfig(pkg):
 def boost_lib_name(lib):
     for libdir in ('/usr/lib', '/usr/local/lib'):
         for suffix in ('', '-mt'):
-            libname = 'lib' + lib + suffix + '.so'
+            libname = 'lib%s%s.so' % (lib, suffix)
             if os.path.isfile(os.path.join(libdir, libname)):
                 return lib + suffix
     return lib
@@ -98,7 +98,7 @@ sysconfig.customize_compiler = my_customize_compiler
 
 setup(
     name = 'mididings',
-    version = '20091003',
+    version = '20091108',
     author = 'Dominic Sacre',
     author_email = 'dominic.sacre@gmx.de',
     url = 'http://das.nasophon.de/mididings/',

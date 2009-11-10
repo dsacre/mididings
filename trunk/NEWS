@@ -1,3 +1,16 @@
+2009-11-10
+
+  * New and clearer nomenclature to avoid different meanings of "patch":
+    A "patch" is now always just a group of units, whereas you switch
+    between "scenes" (which can in turn consist of a patch and optionally
+    an init-patch). Function names changed accordingly, but for now the
+    previous names still exist for backward compatibility.
+  * Favor keyword arguments over different units with similar
+    functionality, e.g. VelocityFixed(x) -> Velocity(fixed=x), etc.
+  * Replaced VelocityGradient() with the new VelocitySlope(), which
+    supports defining the velocity for an arbitrary number of notes.
+  * PedalToNoteoff() can now act as either a sustain or a sostenuto pedal.
+
 2009-10-03
 
   * Made all key or value ranges half-open (excluding the upper limit) for
@@ -15,13 +28,13 @@
 
   * New units in mididings.extra: MakeMonophonic() and LimitPolyphony().
   * Added event-type agnostic inversion operator - for filters.
-  * VelocityFilter() can now be used with only an upper or lower limit when the
-    other parameter is zero.
+  * VelocityFilter() can now be used with only an upper or lower limit when
+    the other parameter is zero.
 
 2008-11-23
 
-  * Added support for reading and writing standard MIDI files, based on libsmf
-    (disabled by default).
+  * Added support for reading and writing standard MIDI files, based on
+    libsmf (disabled by default).
   * Allow patch numbers greater than 128.
   * Output() now supports sending bank select messages.
 
@@ -33,19 +46,20 @@
 
 2008-11-09
 
-  * Lots of changes and cleanup of the JACK backend, should now work properly
-    with JACK 2.
+  * Lots of changes and cleanup of the JACK backend, should now work
+    properly with JACK 2.
   * Added support for channel aftertouch.
   * Implemented new operator % for filters.
   * Added parameters to run_patches() to specify the first patch to be
     selected, and a callback function to be called on every patch switch.
   * New function: mididings.extra.run_patches_memorize().
-  * New units: NoteOn(), NoteOff(), CtrlSplit(), CtrlValueSplit(), ProgSplit().
+  * New units: NoteOn(), NoteOff(), CtrlSplit(), CtrlValueSplit(),
+    ProgSplit().
 
 2008-09-13
 
-  * Added System() to run shell commands, as well as SendOSC() and SendDBUS()
-    to send OSC or DBUS messages.
+  * Added System() to run shell commands, as well as SendOSC() and
+    SendDBUS() to send OSC or DBUS messages.
   * Do a lot more validity checking of function arguments.
 
 2008-09-09
@@ -70,12 +84,13 @@
   * Complete rewrite of some crucial parts of the code. Lots of cleanup and
     restructuring. This should not affect existing scripts, except for the
     changes noted below.
-  * Filters no longer remove events of different types. For example, what used
-    to be CtrlFilter(num) should now be written as
+  * Filters no longer remove events of different types. For example, what
+    used to be CtrlFilter(num) should now be written as
     Filter(CTRL) >> CtrlFilter(num).
   * When units connected in parallel result in identical copies of the same
-    event, duplicates will be removed. For example, [ Pass(), Transpose(12) ]
-    no longer outputs two events when receiving program or control changes.
+    event, duplicates will be removed.
+    For example, [ Pass(), Transpose(12) ] no longer outputs two events
+    when receiving program or control changes.
   * Require Boost ≥ 1.34.1.
   * Many minor fixes.
 
@@ -85,27 +100,29 @@
     delaying event processing.
   * Made Print() prettier, more informative, and faster.
   * Added CtrlMap() and PrintString().
-  * ALSA event queue is now cleared before starting MIDI processing, to ignore
-    events received during start_delay.
+  * ALSA event queue is now cleared before starting MIDI processing, to
+    ignore events received during start_delay.
 
 2008-07-13
 
   * Added start_delay parameter to config().
   * Added switch_patch() function.
-  * Init events for the first patch loaded at startup are now sent properly.
-  * Don't allow note on events with velocity < 1. This has the (side-)effect
-    that Velocity() and VelocityGradient() will never completely remove any
-    events. Use an additional VelocityFilter() if that's what you want.
+  * Init events for the first patch loaded at startup are now sent
+    properly.
+  * Don't allow note on events with velocity < 1. This has the (side-)
+    effect that Velocity() and VelocityGradient() will never completely
+    remove any events. Use an additional VelocityFilter() if that's what
+    you want.
 
 2008-04-16
 
-  * Moved port parameters from run() to config(), allow ports to be specified
-    by name rather than number.
+  * Moved port parameters from run() to config(), allow ports to be
+    specified by name rather than number.
   * Changed parameter order of CtrlRange(), making input range [0;127] the
     default.
 
 2008-04-06
 
-  * Added new Sanitize() unit to make sure MIDI events are valid. The same is
-    done automatically before sending events to the output ports.
+  * Added new Sanitize() unit to make sure MIDI events are valid. The same
+    is done automatically before sending events to the output ports.
   * Added some more documentation.

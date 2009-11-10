@@ -366,19 +366,16 @@ Transposes all note events.
 
 <h4>Velocity(offset)<br>
 Velocity(multiply=...)<br>
-Velocity(fixed=...)</h4>
+Velocity(fixed=...)<br>
+Velocity(gamma=...)</h4>
 <p>
-Changes velocity by adding an offset, multiplying with a factor, or setting it to a fixed value.
-</p>
-
-<h4>VelocityCurve(gamma)</h4>
-<p>
-Applies an exponential curve to all velocity values.
+Changes velocity by adding an offset, multiplying with a factor, setting it to a fixed value, or applying a "gamma"-curve.
 </p>
 
 <h4>VelocitySlope(notes, offset)<br>
 VelocitySlope(notes, multiply=...)<br>
-VelocitySlope(notes, fixed=...)</h4>
+VelocitySlope(notes, fixed=...)<br>
+VelocitySlope(notes, gamma=...)</h4>
 <p>
 Changes velocity, applying a linear slope between different notes.
 Both parameters must be lists/tuples of the same length, where one velocity value corresponds to each note.<br>
