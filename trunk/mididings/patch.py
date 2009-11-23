@@ -31,12 +31,10 @@ class Patch(_mididings.Patch):
             for i in p:
                 v.push_back(self.build(i))
 
-            if hasattr(p, 'remove_duplicates') and p.remove_duplicates != None:
-                r = p.remove_duplicates
+            if hasattr(p, 'remove_duplicates'):
+                return Patch.Fork(v, p.remove_duplicates != False)
             else:
-                r = main._config['remove_duplicates']
-
-            return Patch.Fork(v, r)
+                return Patch.Fork(v, True)
 
         elif isinstance(p, dict):
             return self.build([

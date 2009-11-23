@@ -14,7 +14,7 @@ from mididings import *
 from mididings.extra import CallPerChannel
 
 
-class _Suppressor:
+class _Suppressor(object):
     def __init__(self):
         self.current = None
     def __call__(self, ev):

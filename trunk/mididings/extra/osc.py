@@ -15,7 +15,7 @@ from mididings import CallAsync
 import liblo as _liblo
 
 
-class _SendOSC:
+class _SendOSC(object):
     def __init__(self, target, path, args):
         self.target = target
         self.path = path

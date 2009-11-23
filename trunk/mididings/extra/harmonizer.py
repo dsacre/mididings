@@ -24,7 +24,7 @@ _INTERVALS = ['unison', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh'
              'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth']
 
 
-class _Harmonizer:
+class _Harmonizer(object):
     def __init__(self, tonic, scale, interval, non_harmonic):
         self.tonic = tonic
         self.lookup = {}

@@ -13,7 +13,7 @@
 from mididings import *
 
 
-class _CallPerChannel:
+class _CallPerChannel(object):
     def __init__(self, factory):
         self.per_channel = {}
         self.factory = factory

@@ -14,7 +14,7 @@ from mididings import *
 from mididings.extra import CallPerChannel
 
 
-class _LimitPolyphony:
+class _LimitPolyphony(object):
     def __init__(self, max_polyphony, remove_oldest):
         self.max_polyphony = max_polyphony
         self.remove_oldest = remove_oldest
@@ -45,7 +45,7 @@ class _LimitPolyphony:
                 return None
 
 
-class _MakeMonophonic:
+class _MakeMonophonic(object):
     def __init__(self):
         self.notes = []
 

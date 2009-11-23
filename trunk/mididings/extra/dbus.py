@@ -17,7 +17,7 @@ from mididings import CallAsync
 import dbus as _dbus
 
 
-class _SendDBUS:
+class _SendDBUS(object):
     def __init__(self, service, path, interface, method, args):
         self.bus = _dbus.SessionBus()
         self.service = service

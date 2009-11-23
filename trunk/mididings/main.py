@@ -23,7 +23,6 @@ _config = {
     'octave_offset':        2,
     'verbose':              True,
     'start_delay':          None,
-    'remove_duplicates':    True,
     'osc_port':             None,
     'osc_notify_port':      None,
 }

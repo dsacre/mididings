@@ -10,7 +10,7 @@
 # (at your option) any later version.
 #
 
-class Scene:
+class Scene(object):
     def __init__(self, name, patch, init_patch=None):
         self.name = name
         self.patch = patch

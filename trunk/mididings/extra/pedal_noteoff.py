@@ -14,7 +14,7 @@ from mididings import *
 from mididings.extra import CallPerChannel
 
 
-class _SustainToNoteoff:
+class _SustainToNoteoff(object):
     def __init__(self, ctrl):
         self.ctrl = ctrl
         self.pedal = False
@@ -43,7 +43,7 @@ class _SustainToNoteoff:
             return ev
 
 
-class _SostenutoToNoteoff:
+class _SostenutoToNoteoff(object):
     def __init__(self, ctrl):
         self.ctrl = ctrl
         self.pedal = False

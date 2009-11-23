@@ -17,7 +17,7 @@ import mididings.util as _util
 import mididings.misc as _misc
 
 
-class _Unit:
+class _Unit(object):
     """
     base class for all units.
     """
@@ -107,21 +107,36 @@ class Split(_Unit, dict):
         dict.__init__(self, d)
 
 
-class _Filter(_Unit):
-    """
-    base class for all filters.
-    """
-    # operator ~ inverts the filter but still acts on the same event types
-    def __invert__(self):
-        return _InvertedFilter(self, False)
-
-    # operator - inverts the filter ignoring event types
-    def __neg__(self):
-        return _InvertedFilter(self, True)
+class _Selector(object):
+    def __init__(self, filters):
+        self.filters = filters
 
     # operator %
     def __mod__(self, other):
-        return Fork([ self >> other, -self ])
+        if isinstance(other, _Filter):
+            return _Selector(self.filters + [other])
+        else:
+            return Fork([
+                Chain(f for f in self.filters) >> other,
+                Fork(-f for f in self.filters)
+            ])
+
+
+class _Filter(_Unit, _Selector):
+    """
+    base class for all filters.
+    """
+    def __init__(self, unit):
+        _Unit.__init__(self, unit)
+        _Selector.__init__(self, [self])
+
+    # operator ~ inverts the filter, but still acts on the same event types
+    def __invert__(self):
+        return _InvertedFilter(self, False)
+
+    # operator - inverts the filter, ignoring event types
+    def __neg__(self):
+        return _InvertedFilter(self, True)
 
 
 class _InvertedFilter(_Filter):
