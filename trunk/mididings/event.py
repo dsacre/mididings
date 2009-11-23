@@ -13,33 +13,34 @@
 import _mididings
 import main as _main
 import util as _util
+from misc import NamedFlag as _NamedFlag, NamedBitMask as _NamedBitMask
 
 
-NONE        = 0
-NOTEON      = 1 << 0
-NOTEOFF     = 1 << 1
-NOTE        = NOTEON | NOTEOFF
-CTRL        = 1 << 2
-PITCHBEND   = 1 << 3
-AFTERTOUCH  = 1 << 4
-PROGRAM     = 1 << 5
-DUMMY       = 1 << 6
-ANY         = ~0
+NONE        = _NamedBitMask(0, 'NONE')
+NOTEON      = _NamedBitMask(1 << 0, 'NOTEON')
+NOTEOFF     = _NamedBitMask(1 << 1, 'NOTEOFF')
+NOTE        = _NamedBitMask(NOTEON | NOTEOFF, 'NOTE')
+CTRL        = _NamedBitMask(1 << 2, 'CTRL')
+PITCHBEND   = _NamedBitMask(1 << 3, 'PITCHBEND')
+AFTERTOUCH  = _NamedBitMask(1 << 4, 'AFTERTOUCH')
+PROGRAM     = _NamedBitMask(1 << 5, 'PROGRAM')
+DUMMY       = _NamedBitMask(1 << 6, 'DUMMY')
+ANY         = _NamedBitMask(~0, 'ANY')
 
 
-EVENT_PORT      = -1
-EVENT_CHANNEL   = -2
+EVENT_PORT      = _NamedFlag(-1, 'EVENT_PORT')
+EVENT_CHANNEL   = _NamedFlag(-2, 'EVENT_CHANNEL')
 # generic
-EVENT_DATA1     = -3
-EVENT_DATA2     = -4
+EVENT_DATA1     = _NamedFlag(-3, 'EVENT_DATA1')
+EVENT_DATA2     = _NamedFlag(-4, 'EVENT_DATA2')
 # note
-EVENT_NOTE      = -3
-EVENT_VELOCITY  = -4
+EVENT_NOTE      = _NamedFlag(-3, 'EVENT_NOTE')
+EVENT_VELOCITY  = _NamedFlag(-4, 'EVENT_VELOCITY')
 # controller
-EVENT_PARAM     = -3
-EVENT_VALUE     = -4
+EVENT_PARAM     = _NamedFlag(-3, 'EVENT_PARAM')
+EVENT_VALUE     = _NamedFlag(-4, 'EVENT_VALUE')
 # program change
-EVENT_PROGRAM   = -4
+EVENT_PROGRAM   = _NamedFlag(-4, 'EVENT_PROGRAM')
 
 
 def _make_get_set(type_, data, offset=lambda: 0):

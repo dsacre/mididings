@@ -95,3 +95,19 @@ class deprecated:
                 deprecated.already_used.append(f)
             return f(*args, **kwargs)
         return deprecated_wrapper
+
+
+class NamedFlag(int):
+    def __new__(cls, value, name):
+        return int.__new__(cls, value)
+    def __init__(self, value, name):
+        self.name = name
+    def __repr__(self):
+        return self.name
+
+
+class NamedBitMask(NamedFlag):
+    def __or__(self, other):
+        return NamedBitMask(self + other, '%s|%s' % (self.name, other.name))
+    def __invert__(self):
+        return NamedBitMask(~int(self), ('~%s' if '|' not in self.name else '~(%s)') % self.name)

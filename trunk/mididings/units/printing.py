@@ -15,10 +15,11 @@ from mididings.units.base import _unit_repr
 
 import mididings.main as _main
 import mididings.event as _event
+from mididings.misc import NamedFlag as _NamedFlag
 
 
-PORTNAMES_IN   = 1
-PORTNAMES_OUT  = 2
+PORTNAMES_IN   = _NamedFlag(1, 'PORTNAMES_IN')
+PORTNAMES_OUT  = _NamedFlag(2, 'PORTNAMES_OUT')
 
 
 class _Print(_CallBase):
