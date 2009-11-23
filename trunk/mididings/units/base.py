@@ -106,6 +106,9 @@ class Split(_Unit, dict):
     def __init__(self, d):
         dict.__init__(self, d)
 
+    def __repr__(self):
+        return '{' + ', '.join('%s: %s' % (repr(t), repr(self[t])) for t in self.keys()) + '}'
+
 
 class _Selector(object):
     def __init__(self, filters):
