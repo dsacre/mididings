@@ -11,7 +11,7 @@
 #
 
 from mididings import *
-from mididings.extra import CallPerChannel
+from mididings.extra import PerChannel
 
 
 class _LimitPolyphony(object):
@@ -83,8 +83,8 @@ class _MakeMonophonic(object):
 
 
 def LimitPolyphony(max_polyphony, remove_oldest=True):
-    return Filter(NOTE) % CallPerChannel(lambda: _LimitPolyphony(max_polyphony, remove_oldest))
+    return Filter(NOTE) % Process(PerChannel(lambda: _LimitPolyphony(max_polyphony, remove_oldest)))
 
 
 def MakeMonophonic():
-    return Filter(NOTE) % CallPerChannel(_MakeMonophonic)
+    return Filter(NOTE) % Process(PerChannel(_MakeMonophonic))

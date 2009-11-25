@@ -1,5 +1,5 @@
 #
-# call.py - shows how to process MIDI events in Python
+# process.py - shows how to process MIDI events in Python
 #
 # This is a curious little script that inverts the velocity of note-on events.
 # The harder you press the keys, the quieter the sound will become :)
@@ -18,4 +18,4 @@ def invert(ev):
         return None
 
 
-run(Call(invert))
+run(Process(invert))

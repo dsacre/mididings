@@ -97,7 +97,7 @@ def Harmonize(tonic, scale, interval, non_harmonic='below'):
     iv = [(_INTERVALS.index(x) if x in _INTERVALS else x) for x in interval]
 
     # PYTHON VERSION:
-#    f = [ Call(_Harmonizer(t, s, i, non_harmonic)) for i in iv ]
+#    f = [ Process(_Harmonizer(t, s, i, non_harmonic)) for i in iv ]
 
     # PURE MIDIDINGS VERSION:
     f = []

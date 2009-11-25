@@ -11,7 +11,7 @@
 #
 
 from mididings import *
-from mididings.extra import CallPerChannel
+from mididings.extra import PerChannel
 
 
 class _SustainToNoteoff(object):
@@ -83,8 +83,8 @@ class _SostenutoToNoteoff(object):
 
 def PedalToNoteoff(ctrl=64, sostenuto=False):
     if sostenuto:
-        proc = CallPerChannel(lambda: _SostenutoToNoteoff(ctrl))
+        proc = Process(PerChannel(lambda: _SostenutoToNoteoff(ctrl)))
     else:
-        proc = CallPerChannel(lambda: _SustainToNoteoff(ctrl))
+        proc = Process(PerChannel(lambda: _SustainToNoteoff(ctrl)))
 
     return Filter(NOTE | CTRL) % (CtrlFilter(ctrl) % proc)

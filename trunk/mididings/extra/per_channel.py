@@ -13,7 +13,7 @@
 from mididings import *
 
 
-class _CallPerChannel(object):
+class PerChannel(object):
     def __init__(self, factory):
         self.per_channel = {}
         self.factory = factory
@@ -23,13 +23,3 @@ class _CallPerChannel(object):
         if k not in self.per_channel:
             self.per_channel[k] = self.factory()
         return self.per_channel[k](ev)
-
-
-def CallPerChannel(factory):
-    return Call(_CallPerChannel(factory))
-
-def CallAsyncPerChannel(factory):
-    return CallAsync(_CallPerChannel(factory))
-
-def CallThreadPerChannel(factory):
-    return CallThread(_CallPerChannel(factory))

@@ -11,7 +11,7 @@
 #
 
 from mididings import *
-from mididings.extra import CallPerChannel
+from mididings.extra import PerChannel
 
 
 class _Suppressor(object):
@@ -26,4 +26,4 @@ class _Suppressor(object):
 
 
 def SuppressPC():
-    return Filter(PROGRAM) % CallPerChannel(_Suppressor)
+    return Filter(PROGRAM) % Process(PerChannel(_Suppressor))

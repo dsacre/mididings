@@ -15,6 +15,7 @@ import _mididings
 from mididings.units.base import _Unit, _unit_repr
 
 import mididings.event as _event
+import mididings.misc as _misc
 
 import thread as _thread
 import subprocess as _subprocess
@@ -41,21 +42,6 @@ class _CallThread(_CallBase):
         _thread.start_new_thread(self.fun_thread, (ev_copy,))
 
 
-@_unit_repr
-def Call(function):
-    return _CallBase(function, False, False)
-
-
-@_unit_repr
-def CallAsync(function):
-    return _CallBase(function, True, True)
-
-
-@_unit_repr
-def CallThread(function):
-    return _CallThread(function)
-
-
 class _System(_CallBase):
     def __init__(self, cmd):
         self.cmd = cmd
@@ -63,6 +49,29 @@ class _System(_CallBase):
     def do_system(self, ev):
         cmd = self.cmd(ev) if callable(self.cmd) else self.cmd
         _subprocess.Popen(cmd, shell=True)
+
+
+@_unit_repr
+def Process(function):
+    return _CallBase(function, False, False)
+
+
+@_unit_repr
+def Call(function):
+    def wrapper(ev):
+        if function(ev) != None:
+            print "return value from Call() ignored. please use Process() instead."
+    return _CallBase(wrapper, True, True)
+
+
+@_misc.deprecated('Call')
+def CallAsync(function):
+    return Call(function)
+
+
+@_unit_repr
+def CallThread(function):
+    return _CallThread(function)
 
 
 @_unit_repr
