@@ -64,7 +64,7 @@ bool BackendSmf::input_event(MidiEvent & ev)
             smf_track_add_event_pulses(smf_get_track_by_number(_smf_out.get(), smf_ev->track_number), smf_ev_out, smf_ev->time_pulses);
         }
         else {
-            ev = buffer_to_midi_event(smf_ev->midi_buffer, smf_ev->track_number - 1, smf_ev->time_pulses);
+            ev = buffer_to_midi_event(smf_ev->midi_buffer, smf_ev->midi_buffer_length, smf_ev->track_number - 1, smf_ev->time_pulses);
             return true;
         }
     }

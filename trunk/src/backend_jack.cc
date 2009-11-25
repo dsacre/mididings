@@ -109,7 +109,7 @@ bool BackendJack::read_event_from_buffer(MidiEvent & ev, jack_nframes_t nframes)
 
             //std::cout << "in: " << jack_ev.time << std::endl;
 
-            ev = buffer_to_midi_event(jack_ev.buffer, _input_port, _current_frame + jack_ev.time);
+            ev = buffer_to_midi_event(jack_ev.buffer, jack_ev.size, _input_port, _current_frame + jack_ev.time);
 
             if (++_input_count >= num_events) {
                 ++_input_port;
@@ -128,8 +128,8 @@ bool BackendJack::read_event_from_buffer(MidiEvent & ev, jack_nframes_t nframes)
 
 void BackendJack::write_event_to_buffer(MidiEvent const & ev, jack_nframes_t nframes)
 {
-    unsigned char data[3];
-    std::size_t len;
+    unsigned char data[Config::MAX_EVENT_SIZE];
+    std::size_t len = Config::MAX_EVENT_SIZE;
     int port;
     uint64_t frame;
 

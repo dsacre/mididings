@@ -25,6 +25,7 @@ namespace Config
     static int const ASYNC_CALLBACK_INTERVAL = 50;
 
     static int const MAX_JACK_EVENTS = 128;
+    static int const MAX_EVENT_SIZE = 1024;
 }
 
 

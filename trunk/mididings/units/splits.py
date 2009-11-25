@@ -12,7 +12,7 @@
 
 from mididings.units.base import Fork, Filter
 from mididings.units.filters import PortFilter, ChannelFilter, KeyFilter, VelocityFilter
-from mididings.units.filters import CtrlFilter, CtrlValueFilter, ProgFilter
+from mididings.units.filters import CtrlFilter, CtrlValueFilter, ProgFilter, SysExFilter
 
 import mididings.event as _event
 import mididings.misc as _misc
@@ -29,7 +29,7 @@ def ChannelSplit(d):
 def KeySplit(*args, **kwargs):
     def KeySplitDict(d):
         return Fork([
-            (KeyFilter(*(k if isinstance(k, tuple) else (k,))) >> w) for k, w in args[0].items()
+            (KeyFilter(*(k if isinstance(k, tuple) else (k,))) >> w) for k, w in d.items()
         ])
     def KeySplitThreshold(key, patch_lower, patch_upper):
         filt = KeyFilter(0, key)
@@ -46,7 +46,7 @@ def KeySplit(*args, **kwargs):
 def VelocitySplit(*args, **kwargs):
     def VelocitySplitDict(d):
         return Fork([
-            (VelocityFilter(*(v if isinstance(v, tuple) else (v,))) >> w) for v, w in args[0].items()
+            (VelocityFilter(*(v if isinstance(v, tuple) else (v,))) >> w) for v, w in d.items()
         ])
     def VelocitySplitThreshold(threshold, patch_lower, patch_upper):
         filt = VelocityFilter(0, threshold)
@@ -67,7 +67,7 @@ def CtrlSplit(d):
 def CtrlValueSplit(*args, **kwargs):
     def CtrlValueSplitDict(d):
         return Filter(_event.CTRL) % [
-            (CtrlValueFilter(*(v if isinstance(v, tuple) else (v,))) >> w) for v, w in args[0].items()
+            (CtrlValueFilter(*(v if isinstance(v, tuple) else (v,))) >> w) for v, w in d.items()
         ]
     def CtrlValueSplitThreshold(threshold, patch_lower, patch_upper):
         filt = CtrlValueFilter(0, threshold)
@@ -83,3 +83,9 @@ def CtrlValueSplit(*args, **kwargs):
 
 def ProgSplit(d):
     return Filter(_event.PROGRAM) % [ (ProgFilter(p) >> w) for p, w in d.items() ]
+
+
+def SysExSplit(d):
+    return Filter(_event.SYSEX) % [
+        (SysExFilter(v) >> w) for v, w in d.items()
+    ]

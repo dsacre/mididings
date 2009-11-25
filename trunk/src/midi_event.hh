@@ -13,20 +13,32 @@
 #define _MIDI_EVENT_HH
 
 #include <boost/cstdint.hpp>
+#include <boost/shared_ptr.hpp>
+#include <string>
 
 
 enum MidiEventType
 {
-    MIDI_EVENT_NONE       = 0,
-    MIDI_EVENT_NOTEON     = 1 << 0,
-    MIDI_EVENT_NOTEOFF    = 1 << 1,
-    MIDI_EVENT_NOTE       = MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF,
-    MIDI_EVENT_CTRL       = 1 << 2,
-    MIDI_EVENT_PITCHBEND  = 1 << 3,
-    MIDI_EVENT_AFTERTOUCH = 1 << 4,
-    MIDI_EVENT_PROGRAM    = 1 << 5,
-    MIDI_EVENT_DUMMY      = 1 << 6,
-    MIDI_EVENT_ANY        = ~0,
+    MIDI_EVENT_NONE             = 0,
+    MIDI_EVENT_NOTEON           = 1 << 0,
+    MIDI_EVENT_NOTEOFF          = 1 << 1,
+    MIDI_EVENT_CTRL             = 1 << 2,
+    MIDI_EVENT_PITCHBEND        = 1 << 3,
+    MIDI_EVENT_AFTERTOUCH       = 1 << 4,
+    MIDI_EVENT_PROGRAM          = 1 << 5,
+    MIDI_EVENT_SYSEX            = 1 << 6,
+    MIDI_EVENT_SYSCM_QFRAME     = 1 << 7,
+    MIDI_EVENT_SYSCM_SONGPOS    = 1 << 8,
+    MIDI_EVENT_SYSCM_SONGSEL    = 1 << 9,
+    MIDI_EVENT_SYSCM_TUNEREQ    = 1 << 10,
+    MIDI_EVENT_SYSRT_CLOCK      = 1 << 11,
+    MIDI_EVENT_SYSRT_START      = 1 << 12,
+    MIDI_EVENT_SYSRT_CONTINUE   = 1 << 13,
+    MIDI_EVENT_SYSRT_STOP       = 1 << 14,
+    MIDI_EVENT_SYSRT_SENSING    = 1 << 15,
+    MIDI_EVENT_SYSRT_RESET      = 1 << 16,
+    MIDI_EVENT_DUMMY            = 1 << 30,
+    MIDI_EVENT_ANY              = ~0,
 };
 
 typedef unsigned int MidiEventTypes;
@@ -34,12 +46,22 @@ typedef unsigned int MidiEventTypes;
 
 struct MidiEvent
 {
+    typedef std::string SysExData;
+    typedef boost::shared_ptr<SysExData const> SysExPtr;
+
+    struct null_deleter {
+        void operator()(void const *) const {}
+    };
+
+
     MidiEvent()
       : type(MIDI_EVENT_NONE)
       , port(0)
       , channel(0)
       , data1(0)
       , data2(0)
+      , sysex()
+      , frame(0)
     {
     }
 
@@ -49,7 +71,24 @@ struct MidiEvent
       , channel(channel_)
       , data1(data1_)
       , data2(data2_)
+      , sysex()
+      , frame(0)
     {
+    }
+/*
+    MidiEvent(int port_, std::string const & sysex_)
+      : type(MIDI_EVENT_SYSEX)
+      , port(port_)
+      , channel(0)
+      , data1(0)
+      , data2(0)
+      , frame(0)
+    {
+        sysex.reset(&sysex_, null_deleter());
+    }
+*/
+    std::string get_sysex_data() const {
+        return std::string(*sysex);
     }
 
     MidiEventType type;
@@ -73,6 +112,8 @@ struct MidiEvent
         };
     };
 
+    SysExPtr sysex;
+
     uint64_t frame;
 };
 
@@ -84,6 +125,8 @@ inline bool operator==(MidiEvent const & lhs, MidiEvent const & rhs)
             lhs.channel == rhs.channel &&
             lhs.data1 == rhs.data1 &&
             lhs.data2 == rhs.data2);
+
+    // TODO: frame? sysex?
 }
 
 

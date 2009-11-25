@@ -10,51 +10,107 @@
  */
 
 #include "backend.hh"
+#include "midi_event.hh"
+
+#include <algorithm>
 
 
-MidiEvent Backend::buffer_to_midi_event(unsigned char *data, int port, uint64_t frame)
+MidiEvent Backend::buffer_to_midi_event(unsigned char *data, std::size_t len, int port, uint64_t frame)
 {
     MidiEvent ev;
 
     ev.frame = frame;
     ev.port = port;
-    ev.channel = data[0] & 0x0f;
 
-    switch (data[0] & 0xf0)
+    if ((data[0] & 0xf0) != 0xf0)
     {
-      case 0x90:
-        ev.type = data[2] ? MIDI_EVENT_NOTEON : MIDI_EVENT_NOTEOFF;
-        ev.note.note = data[1];
-        ev.note.velocity = data[2];
-        break;
-      case 0x80:
-        ev.type = MIDI_EVENT_NOTEOFF;
-        ev.note.note = data[1];
-        ev.note.velocity = data[2];
-        break;
-      case 0xb0:
-        ev.type = MIDI_EVENT_CTRL;
-        ev.ctrl.param = data[1];
-        ev.ctrl.value = data[2];
-        break;
-      case 0xe0:
-        ev.type = MIDI_EVENT_PITCHBEND;
-        ev.ctrl.param = 0;
-        ev.ctrl.value = (data[2] << 7 | data[1]) - 8192;
-        break;
-      case 0xd0:
-        ev.type = MIDI_EVENT_AFTERTOUCH;
-        ev.ctrl.param = 0;
-        ev.ctrl.value = data[1];
-        break;
-      case 0xc0:
-        ev.type = MIDI_EVENT_PROGRAM;
-        ev.ctrl.param = 0;
-        ev.ctrl.value = data[1];
-        break;
-      default:
-        ev.type = MIDI_EVENT_NONE;
-        break;
+        ev.channel = data[0] & 0x0f;
+
+        switch (data[0] & 0xf0)
+        {
+          case 0x90:
+            ev.type = data[2] ? MIDI_EVENT_NOTEON : MIDI_EVENT_NOTEOFF;
+            ev.note.note = data[1];
+            ev.note.velocity = data[2];
+            break;
+          case 0x80:
+            ev.type = MIDI_EVENT_NOTEOFF;
+            ev.note.note = data[1];
+            ev.note.velocity = data[2];
+            break;
+          case 0xb0:
+            ev.type = MIDI_EVENT_CTRL;
+            ev.ctrl.param = data[1];
+            ev.ctrl.value = data[2];
+            break;
+          case 0xe0:
+            ev.type = MIDI_EVENT_PITCHBEND;
+            ev.ctrl.param = 0;
+            ev.ctrl.value = (data[2] << 7 | data[1]) - 8192;
+            break;
+          case 0xd0:
+            ev.type = MIDI_EVENT_AFTERTOUCH;
+            ev.ctrl.param = 0;
+            ev.ctrl.value = data[1];
+            break;
+          case 0xc0:
+            ev.type = MIDI_EVENT_PROGRAM;
+            ev.ctrl.param = 0;
+            ev.ctrl.value = data[1];
+            break;
+          default:
+            ev.type = MIDI_EVENT_NONE;
+            break;
+        }
+    }
+    else
+    {
+        ev.channel = 0;
+
+        switch (data[0])
+        {
+          case 0xf0:
+            ev.type = MIDI_EVENT_SYSEX;
+            ev.sysex.reset(new MidiEvent::SysExData(data, data + len));
+            break;
+          case 0xf1:
+            ev.type = MIDI_EVENT_SYSCM_QFRAME;
+            ev.data1 = data[1];
+            break;
+          case 0xf2:
+            ev.type = MIDI_EVENT_SYSCM_SONGPOS;
+            ev.data1 = data[1];
+            ev.data2 = data[2];
+            break;
+          case 0xf3:
+            ev.type = MIDI_EVENT_SYSCM_SONGSEL;
+            ev.data1 = data[1];
+            break;
+          case 0xf6:
+            ev.type = MIDI_EVENT_SYSCM_TUNEREQ;
+            break;
+          case 0xf8:
+            ev.type = MIDI_EVENT_SYSRT_CLOCK;
+            break;
+          case 0xfa:
+            ev.type = MIDI_EVENT_SYSRT_START;
+            break;
+          case 0xfb:
+            ev.type = MIDI_EVENT_SYSRT_CONTINUE;
+            break;
+          case 0xfc:
+            ev.type = MIDI_EVENT_SYSRT_STOP;
+            break;
+          case 0xfe:
+            ev.type = MIDI_EVENT_SYSRT_SENSING;
+            break;
+          case 0xff:
+            ev.type = MIDI_EVENT_SYSRT_RESET;
+            break;
+          default:
+            ev.type = MIDI_EVENT_NONE;
+            break;
+        }
     }
 
     return ev;
@@ -102,6 +158,58 @@ void Backend::midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, st
         len = 2;
         data[0] |= 0xc0;
         data[1] = ev.ctrl.value;
+        break;
+      case MIDI_EVENT_SYSEX:
+        if (ev.sysex->size() <= len) {
+            len = ev.sysex->size();
+            std::copy(ev.sysex->begin(), ev.sysex->end(), data);
+        } else {
+            len = 0;
+        }
+        break;
+      case MIDI_EVENT_SYSCM_QFRAME:
+        len = 2;
+        data[0] = 0xf1;
+        data[1] = ev.data1;
+        break;
+      case MIDI_EVENT_SYSCM_SONGPOS:
+        len = 3;
+        data[0] = 0xf2;
+        data[1] = ev.data1;
+        data[2] = ev.data2;
+        break;
+      case MIDI_EVENT_SYSCM_SONGSEL:
+        len = 2;
+        data[0] = 0xf3;
+        data[1] = ev.data1;
+        break;
+      case MIDI_EVENT_SYSCM_TUNEREQ:
+        len = 1;
+        data[0] = 0xf6;
+        break;
+      case MIDI_EVENT_SYSRT_CLOCK:
+        len = 1;
+        data[0] = 0xf8;
+        break;
+      case MIDI_EVENT_SYSRT_START:
+        len = 1;
+        data[0] = 0xfa;
+        break;
+      case MIDI_EVENT_SYSRT_CONTINUE:
+        len = 1;
+        data[0] = 0xfb;
+        break;
+      case MIDI_EVENT_SYSRT_STOP:
+        len = 1;
+        data[0] = 0xfc;
+        break;
+      case MIDI_EVENT_SYSRT_SENSING:
+        len = 1;
+        data[0] = 0xfe;
+        break;
+      case MIDI_EVENT_SYSRT_RESET:
+        len = 1;
+        data[0] = 0xff;
         break;
       default:
         len = 0;

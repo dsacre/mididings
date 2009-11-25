@@ -364,7 +364,27 @@ bool Engine::sanitize_event(MidiEvent & ev) const
                 return false;
             }
             return true;
+        case MIDI_EVENT_SYSEX:
+            if (ev.sysex->size() < 3 || (*ev.sysex)[0] != (char)0xf0 || (*ev.sysex)[ev.sysex->size()-1] != (char)0xf7) {
+                if (_verbose) std::cout << "invalid sysex, event discarded" << std::endl;
+                return false;
+            }
+            return true;
+        case MIDI_EVENT_SYSCM_QFRAME:
+        case MIDI_EVENT_SYSCM_SONGPOS:
+        case MIDI_EVENT_SYSCM_SONGSEL:
+        case MIDI_EVENT_SYSCM_TUNEREQ:
+        case MIDI_EVENT_SYSRT_CLOCK:
+        case MIDI_EVENT_SYSRT_START:
+        case MIDI_EVENT_SYSRT_CONTINUE:
+        case MIDI_EVENT_SYSRT_STOP:
+        case MIDI_EVENT_SYSRT_SENSING:
+        case MIDI_EVENT_SYSRT_RESET:
+            return true;
+        case MIDI_EVENT_DUMMY:
+            return false;
         default:
+            if (_verbose) std::cout << "unknown event type, event discarded" << std::endl;
             return false;
     }
 }

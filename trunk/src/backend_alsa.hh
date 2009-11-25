@@ -51,6 +51,8 @@ class BackendAlsa
     std::map<int, int> _portid_in_rev;  // reverse mapping (port id -> port #)
     std::vector<int> _portid_out;       // alsa output port ids
 
+    snd_midi_event_t *_parser;
+
     boost::scoped_ptr<boost::thread> _thrd;
 };
 

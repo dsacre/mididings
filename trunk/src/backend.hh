@@ -56,7 +56,7 @@ class Backend
     virtual std::size_t num_out_ports() const = 0;
 
   protected:
-    static MidiEvent buffer_to_midi_event(unsigned char *data, int port, uint64_t frame);
+    static MidiEvent buffer_to_midi_event(unsigned char *data, std::size_t len, int port, uint64_t frame);
     static void midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame);
 };
 

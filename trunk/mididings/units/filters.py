@@ -74,3 +74,10 @@ def CtrlValueFilter(*args, **kwargs):
 def ProgFilter(*args):
     v = _misc.make_int_vector(_util.program_number(p) for p in _misc.flatten(args))
     return _Filter(_mididings.ProgFilter(v))
+
+
+@_unit_repr
+def SysExFilter(sysex):
+    sysex = _util.sysex_data(sysex, allow_partial=True)
+    partial = (sysex[-1] != '\xf7')
+    return _Filter(_mididings.SysExFilter(sysex, partial))

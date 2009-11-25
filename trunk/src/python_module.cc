@@ -60,6 +60,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<CtrlFilter, bases<Filter>, noncopyable>("CtrlFilter", init<std::vector<int> const &>());
     class_<CtrlValueFilter, bases<Filter>, noncopyable>("CtrlValueFilter", init<int, int>());
     class_<ProgFilter, bases<Filter>, noncopyable>("ProgFilter", init<std::vector<int> const &>());
+    class_<SysExFilter, bases<Filter>, noncopyable>("SysExFilter", init<std::string const &, bool>());
 
     class_<Port, bases<Unit>, noncopyable>("Port", init<int>());
     class_<Channel, bases<Unit>, noncopyable>("Channel", init<int>());
@@ -70,6 +71,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<CtrlRange, bases<Unit>, noncopyable>("CtrlRange", init<int, int, int, int, int>());
 
     class_<GenerateEvent, bases<Unit>, noncopyable>("GenerateEvent", init<int, int, int, int, int>());
+    class_<GenerateSysEx, bases<Unit>, noncopyable>("GenerateSysEx", init<int, std::string const &>());
     class_<Sanitize, bases<Unit>, noncopyable>("Sanitize", init<>());
     class_<SceneSwitch, bases<Unit>, noncopyable>("SceneSwitch", init<int>());
     class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
@@ -120,6 +122,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .def_readwrite("channel_", &MidiEvent::channel)
         .def_readwrite("data1", &MidiEvent::data1)
         .def_readwrite("data2", &MidiEvent::data2)
+        .def("get_sysex_data", &MidiEvent::get_sysex_data)
         .def(bp::self == bp::self)
     ;
 

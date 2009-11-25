@@ -175,3 +175,16 @@ def velocity_value(velocity):
 
 def scene_number(scene):
     return scene - _main._config['data_offset']
+
+
+def sysex_data(sysex, allow_partial=False):
+    sysex = _misc.seq_to_string(sysex)
+    if len(sysex) < 3:
+        raise ValueError("sysex too short")
+    if sysex[0] != '\xf0':
+        raise ValueError("sysex doesn't start with F0")
+    if sysex[-1] != '\xf7' and not allow_partial:
+        raise ValueError("sysex doesn't end with F7")
+    if any(ord(c) > 127 for c in sysex[1:-1]):
+        raise ValueError("sysex data byte out of range")
+    return sysex

@@ -43,7 +43,7 @@ env.Append(
 )
 
 env.ParseConfig(
-    'pkg-config --cflags --libs alsa jack'
+    'pkg-config --cflags --libs alsa jack glib-2.0'
 )
 
 if 'ENABLE_SMF' in env['CPPDEFINES']:

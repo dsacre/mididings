@@ -16,6 +16,7 @@
 #include "patch.hh"
 
 #include <vector>
+#include <string>
 #include <boost/shared_ptr.hpp>
 #include <boost/python/object.hpp>
 
@@ -172,7 +173,7 @@ class KeyFilter
 {
   public:
     KeyFilter(int lower, int upper)
-      : Filter(MIDI_EVENT_NOTE),
+      : Filter(MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF),
         _lower(lower), _upper(upper)
     {
     }
@@ -275,6 +276,31 @@ class ProgFilter
 };
 
 
+class SysExFilter
+  : public Filter
+{
+  public:
+    SysExFilter(std::string const & sysex, bool partial)
+      : Filter(MIDI_EVENT_SYSEX)
+      , _sysex(sysex)
+      , _partial(partial)
+    {
+    }
+
+    virtual bool process(MidiEvent & ev) {
+        if (!match_type(ev)) return true;
+        if (_partial) {
+            return ev.sysex->find(_sysex) == 0;
+        } else {
+            return *ev.sysex == _sysex;
+        }
+    }
+
+    std::string _sysex;
+    bool _partial;
+};
+
+
 /*
  * modifiers
  */
@@ -321,7 +347,7 @@ class Transpose
       : _offset(offset) { }
 
     virtual bool process(MidiEvent & ev) {
-        if (ev.type & MIDI_EVENT_NOTE)
+        if (ev.type & (MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF))
             ev.note.note += _offset;
         return true;
     }
@@ -441,6 +467,24 @@ class GenerateEvent
     int _channel;
     int _data1;
     int _data2;
+};
+
+
+class GenerateSysEx
+  : public Unit
+{
+  public:
+    GenerateSysEx(int port, std::string const & sysex)
+      : _port(port)
+      , _sysex(sysex)
+    {
+    }
+
+    virtual bool process(MidiEvent & ev);
+
+  private:
+    int _port;
+    std::string _sysex;
 };
 
 

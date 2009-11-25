@@ -90,3 +90,15 @@ def NoteOff(*args, **kwargs):
         _util.note_number(note) if note >= 0 else note,
         _util.velocity_value(velocity) if velocity >= 0 else velocity
     )
+
+
+@_unit_repr
+def SysEx(*args, **kwargs):
+    port, sysex = _misc.call_overload(
+        'SysEx', args, kwargs, [
+            lambda sysex: (_event.EVENT_PORT, sysex),
+            lambda port, sysex: (port, sysex)
+        ]
+    )
+    sysex = _util.sysex_data(sysex)
+    return _Unit(_mididings.GenerateSysEx(port, sysex))

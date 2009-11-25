@@ -16,16 +16,34 @@ import util as _util
 from misc import NamedFlag as _NamedFlag, NamedBitMask as _NamedBitMask
 
 
-NONE        = _NamedBitMask(0, 'NONE')
-NOTEON      = _NamedBitMask(1 << 0, 'NOTEON')
-NOTEOFF     = _NamedBitMask(1 << 1, 'NOTEOFF')
-NOTE        = _NamedBitMask(NOTEON | NOTEOFF, 'NOTE')
-CTRL        = _NamedBitMask(1 << 2, 'CTRL')
-PITCHBEND   = _NamedBitMask(1 << 3, 'PITCHBEND')
-AFTERTOUCH  = _NamedBitMask(1 << 4, 'AFTERTOUCH')
-PROGRAM     = _NamedBitMask(1 << 5, 'PROGRAM')
-DUMMY       = _NamedBitMask(1 << 6, 'DUMMY')
-ANY         = _NamedBitMask(~0, 'ANY')
+NONE            = _NamedBitMask(0, 'NONE')
+
+NOTEON          = _NamedBitMask(1 << 0, 'NOTEON')
+NOTEOFF         = _NamedBitMask(1 << 1, 'NOTEOFF')
+NOTE            = _NamedBitMask(NOTEON | NOTEOFF, 'NOTE')
+CTRL            = _NamedBitMask(1 << 2, 'CTRL')
+PITCHBEND       = _NamedBitMask(1 << 3, 'PITCHBEND')
+AFTERTOUCH      = _NamedBitMask(1 << 4, 'AFTERTOUCH')
+PROGRAM         = _NamedBitMask(1 << 5, 'PROGRAM')
+
+SYSEX           = _NamedBitMask(1 << 6, 'SYSEX')
+
+SYSCM_QFRAME    = _NamedBitMask(1 << 7, 'SYSCM_QFRAME')
+SYSCM_SONGPOS   = _NamedBitMask(1 << 8, 'SYSCM_SONGPOS')
+SYSCM_SONGSEL   = _NamedBitMask(1 << 9, 'SYSCM_SONGSEL')
+SYSCM_TUNEREQ   = _NamedBitMask(1 << 10, 'SYSCM_TUNEREQ')
+SYSCM           = _NamedBitMask(SYSCM_QFRAME | SYSCM_SONGPOS | SYSCM_SONGSEL | SYSCM_TUNEREQ, 'SYSCM')
+
+SYSRT_CLOCK     = _NamedBitMask(1 << 11, 'SYSRT_CLOCK')
+SYSRT_START     = _NamedBitMask(1 << 12, 'SYSRT_START')
+SYSRT_CONTINUE  = _NamedBitMask(1 << 13, 'SYSRT_CONTINUE')
+SYSRT_STOP      = _NamedBitMask(1 << 14, 'SYSRT_STOP')
+SYSRT_SENSING   = _NamedBitMask(1 << 15, 'SYSRT_SENSING')
+SYSRT_RESET     = _NamedBitMask(1 << 16, 'SYSRT_RESET')
+SYSRT           = _NamedBitMask(SYSRT_CLOCK | SYSRT_START | SYSRT_CONTINUE | SYSRT_STOP | SYSRT_SENSING | SYSRT_RESET, 'SYSRT')
+
+DUMMY           = _NamedBitMask(1 << 30, 'DUMMY')
+ANY             = _NamedBitMask(~0, 'ANY')
 
 
 EVENT_PORT      = _NamedFlag(-1, 'EVENT_PORT')
@@ -91,6 +109,29 @@ class MidiEvent(_mididings.MidiEvent):
             s = 'Aftertouch:   %3d' % self.value
         elif self.type_ == PROGRAM:
             s = 'Program:      %3d' % self.program
+        elif self.type_ == SYSEX:
+            d = self.get_sysex_data()
+            s = 'SysEx:   %8d  [%s]' % (len(d), ' '.join([ (hex(v/16).upper()[-1] + hex(v%16).upper()[-1]) for v in map(ord, d) ]))
+        elif self.type_ == SYSCM_QFRAME:
+            s = 'SysCm QFrame: %3d' % self.data1
+        elif self.type_ == SYSCM_SONGPOS:
+            s = 'SysCm SongPos:%3d %3d' % (self.data1, self.data2)
+        elif self.type_ == SYSCM_SONGSEL:
+            s = 'SysCm SongSel:%3d' % self.data1
+        elif self.type_ == SYSCM_TUNEREQ:
+            s = 'SysCm TuneReq'
+        elif self.type_ == SYSRT_CLOCK:
+            s = 'SysRt Clock'
+        elif self.type_ == SYSRT_START:
+            s = 'SysRt Start'
+        elif self.type_ == SYSRT_CONTINUE:
+            s = 'SysRt Continue'
+        elif self.type_ == SYSRT_STOP:
+            s = 'SysRt Stop'
+        elif self.type_ == SYSRT_SENSING:
+            s = 'SysRt Sensing'
+        elif self.type_ == SYSRT_RESET:
+            s = 'SysRt Reset'
         elif self.type_ == DUMMY:
             s = 'Dummy'
         else:

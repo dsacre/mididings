@@ -36,6 +36,13 @@ def issequence(seq, accept_string=False):
         return False
 
 
+def seq_to_string(seq):
+    if issequence(seq):
+        return ''.join(map(chr, seq))
+    else:
+        return seq
+
+
 def make_int_vector(seq):
     vec = _mididings.int_vector()
     for i in seq:

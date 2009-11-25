@@ -64,6 +64,7 @@ library_dirs = []
 
 pkgconfig('alsa')
 pkgconfig('jack')
+pkgconfig('glib-2.0')
 libraries.append(boost_lib_name('boost_python'))
 libraries.append(boost_lib_name('boost_thread'))
 include_dirs.append('src')

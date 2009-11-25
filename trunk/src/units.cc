@@ -148,8 +148,22 @@ bool GenerateEvent::process(MidiEvent & ev)
     ev_new.channel = get_parameter(_channel, ev);
     ev_new.data1 = get_parameter(_data1, ev);
     ev_new.data2 = get_parameter(_data2, ev);
+    ev_new.frame = ev.frame;
 
     ev = ev_new;
+
+    return true;
+}
+
+
+bool GenerateSysEx::process(MidiEvent & ev)
+{
+    ev.type = MIDI_EVENT_SYSEX;
+    ev.port = get_parameter(_port, ev);
+    ev.channel = 0;
+    ev.data1 = 0;
+    ev.data2 = 0;
+    ev.sysex.reset(&_sysex, MidiEvent::null_deleter());
 
     return true;
 }
