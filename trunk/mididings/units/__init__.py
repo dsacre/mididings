@@ -11,6 +11,7 @@
 #
 
 from mididings.units.base import *
+from mididings.units.misc import *
 from mididings.units.filters import *
 from mididings.units.splits import *
 from mididings.units.modifiers import *

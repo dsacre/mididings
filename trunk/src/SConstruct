@@ -58,7 +58,6 @@ env.SharedLibrary('_mididings', [
         'backend_smf.cc',
         'engine.cc',
         'patch.cc',
-        'units.cc',
         'python_caller.cc',
         'python_module.cc',
     ],

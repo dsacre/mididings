@@ -51,7 +51,6 @@ sources = [
     'src/backend_alsa.cc',
     'src/engine.cc',
     'src/patch.cc',
-    'src/units.cc',
     'src/python_caller.cc',
     'src/python_module.cc',
 ]

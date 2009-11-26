@@ -10,7 +10,7 @@
  */
 
 #include "patch.hh"
-#include "units.hh"
+#include "units_base.hh"
 #include "engine.hh"
 
 #include <algorithm>

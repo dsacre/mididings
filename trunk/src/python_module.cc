@@ -24,7 +24,12 @@
 
 #include "engine.hh"
 #include "patch.hh"
-#include "units.hh"
+#include "units_base.hh"
+#include "units_misc.hh"
+#include "units_filters.hh"
+#include "units_modifiers.hh"
+#include "units_generators.hh"
+#include "units_call.hh"
 
 static inline int midi_event_get_type(MidiEvent & ev) {
     return (int)ev.type;

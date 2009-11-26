@@ -13,8 +13,6 @@
 import _mididings
 
 import mididings.event as _event
-import mididings.util as _util
-import mididings.misc as _misc
 
 
 class _Unit(object):
@@ -173,17 +171,3 @@ def Pass(p=True):
 @_unit_repr
 def Discard():
     return _Unit(_mididings.Pass(False))
-
-
-@_unit_repr
-def Sanitize():
-    return _Unit(_mididings.Sanitize())
-
-
-@_unit_repr
-def SceneSwitch(number=_event.EVENT_PROGRAM):
-    return _Unit(_mididings.SceneSwitch(_util.scene_number(number) if number >= 0 else number))
-
-@_misc.deprecated('SceneSwitch')
-def PatchSwitch(number=_event.EVENT_PROGRAM):
-    return SceneSwitch(number)
