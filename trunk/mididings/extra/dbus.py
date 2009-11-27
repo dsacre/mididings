@@ -14,24 +14,31 @@ from __future__ import absolute_import
 
 from mididings import CallAsync
 
-import dbus as _dbus
+try:
+    import dbus as _dbus
+
+except ImportError, ex:
+
+    def SendDBUS(*args, **kwargs):
+        raise ex
+
+else:
+
+    class _SendDBUS(object):
+        def __init__(self, service, path, interface, method, args):
+            self.bus = _dbus.SessionBus()
+            self.service = service
+            self.path = path
+            self.interface = interface
+            self.method = method
+            self.args = args
+
+        def __call__(self, ev):
+            obj = self.bus.get_object(self.service, self.path)
+            func = obj.get_dbus_method(self.method, self.interface)
+            args = (x(ev) if callable(x) else x for x in self.args)
+            func(*args)
 
 
-class _SendDBUS(object):
-    def __init__(self, service, path, interface, method, args):
-        self.bus = _dbus.SessionBus()
-        self.service = service
-        self.path = path
-        self.interface = interface
-        self.method = method
-        self.args = args
-
-    def __call__(self, ev):
-        obj = self.bus.get_object(self.service, self.path)
-        func = obj.get_dbus_method(self.method, self.interface)
-        args = (x(ev) if callable(x) else x for x in self.args)
-        func(*args)
-
-
-def SendDBUS(service, path, interface, method, *args):
-    return CallAsync(_SendDBUS(service, path, interface, method, args))
+    def SendDBUS(service, path, interface, method, *args):
+        return CallAsync(_SendDBUS(service, path, interface, method, args))

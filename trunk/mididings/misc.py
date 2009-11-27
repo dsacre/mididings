@@ -43,25 +43,19 @@ def seq_to_string(seq):
         return seq
 
 
-def make_int_vector(seq):
-    vec = _mididings.int_vector()
+def _fill_vector(vec, seq):
     for i in seq:
         vec.push_back(i)
     return vec
 
+def make_int_vector(seq):
+    return _fill_vector(_mididings.int_vector(), seq)
 
 def make_float_vector(seq):
-    vec = _mididings.float_vector()
-    for i in seq:
-        vec.push_back(i)
-    return vec
-
+    return _fill_vector(_mididings.float_vector(), seq)
 
 def make_string_vector(seq):
-    vec = _mididings.string_vector()
-    for i in seq:
-        vec.push_back(i)
-    return vec
+    return _fill_vector(_mididings.string_vector(), seq)
 
 
 def call_overload(name, args, kwargs, funcs):
@@ -94,7 +88,7 @@ class deprecated:
 
     def __call__(self, f):
         def deprecated_wrapper(*args, **kwargs):
-            if _main._config['verbose'] and f not in deprecated.already_used:
+            if _main.config['verbose'] and f not in deprecated.already_used:
                 if self.replacement:
                     print "'%s' is deprecated, please use '%s' instead" % (f.func_name, self.replacement)
                 else:

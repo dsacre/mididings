@@ -14,44 +14,51 @@ import engine as _engine
 import misc as _misc
 
 
-_config = {
-    'backend':              'alsa',
-    'client_name':          'mididings',
-    'in_ports':             1,
-    'out_ports':            1,
-    'data_offset':          1,
-    'octave_offset':        2,
-    'verbose':              True,
-    'start_delay':          None,
-    'osc_port':             None,
-    'osc_notify_port':      None,
-}
+class _Config(dict):
+    def __init__(self, d):
+        dict.__init__(self, d)
+
+    def __call__(self, **kwargs):
+        for k in kwargs:
+            if k not in self:
+                raise ValueError('unknown config variable: %s' % k)
+            self[k] = kwargs[k]
 
 
-def config(**kwargs):
-    for k in kwargs:
-        if k not in _config:
-            raise ValueError('unknown config variable: %s' % k)
-        _config[k] = kwargs[k]
+config = _Config({
+    'backend':          'alsa',
+    'client_name':      'mididings',
+    'in_ports':         1,
+    'out_ports':        1,
+    'data_offset':      1,
+    'octave_offset':    2,
+    'initial_scene':    None,
+    'verbose':          True,
+    'start_delay':      None,
+})
+
+
+_hooks = []
+
+def hook(*args):
+    _hooks.extend(args)
 
 
 def run(patch):
-    run_scenes({ _config['data_offset']: patch }, None, None, None)
+    run_scenes({ config['data_offset']: patch }, None, None, None)
 
 
-def run_scenes(scenes, control=None, pre=None, post=None, first_scene=-1, scene_switch_callback=None):
-    if first_scene == -1:
-        first_scene = _config['data_offset']
+def run_scenes(scenes, control=None, pre=None, post=None):
     e = _engine.Engine(scenes, control, pre, post)
     try:
-        e.run(first_scene, scene_switch_callback)
+        e.run()
     except KeyboardInterrupt:
         return
 
 
 _misc.deprecated('run_scenes')
-def run_patches(patches, control=None, pre=None, post=None, first_patch=-1, patch_switch_callback=None):
-    run_scenes(patches, control, pre, post, first_patch, patch_switch_callback)
+def run_patches(patches, control=None, pre=None, post=None):
+    run_scenes(patches, control, pre, post)
 
 
 def process_file(infile, outfile, patch):
@@ -65,7 +72,7 @@ def process_file(infile, outfile, patch):
 
 
 def test_run(patch, events):
-    return test_run_scenes({ _config['data_offset']: patch }, events)
+    return test_run_scenes({ config['data_offset']: patch }, events)
 
 
 def test_run_scenes(scenes, events):
@@ -80,20 +87,26 @@ def test_run_scenes(scenes, events):
 
 
 def switch_scene(n):
-    TheEngine.switch_scene(n - _config['data_offset'])
+    TheEngine.switch_scene(n - config['data_offset'])
 
 
 def current_scene():
-    return TheEngine.current_scene() + _config['data_offset']
+    return TheEngine.current_scene() + config['data_offset']
+
+
+def quit():
+    TheEngine.quit()
 
 
 
 __all__ = [
     'config',
+    'hook',
     'run',
     'run_scenes',
     'run_patches',
     'process_file',
     'switch_scene',
     'current_scene',
+    'quit',
 ]

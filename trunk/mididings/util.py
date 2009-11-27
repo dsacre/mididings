@@ -75,7 +75,7 @@ def note_number(note):
         try:
             name = note[:i]
             octave = int(note[i:])
-            r = NOTE_NUMBERS[name] + (octave + _main._config['octave_offset']) * 12
+            r = NOTE_NUMBERS[name] + (octave + _main.config['octave_offset']) * 12
         except Exception:
             raise ValueError("invalid note name '%s'" % note)
 
@@ -105,7 +105,7 @@ def note_range(notes):
 
 # get note name from MIDI note number
 def note_name(note):
-    return NOTE_NAMES[note % 12] + str((note / 12) - _main._config['octave_offset'])
+    return NOTE_NAMES[note % 12] + str((note / 12) - _main.config['octave_offset'])
 
 
 def tonic_note_number(key):
@@ -124,10 +124,10 @@ def controller_name(ctrl):
 def port_number(port):
     try:
         # already a number?
-        return int(port) - _main._config['data_offset']
+        return int(port) - _main.config['data_offset']
     except ValueError:
-        in_ports = _main._config['in_ports']
-        out_ports = _main._config['out_ports']
+        in_ports = _main.config['in_ports']
+        out_ports = _main.config['out_ports']
         is_in = (_misc.issequence(in_ports) and port in in_ports)
         is_out = (_misc.issequence(out_ports) and port in out_ports)
 
@@ -142,14 +142,14 @@ def port_number(port):
 
 
 def channel_number(channel):
-    r = channel - _main._config['data_offset']
+    r = channel - _main.config['data_offset']
     if r < 0 or r > 15:
         raise ValueError("channel number %d is out of range" % channel)
     return r
 
 
 def program_number(program):
-    r = program - _main._config['data_offset']
+    r = program - _main.config['data_offset']
     if r < 0 or r > 127:
         raise ValueError("program number %d is out of range" % program)
     return r
@@ -174,7 +174,7 @@ def velocity_value(velocity):
 
 
 def scene_number(scene):
-    return scene - _main._config['data_offset']
+    return scene - _main.config['data_offset']
 
 
 def sysex_data(sysex, allow_partial=False):

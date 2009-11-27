@@ -17,3 +17,6 @@ from mididings.extra.pedal_noteoff import *
 from mididings.extra.polyphony import *
 from mididings.extra.black_keys import *
 from mididings.extra.memorize_scene import *
+from mididings.extra.osc import *
+from mididings.extra.dbus import *
+from mididings.extra.inotify import *

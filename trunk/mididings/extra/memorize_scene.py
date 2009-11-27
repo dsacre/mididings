@@ -10,31 +10,23 @@
 # (at your option) any later version.
 #
 
-from mididings import run_scenes
+from mididings import config, current_scene
 
 
-def run_scenes_memorize(memo_file, scenes, control=None, pre=None, post=None):
-    try:
-        f = open(memo_file)
-        first_scene = int(f.read())
-    except:
-        first_scene = -1
+class MemorizeScene(object):
+    def __init__(self, memo_file):
+        self.memo_file = memo_file
 
-    current_scene = [-1]
+    def on_start(self):
+        try:
+            f = open(self.memo_file)
+            config['initial_scene'] = int(f.read())
+        except IOError:
+            pass
 
-    # need to track scene changes in a callback, the engine object
-    # will be gone by the time run_scenees() returns
-    def callback(n):
-        current_scene[0] = n
-
-    run_scenes(scenes, control, pre, post,
-               first_scene = first_scene,
-               scene_switch_callback = callback)
-
-    f = open(memo_file, 'w')
-    f.write(str(current_scene[0]))
-
-
-# for backward compatibility, deprecated
-def run_patches_memorize(memo_file, patches, control=None, pre=None, post=None):
-    run_scenes_memorize(memo_file, patches, control, pre, post)
+    def on_exit(self):
+        try:
+            f = open(self.memo_file, 'w')
+            f.write(str(current_scene()))
+        except IOError, ex:
+            print "couldn't store current scene:\n%s" % str(ex)
