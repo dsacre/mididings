@@ -20,6 +20,7 @@ env = Environment(
 #        'ENABLE_DEBUG_PRINT',
         'ENABLE_TEST',
 #        'ENABLE_BENCHMARK',
+        'ENABLE_ALSA_SEQ',
         'ENABLE_JACK_MIDI',
         'ENABLE_SMF',
     ],
@@ -42,24 +43,24 @@ env.Append(
     LIBPATH = [sysconfig.get_python_lib(plat_specific=1)]
 )
 
-env.ParseConfig(
-    'pkg-config --cflags --libs alsa jack glib-2.0'
-)
+sources = [
+    'backend.cc',
+    'engine.cc',
+    'patch.cc',
+    'python_caller.cc',
+    'python_module.cc',
+]
+
+if 'ENABLE_ALSA_SEQ' in env['CPPDEFINES']:
+    env.ParseConfig('pkg-config --cflags --libs alsa')
+    sources.append('backend_alsa.cc')
+
+env.ParseConfig('pkg-config --cflags --libs jack')
+if 'ENABLE_JACK_MIDI' in env['CPPDEFINES']:
+    sources.append('backend_jack.cc')
 
 if 'ENABLE_SMF' in env['CPPDEFINES']:
-    env.ParseConfig(
-        'pkg-config --cflags --libs smf'
-    )
+    env.ParseConfig('pkg-config --cflags --libs smf')
+    sources.append('backend_smf.cc')
 
-env.SharedLibrary('_mididings', [
-        'backend.cc',
-        'backend_alsa.cc',
-        'backend_jack.cc',
-        'backend_smf.cc',
-        'engine.cc',
-        'patch.cc',
-        'python_caller.cc',
-        'python_module.cc',
-    ],
-    SHLIBPREFIX='', SHOBJSUFFIX='.o'
-)
+env.SharedLibrary('_mididings', sources, SHLIBPREFIX='', SHOBJSUFFIX='.o')

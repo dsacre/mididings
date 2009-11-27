@@ -8,21 +8,23 @@ import os.path
 
 
 config = {
-    'jack-midi': True,
-    'smf': False,
+    'alsa-seq':     True,
+    'jack-midi':    True,
+    'smf':          False,
 }
 
-def check_option(name, arg):
-    if arg == '--enable-%s' % name:
-        sys.argv.remove(arg)
-        config[name] = True
-    elif arg == '--disable-%s' % name:
-        sys.argv.remove(arg)
-        config[name] = False
+def check_option(name, argv):
+    for arg in argv:
+        if arg == '--enable-%s' % name:
+            sys.argv.remove(arg)
+            config[name] = True
+        elif arg == '--disable-%s' % name:
+            sys.argv.remove(arg)
+            config[name] = False
 
-for arg in sys.argv[1:]:
-    check_option('jack-midi', arg)
-    check_option('smf', arg)
+check_option('alsa-seq', sys.argv[1:])
+check_option('jack-midi', sys.argv[1:])
+check_option('smf', sys.argv[1:])
 
 
 def pkgconfig(pkg):
@@ -46,9 +48,9 @@ def boost_lib_name(lib):
                 return lib + suffix
     return lib
 
+
 sources = [
     'src/backend.cc',
-    'src/backend_alsa.cc',
     'src/engine.cc',
     'src/patch.cc',
     'src/python_caller.cc',
@@ -61,13 +63,17 @@ libraries = []
 library_dirs = []
 
 
-pkgconfig('alsa')
 pkgconfig('jack')
 pkgconfig('glib-2.0')
 libraries.append(boost_lib_name('boost_python'))
 libraries.append(boost_lib_name('boost_thread'))
 include_dirs.append('src')
 
+
+if config['alsa-seq']:
+    define_macros.append(('ENABLE_ALSA_SEQ', 1))
+    sources.append('src/backend_alsa.cc')
+    pkgconfig('alsa')
 
 if config['jack-midi']:
     define_macros.append(('ENABLE_JACK_MIDI', 1))

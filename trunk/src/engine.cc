@@ -11,8 +11,10 @@
 
 #include "config.hh"
 #include "engine.hh"
-#include "backend_alsa.hh"
 
+#ifdef ENABLE_ALSA_SEQ
+  #include "backend_alsa.hh"
+#endif
 #ifdef ENABLE_JACK_MIDI
   #include "backend_jack.hh"
 #endif
@@ -59,9 +61,14 @@ Engine::Engine(PyObject * self,
 {
     DEBUG_FN();
 
-    if (backend_name == "alsa") {
+    if (backend_name == "dummy") {
+        // nothing to do
+    }
+#ifdef ENABLE_ALSA_SEQ
+    else if (backend_name == "alsa") {
         _backend.reset(new BackendAlsa(client_name, in_ports, out_ports));
     }
+#endif
 #ifdef ENABLE_JACK_MIDI
     else if (backend_name == "jack") {
         _backend.reset(new BackendJackBuffered(client_name, in_ports, out_ports));
@@ -75,7 +82,7 @@ Engine::Engine(PyObject * self,
         _backend.reset(new BackendSmf(in_ports[0], out_ports[0]));
     }
 #endif
-    else if (backend_name != "dummy") {
+    else {
         throw std::runtime_error("invalid backend selected: " + backend_name);
     }
 
