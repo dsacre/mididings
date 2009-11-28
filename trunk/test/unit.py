@@ -16,16 +16,16 @@ class SimpleTestCase(unittest.TestCase):
         pass
 
     def testFork(self):
-        config(remove_duplicates = False)
-        r = test_run(Fork([ Pass(), Pass() ]), self.noteon1)
+        r = test_run(Fork([ Pass(), Pass() ], remove_duplicates=False),
+                     self.noteon1)
         assert len(r) == 2
         assert r[0] == r[1] == self.noteon1
-        r = test_run(Fork([ Pass(), Discard() ]), self.ctrl1)
+        r = test_run(Fork([ Pass(), Discard() ], remove_duplicates=False),
+                     self.ctrl1)
         assert len(r) == 1
         assert r[0] == self.ctrl1
 
     def testRemoveDuplicates(self):
-        config(remove_duplicates = True)
         r = test_run(Fork([ Pass(), Pass() ]), self.noteon1)
         assert len(r) == 1
         assert r[0] == self.noteon1
@@ -110,7 +110,7 @@ class SimpleTestCase(unittest.TestCase):
         assert r[0].channel_ == 3
         assert r[1].channel_ == 7
 
-    def testCall(self):
+    def testProcess(self):
         def foo(ev):
             assert ev.port == 0
             assert ev.channel == 0
@@ -119,7 +119,7 @@ class SimpleTestCase(unittest.TestCase):
             ev.velocity = 42
         def bar(ev):
             assert ev.velocity == 42
-        p = Call(foo) >> Call(bar)
+        p = Process(foo) >> Process(bar)
         r = test_run(p, self.noteon1)
 
     def testGenerateEvent(self):
@@ -149,7 +149,7 @@ class SimpleTestCase(unittest.TestCase):
             ev.port = 42
         def bar(ev):
             assert False
-        p = Call(foo) >> Sanitize() >> Call(bar)
+        p = Process(foo) >> Sanitize() >> Process(bar)
         test_run(p, self.noteon1)
         p = Velocity(+666) >> Sanitize()
         r = test_run(p, self.noteon1)
