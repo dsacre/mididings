@@ -20,7 +20,7 @@ class MemorizeScene(object):
     def on_start(self):
         try:
             f = open(self.memo_file)
-            config['initial_scene'] = int(f.read())
+            config(initial_scene=int(f.read()))
         except IOError:
             pass
 

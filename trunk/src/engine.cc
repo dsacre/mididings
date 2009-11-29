@@ -300,7 +300,11 @@ void Engine::process_scene_switch(Events & buffer, int n)
 
     if (_patches.size() > 1) {
         scoped_gil_lock gil;
-        boost::python::call_method<void>(_self, "scene_switch_handler", n, i != _patches.end());
+        try {
+            boost::python::call_method<void>(_self, "_scene_switch_handler", n);
+        } catch (boost::python::error_already_set &) {
+            PyErr_Print();
+        }
     }
 
     if (i != _patches.end()) {

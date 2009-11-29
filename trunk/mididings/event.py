@@ -11,9 +11,10 @@
 #
 
 import _mididings
-import main as _main
 import util as _util
-from misc import NamedFlag as _NamedFlag, NamedBitMask as _NamedBitMask
+from misc import NamedFlag as _NamedFlag
+from misc import NamedBitMask as _NamedBitMask
+from config import get_config as _get_config
 
 
 NONE            = _NamedBitMask(0, 'NONE')
@@ -140,14 +141,14 @@ class MidiEvent(_mididings.MidiEvent):
         return '[%*s, %2d] %s' % (max(portname_length, 2), port, channel, s)
 
     type      = property(*_make_get_set(ANY, 'type_'))
-    port      = property(*_make_get_set(ANY, 'port_', lambda: _main.config['data_offset']))
-    channel   = property(*_make_get_set(ANY, 'channel_', lambda: _main.config['data_offset']))
+    port      = property(*_make_get_set(ANY, 'port_', lambda: _get_config('data_offset')))
+    channel   = property(*_make_get_set(ANY, 'channel_', lambda: _get_config('data_offset')))
 
     note      = property(*_make_get_set(NOTE, 'data1'))
     velocity  = property(*_make_get_set(NOTE, 'data2'))
     param     = property(*_make_get_set(CTRL, 'data1'))
     value     = property(*_make_get_set(CTRL | PITCHBEND | AFTERTOUCH, 'data2'))
-    program   = property(*_make_get_set(PROGRAM, 'data2', lambda: _main.config['data_offset']))
+    program   = property(*_make_get_set(PROGRAM, 'data2', lambda: _get_config('data_offset')))
 
 
 class NoteonEvent(MidiEvent):
@@ -189,6 +190,3 @@ class ProgramEvent(MidiEvent):
             0,
             _util.program_number(program)
         )
-
-
-__all__ = [x for x in dir() if not x.startswith('_')]

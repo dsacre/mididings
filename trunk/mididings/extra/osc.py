@@ -44,7 +44,7 @@ else:
 
         def on_switch_scene(self, n):
             for p in self.notify_ports:
-                _liblo.send(p, '/mididings/scene', n)
+                _liblo.send(p, '/mididings/current_scene', n)
 
         def _switch_scene_cb(self, path, args):
             switch_scene(args[0])

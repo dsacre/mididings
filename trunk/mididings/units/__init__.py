@@ -19,6 +19,3 @@ from mididings.units.generators import *
 from mididings.units.call import *
 from mididings.units.printing import *
 from mididings.units.init_action import *
-
-
-__all__ = [x for x in dir() if x[0].isupper()]

@@ -11,9 +11,9 @@
 #
 
 import _mididings
+from config import get_config
 
 import inspect as _inspect
-import main as _main
 
 
 def flatten(seq):
@@ -88,7 +88,7 @@ class deprecated:
 
     def __call__(self, f):
         def deprecated_wrapper(*args, **kwargs):
-            if _main.config['verbose'] and f not in deprecated.already_used:
+            if get_config('verbose') and f not in deprecated.already_used:
                 if self.replacement:
                     print "'%s' is deprecated, please use '%s' instead" % (f.func_name, self.replacement)
                 else:

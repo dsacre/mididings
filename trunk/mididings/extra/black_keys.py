@@ -14,8 +14,8 @@ from mididings import *
 
 
 _BLACK = [1, 3, 6, 8, 10]
-_BLACK_KEYS = [n for n in range(128) if n%12 in _BLACK]
-_WHITE_KEYS = [n for n in range(128) if n%12 not in _BLACK]
+_BLACK_KEYS = [_n for _n in range(128) if _n%12 in _BLACK]
+_WHITE_KEYS = [_n for _n in range(128) if _n%12 not in _BLACK]
 
 
 def BlackKeys():

@@ -12,40 +12,18 @@
 
 import engine as _engine
 import misc as _misc
+import config as _config
 
 
-class _Config(dict):
-    def __init__(self, d):
-        dict.__init__(self, d)
-
-    def __call__(self, **kwargs):
-        for k in kwargs:
-            if k not in self:
-                raise ValueError('unknown config variable: %s' % k)
-            self[k] = kwargs[k]
-
-
-config = _Config({
-    'backend':          'alsa',
-    'client_name':      'mididings',
-    'in_ports':         1,
-    'out_ports':        1,
-    'data_offset':      1,
-    'octave_offset':    2,
-    'initial_scene':    None,
-    'verbose':          True,
-    'start_delay':      None,
-})
-
-
-_hooks = []
+def config(override=False, **kwargs):
+    _config.config(override, **kwargs)
 
 def hook(*args):
-    _hooks.extend(args)
+    _config.hook(*args)
 
 
 def run(patch):
-    run_scenes({ config['data_offset']: patch }, None, None, None)
+    run_scenes({ _config.get_config('data_offset'): patch }, None, None, None)
 
 
 def run_scenes(scenes, control=None, pre=None, post=None):
@@ -72,7 +50,7 @@ def process_file(infile, outfile, patch):
 
 
 def test_run(patch, events):
-    return test_run_scenes({ config['data_offset']: patch }, events)
+    return test_run_scenes({ _config.get_config('data_offset'): patch }, events)
 
 
 def test_run_scenes(scenes, events):
@@ -87,26 +65,14 @@ def test_run_scenes(scenes, events):
 
 
 def switch_scene(n):
-    TheEngine.switch_scene(n - config['data_offset'])
-
+    TheEngine.switch_scene(n)
 
 def current_scene():
-    return TheEngine.current_scene() + config['data_offset']
+    return TheEngine.current_scene()
+
+def get_scenes():
+    return TheEngine.get_scenes()
 
 
 def quit():
     TheEngine.quit()
-
-
-
-__all__ = [
-    'config',
-    'hook',
-    'run',
-    'run_scenes',
-    'run_patches',
-    'process_file',
-    'switch_scene',
-    'current_scene',
-    'quit',
-]

@@ -17,6 +17,7 @@ import scene
 import event
 import util
 import misc
+from config import get_config, get_hooks
 
 import time
 import weakref
@@ -26,45 +27,46 @@ import gc
 
 class Engine(_mididings.Engine):
     def __init__(self, scenes, control, pre, post):
-        self.in_ports = self.make_portnames(main.config['in_ports'], 'in_')
-        self.out_ports = self.make_portnames(main.config['out_ports'], 'out_')
+        self.in_ports = self._make_portnames(get_config('in_ports'), 'in_')
+        self.out_ports = self._make_portnames(get_config('out_ports'), 'out_')
 
         _mididings.Engine.__init__(
-            self, main.config['backend'],
-            main.config['client_name'],
+            self, get_config('backend'),
+            get_config('client_name'),
             misc.make_string_vector(self.in_ports),
             misc.make_string_vector(self.out_ports),
-            main.config['verbose']
+            get_config('verbose')
         )
 
-        self.scene_names = {}
+        self._scene_names = {}
 
         for i, s in scenes.items():
             if isinstance(s, scene.Scene):
                 init = [s.init_patch] if s.init_patch else []
                 proc = s.patch
-                if s.name:
-                    self.scene_names[i] = s.name
+                self._scene_names[i] = s.name if s.name else ''
             elif isinstance(s, tuple):
                 init = [s[0]]
                 proc = s[1]
+                self._scene_names[i] = ''
             else:
                 init = []
                 proc = s
+                self._scene_names[i] = ''
 
             init += patch.get_init_actions(proc)
 
             self.add_scene(util.scene_number(i), patch.Patch(proc), patch.Patch(init))
 
-        ctrl = patch.Patch(control) if control else None
+        control_patch = patch.Patch(control) if control else None
         pre_patch = patch.Patch(pre) if pre else None
         post_patch = patch.Patch(post) if post else None
-        self.set_processing(ctrl, pre_patch, post_patch)
+        self.set_processing(control_patch, pre_patch, post_patch)
 
         self._quit = threading.Event()
 
         # delay before actually sending any midi data (give qjackctl patchbay time to react...)
-        delay = main.config['start_delay']
+        delay = get_config('start_delay')
         if delay != None:
             if delay > 0:
                 time.sleep(delay)
@@ -77,10 +79,10 @@ class Engine(_mididings.Engine):
         gc.disable()
 
     def run(self):
-        self.call_hooks('on_start')
+        self._call_hooks('on_start')
 
-        if main.config['initial_scene'] != None:
-            initial_scene = util.scene_number(main.config['initial_scene'])
+        if get_config('initial_scene') != None:
+            initial_scene = util.scene_number(get_config('initial_scene'))
         else:
             initial_scene = 0
         self.start(initial_scene)
@@ -90,22 +92,23 @@ class Engine(_mididings.Engine):
             while not self._quit.isSet():
                 self._quit.wait(86400)
         finally:
-            self.call_hooks('on_exit')
+            self._call_hooks('on_exit')
 
     def process_file(self):
         self.start(0)
 
-    def make_portnames(self, ports, prefix):
+    def _make_portnames(self, ports, prefix):
         if misc.issequence(ports):
             return ports
         else:
-            return [prefix + str(n + main.config['data_offset']) for n in range(ports)]
+            return [prefix + str(n + get_config('data_offset')) for n in range(ports)]
 
-    def scene_switch_handler(self, n, found):
-        n += main.config['data_offset']
-        name = self.scene_names[n] if n in self.scene_names else None
+    def _scene_switch_handler(self, n):
+        n += get_config('data_offset')
+        found = n in self._scene_names
+        name = self._scene_names[n] if found else None
 
-        if main.config['verbose']:
+        if get_config('verbose'):
             if found:
                 if name:
                     print "switching to scene %d: %s" % (n, name)
@@ -115,13 +118,22 @@ class Engine(_mididings.Engine):
                 print "no such scene: %d" % n
 
         if found:
-            self.call_hooks('on_switch_scene', n)
+            self._call_hooks('on_switch_scene', n)
 
-    def quit(self):
-        self._quit.set()
-
-    def call_hooks(self, name, *args):
-        for hook in main._hooks:
+    def _call_hooks(self, name, *args):
+        for hook in get_hooks():
             if hasattr(hook, name):
                 f = getattr(hook, name)
                 f(*args)
+
+    def switch_scene(self, n):
+        _mididings.Engine.switch_scene(self, _util.scene_number(n))
+
+    def current_scene(self):
+        return _mididings.Engine.current_scene(self) + get_config('data_offset')
+
+    def get_scenes(self):
+        return self._scene_names
+
+    def quit(self):
+        self._quit.set()

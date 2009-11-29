@@ -15,8 +15,3 @@ class Scene(object):
         self.name = name
         self.patch = patch
         self.init_patch = init_patch
-
-
-__all__ = [
-    'Scene',
-]

@@ -10,13 +10,15 @@
 # (at your option) any later version.
 #
 
-from units import *
-from scene import *
-from event import *
-from main import *
+from mididings.units import *
+from mididings.scene import *
+from mididings.event import *
+from mididings.main import *
 
 
-__all__ = main.__all__ \
-        + units.__all__ \
-        + scene.__all__ \
-        + event.__all__
+import inspect as _inspect
+
+def _prune_globals(d):
+    return [n for (n, m) in d.items() if not _inspect.ismodule(m) and not n.startswith('_')]
+
+__all__ = _prune_globals(globals())
