@@ -22,21 +22,28 @@ def hook(*args):
     _config.hook(*args)
 
 
-def run(patch):
-    run_scenes({ _config.get_config('data_offset'): patch }, None, None, None)
-
-
-def run_scenes(scenes, control=None, pre=None, post=None):
-    e = _engine.Engine(scenes, control, pre, post)
-    try:
+def run(*args, **kwargs):
+    def run_patch(patch):
+        e = _engine.Engine({ _config.get_config('data_offset'): patch }, None, None, None)
         e.run()
-    except KeyboardInterrupt:
-        return
+    def run_scenes(scenes, control=None, pre=None, post=None):
+        e = _engine.Engine(scenes, control, pre, post)
+        e.run()
+
+    _misc.call_overload('run', args, kwargs, [
+        run_patch,
+        run_scenes
+    ])
 
 
-_misc.deprecated('run_scenes')
+_misc.deprecated('run')
+def run_scenes(scenes, control=None, pre=None, post=None):
+    run(scenes, control, pre, post)
+
+
+_misc.deprecated('run')
 def run_patches(patches, control=None, pre=None, post=None):
-    run_scenes(patches, control, pre, post)
+    run(patches, control, pre, post)
 
 
 def process_file(infile, outfile, patch):

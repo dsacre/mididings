@@ -14,6 +14,7 @@ import _mididings
 from config import get_config
 
 import inspect as _inspect
+import itertools as _itertools
 
 
 def flatten(seq):
@@ -64,17 +65,34 @@ def call_overload(name, args, kwargs, funcs):
     can be applied, and calls it if a suitable function is found.
     """
     for f in funcs:
-        argspec = _inspect.getargspec(f)[0]
         n = len(args)
-        # check if the number of positional arguments fits, and if
-        # the remaining parameters can be filled with keyword arguments
-        if n <= len(argspec) and set(kwargs) == set(argspec[n:]):
-            # make a dict of all positional arguments
-            kw = dict(zip(argspec, args))
-            # add the keyword arguments
-            kw.update(kwargs)
-            return f(**kw)
-    raise TypeError("no suitable overload for %s() found" % name)
+        # get argument names and the number of default arguments of f
+        argspec = _inspect.getargspec(f)
+        names = argspec[0]
+        ndef = len(argspec[3]) if argspec[3] else 0
+
+        # names of the default arguments not overridden by positional arguments
+        defargs = names[max(len(names)-ndef, n):]
+
+        # check if the number of positional arguments fits, and if the remaining
+        # parameters can be filled with keyword and default arguments
+        if n <= len(names) and set(kwargs)|set(defargs) == set(names[n:]):
+            # call f with all original arguments
+            return f(*args, **kwargs)
+
+    candidates = []
+    for f in funcs:
+        argspec = _inspect.getargspec(f)
+        names = argspec[0]
+        defvals = argspec[3] if argspec[3] else ()
+
+        argstr = ', '.join(_itertools.chain(
+            names[:len(names)-len(defvals)],
+            ('%s=%s' % a for a in _itertools.izip(names[-len(defvals):], defvals)),
+        ))
+        candidates.append('%s(%s)' % (name, argstr))
+
+    raise TypeError("no suitable overload found for %s(), candidates are:\n%s" % (name, '\n'.join(candidates)))
 
 
 class deprecated:
