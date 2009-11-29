@@ -16,9 +16,5 @@ from mididings.event import *
 from mididings.main import *
 
 
-import inspect as _inspect
-
-def _prune_globals(d):
-    return [n for (n, m) in d.items() if not _inspect.ismodule(m) and not n.startswith('_')]
-
-__all__ = _prune_globals(globals())
+import mididings.misc as _misc
+__all__ = _misc.prune_globals(globals())

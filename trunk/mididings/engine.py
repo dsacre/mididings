@@ -91,6 +91,8 @@ class Engine(_mididings.Engine):
             # wait() with no timeout also blocks KeyboardInterrupt, but a very long timeout doesn't. weird...
             while not self._quit.isSet():
                 self._quit.wait(86400)
+        except KeyboardInterrupt:
+            pass
         finally:
             self._call_hooks('on_exit')
 

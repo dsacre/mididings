@@ -9,8 +9,8 @@
  * (at your option) any later version.
  */
 
-#ifndef _UNITS_MISC_HH
-#define _UNITS_MISC_HH
+#ifndef _UNITS_ENGINE_HH
+#define _UNITS_ENGINE_HH
 
 #include "units_base.hh"
 #include "units_util.hh"
@@ -52,4 +52,4 @@ class SceneSwitch
 };
 
 
-#endif // _UNITS_MISC_HH
+#endif // _UNITS_ENGINE_HH

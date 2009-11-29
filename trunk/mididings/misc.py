@@ -112,3 +112,7 @@ class NamedBitMask(NamedFlag):
         return NamedBitMask(self + other, '%s|%s' % (self.name, other.name))
     def __invert__(self):
         return NamedBitMask(~int(self), ('~%s' if '|' not in self.name else '~(%s)') % self.name)
+
+
+def prune_globals(g):
+    return [n for (n, m) in g.items() if not _inspect.ismodule(m) and not n.startswith('_')]
