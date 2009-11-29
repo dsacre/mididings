@@ -124,4 +124,7 @@ setup(
         'mididings.units',
         'mididings.extra',
     ],
+    scripts = [
+        'scripts/mididings',
+    ],
 )

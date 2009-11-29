@@ -31,6 +31,9 @@ class Dings(object):
         self.dings_dict.update(mididings.extra.__dict__)
 
     def run_file(self, filename):
+        # just a kludge to make AutoRestart() work
+        sys.modules['dings_main'] = type('FakeModule', (), {'__file__': filename})
+
         execfile(filename, self.dings_dict)
 
     def run_patch(self, in_ports, out_ports, patch):

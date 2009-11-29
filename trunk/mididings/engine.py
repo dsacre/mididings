@@ -127,7 +127,7 @@ class Engine(_mididings.Engine):
                 f(*args)
 
     def switch_scene(self, n):
-        _mididings.Engine.switch_scene(self, _util.scene_number(n))
+        _mididings.Engine.switch_scene(self, util.scene_number(n))
 
     def current_scene(self):
         return _mididings.Engine.current_scene(self) + get_config('data_offset')
