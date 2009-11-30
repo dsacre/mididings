@@ -24,7 +24,7 @@ def hook(*args):
 
 def run(*args, **kwargs):
     def run_patch(patch):
-        e = _engine.Engine({ _config.get_config('data_offset'): patch }, None, None, None)
+        e = _engine.Engine({ 0: patch }, None, None, None)
         e.run()
     def run_scenes(scenes, control=None, pre=None, post=None):
         e = _engine.Engine(scenes, control, pre, post)
@@ -35,11 +35,9 @@ def run(*args, **kwargs):
         run_scenes
     ])
 
-
 _misc.deprecated('run')
 def run_scenes(scenes, control=None, pre=None, post=None):
     run(scenes, control, pre, post)
-
 
 _misc.deprecated('run')
 def run_patches(patches, control=None, pre=None, post=None):

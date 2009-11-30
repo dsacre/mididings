@@ -62,7 +62,7 @@ class Engine
     void add_scene(int i, PatchPtr patch, PatchPtr init_patch);
     void set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch);
 
-    void start(int first_scene);
+    void start(int initial_scene);
 
     void switch_scene(int n);
     bool sanitize_event(MidiEvent & ev) const;
@@ -77,7 +77,7 @@ class Engine
 
   private:
 
-    void run_init(int first_scene);
+    void run_init(int initial_scene);
     void run_cycle();
     void run_async();
 

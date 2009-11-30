@@ -124,21 +124,25 @@ void Engine::set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr po
 }
 
 
-void Engine::start(int first_scene)
+void Engine::start(int initial_scene)
 {
     _backend->start(
-        boost::bind(&Engine::run_init, this, first_scene),
+        boost::bind(&Engine::run_init, this, initial_scene),
         boost::bind(&Engine::run_cycle, this)
     );
 }
 
 
-void Engine::run_init(int first_scene)
+void Engine::run_init(int initial_scene)
 {
     boost::mutex::scoped_lock lock(_process_mutex);
 
+    if (initial_scene == -1) {
+        initial_scene = _patches.begin()->first;
+    }
+
     _buffer.clear();
-    process_scene_switch(_buffer, first_scene);
+    process_scene_switch(_buffer, initial_scene);
 
     _backend->output_events(_buffer.begin(), _buffer.end());
     _backend->flush_output();
@@ -377,7 +381,7 @@ bool Engine::sanitize_event(MidiEvent & ev) const
             }
             return true;
         case MIDI_EVENT_SYSEX:
-            if (ev.sysex->size() < 3 || (*ev.sysex)[0] != (char)0xf0 || (*ev.sysex)[ev.sysex->size()-1] != (char)0xf7) {
+            if (ev.sysex->size() < 2 || (*ev.sysex)[0] != (char)0xf0 || (*ev.sysex)[ev.sysex->size()-1] != (char)0xf7) {
                 if (_verbose) std::cout << "invalid sysex, event discarded" << std::endl;
                 return false;
             }

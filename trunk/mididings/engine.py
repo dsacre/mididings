@@ -84,7 +84,7 @@ class Engine(_mididings.Engine):
         if get_config('initial_scene') != None:
             initial_scene = util.scene_number(get_config('initial_scene'))
         else:
-            initial_scene = 0
+            initial_scene = -1
         self.start(initial_scene)
 
         try:

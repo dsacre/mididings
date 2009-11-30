@@ -179,7 +179,7 @@ def scene_number(scene):
 
 def sysex_data(sysex, allow_partial=False):
     sysex = _misc.seq_to_string(sysex)
-    if len(sysex) < 3:
+    if len(sysex) < 2:
         raise ValueError("sysex too short")
     if sysex[0] != '\xf0':
         raise ValueError("sysex doesn't start with F0")
