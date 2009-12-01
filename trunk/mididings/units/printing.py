@@ -15,6 +15,7 @@ from mididings.units.base import _unit_repr
 
 import mididings.main as _main
 import mididings.event as _event
+import mididings.misc as _misc
 from mididings.misc import NamedFlag as _NamedFlag
 
 
@@ -70,17 +71,6 @@ class _Print(_CallBase):
             print ev.to_string(self.ports, _Print.max_portname_length)
 
 
-@_unit_repr
-def Print(name=None, types=_event.ANY, portnames=None):
-    return _Print(name, types, portnames)
-
-
-# for backward compatibility
-Print.PORTNAMES_NONE = None
-Print.PORTNAMES_IN = PORTNAMES_IN
-Print.PORTNAMES_OUT = PORTNAMES_OUT
-
-
 class _PrintString(_CallBase):
     def __init__(self, string):
         self.string = string
@@ -90,5 +80,19 @@ class _PrintString(_CallBase):
 
 
 @_unit_repr
+def Print(*args, **kwargs):
+    return _misc.call_overload("Print", args, kwargs, [
+        lambda name=None, types=_event.ANY, portnames=None: _Print(name, types, portnames),
+        lambda string: _PrintString(string),
+    ])
+
+
+# for backward compatibility
+Print.PORTNAMES_NONE = None
+Print.PORTNAMES_IN = PORTNAMES_IN
+Print.PORTNAMES_OUT = PORTNAMES_OUT
+
+
+@_misc.deprecated('Print')
 def PrintString(string):
-    return _PrintString(string)
+    return Print(string=string)

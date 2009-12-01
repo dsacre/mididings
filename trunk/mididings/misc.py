@@ -108,9 +108,9 @@ class deprecated:
         def deprecated_wrapper(*args, **kwargs):
             if get_config('verbose') and f not in deprecated.already_used:
                 if self.replacement:
-                    print "'%s' is deprecated, please use '%s' instead" % (f.func_name, self.replacement)
+                    print "%s() is deprecated, please use %s() instead" % (f.func_name, self.replacement)
                 else:
-                    print "'%s' is deprecated" % f.func_name
+                    print "%s() is deprecated" % f.func_name
                 deprecated.already_used.append(f)
             return f(*args, **kwargs)
         return deprecated_wrapper
