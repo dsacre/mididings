@@ -12,6 +12,7 @@
 #
 
 import sys
+import os
 import optparse
 
 import mididings
@@ -31,6 +32,11 @@ class Dings(object):
         self.dings_dict.update(mididings.extra.__dict__)
 
     def run_file(self, filename):
+        # add filename's directory to sys.path to allow import from the same directory
+        d = os.path.dirname(filename)
+        if not d:
+            d = '.'
+        sys.path.insert(0, d)
         # just a kludge to make AutoRestart() work
         sys.modules['dings_main'] = type('FakeModule', (), {'__file__': filename})
 
