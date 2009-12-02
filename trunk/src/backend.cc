@@ -71,6 +71,7 @@ MidiEvent Backend::buffer_to_midi_event(unsigned char *data, std::size_t len, in
         {
           case 0xf0:
             ev.type = MIDI_EVENT_SYSEX;
+            // FIXME: come up with a realtime-safe way to do this
             ev.sysex.reset(new MidiEvent::SysExData(data, data + len));
             break;
           case 0xf1:
@@ -117,7 +118,7 @@ MidiEvent Backend::buffer_to_midi_event(unsigned char *data, std::size_t len, in
 }
 
 
-void Backend::midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame)
+std::size_t Backend::midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame)
 {
     frame = ev.frame;
     port = ev.port;
@@ -164,6 +165,7 @@ void Backend::midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, st
             len = ev.sysex->size();
             std::copy(ev.sysex->begin(), ev.sysex->end(), data);
         } else {
+            // sysex too long, drop it
             len = 0;
         }
         break;
@@ -214,4 +216,6 @@ void Backend::midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, st
       default:
         len = 0;
     }
+
+    return len;
 }

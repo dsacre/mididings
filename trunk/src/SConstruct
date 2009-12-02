@@ -22,7 +22,7 @@ env = Environment(
 #        'ENABLE_BENCHMARK',
         'ENABLE_ALSA_SEQ',
         'ENABLE_JACK_MIDI',
-        'ENABLE_SMF',
+#        'ENABLE_SMF',
     ],
     CPPPATH = ['.'],
     ENV = os.environ,
@@ -50,6 +50,8 @@ sources = [
     'python_caller.cc',
     'python_module.cc',
 ]
+
+env.ParseConfig('pkg-config --cflags --libs glib-2.0')
 
 if 'ENABLE_ALSA_SEQ' in env['CPPDEFINES']:
     env.ParseConfig('pkg-config --cflags --libs alsa')

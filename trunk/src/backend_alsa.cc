@@ -66,8 +66,9 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
         _portid_out[n] = id;
     }
 
-    // initialize MIDI event parser
-    if (snd_midi_event_new(Config::MAX_EVENT_SIZE, &_parser)) {
+    // initialize MIDI event parser.
+    // we don't use the parser for sysex, so a 12 byte buffer will do
+    if (snd_midi_event_new(12, &_parser)) {
         throw BackendError("error initializing MIDI event parser");
     }
     snd_midi_event_init(_parser);
@@ -171,7 +172,6 @@ MidiEvent BackendAlsa::alsa_to_midi_event(snd_seq_event_t const & alsa_ev)
         ev.sysex.reset(new MidiEvent::SysExData(ptr, ptr + len));
         } break;
 
-      // other event types: use generic decoder (because i'm lazy)
       case SND_SEQ_EVENT_QFRAME:
       case SND_SEQ_EVENT_SONGPOS:
       case SND_SEQ_EVENT_SONGSEL:
@@ -182,6 +182,7 @@ MidiEvent BackendAlsa::alsa_to_midi_event(snd_seq_event_t const & alsa_ev)
       case SND_SEQ_EVENT_STOP:
       case SND_SEQ_EVENT_SENSING:
       case SND_SEQ_EVENT_RESET: {
+        // other event types: use generic decoder (because i'm lazy)
         unsigned char buf[12];
 
         snd_midi_event_reset_decode(_parser);
@@ -190,8 +191,8 @@ MidiEvent BackendAlsa::alsa_to_midi_event(snd_seq_event_t const & alsa_ev)
         ev = buffer_to_midi_event(buf, len, _portid_in_rev[alsa_ev.dest.port], 0);
         } break;
 
-      // who the hell are you?
       default:
+        // who the hell are you?
         ev.type = MIDI_EVENT_NONE;
         break;
     }
@@ -270,20 +271,21 @@ bool BackendAlsa::input_event(MidiEvent & ev)
     snd_seq_event_t *alsa_ev;
 
     for (;;) {
-        snd_seq_event_input(_seq_handle, &alsa_ev);
+        if (snd_seq_event_input(_seq_handle, &alsa_ev) < 0 || !alsa_ev) {
+            DEBUG_PRINT("couldn't retrieve ALSA sequencer event");
+            continue;
+        }
 
-        if (alsa_ev) {
-            // check for program termination
-            if (alsa_ev->type == SND_SEQ_EVENT_USR0) {
-                return false;
-            }
+        // check for program termination
+        if (alsa_ev->type == SND_SEQ_EVENT_USR0) {
+            return false;
+        }
 
-            // convert event from alsa
-            ev = alsa_to_midi_event(*alsa_ev);
+        // convert event from alsa
+        ev = alsa_to_midi_event(*alsa_ev);
 
-            if (ev.type != MIDI_EVENT_NONE) {
-                return true;
-            }
+        if (ev.type != MIDI_EVENT_NONE) {
+            return true;
         }
     }
 }
@@ -297,13 +299,20 @@ void BackendAlsa::output_event(MidiEvent const & ev)
     snd_seq_ev_set_direct(&alsa_ev);
     snd_seq_ev_set_source(&alsa_ev, _portid_out[ev.port]);
 
-    snd_seq_event_output_buffer(_seq_handle, &alsa_ev);
+    if (snd_seq_event_output_buffer(_seq_handle, &alsa_ev) < 0) {
+        DEBUG_PRINT("couldn't output event to ALSA sequencer buffer");
+    }
 }
 
 
 void BackendAlsa::flush_output()
 {
-    snd_seq_drain_output(_seq_handle);
+    int r = snd_seq_drain_output(_seq_handle);
+    if (r < 0) {
+        DEBUG_PRINT("couldn't drain ALSA sequencer output buffer");
+    } else if (r > 0) {
+        DEBUG_PRINT("not all events drained from ALSA sequencer output buffer");
+    }
 }
 
 

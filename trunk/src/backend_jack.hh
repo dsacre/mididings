@@ -49,8 +49,8 @@ class BackendJack
     virtual int process(jack_nframes_t) { return 0; } //= 0;
 
     void clear_buffers(jack_nframes_t nframes);
-    bool read_event_from_buffer(MidiEvent & ev, jack_nframes_t nframes);
-    void write_event_to_buffer(MidiEvent const & ev, jack_nframes_t nframes);
+    bool read_event(MidiEvent & ev, jack_nframes_t nframes);
+    bool write_event(MidiEvent const & ev, jack_nframes_t nframes);
 
     jack_client_t *_client;
     std::vector<jack_port_t *> _in_ports;
@@ -61,7 +61,7 @@ class BackendJack
   private:
     static int process_(jack_nframes_t, void *);
 
-    // loop counters used by read_event_from_buffer()
+    // loop counters used by read_event()
     int _input_port;
     int _input_count;
 };

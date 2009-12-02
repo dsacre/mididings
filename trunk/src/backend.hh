@@ -57,7 +57,7 @@ class Backend
 
   protected:
     static MidiEvent buffer_to_midi_event(unsigned char *data, std::size_t len, int port, uint64_t frame);
-    static void midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame);
+    static std::size_t midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame);
 };
 
 

@@ -96,7 +96,7 @@ void BackendJack::clear_buffers(jack_nframes_t nframes)
 }
 
 
-bool BackendJack::read_event_from_buffer(MidiEvent & ev, jack_nframes_t nframes)
+bool BackendJack::read_event(MidiEvent & ev, jack_nframes_t nframes)
 {
     if (_input_port < static_cast<int>(_in_ports.size()))
     {
@@ -105,7 +105,7 @@ bool BackendJack::read_event_from_buffer(MidiEvent & ev, jack_nframes_t nframes)
 
         if (_input_count < num_events) {
             jack_midi_event_t jack_ev;
-            jack_midi_event_get(&jack_ev, port_buffer, _input_count);
+            VERIFY(!jack_midi_event_get(&jack_ev, port_buffer, _input_count));
 
             //std::cout << "in: " << jack_ev.time << std::endl;
 
@@ -126,33 +126,39 @@ bool BackendJack::read_event_from_buffer(MidiEvent & ev, jack_nframes_t nframes)
 }
 
 
-void BackendJack::write_event_to_buffer(MidiEvent const & ev, jack_nframes_t nframes)
+bool BackendJack::write_event(MidiEvent const & ev, jack_nframes_t nframes)
 {
-    unsigned char data[Config::MAX_EVENT_SIZE];
-    std::size_t len = Config::MAX_EVENT_SIZE;
+    unsigned char data[Config::MAX_JACK_EVENT_SIZE];
+    std::size_t len = sizeof(data);
     int port;
     uint64_t frame;
 
-    midi_event_to_buffer(ev, data, len, port, frame);
+    VERIFY(midi_event_to_buffer(ev, data, len, port, frame));
 
-    if (len) {
-        void *port_buffer = jack_port_get_buffer(_out_ports[port], nframes);
+    if (!len) {
+        return false;
+    }
 
-        jack_nframes_t f;
+    void *port_buffer = jack_port_get_buffer(_out_ports[port], nframes);
 
-        if (frame >= _current_frame) {
-            // event received within current period, zero delay
-            f = frame - _current_frame;
-        } else if (frame >= _current_frame - nframes) {
-            // event received during last period, exactly one period delay (minimize jitter)
-            f = frame - _current_frame + nframes;
-        } else {
-            // event is older, send as soon as possible (minimize latency)
-            f = 0;
-        }
+    jack_nframes_t f;
 
-        //std::cout << "out: " << f << std::endl;
-        jack_midi_event_write(port_buffer, f, data, len);
+    if (frame >= _current_frame) {
+        // event received within current period, zero delay
+        f = frame - _current_frame;
+    } else if (frame >= _current_frame - nframes) {
+        // event received during last period, exactly one period delay (minimize jitter)
+        f = frame - _current_frame + nframes;
+    } else {
+        // event is older, send as soon as possible (minimize latency)
+        f = 0;
+    }
+
+    //std::cout << "out: " << f << std::endl;
+    if (!jack_midi_event_write(port_buffer, f, data, len)) {
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -201,8 +207,10 @@ int BackendJackBuffered::process(jack_nframes_t nframes)
     MidiEvent ev;
 
     // store all incoming events in the input ringbuffer
-    while (read_event_from_buffer(ev, nframes)) {
-        _in_rb.write(ev);
+    while (read_event(ev, nframes)) {
+        if (!_in_rb.write(ev)) {
+            DEBUG_PRINT("couldn't write event to input ringbuffer");
+        }
         _cond.notify_one();
     }
 
@@ -212,7 +220,9 @@ int BackendJackBuffered::process(jack_nframes_t nframes)
     // read all events from output ringbuffer, write them to JACK output buffers
     while (_out_rb.read_space()) {
         _out_rb.read(ev);
-        write_event_to_buffer(ev, nframes);
+        if (!write_event(ev, nframes)) {
+            DEBUG_PRINT("couldn't write event to output buffer");
+        }
     }
 
     return 0;
@@ -232,7 +242,7 @@ bool BackendJackBuffered::input_event(MidiEvent & ev)
         }
     }
 
-    _in_rb.read(ev);
+    VERIFY(_in_rb.read(ev));
 
     return true;
 }
@@ -240,7 +250,9 @@ bool BackendJackBuffered::input_event(MidiEvent & ev)
 
 void BackendJackBuffered::output_event(MidiEvent const & ev)
 {
-    _out_rb.write(ev);
+    if (!_out_rb.write(ev)) {
+        DEBUG_PRINT("couldn't write event to output ringbuffer");
+    }
 }
 
 
@@ -272,14 +284,16 @@ int BackendJackRealtime::process(jack_nframes_t nframes)
 
     if (_run_init) {
         _run_init();
-        _run_init.clear();
+        _run_init.clear();  // RT-safe?
     }
 
     // write events from ringbuffer to JACK output buffers
     while (_out_rb.read_space()) {
         MidiEvent ev;
         _out_rb.read(ev);
-        write_event_to_buffer(ev, nframes);
+        if (!write_event(ev, nframes)) {
+            DEBUG_PRINT("couldn't write event from ringbuffer to output buffer");
+        }
     }
 
     if (_run_cycle) {
@@ -292,7 +306,7 @@ int BackendJackRealtime::process(jack_nframes_t nframes)
 
 bool BackendJackRealtime::input_event(MidiEvent & ev)
 {
-    return read_event_from_buffer(ev, _nframes);
+    return read_event(ev, _nframes);
 }
 
 
@@ -300,9 +314,13 @@ void BackendJackRealtime::output_event(MidiEvent const & ev)
 {
     if (pthread_self() == jack_client_thread_id(_client)) {
         // called within process(), write directly to output buffer
-        write_event_to_buffer(ev, _nframes);
+        if (!write_event(ev, _nframes)) {
+            DEBUG_PRINT("couldn't write event to output buffer");
+        }
     } else {
         // called elsewhere, write to ringbuffer
-        _out_rb.write(ev);
+        if (!_out_rb.write(ev)) {
+            DEBUG_PRINT("couldn't write event to output ringbuffer");
+        }
     }
 }
