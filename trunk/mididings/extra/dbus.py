@@ -12,7 +12,7 @@
 
 from __future__ import absolute_import as _absolute_import
 
-from mididings import CallAsync
+from mididings import Call
 
 try:
     import dbus as _dbus
@@ -41,4 +41,4 @@ else:
 
 
     def SendDBUS(service, path, interface, method, *args):
-        return CallAsync(_SendDBUS(service, path, interface, method, args))
+        return Call(_SendDBUS(service, path, interface, method, args))

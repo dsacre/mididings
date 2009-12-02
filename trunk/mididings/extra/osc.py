@@ -10,7 +10,7 @@
 # (at your option) any later version.
 #
 
-from mididings import CallAsync
+from mididings import Call
 from mididings import switch_scene, quit
 
 try:
@@ -66,4 +66,4 @@ else:
 
 
     def SendOSC(target, path, *args):
-        return CallAsync(_SendOSC(target, path, args))
+        return Call(_SendOSC(target, path, args))
