@@ -14,7 +14,7 @@ import _mididings
 import util as _util
 from misc import NamedFlag as _NamedFlag
 from misc import NamedBitMask as _NamedBitMask
-from config import get_config as _get_config
+from setup import get_config as _get_config
 
 
 NONE            = _NamedBitMask(0, 'NONE')

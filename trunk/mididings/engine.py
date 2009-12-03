@@ -17,7 +17,7 @@ import scene
 import event
 import util
 import misc
-from config import get_config, get_hooks
+from setup import get_config, get_hooks
 
 import time
 import weakref

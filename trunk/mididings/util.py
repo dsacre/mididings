@@ -11,7 +11,7 @@
 #
 
 import misc as _misc
-from config import get_config
+from setup import get_config
 
 
 NOTE_NUMBERS = {

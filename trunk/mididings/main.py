@@ -12,14 +12,14 @@
 
 import engine as _engine
 import misc as _misc
-import config as _config
+import setup as _setup
 
 
 def config(override=False, **kwargs):
-    _config.config(override, **kwargs)
+    _setup.config(override, **kwargs)
 
 def hook(*args):
-    _config.hook(*args)
+    _setup.hook(*args)
 
 
 def run(*args, **kwargs):
@@ -45,7 +45,7 @@ def run_patches(patches, control=None, pre=None, post=None):
 
 
 def process_file(infile, outfile, patch):
-    config(
+    _setup.config(
         backend = 'smf',
         in_ports = [infile],
         out_ports = [outfile],
@@ -55,11 +55,11 @@ def process_file(infile, outfile, patch):
 
 
 def test_run(patch, events):
-    return test_run_scenes({ _config.get_config('data_offset'): patch }, events)
+    return test_run_scenes({ _setup.get_config('data_offset'): patch }, events)
 
 
 def test_run_scenes(scenes, events):
-    config(backend = 'dummy')
+    _setup.config(backend = 'dummy')
     e = _engine.Engine(scenes, None, None, None)
     r = []
     if not _misc.issequence(events):
