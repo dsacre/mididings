@@ -25,7 +25,9 @@ NOTE            = _NamedBitMask(NOTEON | NOTEOFF, 'NOTE')
 CTRL            = _NamedBitMask(1 << 2, 'CTRL')
 PITCHBEND       = _NamedBitMask(1 << 3, 'PITCHBEND')
 AFTERTOUCH      = _NamedBitMask(1 << 4, 'AFTERTOUCH')
-PROGRAM         = _NamedBitMask(1 << 5, 'PROGRAM')
+PROG            = _NamedBitMask(1 << 5, 'PROG')
+# for backward compatibility
+PROGRAM = PROG
 
 SYSEX           = _NamedBitMask(1 << 6, 'SYSEX')
 

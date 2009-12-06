@@ -58,30 +58,46 @@ class UnitEx
 class Filter
   : public Unit
 {
+    friend class InvertedFilter;
+
   public:
-    Filter(MidiEventTypes types)
-      : _types(types)
+    Filter()
+      : _handled_types(MIDI_EVENT_ANY)
+      , _pass_other(false)
     {
     }
 
-    virtual bool process(MidiEvent & ev)
+    Filter(MidiEventTypes handled_types, bool pass_other)
+      : _handled_types(handled_types)
+      , _pass_other(pass_other)
     {
-        return match_type(ev);
-    }
-
-    MidiEventTypes types() const
-    {
-        return _types;
     }
 
   protected:
-    bool match_type(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev)
     {
-        return (ev.type & _types);
+        if (ev.type & handled_types()) {
+            return process_filter(ev);
+        } else {
+            return pass_other();
+        }
+    }
+
+    virtual bool process_filter(MidiEvent & ev) = 0;
+
+    MidiEventTypes handled_types() const
+    {
+        return _handled_types;
+    }
+
+    bool pass_other() const
+    {
+        return _pass_other;
     }
 
   private:
-    MidiEventTypes const _types;
+    MidiEventTypes _handled_types;
+    bool _pass_other;
 };
 
 
@@ -90,24 +106,47 @@ class InvertedFilter
 {
   public:
     InvertedFilter(boost::shared_ptr<Filter> filter, bool ignore_types)
-      : Filter(MIDI_EVENT_ANY)
+      : Filter()
       , _filter(filter)
       , _ignore_types(ignore_types)
     {
     }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev)
     {
         if (_ignore_types) {
             return !_filter->process(ev);
         } else {
-            return !(_filter->types() & ev.type) || !_filter->process(ev);
+            if (ev.type & _filter->handled_types()) {
+                return !_filter->process_filter(ev);
+            } else {
+                return _filter->pass_other();
+            }
         }
     }
 
   private:
     boost::shared_ptr<Filter> _filter;
     bool _ignore_types;
+};
+
+
+class TypeFilter
+  : public Filter
+{
+  public:
+    TypeFilter(MidiEventTypes types)
+      : Filter()
+      , _types(types)
+    {
+    }
+
+    virtual bool process_filter(MidiEvent & ev)
+    {
+        return (ev.type & _types);
+    }
+
+    MidiEventTypes _types;
 };
 
 

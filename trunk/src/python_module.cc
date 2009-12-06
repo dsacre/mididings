@@ -53,9 +53,10 @@ BOOST_PYTHON_MODULE(_mididings)
 
     class_<Unit, noncopyable>("Unit", bp::no_init);
     class_<UnitEx, noncopyable>("UnitEx", bp::no_init);
+    class_<Filter, bases<Unit>, noncopyable>("Filter", bp::no_init);
 
     class_<Pass, bases<Unit>, noncopyable>("Pass", init<bool>());
-    class_<Filter, bases<Unit>, noncopyable>("Filter", init<int>());
+    class_<TypeFilter, bases<Filter>, noncopyable>("TypeFilter", init<int>());
     class_<InvertedFilter, bases<Filter>, noncopyable>("InvertedFilter", init<boost::shared_ptr<Filter>, bool>());
 
     class_<PortFilter, bases<Filter>, noncopyable>("PortFilter", init<std::vector<int> const &>());
@@ -81,11 +82,8 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<SceneSwitch, bases<Unit>, noncopyable>("SceneSwitch", init<int>());
     class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
 
-    class_<Engine, Engine, noncopyable>("Engine", init<std::string const &,
-                                                       std::string const &,
-                                                       std::vector<std::string> const &,
-                                                       std::vector<std::string> const &,
-                                                       bool>())
+    class_<Engine, Engine, noncopyable>("Engine", init<std::string const &, std::string const &,
+                                                       std::vector<std::string> const &, std::vector<std::string> const &, bool>())
         .def("add_scene", &Engine::add_scene)
         .def("set_processing", &Engine::set_processing)
         .def("start", &Engine::start)

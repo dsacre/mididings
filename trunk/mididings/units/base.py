@@ -17,7 +17,7 @@ import mididings.event as _event
 
 class _Unit(object):
     """
-    base class for all units.
+    wrapper class for all units.
     """
     def __init__(self, unit):
         self.unit = unit
@@ -125,7 +125,7 @@ class _Selector(object):
 
 class _Filter(_Unit, _Selector):
     """
-    base class for all filters.
+    wrapper class for all filters.
     """
     def __init__(self, unit):
         _Unit.__init__(self, unit)
@@ -160,7 +160,7 @@ def Filter(*args):
         types = reduce(lambda x,y: x|y, args)
     else:
         types = args[0]
-    return _Filter(_mididings.Filter(types))
+    return _Filter(_mididings.TypeFilter(types))
 
 
 @_unit_repr

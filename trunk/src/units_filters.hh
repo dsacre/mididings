@@ -23,12 +23,12 @@ class PortFilter
 {
   public:
     PortFilter(std::vector<int> const & ports)
-      : Filter(MIDI_EVENT_ANY)
+      : Filter()
       , _ports(ports)
     {
     }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev)
     {
         for (std::vector<int>::iterator i = _ports.begin(); i != _ports.end(); ++i) {
             if (ev.port == *i) return true;
@@ -46,12 +46,12 @@ class ChannelFilter
 {
   public:
     ChannelFilter(std::vector<int> const & channels)
-      : Filter(MIDI_EVENT_ANY)
+      : Filter()
       , _channels(channels)
     {
     }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev)
     {
         for (std::vector<int>::iterator i = _channels.begin(); i != _channels.end(); ++i) {
             if (ev.channel == *i) return true;
@@ -69,15 +69,14 @@ class KeyFilter
 {
   public:
     KeyFilter(int lower, int upper)
-      : Filter(MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF)
+      : Filter(MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF, true)
       , _lower(lower)
       , _upper(upper)
     {
     }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev)
     {
-        if (!match_type(ev)) return true;
         return ((ev.note.note == _lower && _upper == 0) ||
                 (ev.note.note >= _lower && ev.note.note < _upper));
     }
@@ -92,15 +91,14 @@ class VelocityFilter
 {
   public:
     VelocityFilter(int lower, int upper)
-      : Filter(MIDI_EVENT_NOTEON)
+      : Filter(MIDI_EVENT_NOTEON, true)
       , _lower(lower)
       , _upper(upper)
     {
     }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev)
     {
-        if (!match_type(ev)) return true;
         return ((ev.note.velocity >= _lower || _lower == 0) &&
                 (ev.note.velocity < _upper || _upper == 0));
     }
@@ -115,14 +113,13 @@ class CtrlFilter
 {
   public:
     CtrlFilter(std::vector<int> const & ctrls)
-      : Filter(MIDI_EVENT_CTRL)
+      : Filter(MIDI_EVENT_CTRL, false)
       , _ctrls(ctrls)
     {
     }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev)
     {
-        if (!match_type(ev)) return true;
         for (std::vector<int>::iterator i = _ctrls.begin(); i != _ctrls.end(); ++i) {
             if (ev.ctrl.param == *i) return true;
         }
@@ -139,15 +136,14 @@ class CtrlValueFilter
 {
   public:
     CtrlValueFilter(int lower, int upper)
-      : Filter(MIDI_EVENT_CTRL)
+      : Filter(MIDI_EVENT_CTRL, false)
       , _lower(lower)
       , _upper(upper)
     {
     }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev)
     {
-        if (!match_type(ev)) return true;
         return ((ev.ctrl.value >= _lower && ev.ctrl.value < _upper) || (ev.ctrl.value == _lower && !_upper));
     }
 
@@ -161,14 +157,13 @@ class ProgFilter
 {
   public:
     ProgFilter(std::vector<int> const & progs)
-      : Filter(MIDI_EVENT_PROGRAM)
+      : Filter(MIDI_EVENT_PROGRAM, false)
       , _progs(progs)
     {
     }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev)
     {
-        if (!match_type(ev)) return true;
         for (std::vector<int>::iterator i = _progs.begin(); i != _progs.end(); ++i) {
             if (ev.ctrl.value == *i) return true;
         }
@@ -185,15 +180,14 @@ class SysExFilter
 {
   public:
     SysExFilter(std::string const & sysex, bool partial)
-      : Filter(MIDI_EVENT_SYSEX)
+      : Filter(MIDI_EVENT_SYSEX, false)
       , _sysex(sysex)
       , _partial(partial)
     {
     }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev)
     {
-        if (!match_type(ev)) return true;
         if (_partial) {
             return ev.sysex->find(_sysex) == 0;
         } else {

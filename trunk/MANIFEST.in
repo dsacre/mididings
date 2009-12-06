@@ -10,5 +10,6 @@ include src/*.hh
 include src/*.cc
 include src/util/*.hh
 include test/unit.py
+include scripts/mididings
 include doc/*.html
 include doc/examples/*.py
