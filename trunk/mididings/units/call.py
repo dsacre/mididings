@@ -60,7 +60,7 @@ def Process(function):
 def Call(function):
     def wrapper(ev):
         if function(ev) != None:
-            print "return value from Call() ignored. please use Process() instead."
+            print "return value from Call() ignored. please use Process() instead"
     return _CallBase(wrapper, True, True)
 
 

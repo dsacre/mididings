@@ -12,7 +12,7 @@
 
 import _mididings
 
-from mididings.units.base import _Unit, _unit_repr
+from mididings.units.base import _Unit, _unit_repr, Chain
 
 import mididings.util as _util
 import mididings.misc as _misc
@@ -26,6 +26,17 @@ def Port(port):
 @_unit_repr
 def Channel(channel):
     return _Unit(_mididings.Channel(_util.channel_number(channel)))
+
+
+def Route(port=None, channel=None):
+    if port == None and channel == None:
+        raise TypeError("Route() takes at least 1 argument")
+    c = Chain([])
+    if port != None:
+        c.append(Port(port))
+    if channel != None:
+        c.append(Channel(channel))
+    return c
 
 
 @_unit_repr

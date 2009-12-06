@@ -20,11 +20,11 @@ _WHITE_KEYS = [_n for _n in range(128) if _n%12 not in _BLACK]
 
 def BlackKeys():
     return Fork([
-            KeyFilter(n) for n in _BLACK_KEYS
-        ], NOTE)
+        KeyFilter(n) for n in _BLACK_KEYS
+    ], NOTE)
 
 
 def WhiteKeys():
     return Fork([
-            KeyFilter(n) for n in _WHITE_KEYS
-        ], NOTE)
+        KeyFilter(n) for n in _WHITE_KEYS
+    ], NOTE)

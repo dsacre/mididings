@@ -45,7 +45,7 @@ def run_patches(patches, control=None, pre=None, post=None):
 
 
 def process_file(infile, outfile, patch):
-    _setup.config(
+    _setup.config(False,
         backend = 'smf',
         in_ports = [infile],
         out_ports = [outfile],
@@ -59,7 +59,7 @@ def test_run(patch, events):
 
 
 def test_run_scenes(scenes, events):
-    _setup.config(backend = 'dummy')
+    _setup.config(False, backend = 'dummy')
     e = _engine.Engine(scenes, None, None, None)
     r = []
     if not _misc.issequence(events):
