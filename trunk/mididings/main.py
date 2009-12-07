@@ -54,21 +54,6 @@ def process_file(infile, outfile, patch):
     e.process_file()
 
 
-def test_run(patch, events):
-    return test_run_scenes({ _setup.get_config('data_offset'): patch }, events)
-
-
-def test_run_scenes(scenes, events):
-    _setup.config(False, backend = 'dummy')
-    e = _engine.Engine(scenes, None, None, None)
-    r = []
-    if not _misc.issequence(events):
-        events = [events]
-    for ev in events:
-        r += e.process(ev)[:]
-    return r
-
-
 def switch_scene(n):
     TheEngine.switch_scene(n)
 

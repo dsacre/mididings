@@ -87,9 +87,6 @@ class MidiEvent(_mididings.MidiEvent):
         self.data1 = data1
         self.data2 = data2
 
-    def __str__(self):
-        return self.to_string()
-
     def to_string(self, portnames=[], portname_length=0):
         if len(portnames) > self.port_:
             port = portnames[self.port_]
@@ -141,6 +138,9 @@ class MidiEvent(_mididings.MidiEvent):
             s = 'None'
 
         return '[%*s, %2d] %s' % (max(portname_length, 2), port, channel, s)
+
+    def __repr__(self):
+        return 'MidiEvent(%d, %d, %d, %d, %d)' % (self.type, self.port_, self.channel_, self.data1, self.data2)
 
     type      = property(*_make_get_set(ANY, 'type_'))
     port      = property(*_make_get_set(ANY, 'port_', lambda: _get_config('data_offset')))
