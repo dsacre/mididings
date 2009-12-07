@@ -114,13 +114,16 @@ class _Selector(object):
 
     # operator %
     def __mod__(self, other):
-        if isinstance(other, _Filter):
-            return _Selector(self.filters + [other])
-        else:
-            return Fork([
-                Chain(f for f in self.filters) >> other,
-                Fork(-f for f in self.filters)
-            ])
+        return Fork([
+            Chain(f for f in self.filters) >> other,
+            Fork(-f for f in self.filters)
+        ])
+
+    # operator &
+    def __and__(self, other):
+        if not isinstance(other, _Filter):
+            return NotImplemented
+        return _Selector(self.filters + [other])
 
 
 class _Filter(_Unit, _Selector):
