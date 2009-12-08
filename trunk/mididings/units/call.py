@@ -19,6 +19,7 @@ import mididings.misc as _misc
 
 import thread as _thread
 import subprocess as _subprocess
+import functools as _functools
 
 
 class _CallBase(_Unit):
@@ -57,21 +58,24 @@ def Process(function):
 
 
 @_unit_repr
-def Call(function):
-    def wrapper(ev):
+def Call(*args, **kwargs):
+    def wrapper(function, ev):
         if function(ev) != None:
             print "return value from Call() ignored. please use Process() instead"
-    return _CallBase(wrapper, True, True)
+
+    return _misc.call_overload('Call', args, kwargs, [
+        lambda function: _CallBase(_functools.partial(wrapper, function), True, True),
+        lambda thread:   _CallThread(thread),
+    ])
 
 
 @_misc.deprecated('Call')
 def CallAsync(function):
     return Call(function)
 
-
-@_unit_repr
+@_misc.deprecated('Call')
 def CallThread(function):
-    return _CallThread(function)
+    return Call(thread=function)
 
 
 @_unit_repr
