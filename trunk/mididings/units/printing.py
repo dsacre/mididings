@@ -19,10 +19,6 @@ import mididings.misc as _misc
 from mididings.misc import NamedFlag as _NamedFlag
 
 
-PORTNAMES_IN   = _NamedFlag(1, 'PORTNAMES_IN')
-PORTNAMES_OUT  = _NamedFlag(2, 'PORTNAMES_OUT')
-
-
 class _Print(_CallBase):
     max_name_length = -1
     max_portname_length = -1
@@ -49,9 +45,9 @@ class _Print(_CallBase):
         # get list of port names to be used
         # (delayed 'til first use, because _engine._TheEngine doesn't yet exist during __init__)
         if self.ports == None:
-            if self.portnames == PORTNAMES_IN:
+            if self.portnames == 'in':
                 self.ports = _engine._TheEngine.in_ports
-            elif self.portnames == PORTNAMES_OUT:
+            elif self.portnames == 'out':
                 self.ports = _engine._TheEngine.out_ports
             else:
                 self.ports = []
@@ -89,8 +85,8 @@ def Print(*args, **kwargs):
 
 # for backward compatibility
 Print.PORTNAMES_NONE = None
-Print.PORTNAMES_IN = PORTNAMES_IN
-Print.PORTNAMES_OUT = PORTNAMES_OUT
+Print.PORTNAMES_IN = 'in'
+Print.PORTNAMES_OUT = 'out'
 
 
 @_misc.deprecated('Print')
