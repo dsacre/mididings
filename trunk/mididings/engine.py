@@ -191,5 +191,12 @@ def get_scenes():
     return _TheEngine.get_scenes()
 
 
+def get_in_ports():
+    return _TheEngine.in_ports
+
+def get_out_ports():
+    return _TheEngine.out_ports
+
+
 def quit():
     _TheEngine.quit()
