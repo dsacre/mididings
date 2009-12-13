@@ -13,6 +13,7 @@
 #define _UNITS_UTIL_HH
 
 #include <cmath>
+#include <algorithm>
 
 
 enum VelocityMode {
@@ -20,6 +21,7 @@ enum VelocityMode {
     VELOCITY_MODE_MULTIPLY = 2,
     VELOCITY_MODE_FIXED = 3,
     VELOCITY_MODE_GAMMA = 4,
+    VELOCITY_MODE_CURVE = 5,
 };
 
 
@@ -30,7 +32,7 @@ enum ParameterIndices {
     PARAMETER_DATA2 = -4,
 };
 
-
+#include <iostream>
 inline int apply_velocity(int velocity, float value, VelocityMode mode)
 {
     if (velocity == 0) {
@@ -49,11 +51,25 @@ inline int apply_velocity(int velocity, float value, VelocityMode mode)
 
       case VELOCITY_MODE_GAMMA:
         if (velocity > 0) {
-            float x = (float)velocity / 127.0f;
-            float y = ::powf(x, 1.0f / value);
-            return (int)::rintf(y * 127.0f);
+            float a = (float)velocity / 127.f;
+            float b = ::powf(a, 1.f / value);
+            return std::max(1, (int)::rintf(b * 127.f));
         } else {
             return velocity;
+        }
+
+      case VELOCITY_MODE_CURVE:
+        if (velocity > 0) {
+            if (value != 0) {
+                float p = -value;
+                float a = ::expf(p * velocity / 127.f) - 1;
+                float b = ::expf(p) - 1;
+                return std::max(1, (int)(127.f * a / b));
+            } else {
+                return velocity;
+            }
+        } else {
+            return 0;
         }
 
       default:

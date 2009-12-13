@@ -52,6 +52,7 @@ def Velocity(*args, **kwargs):
             lambda multiply: (multiply, 2),
             lambda fixed: (fixed, 3),
             lambda gamma: (gamma, 4),
+            lambda curve: (curve, 5),
         ]
     )
     return _Unit(_mididings.Velocity(value, mode))
@@ -78,6 +79,7 @@ def VelocitySlope(*args, **kwargs):
             lambda notes, multiply: (notes, multiply, 2),
             lambda notes, fixed: (notes, fixed, 3),
             lambda notes, gamma: (notes, gamma, 4),
+            lambda notes, curve: (notes, curve, 5),
         ]
     )
     note_numbers = [_util.note_number(n) for n in notes]
