@@ -13,7 +13,6 @@
 from mididings.units.call import _CallBase
 from mididings.units.base import _unit_repr
 
-import mididings.engine as _engine
 import mididings.constants as _constants
 import mididings.misc as _misc
 from mididings.misc import NamedFlag as _NamedFlag
@@ -42,19 +41,22 @@ class _Print(_CallBase):
         _CallBase.__init__(self, self.do_print, True, True)
 
     def do_print(self, ev):
+        # lazy import to avoid problems with circular imports
+        from mididings import engine
+
         # get list of port names to be used
-        # (delayed 'til first use, because _engine._TheEngine doesn't yet exist during __init__)
+        # (delayed 'til first use, because the engine doesn't yet exist during __init__)
         if self.ports == None:
             if self.portnames == 'in':
-                self.ports = _engine._TheEngine.in_ports
+                self.ports = engine.get_in_ports()
             elif self.portnames == 'out':
-                self.ports = _engine._TheEngine.out_ports
+                self.ports = engine.get_out_ports()
             else:
                 self.ports = []
 
         # find maximum port name length (delayed for the same reason as above)
         if _Print.portnames_used and _Print.max_portname_length == -1:
-            all_ports = _engine._TheEngine.in_ports + _engine._TheEngine.out_ports
+            all_ports = engine.get_in_ports() + engine.get_out_ports()
             _Print.max_portname_length = max(len(p) for p in all_ports)
 
         if ev.type_ & self.types:

@@ -14,16 +14,7 @@ from mididings.setup import config, hook
 from mididings.engine import run, run_scenes, run_patches, process_file
 from mididings.constants import *
 from mididings.scene import *
-
-from mididings.units.base import *
-from mididings.units.engine import *
-from mididings.units.filters import *
-from mididings.units.splits import *
-from mididings.units.modifiers import *
-from mididings.units.generators import *
-from mididings.units.call import *
-from mididings.units.printing import *
-from mididings.units.init_action import *
+from mididings.units import *
 
 
 import mididings.misc as _misc
