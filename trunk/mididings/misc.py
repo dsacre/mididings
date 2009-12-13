@@ -11,7 +11,7 @@
 #
 
 import _mididings
-from setup import get_config
+from setup import get_config as _get_config
 
 import inspect as _inspect
 import itertools as _itertools
@@ -106,7 +106,7 @@ class deprecated:
 
     def __call__(self, f):
         def deprecated_wrapper(*args, **kwargs):
-            if get_config('verbose') and f not in deprecated.already_used:
+            if _get_config('verbose') and f not in deprecated.already_used:
                 if self.replacement:
                     print "%s() is deprecated, please use %s() instead" % (f.func_name, self.replacement)
                 else:

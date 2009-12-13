@@ -10,11 +10,12 @@
 # (at your option) any later version.
 #
 
-from mididings import quit
+import mididings.engine as _engine
 
 import atexit as _atexit
 import os as _os
 import sys as _sys
+
 
 try:
     import pyinotify as _pyinotify
@@ -56,7 +57,7 @@ else:
 
         def _process_IN_MODIFY(self, event):
             _atexit.register(self._restart, event.pathname)
-            quit()
+            _engine.quit()
 
         def _restart(self, filename):
             print "file '%s' changed, restarting..." % filename

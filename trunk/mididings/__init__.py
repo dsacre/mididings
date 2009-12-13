@@ -10,7 +10,8 @@
 # (at your option) any later version.
 #
 
-from mididings.main import *
+from mididings.setup import config, hook
+from mididings.engine import run, run_scenes, run_patches, process_file
 from mididings.constants import *
 from mididings.scene import *
 

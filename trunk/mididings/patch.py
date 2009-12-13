@@ -11,8 +11,7 @@
 #
 
 import _mididings
-import main
-import units
+import mididings.units as _units
 
 
 class Patch(_mididings.Patch):
@@ -20,7 +19,7 @@ class Patch(_mididings.Patch):
         _mididings.Patch.__init__(self, self.build(p))
 
     def build(self, p):
-        if isinstance(p, units.base.Chain):
+        if isinstance(p, _units.base.Chain):
             v = Patch.ModuleVector()
             for i in p:
                 v.push_back(self.build(i))
@@ -38,13 +37,13 @@ class Patch(_mididings.Patch):
 
         elif isinstance(p, dict):
             return self.build([
-                units.base.Filter(t) >> w for t, w in p.items()
+                _units.base.Filter(t) >> w for t, w in p.items()
             ])
 
-        elif isinstance(p, units.init_action._InitAction):
+        elif isinstance(p, _units.init_action._InitAction):
             return Patch.Single(_mididings.Pass(False))
 
-        elif isinstance(p, units.base._Unit):
+        elif isinstance(p, _units.base._Unit):
             if isinstance(p.unit, _mididings.Unit):
                 return Patch.Single(p.unit)
             elif isinstance(p.unit, _mididings.UnitEx):
@@ -55,7 +54,7 @@ class Patch(_mididings.Patch):
 
 
 def get_init_actions(patch):
-    if isinstance(patch, units.base.Chain):
+    if isinstance(patch, _units.base.Chain):
         return flatten([get_init_actions(p) for p in patch])
 
     elif isinstance(patch, list):
@@ -64,7 +63,7 @@ def get_init_actions(patch):
     elif isinstance(patch, dict):
         return flatten([get_init_actions(p) for p in patch.values()])
 
-    elif isinstance(patch, units.init_action._InitAction):
+    elif isinstance(patch, _units.init_action._InitAction):
         return [patch.action]
 
     else:
@@ -74,7 +73,7 @@ def get_init_actions(patch):
 def flatten(patch):
     r = []
     for i in patch:
-        if isinstance(i, list) and not isinstance(i, units.base.Chain):
+        if isinstance(i, list) and not isinstance(i, _units.base.Chain):
             r.extend(i)
         else:
             r.append(i)

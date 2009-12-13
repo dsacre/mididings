@@ -1,7 +1,7 @@
 import unittest
 
 from mididings import *
-
+from mididings.event import *
 from mididings import engine, setup, misc
 
 

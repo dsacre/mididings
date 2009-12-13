@@ -10,7 +10,8 @@
 # (at your option) any later version.
 #
 
-from mididings import config, current_scene
+import mididings.setup as _setup
+import mididings.engine as _engine
 
 
 class MemorizeScene(object):
@@ -20,13 +21,13 @@ class MemorizeScene(object):
     def on_start(self):
         try:
             f = open(self.memo_file)
-            config(initial_scene=int(f.read()))
+            _setup.config(initial_scene=int(f.read()))
         except IOError:
             pass
 
     def on_exit(self):
         try:
             f = open(self.memo_file, 'w')
-            f.write(str(current_scene()) + '\n')
+            f.write(str(_engine.current_scene()) + '\n')
         except IOError, ex:
             print "couldn't store current scene:\n%s" % str(ex)

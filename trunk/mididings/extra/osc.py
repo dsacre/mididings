@@ -11,7 +11,8 @@
 #
 
 from mididings import Call
-from mididings import switch_scene, quit
+import mididings.engine as _engine
+
 
 try:
     import liblo as _liblo
@@ -47,10 +48,10 @@ else:
                 _liblo.send(p, '/mididings/current_scene', n)
 
         def _switch_scene_cb(self, path, args):
-            switch_scene(args[0])
+            _engine.switch_scene(args[0])
 
         def _quit_cb(self, path, args):
-            quit()
+            _engine.quit()
 
 
 

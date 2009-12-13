@@ -27,7 +27,7 @@ _config_override = []
 _hooks = []
 
 
-def config(override, **kwargs):
+def config(override=False, **kwargs):
     for k in kwargs:
         if k not in _config:
             raise TypeError('unknown config variable: %s' % k)
