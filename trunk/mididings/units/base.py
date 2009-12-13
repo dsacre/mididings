@@ -12,7 +12,7 @@
 
 import _mididings
 
-import mididings.event as _event
+import mididings.constants as _constants
 
 
 class _Unit(object):
@@ -80,8 +80,8 @@ class Fork(_Unit, list):
     """
     units connected in parallel.
     """
-    def __init__(self, units, types=_event.ANY, remove_duplicates=None):
-        if types == _event.ANY:
+    def __init__(self, units, types=_constants.ANY, remove_duplicates=None):
+        if types == _constants.ANY:
             list.__init__(self, units)
         else:
             # fork only certain types of events

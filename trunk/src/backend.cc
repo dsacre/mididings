@@ -53,6 +53,11 @@ MidiEvent Backend::buffer_to_midi_event(unsigned char *data, std::size_t len, in
             ev.ctrl.param = 0;
             ev.ctrl.value = data[1];
             break;
+          case 0xa0:
+            ev.type = MIDI_EVENT_POLY_AFTERTOUCH;
+            ev.ctrl.param = data[1];
+            ev.ctrl.value = data[2];
+            break;
           case 0xc0:
             ev.type = MIDI_EVENT_PROGRAM;
             ev.ctrl.param = 0;
@@ -154,6 +159,12 @@ std::size_t Backend::midi_event_to_buffer(MidiEvent const & ev, unsigned char *d
         len = 2;
         data[0] |= 0xd0;
         data[1] = ev.ctrl.value;
+        break;
+      case MIDI_EVENT_POLY_AFTERTOUCH:
+        len = 3;
+        data[0] |= 0xa0;
+        data[1] = ev.ctrl.param;
+        data[2] = ev.ctrl.value;
         break;
       case MIDI_EVENT_PROGRAM:
         len = 2;

@@ -18,11 +18,11 @@
 #include <string>
 
 
-class GenerateEvent
+class Generator
   : public Unit
 {
   public:
-    GenerateEvent(int type, int port, int channel, int data1, int data2)
+    Generator(int type, int port, int channel, int data1, int data2)
       : _type((MidiEventType)type)
       , _port(port)
       , _channel(channel)
@@ -56,11 +56,11 @@ class GenerateEvent
 };
 
 
-class GenerateSysEx
+class SysExGenerator
   : public Unit
 {
   public:
-    GenerateSysEx(int port, std::string const & sysex)
+    SysExGenerator(int port, std::string const & sysex)
       : _port(port)
       , _sysex(sysex)
     {

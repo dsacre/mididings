@@ -11,67 +11,19 @@
 #
 
 import _mididings
+import constants as _constants
 import util as _util
-from misc import NamedFlag as _NamedFlag
-from misc import NamedBitMask as _NamedBitMask
 from setup import get_config as _get_config
-
-
-NONE            = _NamedBitMask(0, 'NONE')
-
-NOTEON          = _NamedBitMask(1 << 0, 'NOTEON')
-NOTEOFF         = _NamedBitMask(1 << 1, 'NOTEOFF')
-NOTE            = _NamedBitMask(NOTEON | NOTEOFF, 'NOTE')
-CTRL            = _NamedBitMask(1 << 2, 'CTRL')
-PITCHBEND       = _NamedBitMask(1 << 3, 'PITCHBEND')
-AFTERTOUCH      = _NamedBitMask(1 << 4, 'AFTERTOUCH')
-PROG            = _NamedBitMask(1 << 5, 'PROG')
-# for backward compatibility
-PROGRAM = PROG
-
-SYSEX           = _NamedBitMask(1 << 6, 'SYSEX')
-
-SYSCM_QFRAME    = _NamedBitMask(1 << 7, 'SYSCM_QFRAME')
-SYSCM_SONGPOS   = _NamedBitMask(1 << 8, 'SYSCM_SONGPOS')
-SYSCM_SONGSEL   = _NamedBitMask(1 << 9, 'SYSCM_SONGSEL')
-SYSCM_TUNEREQ   = _NamedBitMask(1 << 10, 'SYSCM_TUNEREQ')
-SYSCM           = _NamedBitMask(SYSCM_QFRAME | SYSCM_SONGPOS | SYSCM_SONGSEL | SYSCM_TUNEREQ, 'SYSCM')
-
-SYSRT_CLOCK     = _NamedBitMask(1 << 11, 'SYSRT_CLOCK')
-SYSRT_START     = _NamedBitMask(1 << 12, 'SYSRT_START')
-SYSRT_CONTINUE  = _NamedBitMask(1 << 13, 'SYSRT_CONTINUE')
-SYSRT_STOP      = _NamedBitMask(1 << 14, 'SYSRT_STOP')
-SYSRT_SENSING   = _NamedBitMask(1 << 15, 'SYSRT_SENSING')
-SYSRT_RESET     = _NamedBitMask(1 << 16, 'SYSRT_RESET')
-SYSRT           = _NamedBitMask(SYSRT_CLOCK | SYSRT_START | SYSRT_CONTINUE | SYSRT_STOP | SYSRT_SENSING | SYSRT_RESET, 'SYSRT')
-
-DUMMY           = _NamedBitMask(1 << 30, 'DUMMY')
-ANY             = _NamedBitMask(~0, 'ANY')
-
-
-EVENT_PORT      = _NamedFlag(-1, 'EVENT_PORT')
-EVENT_CHANNEL   = _NamedFlag(-2, 'EVENT_CHANNEL')
-# generic
-EVENT_DATA1     = _NamedFlag(-3, 'EVENT_DATA1')
-EVENT_DATA2     = _NamedFlag(-4, 'EVENT_DATA2')
-# note
-EVENT_NOTE      = _NamedFlag(-3, 'EVENT_NOTE')
-EVENT_VELOCITY  = _NamedFlag(-4, 'EVENT_VELOCITY')
-# controller
-EVENT_PARAM     = _NamedFlag(-3, 'EVENT_PARAM')
-EVENT_VALUE     = _NamedFlag(-4, 'EVENT_VALUE')
-# program change
-EVENT_PROGRAM   = _NamedFlag(-4, 'EVENT_PROGRAM')
 
 
 def _make_get_set(type_, data, offset=lambda: 0):
     def getter(self):
-        if not self.type_ & type_ and not type_ == ANY:
+        if not self.type_ & type_ and not type_ == _constants.ANY:
             print "midi event attribute error"
         return getattr(self, data) + offset()
 
     def setter(self, value):
-        if not self.type_ & type_ and not type_ == ANY:
+        if not self.type_ & type_ and not type_ == _constants.ANY:
             print "midi event attribute error"
         setattr(self, data, value - offset())
 
@@ -95,44 +47,46 @@ class MidiEvent(_mididings.MidiEvent):
 
         channel = self.channel
 
-        if self.type_ == NOTEON:
+        if self.type_ == _constants.NOTEON:
             s = 'Note on:  %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
-        elif self.type_ == NOTEOFF:
+        elif self.type_ == _constants.NOTEOFF:
             s = 'Note off: %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
-        elif self.type_ == CTRL:
+        elif self.type_ == _constants.CTRL:
             s = 'Control:  %3d %3d' % (self.param, self.value)
             n = _util.controller_name(self.param)
             if n: s += '  (%s)' % n
-        elif self.type_ == PITCHBEND:
+        elif self.type_ == _constants.PITCHBEND:
             s = 'Pitch bend: %+5d' % self.value
-        elif self.type_ == AFTERTOUCH:
+        elif self.type_ == _constants.AFTERTOUCH:
             s = 'Aftertouch:   %3d' % self.value
-        elif self.type_ == PROGRAM:
+        elif self.type_ == _constants.POLY_AFTERTOUCH:
+            s = 'PolyAt:   %3d %3d  (%s)' % (self.note, self.value, _util.note_name(self.note))
+        elif self.type_ == _constants.PROGRAM:
             s = 'Program:      %3d' % self.program
-        elif self.type_ == SYSEX:
+        elif self.type_ == _constants.SYSEX:
             d = self.get_sysex_data()
             s = 'SysEx:   %8d  [%s]' % (len(d), ' '.join([ (hex(v/16).upper()[-1] + hex(v%16).upper()[-1]) for v in map(ord, d) ]))
-        elif self.type_ == SYSCM_QFRAME:
+        elif self.type_ == _constants.SYSCM_QFRAME:
             s = 'SysCm QFrame: %3d' % self.data1
-        elif self.type_ == SYSCM_SONGPOS:
+        elif self.type_ == _constants.SYSCM_SONGPOS:
             s = 'SysCm SongPos:%3d %3d' % (self.data1, self.data2)
-        elif self.type_ == SYSCM_SONGSEL:
+        elif self.type_ == _constants.SYSCM_SONGSEL:
             s = 'SysCm SongSel:%3d' % self.data1
-        elif self.type_ == SYSCM_TUNEREQ:
+        elif self.type_ == _constants.SYSCM_TUNEREQ:
             s = 'SysCm TuneReq'
-        elif self.type_ == SYSRT_CLOCK:
+        elif self.type_ == _constants.SYSRT_CLOCK:
             s = 'SysRt Clock'
-        elif self.type_ == SYSRT_START:
+        elif self.type_ == _constants.SYSRT_START:
             s = 'SysRt Start'
-        elif self.type_ == SYSRT_CONTINUE:
+        elif self.type_ == _constants.SYSRT_CONTINUE:
             s = 'SysRt Continue'
-        elif self.type_ == SYSRT_STOP:
+        elif self.type_ == _constants.SYSRT_STOP:
             s = 'SysRt Stop'
-        elif self.type_ == SYSRT_SENSING:
+        elif self.type_ == _constants.SYSRT_SENSING:
             s = 'SysRt Sensing'
-        elif self.type_ == SYSRT_RESET:
+        elif self.type_ == _constants.SYSRT_RESET:
             s = 'SysRt Reset'
-        elif self.type_ == DUMMY:
+        elif self.type_ == _constants.DUMMY:
             s = 'Dummy'
         else:
             s = 'None'
@@ -142,53 +96,49 @@ class MidiEvent(_mididings.MidiEvent):
     def __repr__(self):
         return 'MidiEvent(%d, %d, %d, %d, %d)' % (self.type, self.port_, self.channel_, self.data1, self.data2)
 
-    type      = property(*_make_get_set(ANY, 'type_'))
-    port      = property(*_make_get_set(ANY, 'port_', lambda: _get_config('data_offset')))
-    channel   = property(*_make_get_set(ANY, 'channel_', lambda: _get_config('data_offset')))
+    type      = property(*_make_get_set(_constants.ANY, 'type_'))
+    port      = property(*_make_get_set(_constants.ANY, 'port_', lambda: _get_config('data_offset')))
+    channel   = property(*_make_get_set(_constants.ANY, 'channel_', lambda: _get_config('data_offset')))
 
-    note      = property(*_make_get_set(NOTE, 'data1'))
-    velocity  = property(*_make_get_set(NOTE, 'data2'))
-    param     = property(*_make_get_set(CTRL, 'data1'))
-    value     = property(*_make_get_set(CTRL | PITCHBEND | AFTERTOUCH, 'data2'))
-    program   = property(*_make_get_set(PROGRAM, 'data2', lambda: _get_config('data_offset')))
+    note      = property(*_make_get_set(_constants.NOTE, 'data1'))
+    velocity  = property(*_make_get_set(_constants.NOTE, 'data2'))
+    param     = property(*_make_get_set(_constants.CTRL | _constants.POLY_AFTERTOUCH, 'data1'))
+    value     = property(*_make_get_set(_constants.CTRL | _constants.PITCHBEND | _constants.AFTERTOUCH | _constants.POLY_AFTERTOUCH, 'data2'))
+    program   = property(*_make_get_set(_constants.PROGRAM, 'data2', lambda: _get_config('data_offset')))
 
 
-class NoteonEvent(MidiEvent):
-    def __init__(self, port, channel, note, velocity):
-        MidiEvent.__init__(
-            self, NOTEON,
-            _util.port_number(port),
-            _util.channel_number(channel),
-            _util.note_number(note),
-            _util.velocity_value(velocity)
-        )
+def NoteOnEvent(port, channel, note, velocity):
+    return MidiEvent(
+        _constants.NOTEON,
+        _util.port_number(port),
+        _util.channel_number(channel),
+        _util.note_number(note),
+        _util.velocity_value(velocity)
+    )
 
-class NoteoffEvent(MidiEvent):
-    def __init__(self, port, channel, note, velocity=0):
-        MidiEvent.__init__(
-            self, NOTEOFF,
-            _util.port_number(port),
-            _util.channel_number(channel),
-            _util.note_number(note),
-            _util.velocity_value(velocity)
-        )
+def NoteOffEvent(port, channel, note, velocity=0):
+    return MidiEvent(
+        _constants.NOTEOFF,
+        _util.port_number(port),
+        _util.channel_number(channel),
+        _util.note_number(note),
+        _util.velocity_value(velocity)
+    )
 
-class ControlEvent(MidiEvent):
-    def __init__(self, port, channel, param, value):
-        MidiEvent.__init__(
-            self, CTRL,
-            _util.port_number(port),
-            _util.channel_number(channel),
-            _util.ctrl_number(param),
-            _util.ctrl_value(value)
-        )
+def CtrlChangeEvent(port, channel, param, value):
+    return MidiEvent(
+        _constants.CTRL,
+        _util.port_number(port),
+        _util.channel_number(channel),
+        _util.ctrl_number(param),
+        _util.ctrl_value(value)
+    )
 
-class ProgramEvent(MidiEvent):
-    def __init__(self, port, channel, program):
-        MidiEvent.__init__(
-            self, PROGRAM,
-            _util.port_number(port),
-            _util.channel_number(channel),
-            0,
-            _util.program_number(program)
-        )
+def ProgChangeEvent(port, channel, program):
+    return MidiEvent(
+        _constants.PROGRAM,
+        _util.port_number(port),
+        _util.channel_number(channel),
+        0,
+        _util.program_number(program)
+    )

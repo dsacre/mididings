@@ -172,6 +172,7 @@ MidiEvent BackendAlsa::alsa_to_midi_event(snd_seq_event_t const & alsa_ev)
         ev.sysex.reset(new MidiEvent::SysExData(ptr, ptr + len));
         } break;
 
+      case SND_SEQ_EVENT_KEYPRESS:
       case SND_SEQ_EVENT_QFRAME:
       case SND_SEQ_EVENT_SONGPOS:
       case SND_SEQ_EVENT_SONGSEL:

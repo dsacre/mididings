@@ -14,6 +14,7 @@
 #include <boost/python/class.hpp>
 #include <boost/python/scope.hpp>
 #include <boost/python/operators.hpp>
+#include <boost/python/tuple.hpp>
 
 #ifdef ENABLE_TEST
     #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -32,12 +33,19 @@
 #include "units_call.hh"
 
 static inline int midi_event_get_type(MidiEvent & ev) {
-    return (int)ev.type;
+    return static_cast<int>(ev.type);
 }
 
 static inline void midi_event_set_type(MidiEvent & ev, int t) {
-    ev.type = (MidiEventType)t;
+    ev.type = static_cast<MidiEventType>(t);
 }
+
+struct midi_event_pickle_suite : boost::python::pickle_suite
+{
+    static boost::python::tuple getinitargs(const MidiEvent & w) {
+        return boost::python::make_tuple(static_cast<int>(w.type), w.port, w.channel, w.data1, w.data2);
+    }
+};
 
 
 BOOST_PYTHON_MODULE(_mididings)
@@ -76,8 +84,8 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<CtrlMap, bases<Unit>, noncopyable>("CtrlMap", init<int, int>());
     class_<CtrlRange, bases<Unit>, noncopyable>("CtrlRange", init<int, int, int, int, int>());
 
-    class_<GenerateEvent, bases<Unit>, noncopyable>("GenerateEvent", init<int, int, int, int, int>());
-    class_<GenerateSysEx, bases<Unit>, noncopyable>("GenerateSysEx", init<int, std::string const &>());
+    class_<Generator, bases<Unit>, noncopyable>("Generator", init<int, int, int, int, int>());
+    class_<SysExGenerator, bases<Unit>, noncopyable>("SysExGenerator", init<int, std::string const &>());
     class_<Sanitize, bases<Unit>, noncopyable>("Sanitize", init<>());
     class_<SceneSwitch, bases<Unit>, noncopyable>("SceneSwitch", init<int>());
     class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
@@ -127,6 +135,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .def_readwrite("data2", &MidiEvent::data2)
         .def("get_sysex_data", &MidiEvent::get_sysex_data)
         .def(bp::self == bp::self)
+        .def_pickle(midi_event_pickle_suite())
     ;
 
 #ifdef ENABLE_TEST

@@ -11,6 +11,7 @@
 #
 
 import misc as _misc
+import constants as _constants
 from setup import get_config
 
 
@@ -118,6 +119,12 @@ def controller_name(ctrl):
         return CONTROLLER_NAMES[ctrl]
     else:
         return None
+
+
+def event_type(type_):
+    if type_ not in (1 << x for x in range(_constants._NUM_EVENT_TYPES)):
+        raise ValueError("invalid event type %s" % repr(type_))
+    return type_
 
 
 # get port number from port name

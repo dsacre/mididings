@@ -14,7 +14,7 @@ from mididings.units.call import _CallBase
 from mididings.units.base import _unit_repr
 
 import mididings.main as _main
-import mididings.event as _event
+import mididings.constants as _constants
 import mididings.misc as _misc
 from mididings.misc import NamedFlag as _NamedFlag
 
@@ -82,7 +82,7 @@ class _PrintString(_CallBase):
 @_unit_repr
 def Print(*args, **kwargs):
     return _misc.call_overload("Print", args, kwargs, [
-        lambda name=None, types=_event.ANY, portnames=None: _Print(name, types, portnames),
+        lambda name=None, types=_constants.ANY, portnames=None: _Print(name, types, portnames),
         lambda string: _PrintString(string),
     ])
 

@@ -11,8 +11,8 @@
 #
 
 from mididings.main import *
+from mididings.constants import *
 from mididings.scene import *
-from mididings.event import *
 
 from mididings.units.base import *
 from mididings.units.engine import *

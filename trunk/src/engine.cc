@@ -386,6 +386,7 @@ bool Engine::sanitize_event(MidiEvent & ev) const
                 return false;
             }
             return true;
+        case MIDI_EVENT_POLY_AFTERTOUCH:
         case MIDI_EVENT_SYSCM_QFRAME:
         case MIDI_EVENT_SYSCM_SONGPOS:
         case MIDI_EVENT_SYSCM_SONGSEL:
