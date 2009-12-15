@@ -12,10 +12,13 @@
 
 import _mididings
 
-from mididings.units.base import _Unit, _unit_repr, Chain
+from mididings.units.base import _Unit, _unit_repr
+from mididings.units.base import Chain, Filter, Pass
+from mididings.units.splits import VelocitySplit
 
 import mididings.util as _util
 import mididings.misc as _misc
+import mididings.constants as _constants
 
 
 @_unit_repr
@@ -108,6 +111,14 @@ def VelocityGradientMultiply(note_lower, note_upper, value_lower, value_upper):
 @_misc.deprecated('VelocitySlope')
 def VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper):
     return VelocitySlope((note_lower, note_upper), fixed=(value_lower, value_upper))
+
+
+def VelocityLimit(lower, upper):
+    return Filter(_constants.NOTE) % VelocitySplit({
+        (0, lower):     Velocity(fixed=lower),
+        (lower, upper): Pass(),
+        (upper, 0):     Velocity(fixed=upper),
+    })
 
 
 @_unit_repr
