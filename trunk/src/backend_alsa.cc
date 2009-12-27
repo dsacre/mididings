@@ -33,15 +33,15 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
     ASSERT(!out_ports.empty());
 
     // create sequencer client
-    if (snd_seq_open(&_seq_handle, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
+    if (snd_seq_open(&_seq, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
         throw BackendError("error opening alsa sequencer");
     }
 
-    snd_seq_set_client_name(_seq_handle, client_name.c_str());
+    snd_seq_set_client_name(_seq, client_name.c_str());
 
     // create input ports
     for (int n = 0; n < static_cast<int>(in_ports.size()); n++) {
-        int id = snd_seq_create_simple_port(_seq_handle, in_ports[n].c_str(),
+        int id = snd_seq_create_simple_port(_seq, in_ports[n].c_str(),
                         SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
                         SND_SEQ_PORT_TYPE_APPLICATION);
 
@@ -55,7 +55,7 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
 
     // create output ports
     for (int n = 0; n < static_cast<int>(out_ports.size()); n++) {
-        int id = snd_seq_create_simple_port(_seq_handle, out_ports[n].c_str(),
+        int id = snd_seq_create_simple_port(_seq, out_ports[n].c_str(),
                         SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
                         SND_SEQ_PORT_TYPE_APPLICATION);
 
@@ -87,21 +87,21 @@ BackendAlsa::~BackendAlsa()
     snd_midi_event_free(_parser);
 
     BOOST_FOREACH (int i, _portid_in) {
-        snd_seq_delete_port(_seq_handle, i);
+        snd_seq_delete_port(_seq, i);
     }
 
     BOOST_FOREACH (int i, _portid_out) {
-        snd_seq_delete_port(_seq_handle, i);
+        snd_seq_delete_port(_seq, i);
     }
 
-    snd_seq_close(_seq_handle);
+    snd_seq_close(_seq);
 }
 
 
 void BackendAlsa::start(InitFunction init, CycleFunction cycle)
 {
     // discard events which were received while processing wasn't ready
-    snd_seq_drop_input(_seq_handle);
+    snd_seq_drop_input(_seq);
 
     // start processing thread.
     // cycle doesn't return until the program is shut down
@@ -272,7 +272,7 @@ bool BackendAlsa::input_event(MidiEvent & ev)
     snd_seq_event_t *alsa_ev;
 
     for (;;) {
-        if (snd_seq_event_input(_seq_handle, &alsa_ev) < 0 || !alsa_ev) {
+        if (snd_seq_event_input(_seq, &alsa_ev) < 0 || !alsa_ev) {
             DEBUG_PRINT("couldn't retrieve ALSA sequencer event");
             continue;
         }
@@ -300,7 +300,7 @@ void BackendAlsa::output_event(MidiEvent const & ev)
     snd_seq_ev_set_direct(&alsa_ev);
     snd_seq_ev_set_source(&alsa_ev, _portid_out[ev.port]);
 
-    if (snd_seq_event_output_buffer(_seq_handle, &alsa_ev) < 0) {
+    if (snd_seq_event_output_buffer(_seq, &alsa_ev) < 0) {
         DEBUG_PRINT("couldn't output event to ALSA sequencer buffer");
     }
 }
@@ -308,7 +308,7 @@ void BackendAlsa::output_event(MidiEvent const & ev)
 
 void BackendAlsa::flush_output()
 {
-    int r = snd_seq_drain_output(_seq_handle);
+    int r = snd_seq_drain_output(_seq);
     if (r < 0) {
         DEBUG_PRINT("couldn't drain ALSA sequencer output buffer");
     } else if (r > 0) {
@@ -326,7 +326,7 @@ void BackendAlsa::terminate_thread()
     snd_seq_ev_set_direct(&ev);
     ev.type = SND_SEQ_EVENT_USR0;
     ev.source.port = _portid_out[0];
-    ev.dest.client = snd_seq_client_id(_seq_handle);
+    ev.dest.client = snd_seq_client_id(_seq);
     ev.dest.port = _portid_in[0];
-    snd_seq_event_output_direct(_seq_handle, &ev);
+    snd_seq_event_output_direct(_seq, &ev);
 }

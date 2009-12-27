@@ -46,7 +46,7 @@ class BackendAlsa
 
     void terminate_thread();
 
-    snd_seq_t *_seq_handle;
+    snd_seq_t *_seq;
     std::vector<int> _portid_in;        // alsa input port ids
     std::map<int, int> _portid_in_rev;  // reverse mapping (port id -> port #)
     std::vector<int> _portid_out;       // alsa output port ids
