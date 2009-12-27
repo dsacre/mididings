@@ -188,10 +188,23 @@ def sysex_data(sysex, allow_partial=False):
     sysex = _misc.seq_to_string(sysex)
     if len(sysex) < 2:
         raise ValueError("sysex too short")
-    if sysex[0] != '\xf0':
+    elif sysex[0] != '\xf0':
         raise ValueError("sysex doesn't start with F0")
-    if sysex[-1] != '\xf7' and not allow_partial:
+    elif sysex[-1] != '\xf7' and not allow_partial:
         raise ValueError("sysex doesn't end with F7")
-    if any(ord(c) > 127 for c in sysex[1:-1]):
+    elif any(ord(c) > 127 for c in sysex[1:-1]):
         raise ValueError("sysex data byte out of range")
     return sysex
+
+
+def sysex_manufacturer(manufacturer):
+    if not _misc.issequence(manufacturer, True):
+        manufacturer = [manufacturer]
+    manid = _misc.seq_to_string(manufacturer)
+    if len(manid) not in (1, 3):
+        raise ValueError("manufacturer id must be either one or three bytes")
+    elif len(manid) == 3 and manid[0] != '\x00':
+        raise ValueError("three-byte manufacturer id must start with null byte")
+    elif any(ord(c) > 127 for c in manid):
+        raise ValueError("manufacturer id out of range")
+    return manid

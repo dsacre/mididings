@@ -23,6 +23,7 @@ class MemorizeScene(object):
             f = open(self.memo_file)
             _setup.config(initial_scene=int(f.read()))
         except IOError:
+            # couldn't open memo file, might not be an error
             pass
 
     def on_exit(self):

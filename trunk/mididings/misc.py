@@ -33,7 +33,7 @@ def issequence(seq, accept_string=False):
     try:
         iter(seq)
         return True
-    except:
+    except TypeError:
         return False
 
 

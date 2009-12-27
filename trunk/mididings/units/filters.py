@@ -77,7 +77,19 @@ def ProgFilter(*args):
 
 
 @_unit_repr
-def SysExFilter(sysex):
-    sysex = _util.sysex_data(sysex, allow_partial=True)
-    partial = (sysex[-1] != '\xf7')
-    return _Filter(_mididings.SysExFilter(sysex, partial))
+def SysExFilter(*args, **kwargs):
+    def SysExFilterData(sysex):
+        sysex = _util.sysex_data(sysex, allow_partial=True)
+        partial = (sysex[-1] != '\xf7')
+        return _Filter(_mididings.SysExFilter(sysex, partial))
+
+    def SysExFilterManufacturer(manufacturer):
+        sysex = '\xf0' + _util.sysex_manufacturer(manufacturer)
+        return _Filter(_mididings.SysExFilter(sysex, True))
+
+    return _misc.call_overload(
+        'SysExFilter', args, kwargs, [
+        SysExFilterData,
+        SysExFilterManufacturer,
+    ])
+
