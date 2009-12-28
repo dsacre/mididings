@@ -13,58 +13,48 @@
 from mididings import Call
 import mididings.engine as _engine
 
+import liblo as _liblo
 
-try:
-    import liblo as _liblo
 
-except ImportError, ex:
+class OSCInterface(object):
+    def __init__(self, port, notify_ports=[]):
+        self.port = port
+        self.notify_ports = notify_ports
 
-    def OSCInterface(*args, **kwargs):
-        raise ex
-    def SendOSC(*args, **kwargs):
-        raise ex
+    def on_start(self):
+        if self.port != None:
+            self.server = _liblo.ServerThread(self.port)
+            self.server.add_method('/mididings/switch_scene', 'i', self._switch_scene_cb)
+            self.server.add_method('/mididings/quit', '', self._quit_cb)
+            self.server.start()
 
-else:
+    def on_exit(self):
+        if self.port != None:
+            self.server.stop()
+            del self.server
 
-    class OSCInterface(object):
-        def __init__(self, port, notify_ports=[]):
-            self.port = port
-            self.notify_ports = notify_ports
+    def on_switch_scene(self, n):
+        for p in self.notify_ports:
+            _liblo.send(p, '/mididings/current_scene', n)
 
-        def on_start(self):
-            if self.port != None:
-                self.server = _liblo.ServerThread(self.port)
-                self.server.add_method('/mididings/switch_scene', 'i', self._switch_scene_cb)
-                self.server.add_method('/mididings/quit', '', self._quit_cb)
-                self.server.start()
+    def _switch_scene_cb(self, path, args):
+        _engine.switch_scene(args[0])
 
-        def on_exit(self):
-            if self.port != None:
-                self.server.stop()
-                del self.server
-
-        def on_switch_scene(self, n):
-            for p in self.notify_ports:
-                _liblo.send(p, '/mididings/current_scene', n)
-
-        def _switch_scene_cb(self, path, args):
-            _engine.switch_scene(args[0])
-
-        def _quit_cb(self, path, args):
-            _engine.quit()
+    def _quit_cb(self, path, args):
+        _engine.quit()
 
 
 
-    class _SendOSC(object):
-        def __init__(self, target, path, args):
-            self.target = target
-            self.path = path
-            self.args = args
+class _SendOSC(object):
+    def __init__(self, target, path, args):
+        self.target = target
+        self.path = path
+        self.args = args
 
-        def __call__(self, ev):
-            args = (x(ev) if callable(x) else x for x in self.args)
-            _liblo.send(self.target, self.path, *args)
+    def __call__(self, ev):
+        args = (x(ev) if callable(x) else x for x in self.args)
+        _liblo.send(self.target, self.path, *args)
 
 
-    def SendOSC(target, path, *args):
-        return Call(_SendOSC(target, path, args))
+def SendOSC(target, path, *args):
+    return Call(_SendOSC(target, path, args))
