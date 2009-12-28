@@ -32,20 +32,31 @@
 #include "units_generators.hh"
 #include "units_call.hh"
 
+
+// getter/setter functions for MidiEvent.type, to allow MidiEventType <-> int conversion
 static inline int midi_event_get_type(MidiEvent & ev) {
     return static_cast<int>(ev.type);
 }
-
 static inline void midi_event_set_type(MidiEvent & ev, int t) {
     ev.type = static_cast<MidiEventType>(t);
 }
 
-struct midi_event_pickle_suite : boost::python::pickle_suite
+// very primitive pickling support for MidiEvent objects
+struct midi_event_pickle_suite
+  : boost::python::pickle_suite
 {
     static boost::python::tuple getinitargs(const MidiEvent & w) {
         return boost::python::make_tuple(static_cast<int>(w.type), w.port, w.channel, w.data1, w.data2);
     }
 };
+
+// simple wrapper for vector types, with no methods other than push_back
+template <typename T>
+static void vector_wrapper(char const *name) {
+    boost::python::class_<std::vector<T>, boost::noncopyable>(name)
+        .def("push_back", &std::vector<T>::push_back)
+    ;
+}
 
 
 BOOST_PYTHON_MODULE(_mididings)
@@ -58,15 +69,21 @@ BOOST_PYTHON_MODULE(_mididings)
 
     PyEval_InitThreads();
 
-
+    // unit base classes
     class_<Unit, noncopyable>("Unit", bp::no_init);
     class_<UnitEx, noncopyable>("UnitEx", bp::no_init);
     class_<Filter, bases<Unit>, noncopyable>("Filter", bp::no_init);
 
+    // base
     class_<Pass, bases<Unit>, noncopyable>("Pass", init<bool>());
     class_<TypeFilter, bases<Filter>, noncopyable>("TypeFilter", init<int>());
     class_<InvertedFilter, bases<Filter>, noncopyable>("InvertedFilter", init<boost::shared_ptr<Filter>, bool>());
 
+    // engine
+    class_<Sanitize, bases<Unit>, noncopyable>("Sanitize", init<>());
+    class_<SceneSwitch, bases<Unit>, noncopyable>("SceneSwitch", init<int>());
+
+    // filters
     class_<PortFilter, bases<Filter>, noncopyable>("PortFilter", init<std::vector<int> const &>());
     class_<ChannelFilter, bases<Filter>, noncopyable>("ChannelFilter", init<std::vector<int> const &>());
     class_<KeyFilter, bases<Filter>, noncopyable>("KeyFilter", init<int, int>());
@@ -76,6 +93,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<ProgFilter, bases<Filter>, noncopyable>("ProgFilter", init<std::vector<int> const &>());
     class_<SysExFilter, bases<Filter>, noncopyable>("SysExFilter", init<std::string const &, bool>());
 
+    // modifiers
     class_<Port, bases<Unit>, noncopyable>("Port", init<int>());
     class_<Channel, bases<Unit>, noncopyable>("Channel", init<int>());
     class_<Transpose, bases<Unit>, noncopyable>("Transpose", init<int>());
@@ -84,12 +102,14 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<CtrlMap, bases<Unit>, noncopyable>("CtrlMap", init<int, int>());
     class_<CtrlRange, bases<Unit>, noncopyable>("CtrlRange", init<int, int, int, int, int>());
 
+    // generators
     class_<Generator, bases<Unit>, noncopyable>("Generator", init<int, int, int, int, int>());
     class_<SysExGenerator, bases<Unit>, noncopyable>("SysExGenerator", init<int, std::string const &>());
-    class_<Sanitize, bases<Unit>, noncopyable>("Sanitize", init<>());
-    class_<SceneSwitch, bases<Unit>, noncopyable>("SceneSwitch", init<int>());
+
+    // call
     class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
 
+    // main engine class, derived in python
     class_<Engine, Engine, noncopyable>("Engine", init<std::string const &, std::string const &,
                                                        std::vector<std::string> const &, std::vector<std::string> const &, bool>())
         .def("add_scene", &Engine::add_scene)
@@ -102,31 +122,21 @@ BOOST_PYTHON_MODULE(_mididings)
 #endif // ENABLE_TEST
     ;
 
+    // patch class, derived in python
     {
-        bp::scope patch_scope = class_<Patch, noncopyable>("Patch", init<Patch::ModulePtr>());
+    bp::scope patch_scope = class_<Patch, noncopyable>("Patch", init<Patch::ModulePtr>());
 
-        class_<Patch::Module, noncopyable>("Module", bp::no_init);
+    class_<Patch::Module, noncopyable>("Module", bp::no_init);
 
-        class_<Patch::ModuleVector, noncopyable>("ModuleVector")
-            .def("push_back", &Patch::ModuleVector::push_back)
-        ;
+    vector_wrapper<Patch::ModulePtr>("ModuleVector");
 
-        class_<Patch::Chain, bases<Patch::Module>, noncopyable>("Chain", init<Patch::ModuleVector>());
-        class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector, bool>());
-        class_<Patch::Single, bases<Patch::Module>, noncopyable>("Single", init<boost::shared_ptr<Unit> >());
-        class_<Patch::Extended, bases<Patch::Module>, noncopyable>("Extended", init<boost::shared_ptr<UnitEx> >());
+    class_<Patch::Chain, bases<Patch::Module>, noncopyable>("Chain", init<Patch::ModuleVector>());
+    class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector, bool>());
+    class_<Patch::Single, bases<Patch::Module>, noncopyable>("Single", init<boost::shared_ptr<Unit> >());
+    class_<Patch::Extended, bases<Patch::Module>, noncopyable>("Extended", init<boost::shared_ptr<UnitEx> >());
     }
 
-    class_<std::vector<int>, noncopyable>("int_vector")
-        .def("push_back", &std::vector<int>::push_back)
-    ;
-    class_<std::vector<float>, noncopyable>("float_vector")
-        .def("push_back", &std::vector<float>::push_back)
-    ;
-    class_<std::vector<std::string>, noncopyable>("string_vector")
-        .def("push_back", &std::vector<std::string>::push_back)
-    ;
-
+    // midi event class, derived in python
     class_<MidiEvent>("MidiEvent")
         .add_property("type_", &midi_event_get_type, &midi_event_set_type)
         .def_readwrite("port_", &MidiEvent::port)
@@ -137,6 +147,10 @@ BOOST_PYTHON_MODULE(_mididings)
         .def(bp::self == bp::self)
         .def_pickle(midi_event_pickle_suite())
     ;
+
+    vector_wrapper<int>("int_vector");
+    vector_wrapper<float>("float_vector");
+    vector_wrapper<std::string>("string_vector");
 
 #ifdef ENABLE_TEST
     class_<std::vector<MidiEvent> >("MidiEventVector")
