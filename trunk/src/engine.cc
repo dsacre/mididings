@@ -137,9 +137,11 @@ void Engine::run_init(int initial_scene)
 {
     boost::mutex::scoped_lock lock(_process_mutex);
 
+    // if no initial scene is specified, use the first one
     if (initial_scene == -1) {
         initial_scene = _patches.begin()->first;
     }
+    ASSERT(_patches.find(initial_scene) != _patches.end());
 
     _buffer.clear();
     process_scene_switch(_buffer, initial_scene);
@@ -300,8 +302,6 @@ void Engine::switch_scene(int n)
 
 void Engine::process_scene_switch(Events & buffer, int n)
 {
-    PatchMap::iterator i = _patches.find(n);
-
     if (_patches.size() > 1) {
         scoped_gil_lock gil;
         try {
@@ -310,6 +310,8 @@ void Engine::process_scene_switch(Events & buffer, int n)
             PyErr_Print();
         }
     }
+
+    PatchMap::iterator i = _patches.find(n);
 
     if (i != _patches.end()) {
         _current = &*i->second;

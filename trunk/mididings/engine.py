@@ -86,9 +86,8 @@ class Engine(_mididings.Engine):
     def run(self):
         self._call_hooks('on_start')
 
-        if _get_config('initial_scene') != None:
-            initial_scene = _util.scene_number(_get_config('initial_scene'))
-        else:
+        initial_scene = _util.scene_number(_get_config('initial_scene'))
+        if initial_scene == None or initial_scene + _get_config('data_offset') not in self._scene_names:
             initial_scene = -1
         self.start(initial_scene)
 
