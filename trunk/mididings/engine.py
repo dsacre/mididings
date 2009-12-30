@@ -87,7 +87,7 @@ class Engine(_mididings.Engine):
         self._call_hooks('on_start')
 
         n = _get_config('initial_scene')
-        if n != None and n + _get_config('data_offset') in self._scene_names:
+        if n != None and n in self._scene_names:
             initial_scene = _util.scene_number(n)
         else:
             initial_scene = -1
