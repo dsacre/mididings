@@ -32,8 +32,7 @@ def ChannelFilter(*args):
 
 @_unit_repr
 def KeyFilter(*args, **kwargs):
-    note_range = _misc.call_overload(
-        'KeyFilter', args, kwargs, [
+    note_range = _misc.call_overload(args, kwargs, [
             lambda key_range: _util.note_range(key_range),
             lambda key: (_util.note_number(key), 0),
             lambda lower, upper: _util.note_range((lower, upper)),
@@ -44,8 +43,7 @@ def KeyFilter(*args, **kwargs):
 
 @_unit_repr
 def VelocityFilter(*args, **kwargs):
-    lower, upper = _misc.call_overload(
-        'VelocityFilter', args, kwargs, [
+    lower, upper = _misc.call_overload(args, kwargs, [
             lambda value: (value, 0),
             lambda lower, upper: (lower, upper),
         ]
@@ -61,8 +59,7 @@ def CtrlFilter(*args):
 
 @_unit_repr
 def CtrlValueFilter(*args, **kwargs):
-    lower, upper = _misc.call_overload(
-        'CtrlValueFilter', args, kwargs, [
+    lower, upper = _misc.call_overload(args, kwargs, [
             lambda value: (value, 0),
             lambda lower, upper: (lower, upper),
         ]
@@ -87,8 +84,7 @@ def SysExFilter(*args, **kwargs):
         sysex = '\xf0' + _util.sysex_manufacturer(manufacturer)
         return _Filter(_mididings.SysExFilter(sysex, True))
 
-    return _misc.call_overload(
-        'SysExFilter', args, kwargs, [
+    return _misc.call_overload(args, kwargs, [
         SysExFilterData,
         SysExFilterManufacturer,
     ])

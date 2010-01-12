@@ -49,8 +49,7 @@ def Transpose(offset):
 
 @_unit_repr
 def Velocity(*args, **kwargs):
-    value, mode = _misc.call_overload(
-        'Velocity', args, kwargs, [
+    value, mode = _misc.call_overload(args, kwargs, [
             lambda offset: (offset, 1),
             lambda multiply: (multiply, 2),
             lambda fixed: (fixed, 3),
@@ -76,8 +75,7 @@ def VelocityCurve(gamma):
 
 @_unit_repr
 def VelocitySlope(*args, **kwargs):
-    notes, values, mode = _misc.call_overload(
-        'VelocitySlope', args, kwargs, [
+    notes, values, mode = _misc.call_overload(args, kwargs, [
             lambda notes, offset: (notes, offset, 1),
             lambda notes, multiply: (notes, multiply, 2),
             lambda notes, fixed: (notes, fixed, 3),

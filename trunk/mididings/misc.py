@@ -59,11 +59,14 @@ def make_string_vector(seq):
     return _fill_vector(_mididings.string_vector(), seq)
 
 
-def call_overload(name, args, kwargs, funcs):
+def call_overload(args, kwargs, funcs, name=None):
     """
     searches funcs for a function with parameters such that args and kwargs
-    can be applied, and calls it if a suitable function is found.
+    can be applied, and calls the first suitable function it finds.
     """
+    if not name:
+        name = _inspect.stack()[1][3]
+
     for f in funcs:
         n = len(args)
         # get argument names and the number of default arguments of f
@@ -80,6 +83,7 @@ def call_overload(name, args, kwargs, funcs):
             # call f with all original arguments
             return f(*args, **kwargs)
 
+    # no overload found, generate a comprehensible error message
     candidates = []
     for f in funcs:
         argspec = _inspect.getargspec(f)
@@ -93,6 +97,32 @@ def call_overload(name, args, kwargs, funcs):
         candidates.append('%s(%s)' % (name, argstr))
 
     raise TypeError("no suitable overload found for %s(), candidates are:\n%s" % (name, '\n'.join(candidates)))
+
+
+class Overload(object):
+    """
+    wrapper class for an arbitrary number of overloads.
+    """
+    registry = {}
+    def __init__(self, name):
+        self.name = name
+        self.funcs = []
+    def add(self, f):
+        self.funcs.append(f)
+    def __call__(self, *args, **kwargs):
+        return call_overload(args, kwargs, self.funcs, self.name)
+
+
+def overload(f):
+    """
+    decorator that marks a function as being overloaded.
+    """
+    k = (f.func_name, f.__module__)
+    if k not in Overload.registry:
+        Overload.registry[k] = Overload(f.func_name)
+    assert f.func_name == Overload.registry[k].name
+    Overload.registry[k].add(f)
+    return Overload.registry[k]
 
 
 class deprecated:

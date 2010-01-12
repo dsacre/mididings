@@ -58,15 +58,17 @@ def Process(function):
 
 
 @_unit_repr
-def Call(*args, **kwargs):
+@_misc.overload
+def Call(function):
     def wrapper(function, ev):
         if function(ev) != None:
             print "return value from Call() ignored. please use Process() instead"
+    return _CallBase(_functools.partial(wrapper, function), True, True)
 
-    return _misc.call_overload('Call', args, kwargs, [
-        lambda function: _CallBase(_functools.partial(wrapper, function), True, True),
-        lambda thread:   _CallThread(thread),
-    ])
+@_unit_repr
+@_misc.overload
+def Call(thread):
+    return _CallThread(thread)
 
 
 @_misc.deprecated('Call')

@@ -13,6 +13,7 @@
 import _mididings
 
 import mididings.constants as _constants
+import mididings.misc as _misc
 
 
 class _Unit(object):
@@ -58,7 +59,7 @@ def _unit_repr(f):
     """
     def unit_wrapper(*args, **kwargs):
         u = f(*args, **kwargs)
-        u._name = f.__name__
+        u._name = f.name if isinstance(f, _misc.Overload) else f.__name__
         u._args = args
         u._kwargs = kwargs
         return u

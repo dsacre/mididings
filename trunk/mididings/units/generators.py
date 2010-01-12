@@ -30,8 +30,7 @@ def Generator(type_, port, channel, data1, data2):
 
 
 def CtrlChange(*args, **kwargs):
-    port, channel, ctrl, value = _misc.call_overload(
-        'CtrlChange', args, kwargs, [
+    port, channel, ctrl, value = _misc.call_overload(args, kwargs, [
             lambda ctrl, value: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, ctrl, value),
             lambda port, channel, ctrl, value: (port, channel, ctrl, value)
         ]
@@ -45,8 +44,7 @@ def CtrlChange(*args, **kwargs):
 
 
 def ProgChange(*args, **kwargs):
-    port, channel, program = _misc.call_overload(
-        'ProgChange', args, kwargs, [
+    port, channel, program = _misc.call_overload(args, kwargs, [
             lambda program: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, program),
             lambda port, channel, program: (port, channel, program)
         ]
@@ -59,8 +57,7 @@ def ProgChange(*args, **kwargs):
 
 
 def NoteOn(*args, **kwargs):
-    port, channel, note, velocity = _misc.call_overload(
-        'NoteOn', args, kwargs, [
+    port, channel, note, velocity = _misc.call_overload(args, kwargs, [
             lambda note, velocity: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity),
             lambda port, channel, note, velocity: (port, channel, note, velocity)
         ]
@@ -74,8 +71,7 @@ def NoteOn(*args, **kwargs):
 
 
 def NoteOff(*args, **kwargs):
-    port, channel, note, velocity = _misc.call_overload(
-        'NoteOff', args, kwargs, [
+    port, channel, note, velocity = _misc.call_overload(args, kwargs, [
             lambda note, velocity: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity),
             lambda port, channel, note, velocity: (port, channel, note, velocity)
         ]
@@ -89,8 +85,7 @@ def NoteOff(*args, **kwargs):
 
 
 def SysEx(*args, **kwargs):
-    port, sysex = _misc.call_overload(
-        'SysEx', args, kwargs, [
+    port, sysex = _misc.call_overload(args, kwargs, [
             lambda sysex: (_constants.EVENT_PORT, sysex),
             lambda port, sysex: (port, sysex)
         ]

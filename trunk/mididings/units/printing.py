@@ -78,11 +78,14 @@ class _PrintString(_CallBase):
 
 
 @_unit_repr
-def Print(*args, **kwargs):
-    return _misc.call_overload("Print", args, kwargs, [
-        lambda name=None, types=_constants.ANY, portnames=None: _Print(name, types, portnames),
-        lambda string: _PrintString(string),
-    ])
+@_misc.overload
+def Print(name=None, types=_constants.ANY, portnames=None):
+    return _Print(name, types, portnames)
+
+@_unit_repr
+@_misc.overload
+def Print(string):
+    return _PrintString(string)
 
 
 # for backward compatibility

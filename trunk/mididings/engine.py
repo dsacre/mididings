@@ -150,24 +150,21 @@ class Engine(_mididings.Engine):
 
 
 
-def run(*args, **kwargs):
-    def run_patch(patch):
-        e = Engine({ 0: patch }, None, None, None)
-        e.run()
-    def run_scenes(scenes, control=None, pre=None, post=None):
-        e = Engine(scenes, control, pre, post)
-        e.run()
+@_misc.overload
+def run(patch):
+    e = Engine({ 0: patch }, None, None, None)
+    e.run()
 
-    _misc.call_overload('run', args, kwargs, [
-        run_patch,
-        run_scenes
-    ])
+@_misc.overload
+def run(scenes, control=None, pre=None, post=None):
+    e = Engine(scenes, control, pre, post)
+    e.run()
 
-_misc.deprecated('run')
+@_misc.deprecated('run')
 def run_scenes(scenes, control=None, pre=None, post=None):
     run(scenes, control, pre, post)
 
-_misc.deprecated('run')
+@_misc.deprecated('run')
 def run_patches(patches, control=None, pre=None, post=None):
     run(patches, control, pre, post)
 
