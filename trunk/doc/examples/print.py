@@ -12,8 +12,8 @@ config(
 # prints events as they arrive, performs some processing, then prints them again
 
 run(
-    Print('before', portnames=Print.PORTNAMES_IN)
-    >> ~Filter(PROGRAM)
+    Print('before', portnames='in')
+    >> ~Filter(PROG)
     >> VelocityFilter(80, 128)
     >> Channel(3)
     >> Port('output')

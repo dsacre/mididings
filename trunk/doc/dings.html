@@ -47,7 +47,7 @@
     </ul>
   </li>
 
-  <li><a href="#extra">Additional Units and Functions</a></li>
+  <li><a href="#extra">Additional Units and Hooks</a></li>
 
   <li><a href="#examples">Examples</a></li>
 </ul>
@@ -79,7 +79,7 @@ Possible keyword arguments are:
     <li>'jack': Use JACK MIDI. All MIDI events are buffered and processed outside the JACK process callback,
     and will thus be delayed by (at least) one period.</li>
     <li>'jack-rt': MIDI events are processed directly in the JACK process callback. It's not safe to run Python
-    code in a realtime context, so it's recommended to avoid Call(), which <i>might</i> cause xruns (or worse).
+    code in a realtime context, so it's recommended to avoid Process(), which <i>might</i> cause xruns (or worse).
     All other units should be safe to use.</li>
   </ul>
   </li>
@@ -88,26 +88,32 @@ Possible keyword arguments are:
   or out_<i>n</i>), or lists of port names, in which case the list's length determines the number of ports.</li>
   <li><b>data_offset</b>: 1 (default) or 0. Determines whether program, port and channel numbers will be
   in the range 1-128 or 0-127.</li>
-  <li><b>octave_offset</b>: Default is 2, meaning that "Middle C" is designated as C3.</li>
+  <li><b>octave_offset</b>: Default is 2, meaning that "middle C" is designated as C3.</li>
+  <li><b>initial_scene</b>: The number of the first scene to be activated.</li>
   <li><b>start_delay</b>: The number of seconds before sending any MIDI events (i.e. switching to the first scene).
   A small value like 0.5 can be used to give tools like qjackctl's patchbay time to connect the ports.
   A value of 0 instructs mididings to wait for the user to press enter. Default is None.</li>
-  <li><b>remove_duplicates</b>: Whether, when two or more units connected in parallel yield identical MIDI events,
-  the duplicates should be discarded (default is True).</li>
 </ul>
+
+
+<h4>hook(*args)</h4>
+<p>
+Registers "hook" objects, that can be used to extend the functionality of mididings.
+</p>
 
 
 <h4>run(patch)</h4>
 <p>
-Starts the actual MIDI processing. This is usually the last function called by a mididings script.
+Starts the MIDI processing. This is usually the last function called by a mididings script.
 </p>
 <ul>
   <li><b>patch</b>: A single patch.</li>
 </ul>
 
-<h4>run_scenes(scenes, control=None, pre=None, post=None)</h4>
+<h4>run(scenes=..., control=None, pre=None, post=None)</h4>
 <p>
-Starts the actual MIDI processing, using multiple patches.
+Starts the MIDI processing, using multiple scenes.
+The SceneSwitch() unit can be used to switch between these scenes.
 </p>
 <ul>
   <li><b>scenes</b>: A dictionary with program numbers as keys, and patches as values.
@@ -118,16 +124,6 @@ Starts the actual MIDI processing, using multiple patches.
   the control patch.</li>
 </ul>
 
-
-<h4>switch_scene(number)</h4>
-<p>
-Switches to another scene. This function is similar to the SceneSwitch() object, but can be called from Python.
-</p>
-
-<h4>current_scene()</h4>
-<p>
-Returns the number of the currently selected scene.
-</p>
 
 <h4>process_file(infile, outfile, patch)</h4>
 <p>
@@ -140,23 +136,21 @@ Reads a standard MIDI file, processes it, then writes the result back to a file.
 
 <h4>MidiEvent</h4>
 <p>
-  Used in conjunction with the Call(), CallAsync() and CallThread() units.
+  Used in conjunction with the Process() and Call() units.
 </p>
 <p>
   A MidiEvent object has the following attributes:
 </p>
 <ul>
-  <li><b>type_</b>: The event type, one of the constants described below.</li>
-  <li><b>port_</b>: The event port.</li>
-  <li><b>channel_</b>: The event channel.</li>
+  <li><b>type</b>: The event type, one of the constants described below.</li>
+  <li><b>port</b>: The event port.</li>
+  <li><b>channel</b>: The event channel.</li>
   <li><b>data1, data2</b>: Data bytes, meaning depends on event type.</li>
 </ul>
 <p>
-There are also aliases for these attributes, some of which are only defined for certain types of events:
+There are also aliases for these attributes, some of which are only valid for certain types of events:
 </p>
 <ul>
-  <li><b>port</b>: Event port. Unlike port_, this value is affected by the data_offset setting.</li>
-  <li><b>channel</b>: Event channel. Unlike channel_, this value is affected by the data_offset setting.</li>
   <li><b>note</b>: Note number, alias for data1.</li>
   <li><b>velocity</b>: Note velocity, alias for data2.</li>
   <li><b>param</b>: Controller number, alias for data1.</li>
@@ -169,17 +163,57 @@ There are also aliases for these attributes, some of which are only defined for 
 
 <h4>Event Types</h4>
 <p>
-  Every event has one of these types: <b>NOTEON</b>, <b>NOTEOFF</b>, <b>CTRL</b>, <b>PITCHBEND</b>, <b>AFTERTOUCH</b>, <b>PROGRAM</b>.<br>
-  When building filters, event types can be combined using the bitwise or operator.<br>
-  Also defined are <b>NOTE</b> (= NOTEON | NOTEOFF), <b>NONE</b>, <b>ANY</b>.
+  Every event has one of these types:
+</p>
+<ul>
+  <li><b>NOTEON</b></li>
+  <li><b>NOTEOFF</b></li>
+  <li><b>CTRL</b></li>
+  <li><b>PROG</b></li>
+  <li><b>PITCHBEND</b></li>
+  <li><b>AFTERTOUCH</b></li>
+  <li><b>POLY_AFTERTOUCH</b></li>
+  <li><b>SYSEX</b></li>
+  <li><b>SYSCM_QFRAME</b></li>
+  <li><b>SYSCM_SONGPOS</b></li>
+  <li><b>SYSCM_SONGSEL</b></li>
+  <li><b>SYSCM_TUNEREQ</b></li>
+  <li><b>SYSRT_CLOCK</b></li>
+  <li><b>SYSRT_START</b></li>
+  <li><b>SYSRT_CONTINUE</b></li>
+  <li><b>SYSRT_STOP</b></li>
+  <li><b>SYSRT_SENSING</b></li>
+  <li><b>SYSRT_RESET</b></li>
+</ul>
+<p>
+  For use in filters, the following constants are also defined:
+</p>
+<ul>
+  <li><b>NOTE</b> = NOTEON | NOTEOFF</li>
+  <li><b>SYSCM</b> = SYSCM_*</li>
+  <li><b>SYSRT</b> = SYSRT_*</li>
+  <li><b>NONE</b></li>
+  <li><b>ANY</b></li>
+</ul>
+<p>
+  When building filters, event types can be combined using | (bitwise or) and ~ (bitwise negation).<br>
 </p>
 
 <h4>Event Attributes</h4>
 <p>
   These constants are used to refer to an event's data attributes:
-  <b>EVENT_PORT</b>, <b>EVENT_CHANNEL</b>, <b>EVENT_DATA1</b>, <b>EVENT_DATA2</b>, <b>EVENT_NOTE</b>,
-  <b>EVENT_VELOCITY</b>, <b>EVENT_PARAM</b>, <b>EVENT_VALUE</b>, <b>EVENT_PROGRAM</b>.
 </p>
+<ul>
+  <li><b>EVENT_PORT</b></li>
+  <li><b>EVENT_CHANNEL</b></li>
+  <li><b>EVENT_DATA1</b></li>
+  <li><b>EVENT_DATA2</b></li>
+  <li><b>EVENT_NOTE</b></li>
+  <li><b>EVENT_VELOCITY</b></li>
+  <li><b>EVENT_PARAM</b></li>
+  <li><b>EVENT_VALUE</b></li>
+  <li><b>EVENT_PROGRAM</b></li>
+</ul>
 
 
 <h3><a name="connect"></a>Making Connections</h3>
@@ -190,25 +224,26 @@ Connects two units in series. Incoming MIDI events will be processed by unit A f
 If the event is filtered out by unit A, it is not processed any further, and unit B will not be called.
 </p>
 
-<h4>[ A, B, ... ]</h4>
-<p>
-Connects two or more units in parallel. All units will be called with identical copies of incoming MIDI
-events. The output will be the sum of all the units' outputs.
-</p>
-
 <h4>A // B</h4>
 <p>
-Alternative syntax for the above. Note that operator // has higher precedence than &gt;&gt;.
+Connects two units in parallel. Both units will be called with identical copies of incoming MIDI
+events. The output will be the sum of all the units' outputs.
+Note that operator // has higher precedence than &gt;&gt;.
 </p>
 
-<h4>Fork([ A, B, ... ], types=ANY, remove_duplicates=None)</h4>
+<h4>[ A, B, ... ]</h4>
+<p>
+Connects an arbitrary number of units in parallel.
+</p>
+
+<h4>Fork([ A, B, ... ], types=ANY, remove_duplicates=True)</h4>
 <p>
 Same as the above, with some additional features:
 </p>
 <ul>
   <li><b>types</b>: Pass something other than ANY to process only certain types of events, and leave
   other events unchanged.</li>
-  <li><b>remove_duplicates</b>: True or False overrides the global remove_duplicates setting (see config()).</li>
+  <li><b>remove_duplicates</b>: Whether duplicates should be discarded when two or more units yield identical MIDI events.</li>
 </ul>
 <p>
 Using Fork() explicitly (instead of just a list) is also useful in situations where both sides of operator &gt;&gt;
@@ -230,6 +265,8 @@ Same as the above. Like Fork(), this can be useful to make operator &gt;&gt; wor
 <p>
 Inverts the filter F. Note that for filters which only affect certain kinds of events,
 other events will remain unaffected when the filter is inverted.
+For example, an inverted KeyFilter will match a different note range, but neither the original nor the inverted
+filter will have any effect on control or program changes.
 </p>
 
 <h4>-F</h4>
@@ -239,8 +276,13 @@ Inverts the filter F. Unlike ~F, -F matches exactly the events that F doesn't.
 
 <h4>F % A</h4>
 <p>
-Runs only those events through A which match filter F, but keeps those which don't.
+Applies A only to events which match filter F, but keeps events which don't.
 Equivalent to [ F &gt;&gt; A, -F ].
+</p>
+
+<h4>(F1 & F2 & ...) % A</h4>
+<p>
+Applies A only to events which match all filters F1, F2, etc.
 </p>
 
 
@@ -251,8 +293,7 @@ These are the basic building blocks from which you can build your patches.
 </p>
 <ul>
   <li><b>Filters</b>: These units filter by some property of the MIDI event. If the event matches, it's passed
-  unmodified, otherwise it's discarded.
-  Filters have no effect on different event types (e.g. a note event going through a CtrlFilter).</li>
+  unmodified, otherwise it's discarded.</li>
   <li><b>Splits</b>: Basically just combinations of multiple filters of the same kind.</li>
   <li><b>Modifiers</b>: These units change some property of the MIDI event.</li>
   <li><b>Generators</b>: Converters from one event type to another.</li>
@@ -285,7 +326,7 @@ Ranges can be 2-tuples of note numbers, or note names (e.g. 'g#3:c6').
 <h4>VelocityFilter(value)<br>
 VelocityFilter(lower, upper)</h4>
 <p>
-Filters by note velocity. A min or max value of 0 means no limit.
+Filters by note velocity. A lower or upper value of 0 means no limit.
 </p>
 
 <h4>CtrlFilter(ctrl, ...)</h4>
@@ -302,6 +343,17 @@ Filters by CC value.
 <h4>ProgFilter(program, ...)</h4>
 <p>
 Filters by PC number.
+</p>
+
+<h4>SysExFilter(sysex)</h4>
+<p>
+Filters by sysex data, specified as a string or as a sequence of integers.
+If sysex does end with F7, partial matches that start with the given data bytes are accepted.
+</p>
+
+<h4>SysExFilter(manufacturer=...)</h4>
+<p>
+Filters by sysex manufacturer id, which can be a string or a sequence of integers, with a length of one or three bytes.
 </p>
 
 
@@ -350,6 +402,12 @@ Splits by program number.
 Non-program-change events are left unchanged, but not sent to any of the units.
 </p>
 
+<h4>SysExSplit({sysex: patch, ...})<br>
+SysExSplit(manufacturers={manufacturer: patch, ...})</h4>
+<p>
+Splits by sysex data or manufacturer id.
+</p>
+
 
 <h3><a name="modifiers"></a>Modifiers</h3>
 
@@ -367,15 +425,17 @@ Transposes all note events.
 <h4>Velocity(offset)<br>
 Velocity(multiply=...)<br>
 Velocity(fixed=...)<br>
-Velocity(gamma=...)</h4>
+Velocity(gamma=...)<br>
+Velocity(curve=...)</h4>
 <p>
-Changes velocity by adding an offset, multiplying with a factor, setting it to a fixed value, or applying a "gamma"-curve.
+Changes velocity by adding an offset, multiplying with a factor, setting it to a fixed value, or applying a velocity-curve.
 </p>
 
 <h4>VelocitySlope(notes, offset)<br>
 VelocitySlope(notes, multiply=...)<br>
 VelocitySlope(notes, fixed=...)<br>
-VelocitySlope(notes, gamma=...)</h4>
+VelocitySlope(notes, gamma=...)<br>
+VelocitySlope(notes, curve=...)</h4>
 <p>
 Changes velocity, applying a linear slope between different notes.
 Both parameters must be lists/tuples of the same length, where one velocity value corresponds to each note.<br>
@@ -411,16 +471,27 @@ If port and channel are omitted, the values of the input event are used.<br>
 To "reuse" other values from the incoming event, one of the EVENT_* constants can be used in place of any parameter.
 </p>
 
+<h4>SysEx(sysex)<br>
+SysEx(port, sysex)</h4>
+<p>
+Creates a new system exclusive event. sysex can be a string or a sequence of integers, and must include the leading F0 and trailing F7 bytes.
+</p>
+
+<h4>Generator(type, port, channel, data1=0, data2=0)</h4>
+<p>
+Generic generator. System common and system realtime events can only be generated this way.
+</p>
+
 
 <h3><a name="calls"></a>Function Calls</h3>
 
-<h4>Call(function)</h4>
+<h4>Process(function)</h4>
 <p>
 Calls a Python function. This will stall any other MIDI processing until the function returns.
 </p>
 <ul>
-  <li><b>function</b>: A function (or any other callable object) that will be called with a MidiEvent
-  object as its only argument.<br>
+  <li><b>function</b>: A function (or any other callable object) that will be called with MidiEvent
+  objects as its only argument.<br>
   Possible return values are:
   <ul>
     <li>A single MidiEvent object: output one event and continue processing it.</li>
@@ -430,18 +501,18 @@ Calls a Python function. This will stall any other MIDI processing until the fun
   </li>
 </ul>
 
-<h4>CallAsync(function)</h4>
+<h4>Call(function)</h4>
 <p>
 Schedules a Python function for execution, and continues MIDI processing immediately.
 </p>
 <ul>
-  <li><b>function</b>: The function to be called. Unlike Call(), this will run the function in another thread.
+  <li><b>function</b>: The function to be called. Unlike Process(), this will run the function in another thread.
   Its return value will be ignored.</li>
 </ul>
 
-<h4>CallThread(function)</h4>
+<h4>Call(thread=...)</h4>
 <p>
-Like CallAsync(), but runs the function in its own thread.
+Like Call(), but runs the function in its own thread.
 </p>
 
 <h4>System(cmd)</h4>
@@ -473,10 +544,10 @@ number should be a scene number, or one of the EVENT_* constants.
 Without parameters, the program number of the incoming event (should be a program change) will be used.
 </p>
 
-<h4>InitAction(action)</h4>
+<h4>Init(patch)</h4>
 <p>
-Executes action when switching to the patch containing this unit (essentially adding it to the init-patch,
-see run_scenes() for more information).
+Executes patch when switching to the scene containing this unit (essentially adding it to the init-patch,
+see run() for more information).
 </p>
 
 <h4>Output(port, channel, program=None, volume=None)</h4>
@@ -494,11 +565,10 @@ Prints event data.
 <ul>
   <li><b>name</b>: A string to be printed before each event.</li>
   <li><b>types</b>: Restricts printing to certain event types, using a combination of the event type constants described above.</li>
-  <li><b>portnames</b>: Pass PORTNAMES_IN or PORTNAMES_OUT to print input or output portnames,
-  rather than just numbers.</li>
+  <li><b>portnames</b>: Pass 'in' or 'out' to print input or output portnames, rather than just numbers.</li>
 </ul>
 
-<h4>PrintString(string)</h4>
+<h4>Print(string=...)</h4>
 <p>
 Prints a fixed string.
 </p>
@@ -511,12 +581,12 @@ discarded, note velocity and controller values are confined to the range 0-127.
 
 
 
-<h2><a name="extra"></a>Additional Units and Functions</h2>
+<h2><a name="extra"></a>Additional Units and Hooks</h2>
 
 <p>
 These units are defined in the mididings.extra module, and offer some more advanced/specific functionality,
 based on the more basic mididings units.<br>
-Some of these are implemented in Python using Call(), and thus not safe to use with the jack-rt backend.
+Some of these are implemented in Python using Process(), and thus not safe to use with the jack-rt backend.
 </p>
 
 
@@ -573,27 +643,48 @@ WhiteKeys()</h4>
 Filters notes by key color.
 </p>
 
+<h4>MemorizeScene(memo_file)</h4>
+<p>
+A hook object that saves the currently selected scene number to a file when terminating mididings, and restores it at the next startup.
+memo_file is the path of the file to be used to store the scene number.
+</p>
+
+<h4>OSCInterface(port)</h4>
+<p>
+<i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i><br>
+A hook object that allows controlling mididings via OSC. These messages are currently understood:
+</p>
+<ul>
+  <li><b>/mididings/switch_scene ,i</b>: switches to the given scene number.</li>
+  <li><b>/mididings/quit</b>: terminates mididings.</li>
+</ul>
+
 <h4>SendOSC(target, path, ...)</h4>
 <p>
 <i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i><br>
 Sends an OSC message. Parameters are the same as for liblo.send().
 Additionally, rather than a concrete value, each data argument can be a Python function instead.
-The function should take a single MidiEvent parameter, and return the value to be sent.
+The function should then take a single MidiEvent parameter, and return the value to be sent.
 </p>
 
 <h4>SendDBUS(service, path, interface, method, ...)</h4>
 <p>
 <i>Defined in mididings.extra.dbus. Requires dbus-python.</i><br>
 Sends a DBUS message. Rather than a concrete value, each data argument can be a Python function instead.
-The function should take a single MidiEvent parameter, and return the value to be sent.
+The function should then take a single MidiEvent parameter, and return the value to be sent.
 </p>
 
-<h4>run_scenes_memorize(memo_file, scenes, control=None, pre=None, post=None)</h4>
+<h4>AutoRestart(modules=True, filenames=[])</h4>
 <p>
-Like run_scenes(), but saves the selected scene number to a file, and restores it the next time it's called.
-memo_file is the path of the file to be used to store the scene number.
+<i>Defined in mididings.extra.inotify. Requires <a href="http://trac.dbzteam.org/pyinotify">pyinotify</a> &ge; 0.8.</i><br>
+A hook object that automatically restarts mididings when the script changes.
+If modules is True, all imported local Python modules are monitored for changes as well.
+The filenames parameter allows specifying additional files to be monitored.<br>
+This restarts the entire mididings script, so MIDI processing is interrupted, and mididings does not take care of
+reestablishing any ALSA/JACK connections.
+If the new script contains errors that prevent it from running, mididings exits and needs to be restarted manually
+once the errors are fixed.
 </p>
-
 
 
 <h2><a name="examples"></a>Examples</h2>
@@ -605,7 +696,7 @@ memo_file is the path of the file to be used to store the scene number.
   <li><a href="./examples/filters.py">filters.py</a> - how to use filters</li>
   <li><a href="./examples/print.py">print.py</a> - printing MIDI events to stdout</li>
   <li><a href="./examples/output.py">output.py</a> - uses the Output() unit to simplify MIDI routing and sending program changes</li>
-  <li><a href="./examples/call.py">call.py</a> - shows how to process MIDI events in Python</li>
+  <li><a href="./examples/process.py">process.py</a> - shows how to process MIDI events in Python</li>
   <li><a href="./examples/harmonizer.py">harmonizer.py</a> - example usage of the diatonic harmonizer</li>
   <li><a href="./examples/aeolus.py">aeolus.py</a> - <a href="http://www.kokkinizita.net/linuxaudio/aeolus/index.html">Aeolus</a>
   stop control using one controller per stop</li>

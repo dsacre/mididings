@@ -10,7 +10,7 @@
 #   On channel 3, program 7, there's an organ sound.
 #   On channel 4, there's a string sound (no program change needed).
 #
-# Program changes on channel 16 switch between patches.
+# Program changes on channel 16 switch between scenes.
 #
 
 from mididings import *
@@ -27,22 +27,22 @@ organ   = Output('synth',   3, 7)
 strings = Output('synth',   4)
 
 
-run_patches(
-    patches = {
-        # patch 1: play piano.
+run(
+    scenes = {
+        # scene 1: play piano.
         # this will switch the sampler to program 1, then route all events to it
         1:  piano,
 
-        # patch 2: play organ, transposed one octave down
+        # scene 2: play organ, transposed one octave down
         2:  Transpose(-12) >> organ,
 
-        # patch 3: split keyboard at C3, the lower part plays rhodes, the upper part plays strings
+        # scene 3: split keyboard at C3, the lower part plays rhodes, the upper part plays strings
         3:  KeySplit('c3', rhodes, strings),
     },
 
-    # control patch: use program changes on channel 16 to switch between patches
-    control = Filter(PROGRAM) >> ChannelFilter(16) >> PatchSwitch(),
+    # control patch: use program changes on channel 16 to switch between scenes
+    control = Filter(PROG) >> ChannelFilter(16) >> SceneSwitch(),
 
-    # preprocessing: filter out program changes, everything else is sent to the current patch
-    pre = ~Filter(PROGRAM),
+    # preprocessing: filter out program changes, everything else is sent to the current scene
+    pre = ~Filter(PROG),
 )
