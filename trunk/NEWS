@@ -1,3 +1,31 @@
+2010-01-12
+
+  * Included a command line program "mididings" that allows running
+    simple patches without writing full-fledged Python scripts.
+    For example:
+    $ mididings "Transpose(12) >> Velocity(fixed=64)"
+  * A first attempt to support system exclusive, system realtime and
+    system common messages. New units include SysEx(), SysExFilter() and
+    SysExSplit(). Thanks to Christopher Arndt for some very helpful
+    suggestions.
+  * Added support for polyphonic aftertouch, untested for obvious
+    reasons :(
+  * Implemented a hook system to easily extend some of mididings'
+    functionality.
+  * Added hook objects MemorizeScene() (scene persistence between
+    restarts), OSCInterface() (scene switching via OSC), and AutoRestart()
+    (automatic restart when the script changes. Best. Feature. Ever.)
+  * Unified run() and run_scenes(), as well as Print() and PrintString().
+    The different functionality now depends only on keyword arguments.
+  * Renamed Call() to Process(). Call() now offers the functionality of
+    both CallAsync() and CallThread().
+  * Renamed GenerateEvent() to Generator() and InitAction() to Init().
+  * Changed semantics of CtrlFilter(), CtrlValueFilter(), ProgFilter() to
+    block events of other types (again...).
+  * Added parameter "curve" to Velocity(), applying an exponential curve.
+  * New unit VelocityLimit().
+  * New operator & to use multiple filters as a selector with operator %.
+
 2009-11-10
 
   * New and clearer nomenclature to avoid different meanings of "patch":
