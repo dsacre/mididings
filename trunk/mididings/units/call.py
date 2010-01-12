@@ -46,7 +46,7 @@ class _CallThread(_CallBase):
 class _System(_CallBase):
     def __init__(self, cmd):
         self.cmd = cmd
-        CallBase.__init__(self, self.do_system, True, True)
+        _CallBase.__init__(self, self.do_system, True, True)
     def do_system(self, ev):
         cmd = self.cmd(ev) if callable(self.cmd) else self.cmd
         _subprocess.Popen(cmd, shell=True)

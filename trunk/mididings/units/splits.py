@@ -79,5 +79,10 @@ def ProgSplit(d):
     return Fork((ProgFilter(p) >> w) for p, w in d.items())
 
 
+@_misc.overload
 def SysExSplit(d):
     return Fork((SysExFilter(v) >> w) for v, w in d.items())
+
+@_misc.overload
+def SysExSplit(manufacturers):
+    return Fork((SysExFilter(manufacturer=v) >> w) for v, w in manufacturers.items())
