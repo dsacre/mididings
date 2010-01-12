@@ -59,7 +59,7 @@ class _Print(_CallBase):
             all_ports = engine.get_in_ports() + engine.get_out_ports()
             _Print.max_portname_length = max(len(p) for p in all_ports)
 
-        if ev.type_ & self.types:
+        if ev.type & self.types:
             if self.name:
                 print '%-*s' % (_Print.max_name_length + 1, self.name + ':'),
             elif _Print.max_name_length != -1:

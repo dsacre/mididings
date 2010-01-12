@@ -138,7 +138,7 @@ BOOST_PYTHON_MODULE(_mididings)
 
     // midi event class, derived in python
     class_<MidiEvent>("MidiEvent")
-        .add_property("type_", &midi_event_get_type, &midi_event_set_type)
+        .add_property("type", &midi_event_get_type, &midi_event_set_type)
         .def_readwrite("port_", &MidiEvent::port)
         .def_readwrite("channel_", &MidiEvent::channel)
         .def_readwrite("data1", &MidiEvent::data1)

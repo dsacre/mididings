@@ -16,14 +16,14 @@ import util as _util
 from setup import get_config as _get_config
 
 
-def _make_get_set(type_, data, offset=lambda: 0):
+def _make_get_set(type, data, offset=lambda: 0):
     def getter(self):
-        if not self.type_ & type_ and not type_ == _constants.ANY:
+        if not self.type & type and not type == _constants.ANY:
             print "midi event attribute error"
         return getattr(self, data) + offset()
 
     def setter(self, value):
-        if not self.type_ & type_ and not type_ == _constants.ANY:
+        if not self.type & type and not type == _constants.ANY:
             print "midi event attribute error"
         setattr(self, data, value - offset())
 
@@ -31,9 +31,9 @@ def _make_get_set(type_, data, offset=lambda: 0):
 
 
 class MidiEvent(_mididings.MidiEvent):
-    def __init__(self, type_=0, port_=0, channel_=0, data1=0, data2=0):
+    def __init__(self, type=0, port_=0, channel_=0, data1=0, data2=0):
         _mididings.MidiEvent.__init__(self)
-        self.type_ = type_
+        self.type = type
         self.port_ = port_
         self.channel_ = channel_
         self.data1 = data1
@@ -47,46 +47,46 @@ class MidiEvent(_mididings.MidiEvent):
 
         channel = self.channel
 
-        if self.type_ == _constants.NOTEON:
+        if self.type == _constants.NOTEON:
             s = 'Note on:  %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
-        elif self.type_ == _constants.NOTEOFF:
+        elif self.type == _constants.NOTEOFF:
             s = 'Note off: %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
-        elif self.type_ == _constants.CTRL:
+        elif self.type == _constants.CTRL:
             s = 'Control:  %3d %3d' % (self.param, self.value)
             n = _util.controller_name(self.param)
             if n: s += '  (%s)' % n
-        elif self.type_ == _constants.PITCHBEND:
+        elif self.type == _constants.PITCHBEND:
             s = 'Pitch bend: %+5d' % self.value
-        elif self.type_ == _constants.AFTERTOUCH:
+        elif self.type == _constants.AFTERTOUCH:
             s = 'Aftertouch:   %3d' % self.value
-        elif self.type_ == _constants.POLY_AFTERTOUCH:
+        elif self.type == _constants.POLY_AFTERTOUCH:
             s = 'PolyAt:   %3d %3d  (%s)' % (self.note, self.value, _util.note_name(self.note))
-        elif self.type_ == _constants.PROGRAM:
+        elif self.type == _constants.PROGRAM:
             s = 'Program:      %3d' % self.program
-        elif self.type_ == _constants.SYSEX:
+        elif self.type == _constants.SYSEX:
             d = self.get_sysex_data()
             s = 'SysEx:   %8d  [%s]' % (len(d), ' '.join([ (hex(v/16).upper()[-1] + hex(v%16).upper()[-1]) for v in map(ord, d) ]))
-        elif self.type_ == _constants.SYSCM_QFRAME:
+        elif self.type == _constants.SYSCM_QFRAME:
             s = 'SysCm QFrame: %3d' % self.data1
-        elif self.type_ == _constants.SYSCM_SONGPOS:
+        elif self.type == _constants.SYSCM_SONGPOS:
             s = 'SysCm SongPos:%3d %3d' % (self.data1, self.data2)
-        elif self.type_ == _constants.SYSCM_SONGSEL:
+        elif self.type == _constants.SYSCM_SONGSEL:
             s = 'SysCm SongSel:%3d' % self.data1
-        elif self.type_ == _constants.SYSCM_TUNEREQ:
+        elif self.type == _constants.SYSCM_TUNEREQ:
             s = 'SysCm TuneReq'
-        elif self.type_ == _constants.SYSRT_CLOCK:
+        elif self.type == _constants.SYSRT_CLOCK:
             s = 'SysRt Clock'
-        elif self.type_ == _constants.SYSRT_START:
+        elif self.type == _constants.SYSRT_START:
             s = 'SysRt Start'
-        elif self.type_ == _constants.SYSRT_CONTINUE:
+        elif self.type == _constants.SYSRT_CONTINUE:
             s = 'SysRt Continue'
-        elif self.type_ == _constants.SYSRT_STOP:
+        elif self.type == _constants.SYSRT_STOP:
             s = 'SysRt Stop'
-        elif self.type_ == _constants.SYSRT_SENSING:
+        elif self.type == _constants.SYSRT_SENSING:
             s = 'SysRt Sensing'
-        elif self.type_ == _constants.SYSRT_RESET:
+        elif self.type == _constants.SYSRT_RESET:
             s = 'SysRt Reset'
-        elif self.type_ == _constants.DUMMY:
+        elif self.type == _constants.DUMMY:
             s = 'Dummy'
         else:
             s = 'None'
@@ -96,7 +96,9 @@ class MidiEvent(_mididings.MidiEvent):
     def __repr__(self):
         return 'MidiEvent(%d, %d, %d, %d, %d)' % (self.type, self.port_, self.channel_, self.data1, self.data2)
 
-    type      = property(*_make_get_set(_constants.ANY, 'type_'))
+    # for backward compatibility
+    type_     = property(*_make_get_set(_constants.ANY, 'type'))
+
     port      = property(*_make_get_set(_constants.ANY, 'port_', lambda: _get_config('data_offset')))
     channel   = property(*_make_get_set(_constants.ANY, 'channel_', lambda: _get_config('data_offset')))
 

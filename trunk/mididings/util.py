@@ -121,10 +121,10 @@ def controller_name(ctrl):
         return None
 
 
-def event_type(type_):
-    if type_ not in (1 << x for x in range(_constants._NUM_EVENT_TYPES)):
-        raise ValueError("invalid event type %s" % repr(type_))
-    return type_
+def event_type(type):
+    if type not in (1 << x for x in range(_constants._NUM_EVENT_TYPES)):
+        raise ValueError("invalid event type %s" % repr(type))
+    return type
 
 
 # get port number from port name

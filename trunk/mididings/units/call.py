@@ -39,7 +39,7 @@ class _CallThread(_CallBase):
     def do_thread(self, ev):
         # need to make a copy of the event.
         # the underlying C++ object will become invalid when this function returns
-        ev_copy = _event.MidiEvent(ev.type_, ev.port_, ev.channel_, ev.data1, ev.data2)
+        ev_copy = _event.MidiEvent(ev.type, ev.port_, ev.channel_, ev.data1, ev.data2)
         _thread.start_new_thread(self.fun_thread, (ev_copy,))
 
 

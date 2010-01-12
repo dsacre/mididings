@@ -20,9 +20,9 @@ import mididings.misc as _misc
 
 
 @_unit_repr
-def Generator(type_, port, channel, data1, data2):
+def Generator(type, port, channel, data1, data2):
     return _Unit(_mididings.Generator(
-        _util.event_type(type_),
+        _util.event_type(type),
         _util.port_number(port) if isinstance(port, str) or port >= 0 else port,
         _util.channel_number(channel) if channel >= 0 else channel,
         data1, data2

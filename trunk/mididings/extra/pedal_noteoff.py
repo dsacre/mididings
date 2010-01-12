@@ -22,7 +22,7 @@ class _SustainToNoteoff(object):
         self.notes = []
 
     def __call__(self, ev):
-        if ev.type_ == CTRL and ev.param == self.ctrl:
+        if ev.type == CTRL and ev.param == self.ctrl:
             self.pedal = (ev.value >= 64)
             if self.pedal:
                 # pedal pressed
@@ -32,10 +32,10 @@ class _SustainToNoteoff(object):
                 r = [NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.notes]
                 self.notes = []
                 return r
-        elif ev.type_ == NOTEON and self.pedal:
+        elif ev.type == NOTEON and self.pedal:
             # note on while pedal is held
             return ev
-        elif ev.type_ == NOTEOFF and self.pedal:
+        elif ev.type == NOTEOFF and self.pedal:
             # delay note off until pedal released
             self.notes.append(ev.note)
             return None
@@ -52,7 +52,7 @@ class _SostenutoToNoteoff(object):
         self.sustained_notes = []
 
     def __call__(self, ev):
-        if ev.type_ == CTRL and ev.param == self.ctrl:
+        if ev.type == CTRL and ev.param == self.ctrl:
             self.pedal = (ev.value >= 64)
             if self.pedal:
                 # pedal pressed, remember currently held notes
@@ -65,10 +65,10 @@ class _SostenutoToNoteoff(object):
                 r = [NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.sustained_notes]
                 self.sustained_notes = []
                 return r
-        elif ev.type_ == NOTEON:
+        elif ev.type == NOTEON:
             self.held_notes.append(ev.note)
             return ev
-        elif ev.type_ == NOTEOFF:
+        elif ev.type == NOTEOFF:
             # send note off only if the note is currently being held.
             # notes can be both in held_notes and sustained_notes, so checking for
             # ev.note in self.sustained_notes does not do the right thing!
