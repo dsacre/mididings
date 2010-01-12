@@ -40,7 +40,7 @@ class Patch(_mididings.Patch):
                 _units.base.Filter(t) >> w for t, w in p.items()
             ])
 
-        elif isinstance(p, _units.init_action._InitAction):
+        elif isinstance(p, _units.init._Init):
             return Patch.Single(_mididings.Pass(False))
 
         elif isinstance(p, _units.base._Unit):
@@ -53,18 +53,18 @@ class Patch(_mididings.Patch):
                         "offending object is: %s" % (type(p).__name__, repr(p)))
 
 
-def get_init_actions(patch):
+def get_init_patches(patch):
     if isinstance(patch, _units.base.Chain):
-        return flatten([get_init_actions(p) for p in patch])
+        return flatten([get_init_patches(p) for p in patch])
 
     elif isinstance(patch, list):
-        return flatten([get_init_actions(p) for p in patch])
+        return flatten([get_init_patches(p) for p in patch])
 
     elif isinstance(patch, dict):
-        return flatten([get_init_actions(p) for p in patch.values()])
+        return flatten([get_init_patches(p) for p in patch.values()])
 
-    elif isinstance(patch, _units.init_action._InitAction):
-        return [patch.action]
+    elif isinstance(patch, _units.init._Init):
+        return [patch.init_patch]
 
     else:
         return []

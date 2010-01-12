@@ -14,15 +14,21 @@ from mididings.units.base import _Unit, Fork, _unit_repr
 from mididings.units.generators import ProgChange, CtrlChange
 from mididings.units.modifiers import Port, Channel
 
+import mididings.misc as _misc
 
-class _InitAction(_Unit):
-    def __init__(self, action):
-        self.action = action
+
+class _Init(_Unit):
+    def __init__(self, patch):
+        self.init_patch = patch
 
 
 @_unit_repr
+def Init(patch):
+    return _Init(patch)
+
+@_misc.deprecated('Init')
 def InitAction(action):
-    return _InitAction(action)
+    return Init(action)
 
 
 def Output(port, channel, program=None, volume=None):
@@ -44,6 +50,6 @@ def Output(port, channel, program=None, volume=None):
         init.append(CtrlChange(port, channel, 7, volume))
 
     return Fork([
-        InitAction(init),
+        Init(init),
         Port(port) >> Channel(channel)
     ])

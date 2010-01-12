@@ -31,17 +31,6 @@ def Channel(channel):
     return _Unit(_mididings.Channel(_util.channel_number(channel)))
 
 
-def Route(port=None, channel=None):
-    if port == None and channel == None:
-        raise TypeError("Route() takes at least 1 argument")
-    c = Chain([])
-    if port != None:
-        c.append(Port(port))
-    if channel != None:
-        c.append(Channel(channel))
-    return c
-
-
 @_unit_repr
 def Transpose(offset):
     return _Unit(_mididings.Transpose(offset))

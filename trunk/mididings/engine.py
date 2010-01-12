@@ -58,7 +58,7 @@ class Engine(_mididings.Engine):
                 proc = s
                 self._scene_names[i] = ''
 
-            init += _patch.get_init_actions(proc)
+            init += _patch.get_init_patches(proc)
 
             self.add_scene(_util.scene_number(i), _patch.Patch(proc), _patch.Patch(init))
 
