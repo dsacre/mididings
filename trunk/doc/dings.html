@@ -428,7 +428,9 @@ Velocity(fixed=...)<br>
 Velocity(gamma=...)<br>
 Velocity(curve=...)</h4>
 <p>
-Changes velocity by adding an offset, multiplying with a factor, setting it to a fixed value, or applying a velocity-curve.
+Changes velocity by adding an offset, multiplying with a factor, setting it to a fixed value, or applying a velocity-curve.<br>
+gamma uses a quadratic function, where values greater than 1 increase velocity, while values between 0 and 1 decrease it.
+curve uses a somewhat smoother exponential function, where positive values increase velocity, while negative values decrease it.
 </p>
 
 <h4>VelocitySlope(notes, offset)<br>
@@ -440,6 +442,11 @@ VelocitySlope(notes, curve=...)</h4>
 Changes velocity, applying a linear slope between different notes.
 Both parameters must be lists/tuples of the same length, where one velocity value corresponds to each note.<br>
 This can be used for example to fade-in a sound over a region of the keyboard.
+</p>
+
+<h4>VelocityLimit(lower, upper)</h4>
+<p>
+Confines velocity to values between lower and upper (inclusive).
 </p>
 
 <h4>CtrlMap(ctrl_in, ctrl_out)</h4>

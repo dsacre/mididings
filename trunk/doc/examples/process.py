@@ -11,7 +11,7 @@ from mididings import *
 
 def invert(ev):
     if ev.channel == 1:
-        if ev.type_ == NOTEON:
+        if ev.type == NOTEON:
             ev.velocity = 128 - ev.velocity
         return ev
     else:
