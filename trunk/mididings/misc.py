@@ -64,9 +64,6 @@ def call_overload(args, kwargs, funcs, name=None):
     searches funcs for a function with parameters such that args and kwargs
     can be applied, and calls the first suitable function it finds.
     """
-    if not name:
-        name = _inspect.stack()[1][3]
-
     for f in funcs:
         n = len(args)
         # get argument names and the number of default arguments of f
@@ -84,6 +81,8 @@ def call_overload(args, kwargs, funcs, name=None):
             return f(*args, **kwargs)
 
     # no overload found, generate a comprehensible error message
+    if not name:
+        name = _inspect.stack()[1][3]
     candidates = []
     for f in funcs:
         argspec = _inspect.getargspec(f)
