@@ -99,7 +99,9 @@ def note_range(notes):
             try:
                 # note range string
                 nn = notes.split(':', 1)
-                return note_number(nn[0]), note_number(nn[1])
+                lower = note_number(nn[0]) if nn[0] else 0
+                upper = note_number(nn[1]) if nn[1] else 0
+                return lower, upper
             except ValueError:
                 raise ValueError("invalid note range '%s'" % notes)
 
