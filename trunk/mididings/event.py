@@ -127,7 +127,7 @@ def NoteOffEvent(port, channel, note, velocity=0):
         _util.velocity_value(velocity)
     )
 
-def CtrlChangeEvent(port, channel, param, value):
+def CtrlEvent(port, channel, param, value):
     return MidiEvent(
         _constants.CTRL,
         _util.port_number(port),
@@ -136,7 +136,7 @@ def CtrlChangeEvent(port, channel, param, value):
         _util.ctrl_value(value)
     )
 
-def ProgChangeEvent(port, channel, program):
+def ProgEvent(port, channel, program):
     return MidiEvent(
         _constants.PROGRAM,
         _util.port_number(port),

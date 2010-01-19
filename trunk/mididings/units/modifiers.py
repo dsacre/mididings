@@ -13,8 +13,9 @@
 import _mididings
 
 from mididings.units.base import _Unit, _unit_repr
-from mididings.units.base import Chain, Filter, Pass
+from mididings.units.base import Chain, Filter, Split, Pass
 from mididings.units.splits import VelocitySplit
+from mididings.units.generators import NoteOn, NoteOff
 
 import mididings.util as _util
 import mididings.misc as _misc
@@ -34,6 +35,13 @@ def Channel(channel):
 @_unit_repr
 def Transpose(offset):
     return _Unit(_mididings.Transpose(offset))
+
+
+def Note(note):
+    return Filter(_constants.NOTE) % Split({
+        _constants.NOTEON:  NoteOn(note, _constants.EVENT_VELOCITY),
+        _constants.NOTEOFF: NoteOff(note, _constants.EVENT_VELOCITY),
+    })
 
 
 @_unit_repr

@@ -11,7 +11,7 @@
 #
 
 from mididings.units.base import _Unit, Fork, _unit_repr
-from mididings.units.generators import ProgChange, CtrlChange
+from mididings.units.generators import Prog, Ctrl
 from mididings.units.modifiers import Port, Channel
 
 import mididings.misc as _misc
@@ -40,14 +40,14 @@ def Output(port, channel, program=None, volume=None):
     init = []
 
     if bank != None:
-        init.append(CtrlChange(port, channel, 0, bank // 128))
-        init.append(CtrlChange(port, channel, 32, bank % 128))
+        init.append(Ctrl(port, channel, 0, bank // 128))
+        init.append(Ctrl(port, channel, 32, bank % 128))
 
     if program != None:
-        init.append(ProgChange(port, channel, program))
+        init.append(Prog(port, channel, program))
 
     if volume != None:
-        init.append(CtrlChange(port, channel, 7, volume))
+        init.append(Ctrl(port, channel, 7, volume))
 
     return Fork([
         Init(init),

@@ -29,12 +29,11 @@ def Generator(type, port, channel, data1=0, data2=0):
     ))
 
 
-def CtrlChange(*args, **kwargs):
+def Ctrl(*args, **kwargs):
     port, channel, ctrl, value = _misc.call_overload(args, kwargs, [
-            lambda ctrl, value: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, ctrl, value),
-            lambda port, channel, ctrl, value: (port, channel, ctrl, value)
-        ]
-    )
+        lambda ctrl, value: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, ctrl, value),
+        lambda port, channel, ctrl, value: (port, channel, ctrl, value)
+    ])
     return Generator(
         _constants.CTRL,
         port, channel,
@@ -42,26 +41,32 @@ def CtrlChange(*args, **kwargs):
         _util.ctrl_value(value) if value >= 0 else value
     )
 
+@_misc.deprecated('Ctrl')
+def CtrlChange(*args, **kwargs):
+    return Ctrl(*args, **kwargs)
 
-def ProgChange(*args, **kwargs):
+
+def Prog(*args, **kwargs):
     port, channel, program = _misc.call_overload(args, kwargs, [
-            lambda program: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, program),
-            lambda port, channel, program: (port, channel, program)
-        ]
-    )
+        lambda program: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, program),
+        lambda port, channel, program: (port, channel, program)
+    ])
     return Generator(
         _constants.PROGRAM,
         port, channel,
         0, _util.program_number(program)
     )
 
+@_misc.deprecated('Prog')
+def ProgChange(*args, **kwargs):
+    return Prog(*args, **kwargs)
+
 
 def NoteOn(*args, **kwargs):
     port, channel, note, velocity = _misc.call_overload(args, kwargs, [
-            lambda note, velocity: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity),
-            lambda port, channel, note, velocity: (port, channel, note, velocity)
-        ]
-    )
+        lambda note, velocity: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity),
+        lambda port, channel, note, velocity: (port, channel, note, velocity)
+    ])
     return Generator(
         _constants.NOTEON,
         port, channel,
@@ -72,10 +77,9 @@ def NoteOn(*args, **kwargs):
 
 def NoteOff(*args, **kwargs):
     port, channel, note, velocity = _misc.call_overload(args, kwargs, [
-            lambda note, velocity: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity),
-            lambda port, channel, note, velocity: (port, channel, note, velocity)
-        ]
-    )
+        lambda note, velocity: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity),
+        lambda port, channel, note, velocity: (port, channel, note, velocity)
+    ])
     return Generator(
         _constants.NOTEOFF,
         port, channel,
@@ -86,9 +90,8 @@ def NoteOff(*args, **kwargs):
 
 def SysEx(*args, **kwargs):
     port, sysex = _misc.call_overload(args, kwargs, [
-            lambda sysex: (_constants.EVENT_PORT, sysex),
-            lambda port, sysex: (port, sysex)
-        ]
-    )
+        lambda sysex: (_constants.EVENT_PORT, sysex),
+        lambda port, sysex: (port, sysex)
+    ])
     sysex = _util.sysex_data(sysex)
     return _Unit(_mididings.SysExGenerator(port, sysex))

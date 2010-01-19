@@ -7,7 +7,7 @@ from mididings import engine, setup, misc
 
 class SimpleTestCase(unittest.TestCase):
     def setUp(self):
-        config(data_offset=0, verbose=False)
+        config(data_offset=0)
         self.noteon66   = MidiEvent(NOTEON, 0, 0, 66, 23)
         self.noteon42   = MidiEvent(NOTEON, 0, 0, 42, 127)
         self.noteon23   = MidiEvent(NOTEON, 0, 1, 23, 127)
@@ -197,11 +197,11 @@ class SimpleTestCase(unittest.TestCase):
         })
 
     def testGenerateEvent(self):
-        p = CtrlChange(23, 42)
+        p = Ctrl(23, 42)
         self.check_patch(p, {
             MidiEvent(NOTEON, 0, 8, 15, 16): [MidiEvent(CTRL, 0, 8, 23, 42)],
         })
-        p = CtrlChange(23, EVENT_NOTE)
+        p = Ctrl(23, EVENT_NOTE)
         self.check_patch(p, {
             MidiEvent(NOTEON, 0, 8, 15, 16): [MidiEvent(CTRL, 0, 8, 23, 15)],
         })
@@ -234,6 +234,7 @@ class SimpleTestCase(unittest.TestCase):
         assert r[0].data2 == 127
 
     def testSceneSwitch(self):
+        config(verbose=False)
         p = {
             0:  Split({
                     PROG:  SceneSwitch(),
