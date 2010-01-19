@@ -115,19 +115,7 @@ class SimpleTestCase(unittest.TestCase):
         })
 
     def testSelector(self):
-        p = CtrlFilter(42) % (CtrlValueFilter(123) % Discard())
-        self.check_patch(p, {
-            self.noteon66:  True,
-            self.ctrl23:    True,
-            self.ctrl42:    False,
-        })
-        p = (CtrlFilter(42) & CtrlValueFilter(123)) % Discard()
-        self.check_patch(p, {
-            self.noteon66:  True,
-            self.ctrl23:    True,
-            self.ctrl42:    False,
-        })
-        p = CtrlFilter(23) % CtrlValueFilter(123) >> Pass()
+        p = CtrlFilter(23) % CtrlValueFilter(123)
         self.check_patch(p, {
             self.noteon66:  True,
             self.ctrl23:    False,
@@ -138,6 +126,30 @@ class SimpleTestCase(unittest.TestCase):
             self.noteon66:  True,
             self.ctrl23:    True,
             self.ctrl42:    True,
+        })
+        p = (CtrlFilter(42) & CtrlValueFilter(123)) % Discard()
+        self.check_patch(p, {
+            self.noteon66:  True,
+            self.ctrl23:    True,
+            self.ctrl42:    False,
+        })
+        p = (CtrlFilter(42) | CtrlValueFilter(123)) % Discard()
+        self.check_patch(p, {
+            self.noteon66:  True,
+            self.ctrl23:    True,
+            self.ctrl42:    False,
+        })
+        p = (Filter(NOTE) | (CtrlFilter(42) & CtrlValueFilter(123))) % Discard()
+        self.check_patch(p, {
+            self.noteon66:  False,
+            self.ctrl23:    True,
+            self.ctrl42:    False,
+        })
+        p = CtrlFilter(42) % (CtrlValueFilter(123) % Discard())
+        self.check_patch(p, {
+            self.noteon66:  True,
+            self.ctrl23:    True,
+            self.ctrl42:    False,
         })
 
     def testSplit(self):
@@ -150,6 +162,11 @@ class SimpleTestCase(unittest.TestCase):
 
     def testChannelSplit(self):
         p = ChannelSplit({ 0: Discard(), (1, 2): Pass() })
+        self.check_patch(p, {
+            self.noteon66:  [],
+            self.noteon23:  [self.noteon23],
+        })
+        p = ChannelSplit({ 0: Discard(), (2, 3): Discard(), None: Pass() })
         self.check_patch(p, {
             self.noteon66:  [],
             self.noteon23:  [self.noteon23],

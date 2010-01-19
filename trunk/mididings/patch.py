@@ -36,9 +36,9 @@ class Patch(_mididings.Patch):
                 return Patch.Fork(v, True)
 
         elif isinstance(p, dict):
-            return self.build([
-                _units.base.Filter(t) >> w for t, w in p.items()
-            ])
+            return self.build(
+                _units.splits._make_split(_units.base.Filter, p, unpack=True)
+            )
 
         elif isinstance(p, _units.init._Init):
             return Patch.Single(_mididings.Pass(False))

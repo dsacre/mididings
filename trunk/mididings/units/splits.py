@@ -10,7 +10,7 @@
 # (at your option) any later version.
 #
 
-from mididings.units.base import Fork, Filter
+from mididings.units.base import Chain, Fork, Filter
 from mididings.units.filters import PortFilter, ChannelFilter, KeyFilter, VelocityFilter
 from mididings.units.filters import CtrlFilter, CtrlValueFilter, ProgFilter, SysExFilter
 
@@ -18,71 +18,79 @@ import mididings.event as _event
 import mididings.misc as _misc
 
 
+def _make_split(t, d, unpack=False):
+    if unpack:
+        # if dictionary key is a tuple, unpack and pass as individual parameters to ctor
+        t = lambda p, t=t: t(*(p if isinstance(p, tuple) else (p,)))
+
+    # build dict with all items from d, except d[None]
+    dd = dict((k, v) for k, v in d.items() if k != None)
+
+    # build fork from all normal items
+    r = Fork((t(k) >> w) for k, w in dd.items())
+
+    # add else-rule, if any
+    if None in d:
+        f = Chain(~t(k) for k in dd.keys())
+        r.append(f >> d[None])
+
+    return r
+
+
+def _make_threshold(f, patch_lower, patch_upper):
+    return Fork([
+        f >> patch_lower,
+        ~f >> patch_upper,
+    ])
+
+
 def PortSplit(d):
-    return Fork((PortFilter(p) >> w) for p, w in d.items())
+    return _make_split(PortFilter, d)
 
 
 def ChannelSplit(d):
-    return Fork((ChannelFilter(c) >> w) for c, w in d.items())
+    return _make_split(ChannelFilter, d)
 
 
 @_misc.overload
 def KeySplit(d):
-    return Fork(
-        (KeyFilter(*(k if isinstance(k, tuple) else (k,))) >> w) for k, w in d.items()
-    )
+    return _make_split(KeyFilter, d, unpack=True)
 
 @_misc.overload
 def KeySplit(key, patch_lower, patch_upper):
-    filt = KeyFilter(0, key)
-    return Fork([
-        filt  >> patch_lower,
-        ~filt >> patch_upper
-    ])
+    return _make_threshold(KeyFilter(0, key), patch_lower, patch_upper)
 
 
 @_misc.overload
 def VelocitySplit(d):
-    return Fork(
-        (VelocityFilter(*(v if isinstance(v, tuple) else (v,))) >> w) for v, w in d.items()
-    )
+    return _make_split(VelocityFilter, d, unpack=True)
 
 @_misc.overload
 def VelocitySplit(threshold, patch_lower, patch_upper):
-    filt = VelocityFilter(0, threshold)
-    return Fork([
-        filt  >> patch_lower,
-        ~filt >> patch_upper
-    ])
+    return _make_threshold(VelocityFilter(0, threshold), patch_lower, patch_upper)
 
 
 def CtrlSplit(d):
-    return Fork((CtrlFilter(c) >> w) for c, w in d.items())
+    return _make_split(CtrlFilter, d)
 
 
 @_misc.overload
 def CtrlValueSplit(d):
-    return Fork(
-        (CtrlValueFilter(*(v if isinstance(v, tuple) else (v,))) >> w) for v, w in d.items()
-    )
+    return _make_split(CtrlValueFilter, d, unpack=True)
 
 @_misc.overload
 def CtrlValueSplit(threshold, patch_lower, patch_upper):
-    filt = CtrlValueFilter(0, threshold)
-    return Fork([
-        filt  >> patch_lower,
-        ~filt >> patch_upper
-    ])
+    return _make_threshold(CtrlValueFilter(0, threshold), patch_lower, patch_upper)
 
 
 def ProgSplit(d):
-    return Fork((ProgFilter(p) >> w) for p, w in d.items())
+    return _make_split(ProgFilter, d)
 
 
 @_misc.overload
 def SysExSplit(d):
-    return Fork((SysExFilter(v) >> w) for v, w in d.items())
+    return _make_split(SysExFilter, d)
 
 @_misc.overload
 def SysExSplit(manufacturers):
-    return Fork((SysExFilter(manufacturer=v) >> w) for v, w in manufacturers.items())
+    return _make_split(lambda m: SysExFilter(manufacturer=m), manufacturers)
