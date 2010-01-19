@@ -57,8 +57,8 @@ def KeySplit(d):
     return _make_split(KeyFilter, d, unpack=True)
 
 @_misc.overload
-def KeySplit(key, patch_lower, patch_upper):
-    return _make_threshold(KeyFilter(0, key), patch_lower, patch_upper)
+def KeySplit(note, patch_lower, patch_upper):
+    return _make_threshold(KeyFilter(0, note), patch_lower, patch_upper)
 
 
 @_misc.overload

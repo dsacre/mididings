@@ -33,8 +33,8 @@ def ChannelFilter(*args):
 @_unit_repr
 def KeyFilter(*args, **kwargs):
     note_range = _misc.call_overload(args, kwargs, [
-            lambda key_range: _util.note_range(key_range),
-            lambda key: (_util.note_number(key), 0),
+            lambda note_range: _util.note_range(note_range),
+            lambda note: (_util.note_number(note), 0),
             lambda lower, upper: _util.note_range((lower, upper)),
         ]
     )
