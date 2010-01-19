@@ -46,7 +46,7 @@ def CtrlChange(*args, **kwargs):
     return Ctrl(*args, **kwargs)
 
 
-def Prog(*args, **kwargs):
+def Program(*args, **kwargs):
     port, channel, program = _misc.call_overload(args, kwargs, [
         lambda program: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, program),
         lambda port, channel, program: (port, channel, program)
@@ -57,9 +57,9 @@ def Prog(*args, **kwargs):
         0, _util.program_number(program)
     )
 
-@_misc.deprecated('Prog')
+@_misc.deprecated('Program')
 def ProgChange(*args, **kwargs):
-    return Prog(*args, **kwargs)
+    return Program(*args, **kwargs)
 
 
 def NoteOn(*args, **kwargs):

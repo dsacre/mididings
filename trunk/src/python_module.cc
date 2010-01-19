@@ -90,7 +90,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<VelocityFilter, bases<Filter>, noncopyable>("VelocityFilter", init<int, int>());
     class_<CtrlFilter, bases<Filter>, noncopyable>("CtrlFilter", init<std::vector<int> const &>());
     class_<CtrlValueFilter, bases<Filter>, noncopyable>("CtrlValueFilter", init<int, int>());
-    class_<ProgFilter, bases<Filter>, noncopyable>("ProgFilter", init<std::vector<int> const &>());
+    class_<ProgramFilter, bases<Filter>, noncopyable>("ProgramFilter", init<std::vector<int> const &>());
     class_<SysExFilter, bases<Filter>, noncopyable>("SysExFilter", init<std::string const &, bool>());
 
     // modifiers

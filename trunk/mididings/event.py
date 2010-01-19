@@ -52,7 +52,7 @@ class MidiEvent(_mididings.MidiEvent):
         elif self.type == _constants.NOTEOFF:
             s = 'Note off: %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
         elif self.type == _constants.CTRL:
-            s = 'Control:  %3d %3d' % (self.param, self.value)
+            s = 'Ctrl:     %3d %3d' % (self.param, self.value)
             n = _util.controller_name(self.param)
             if n: s += '  (%s)' % n
         elif self.type == _constants.PITCHBEND:
@@ -60,7 +60,7 @@ class MidiEvent(_mididings.MidiEvent):
         elif self.type == _constants.AFTERTOUCH:
             s = 'Aftertouch:   %3d' % self.value
         elif self.type == _constants.POLY_AFTERTOUCH:
-            s = 'PolyAt:   %3d %3d  (%s)' % (self.note, self.value, _util.note_name(self.note))
+            s = 'Poly Aftertouch: %3d %3d  (%s)' % (self.note, self.value, _util.note_name(self.note))
         elif self.type == _constants.PROGRAM:
             s = 'Program:      %3d' % self.program
         elif self.type == _constants.SYSEX:
@@ -136,7 +136,7 @@ def CtrlEvent(port, channel, param, value):
         _util.ctrl_value(value)
     )
 
-def ProgEvent(port, channel, program):
+def ProgramEvent(port, channel, program):
     return MidiEvent(
         _constants.PROGRAM,
         _util.port_number(port),

@@ -11,7 +11,7 @@
 #
 
 from mididings.units.base import _Unit, Fork, _unit_repr
-from mididings.units.generators import Prog, Ctrl
+from mididings.units.generators import Program, Ctrl
 from mididings.units.modifiers import Port, Channel
 
 import mididings.misc as _misc
@@ -44,7 +44,7 @@ def Output(port, channel, program=None, volume=None):
         init.append(Ctrl(port, channel, 32, bank % 128))
 
     if program != None:
-        init.append(Prog(port, channel, program))
+        init.append(Program(port, channel, program))
 
     if volume != None:
         init.append(Ctrl(port, channel, 7, volume))

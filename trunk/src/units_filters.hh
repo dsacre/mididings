@@ -152,11 +152,11 @@ class CtrlValueFilter
 };
 
 
-class ProgFilter
+class ProgramFilter
   : public Filter
 {
   public:
-    ProgFilter(std::vector<int> const & progs)
+    ProgramFilter(std::vector<int> const & progs)
       : Filter(MIDI_EVENT_PROGRAM, false)
       , _progs(progs)
     {

@@ -12,7 +12,7 @@
 
 from mididings.units.base import Chain, Fork, Filter
 from mididings.units.filters import PortFilter, ChannelFilter, KeyFilter, VelocityFilter
-from mididings.units.filters import CtrlFilter, CtrlValueFilter, ProgFilter, SysExFilter
+from mididings.units.filters import CtrlFilter, CtrlValueFilter, ProgramFilter, SysExFilter
 
 import mididings.event as _event
 import mididings.misc as _misc
@@ -83,8 +83,12 @@ def CtrlValueSplit(threshold, patch_lower, patch_upper):
     return _make_threshold(CtrlValueFilter(0, threshold), patch_lower, patch_upper)
 
 
+def ProgramSplit(d):
+    return _make_split(ProgramFilter, d)
+
+@_misc.deprecated('ProgramSplit')
 def ProgSplit(d):
-    return _make_split(ProgFilter, d)
+    return ProgramSplit(d)
 
 
 @_misc.overload
