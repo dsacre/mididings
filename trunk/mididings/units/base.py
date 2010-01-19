@@ -25,21 +25,17 @@ class _Unit(object):
 
     # operator >> connects units in series
     def __rshift__(self, other):
-        a = self if isinstance(self, Chain) else [self]
-        b = other if isinstance(other, Chain) else [other]
-        return Chain(a + b)
+        return _join_units(Chain, self, other)
 
     def __rrshift__(self, other):
-        a = other if isinstance(other, Chain) else [other]
-        b = self if isinstance(self, Chain) else [self]
-        return Chain(a + b)
+        return _join_units(Chain, other, self)
 
     # operator // connects units in parallel
     def __floordiv__(self, other):
-        return Fork([ self, other ])
+        return _join_units(Fork, self, other)
 
     def __rfloordiv__(self, other):
-        return Fork([ other, self ])
+        return _join_units(Fork, other, self)
 
     def __repr__(self):
         name = self._name if hasattr(self, '_name') else self.__class__.__name__
@@ -51,6 +47,14 @@ class _Unit(object):
             return '%s(%s%s%s)' % (name, args, sep, kwargs)
         else:
             return name
+
+
+def _join_units(t, a, b):
+    if not isinstance(a, t):
+        a = [a]
+    if not isinstance(b, t):
+        b = [b]
+    return t(a + b)
 
 
 def _unit_repr(f):
@@ -110,21 +114,46 @@ class Split(_Unit, dict):
 
 
 class _Selector(object):
-    def __init__(self, filters):
-        self.filters = filters
+    # operator &
+    def __and__(self, other):
+        if not isinstance(other, _Selector):
+            return NotImplemented
+        return _join_units(_AndSelector, self, other)
+
+    # operator |
+    def __or__(self, other):
+        if not isinstance(other, _Selector):
+            return NotImplemented
+        return _join_units(_OrSelector, self, other)
 
     # operator %
     def __mod__(self, other):
         return Fork([
-            Chain(f for f in self.filters) >> other,
-            Fork(-f for f in self.filters)
+            self.build() >> other,
+            self.build_inverted(),
         ])
 
-    # operator &
-    def __and__(self, other):
-        if not isinstance(other, _Filter):
-            return NotImplemented
-        return _Selector(self.filters + [other])
+
+class _AndSelector(list, _Selector):
+    def __init__(self, conditions):
+        list.__init__(self, conditions)
+
+    def build(self):
+        return Chain(p.build() for p in self)
+
+    def build_inverted(self):
+        return Fork(p.build_inverted() for p in self)
+
+
+class _OrSelector(list, _Selector):
+    def __init__(self, conditions):
+        list.__init__(self, conditions)
+
+    def build(self):
+        return Fork(p.build() for p in self)
+
+    def build_inverted(self):
+        return Chain(p.build_inverted() for p in self)
 
 
 class _Filter(_Unit, _Selector):
@@ -133,7 +162,6 @@ class _Filter(_Unit, _Selector):
     """
     def __init__(self, unit):
         _Unit.__init__(self, unit)
-        _Selector.__init__(self, [self])
 
     # operator ~ inverts the filter, but still acts on the same event types
     def __invert__(self):
@@ -142,6 +170,12 @@ class _Filter(_Unit, _Selector):
     # operator - inverts the filter, ignoring event types
     def __neg__(self):
         return _InvertedFilter(self, True)
+
+    def build(self):
+        return self
+
+    def build_inverted(self):
+        return -self
 
 
 class _InvertedFilter(_Filter):
