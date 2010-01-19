@@ -25,16 +25,24 @@ class _Unit(object):
 
     # operator >> connects units in series
     def __rshift__(self, other):
+        if not isinstance(other, _UNIT_TYPES):
+            return NotImplemented
         return _join_units(Chain, self, other)
 
     def __rrshift__(self, other):
+        if not isinstance(other, _UNIT_TYPES):
+            return NotImplemented
         return _join_units(Chain, other, self)
 
     # operator // connects units in parallel
     def __floordiv__(self, other):
+        if not isinstance(other, _UNIT_TYPES):
+            return NotImplemented
         return _join_units(Fork, self, other)
 
     def __rfloordiv__(self, other):
+        if not isinstance(other, _UNIT_TYPES):
+            return NotImplemented
         return _join_units(Fork, other, self)
 
     def __repr__(self):
@@ -47,6 +55,9 @@ class _Unit(object):
             return '%s(%s%s%s)' % (name, args, sep, kwargs)
         else:
             return name
+
+
+_UNIT_TYPES = (_Unit, list, dict)
 
 
 def _join_units(t, a, b):
