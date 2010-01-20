@@ -11,10 +11,14 @@
 #
 
 import _mididings
-from setup import get_config as _get_config
+from setup import get_config
 
-import inspect as _inspect
-import itertools as _itertools
+import inspect
+import itertools
+import termios
+import fcntl
+import struct
+import sys
 
 
 def flatten(seq):
@@ -67,7 +71,7 @@ def call_overload(args, kwargs, funcs, name=None):
     for f in funcs:
         n = len(args)
         # get argument names and the number of default arguments of f
-        argspec = _inspect.getargspec(f)
+        argspec = inspect.getargspec(f)
         names = argspec[0]
         ndef = len(argspec[3]) if argspec[3] else 0
 
@@ -82,16 +86,16 @@ def call_overload(args, kwargs, funcs, name=None):
 
     # no overload found, generate a comprehensible error message
     if not name:
-        name = _inspect.stack()[1][3]
+        name = inspect.stack()[1][3]
     candidates = []
     for f in funcs:
-        argspec = _inspect.getargspec(f)
+        argspec = inspect.getargspec(f)
         names = argspec[0]
         defvals = argspec[3] if argspec[3] else ()
 
-        argstr = ', '.join(_itertools.chain(
+        argstr = ', '.join(itertools.chain(
             names[:len(names)-len(defvals)],
-            ('%s=%s' % a for a in _itertools.izip(names[-len(defvals):], defvals)),
+            ('%s=%s' % a for a in itertools.izip(names[-len(defvals):], defvals)),
         ))
         candidates.append('%s(%s)' % (name, argstr))
 
@@ -135,7 +139,7 @@ class deprecated:
 
     def __call__(self, f):
         def deprecated_wrapper(*args, **kwargs):
-            if _get_config('verbose') and f not in deprecated.already_used:
+            if get_config('verbose') and f not in deprecated.already_used:
                 if self.replacement:
                     print "%s() is deprecated, please use %s() instead" % (f.func_name, self.replacement)
                 else:
@@ -162,4 +166,19 @@ class NamedBitMask(NamedFlag):
 
 
 def prune_globals(g):
-    return [n for (n, m) in g.items() if not _inspect.ismodule(m) and not n.startswith('_')]
+    return [n for (n, m) in g.items() if not inspect.ismodule(m) and not n.startswith('_')]
+
+
+def string_to_hex(s):
+    return ' '.join(hex(ord(c))[2:].zfill(2) for c in s)
+
+
+def get_terminal_size():
+    try:
+        s = struct.pack("HHHH", 0, 0, 0, 0)
+        fd = sys.stdout.fileno()
+        x = fcntl.ioctl(fd, termios.TIOCGWINSZ, s)
+        t = struct.unpack("HHHH", x)
+        return t[0], t[1]
+    except Exception:
+        return 25, 80

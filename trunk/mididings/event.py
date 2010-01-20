@@ -13,6 +13,7 @@
 import _mididings
 import constants as _constants
 import util as _util
+import misc as _misc
 from setup import get_config as _get_config
 
 
@@ -39,13 +40,13 @@ class MidiEvent(_mididings.MidiEvent):
         self.data1 = data1
         self.data2 = data2
 
-    def to_string(self, portnames=[], portname_length=0):
+    def to_string(self, portnames=[], portname_length=0, max_length=None):
         if len(portnames) > self.port_:
             port = portnames[self.port_]
         else:
             port = str(self.port)
 
-        channel = self.channel
+        h = '[%*s, %2d]' % (max(portname_length, 2), port, self.channel)
 
         if self.type == _constants.NOTEON:
             s = 'Note on:  %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
@@ -64,8 +65,18 @@ class MidiEvent(_mididings.MidiEvent):
         elif self.type == _constants.PROGRAM:
             s = 'Program:      %3d' % self.program
         elif self.type == _constants.SYSEX:
-            d = self.get_sysex_data()
-            s = 'SysEx:   %8d  [%s]' % (len(d), ' '.join([ (hex(v/16).upper()[-1] + hex(v%16).upper()[-1]) for v in map(ord, d) ]))
+            data = self.get_sysex_data()
+            if max_length == -1:
+                max_length = _misc.get_terminal_size()[1]
+            if max_length:
+                m = (max_length - len(h) - 25) / 3
+                if len(data) > m:
+                    hexstring = '%s ...' % _misc.string_to_hex(data[:m])
+                else:
+                    hexstring = _misc.string_to_hex(data)
+            else:
+                hexstring = _misc.string_to_hex(data)
+            s = 'SysEx:   %8d  [%s]' % (len(data), hexstring)
         elif self.type == _constants.SYSCM_QFRAME:
             s = 'SysCm QFrame: %3d' % self.data1
         elif self.type == _constants.SYSCM_SONGPOS:
@@ -91,7 +102,7 @@ class MidiEvent(_mididings.MidiEvent):
         else:
             s = 'None'
 
-        return '[%*s, %2d] %s' % (max(portname_length, 2), port, channel, s)
+        return '%s %s' % (h, s)
 
     def __repr__(self):
         return 'MidiEvent(%d, %d, %d, %d, %d)' % (self.type, self.port_, self.channel_, self.data1, self.data2)

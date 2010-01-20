@@ -66,7 +66,7 @@ class _Print(_CallBase):
                 # no name, but names used elsewhere, so indent appropriately
                 print ' ' * (_Print.max_name_length + 1),
 
-            print ev.to_string(self.ports, _Print.max_portname_length)
+            print ev.to_string(self.ports, _Print.max_portname_length, -1)
 
 
 class _PrintString(_CallBase):
