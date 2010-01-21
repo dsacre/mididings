@@ -40,7 +40,7 @@ class MidiEvent(_mididings.MidiEvent):
         self.data1 = data1
         self.data2 = data2
 
-    def to_string(self, portnames=[], portname_length=0, max_length=None):
+    def to_string(self, portnames=[], portname_length=0, max_length=0):
         if len(portnames) > self.port_:
             port = portnames[self.port_]
         else:
@@ -66,8 +66,6 @@ class MidiEvent(_mididings.MidiEvent):
             s = 'Program:      %3d' % self.program
         elif self.type == _constants.SYSEX:
             data = self.get_sysex_data()
-            if max_length == -1:
-                max_length = _misc.get_terminal_size()[1]
             if max_length:
                 m = (max_length - len(h) - 25) / 3
                 if len(data) > m:

@@ -13,6 +13,7 @@
 from mididings.units.call import _CallBase
 from mididings.units.base import _unit_repr
 
+import mididings.constants as _constants
 import mididings.misc as _misc
 
 
@@ -57,12 +58,20 @@ class _Print(_CallBase):
             _Print.max_portname_length = max(len(p) for p in all_ports)
 
         if self.name:
-            print '%-*s' % (_Print.max_name_length + 1, self.name + ':'),
+            namestr = '%-*s ' % (_Print.max_name_length + 1, self.name + ':')
         elif _Print.max_name_length != -1:
             # no name, but names used elsewhere, so indent appropriately
-            print ' ' * (_Print.max_name_length + 1),
+            namestr = ' ' * (_Print.max_name_length + 2)
+        else:
+            namestr = ''
 
-        print ev.to_string(self.ports, _Print.max_portname_length, -1)
+        if ev.type == _constants.SYSEX:
+            eventmax = _misc.get_terminal_size()[1] - len(namestr)
+        else:
+            eventmax = 0
+        eventstr = ev.to_string(self.ports, _Print.max_portname_length, eventmax)
+
+        print '%s%s' % (namestr, eventstr)
 
 
 class _PrintString(_CallBase):
