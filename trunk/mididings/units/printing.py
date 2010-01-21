@@ -13,9 +13,7 @@
 from mididings.units.call import _CallBase
 from mididings.units.base import _unit_repr
 
-import mididings.constants as _constants
 import mididings.misc as _misc
-from mididings.misc import NamedFlag as _NamedFlag
 
 
 class _Print(_CallBase):
@@ -23,9 +21,8 @@ class _Print(_CallBase):
     max_portname_length = -1
     portnames_used = False
 
-    def __init__(self, name, types, portnames):
+    def __init__(self, name, portnames):
         self.name = name
-        self.types = types
         self.portnames = portnames
 
         # to be calculated later
@@ -59,14 +56,13 @@ class _Print(_CallBase):
             all_ports = engine.get_in_ports() + engine.get_out_ports()
             _Print.max_portname_length = max(len(p) for p in all_ports)
 
-        if ev.type & self.types:
-            if self.name:
-                print '%-*s' % (_Print.max_name_length + 1, self.name + ':'),
-            elif _Print.max_name_length != -1:
-                # no name, but names used elsewhere, so indent appropriately
-                print ' ' * (_Print.max_name_length + 1),
+        if self.name:
+            print '%-*s' % (_Print.max_name_length + 1, self.name + ':'),
+        elif _Print.max_name_length != -1:
+            # no name, but names used elsewhere, so indent appropriately
+            print ' ' * (_Print.max_name_length + 1),
 
-            print ev.to_string(self.ports, _Print.max_portname_length, -1)
+        print ev.to_string(self.ports, _Print.max_portname_length, -1)
 
 
 class _PrintString(_CallBase):
@@ -79,8 +75,8 @@ class _PrintString(_CallBase):
 
 @_unit_repr
 @_misc.overload
-def Print(name=None, types=_constants.ANY, portnames=None):
-    return _Print(name, types, portnames)
+def Print(name=None, portnames=None):
+    return _Print(name, portnames)
 
 @_unit_repr
 @_misc.overload

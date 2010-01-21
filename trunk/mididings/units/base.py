@@ -96,13 +96,8 @@ class Fork(_Unit, list):
     """
     units connected in parallel.
     """
-    def __init__(self, units, types=_constants.ANY, remove_duplicates=None):
-        if types == _constants.ANY:
-            list.__init__(self, units)
-        else:
-            # fork only certain types of events
-            l = [ (Filter(types) >> x) for x in units ] + [ -Filter(types) ]
-            list.__init__(self, l)
+    def __init__(self, units, remove_duplicates=None):
+        list.__init__(self, units)
         self.remove_duplicates = remove_duplicates
 
     def __repr__(self):
