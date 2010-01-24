@@ -77,8 +77,8 @@ class KeyFilter
 
     virtual bool process_filter(MidiEvent & ev)
     {
-        return ((ev.note.note == _lower && _upper == 0) ||
-                (ev.note.note >= _lower && ev.note.note < _upper));
+        return ((ev.note.note >= _lower || _lower == 0) &&
+                (ev.note.note < _upper  || _upper == 0));
     }
 
   private:
