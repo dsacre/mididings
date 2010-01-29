@@ -49,15 +49,15 @@ class MidiEvent(_mididings.MidiEvent):
         h = '[%*s, %2d]' % (max(portname_length, 2), port, self.channel)
 
         if self.type == _constants.NOTEON:
-            s = 'Note on:  %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
+            s = 'Note On:  %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
         elif self.type == _constants.NOTEOFF:
-            s = 'Note off: %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
+            s = 'Note Off: %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
         elif self.type == _constants.CTRL:
             s = 'Ctrl:     %3d %3d' % (self.param, self.value)
             n = _util.controller_name(self.param)
             if n: s += '  (%s)' % n
         elif self.type == _constants.PITCHBEND:
-            s = 'Pitch bend: %+5d' % self.value
+            s = 'Pitch Bend: %+5d' % self.value
         elif self.type == _constants.AFTERTOUCH:
             s = 'Aftertouch:   %3d' % self.value
         elif self.type == _constants.POLY_AFTERTOUCH:
