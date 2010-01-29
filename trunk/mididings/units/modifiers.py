@@ -37,7 +37,7 @@ def Transpose(offset):
     return _Unit(_mididings.Transpose(offset))
 
 
-def Note(note):
+def Key(note):
     return Filter(_constants.NOTE) % Split({
         _constants.NOTEON:  NoteOn(note, _constants.EVENT_VELOCITY),
         _constants.NOTEOFF: NoteOff(note, _constants.EVENT_VELOCITY),
