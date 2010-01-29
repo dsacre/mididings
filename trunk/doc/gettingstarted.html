@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+
+<head>
+    <title>mididings - Getting Started</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel=stylesheet type="text/css" href="style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="index.html">mididings Documentation</a>
+    <a href="index.html" class="navprev">&lt;- Table of Contents</a>
+    <a href="reference.html" class="navnext">Reference -&gt;</a>
+</div>
+
+
+<h1>Getting Started</h1>
+
+<h2>Anatomy of a mididings Script</h2>
+<p>
+mididings configuration files are just Python scripts, although some of Python's features are used in ways for which they weren't intended ;)
+Like any other Python source file, mididings scripts get the filename extension .py.
+</p>
+
+
+<h3>A first example</h3>
+<p>
+Let's start with something very simple:
+</p>
+
+<div class="example"><pre>
+from mididings import *
+
+run(Transpose(3))
+</pre></div>
+
+<p>
+The import statement imports everything from the mididings Python module into the global namespace. The <b>run()</b> function is then used to
+run a simple patch, in this case consisting of just a single Transpose() unit.<br>
+<br>
+You can start this script by saving it to a Python file and executing it, for example:
+</p>
+
+<div class="example"><pre>
+$ python transpose3.py
+</pre></div>
+
+<p>
+What this script does is to create an ALSA MIDI client with one input and one output port. It will then start listening for events on
+the input port, transpose all incoming note-on and note-off events up by 3 semitones, and immediately send all events to the output port.
+Pressing Ctrl+C terminates the script.
+</p>
+
+<h3>That was easy...</h3>
+
+<p>
+Now, let's try something slightly more complex:
+</p>
+
+<div class="example"><pre>
+from mididings import *
+
+config(
+    backend='jack-rt',
+    client_name='test',
+)
+
+run(
+    Velocity(curve=1.0) &gt;&gt; [
+        Transpose(12),
+        Filter(NOTE|CTRL) &gt;&gt; Channel(3),
+    ]
+)
+</pre></div>
+
+<p>
+The first thing that's new in this example is the <b>config()</b> function. This function is used to configure some global settings, and should
+usually be called only once, at the start of the script. Here, it is used to select the JACK backend instead of ALSA, and to change the
+JACK client name from 'mididings' to 'test'.
+</p>
+
+<p>
+Now, let's look at the patch inside the <b>run()</b> function call. There are four mididings units used in this patch:
+</p>
+<ul>
+    <li><b>Velocity(curve=1.0)</b>: applies a velocity curve to all note-on events, increasing their velocity values.</li>
+    <li><b>Transpose(12)</b>: transposes all note events up by 12 semitones.</li>
+    <li><b>Filter(NOTE|CTRL)</b>: removes all events that are not note-on, note-off or CC events.</li>
+    <li><b>Channel(3)</b>: changes the MIDI channel of all events to channel 3.</li>
+</ul>
+<p>
+Each of these units is quite simple on its own, but what's important is how the units are connected to each other:
+</p>
+<ul>
+    <li><b>A &gt;&gt; B</b> connects two units in series, so all events output by unit A are then passed to unit B.</li>
+    <li><b>[A, B, ...]</b> (which is just a list in Python) or <b>A // B</b> connects units in parallel, so each of these
+        units gets its own copy of incoming events and processes them individually.</li>
+</ul>
+
+<p>
+A graphical representation of the patch above would look something like this:<br>
+<img src="patch.png" alt="Example patch">
+</p>
+
+<p>
+Note that for incoming note-on, note-off and CC events, this patch will output two events: one on the original MIDI channel,
+with notes being transposed by one octave, and one on channel 3, with no transposition.
+All other event types will result in only one event being sent to the output, because those event types are filtered out in
+the lower branch of the patch, and thus never even reach the Channel() unit.
+</p>
+
+
+<h3>Working with multiple scenes</h3>
+<p>
+TODO<br>
+<img src="signalflow.png" alt="Signal flow">
+</p>
+
+
+<h3>Calling back into Python</h3>
+<p>
+TODO
+</p>
+
+
+<h2>Command line operation</h2>
+
+<p>
+With the <b>mididings</b> command line application, simple patches can also be specified directly in your favorite shell,
+so sometimes there's no need to write full-fledged Python scripts:
+</p>
+
+<div class="example"><pre>
+$ mididings "Transpose(3) &gt;&gt; Channel(2)"
+</pre></div>
+
+<p>
+Just think of the command line argument as being put directly into the run() function.
+See '<kbd>mididings --help</kbd>' for some more options.
+</p>
+
+<p>
+It's also worth mentioning that mididings can easily be used in an interactive Python session:
+</p>
+
+<div class="example"><pre>
+$ python -i -c "from mididings import *"
+&gt;&gt;&gt; run(Transpose(3) &gt;&gt; Channel(2))
+</pre></div>
+
+
+<h2>Good to know...</h2>
+
+<h3>Operator precendence</h3>
+
+<p>
+Overloading operators in Python does not change their precedence.
+This is a list of all operators relevant to mididings, in order of their precedence (highest to lowest):
+</p>
+
+<table>
+    <tr>
+        <td><b>[A, B, ...]<br>
+            (...)</b></td>
+        <td>Connection in parallel, using a list<br>
+            Binding (parentheses)</td>
+    </tr>
+    <tr>
+        <td><b>~F</b></td>
+        <td>Filter inversion</td>
+    </tr>
+    <tr>
+        <td><b>-F</b></td>
+        <td>"True" filter inversion</td>
+    </tr>
+    <tr>
+        <td><b>A // B<br>
+            S % A</b></td>
+        <td>Connection in parallel<br>
+            Selector</td>
+    </tr>
+    <tr>
+        <td><b>A >> B</b></td>
+        <td>Connection in series</td>
+    </tr>
+    <tr>
+        <td><b>F & G</b></td>
+        <td>Selector AND</td>
+    </tr>
+    <tr>
+        <td><b>F | G</b></td>
+        <td>Selector OR</td>
+    </tr>
+</table>
+
+<p>
+<br>
+In short, just remember that...
+</p>
+
+<ul>
+    <li>parallel connection binds stronger than series.</li>
+    <li>selectors (of more than one filter) must be in parentheses.</li>
+    <li>when in doubt, you can always use additional parentheses.</li>
+</ul>

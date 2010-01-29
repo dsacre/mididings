@@ -3,56 +3,46 @@
 <html lang="en">
 
 <head>
-  <title>mididings - Documentation</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <style type="text/css">
-    body { max-width: 60em; font-size: 90%; font-family: sans-serif; }
-    h1 { font-size: 130%; color: #333; background: #eee; padding: 4px 0.7em; }
-    h2 { font-size: 110%; color: #fff; background: #667; padding: 4px 0.7em; margin-top: 1.5em; }
-    h3 { font-size: 100%; color: #333; background: #dddde5; padding: 4px 0.7em; margin-top: 1.5em; }
-    h4 { font-size: 100%; color: #333; padding-left: 0.5em; margin-bottom: 0.4em; }
-    p,table,pre { margin-left: 1.6em; margin-top: 0.4em; }
-    b { color: #333; }
-    pre { font-size: 110%; }
-    table { border: 1px solid #333; border-collapse: collapse; }
-    th, td { border: 1px solid #333; padding: 0em 0.3em; }
-    th { color: #333; text-align: left; background: #eee; }
-    a { font-weight: bold; color: #237; }
-  </style>
+    <title>mididings - Reference</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel=stylesheet type="text/css" href="style.css">
 </head>
 
 <body>
 
-<h1>mididings - Documentation</h1>
+<div class="nav">
+    <a href="index.html">mididings Documentation</a>
+    <a href="gettingstarted.html" class="navprev">&lt;- Getting Started</a>
+    <a href="extra.html" class="navnext">Additional Functionality -&gt;</a>
+</div>
 
-<h2>Table of Contents</h2>
+
+<h1>Reference</h1>
+<!--
 <ul>
-  <li><a href="#basics">Basics</a>
+    <li><a href="index.html">Index</a></li>
+    <li><a href="gettingstarted.html">Getting Started</a></li>
+    <li><a href="reference.html" class="navcurrent">mididings Reference</a>
     <ul>
-      <li><a href="#functions">Functions</a></li>
-      <li><a href="#types">Data Types</a></li>
-      <li><a href="#constants">Constants</a></li>
-      <li><a href="#connect">Making Connections</a></li>
+        <li><a href="#functions">Functions</a></li>
+        <li><a href="#types">Data Types</a></li>
+        <li><a href="#constants">Constants</a></li>
+        <li><a href="#connect">Making Connections</a></li>
+        <li><a href="#units">Units</a>
+            <ul>
+                <li><a href="#filters">Filters</a></li>
+                <li><a href="#splits">Splits</a></li>
+                <li><a href="#modifiers">Modifiers</a></li>
+                <li><a href="#generators">Generators</a></li>
+                <li><a href="#calls">Function Calls</a></li>
+                <li><a href="#misc">Miscellaneous</a></li>
+            </ul>
+        </li>
     </ul>
-  </li>
-
-  <li><a href="#units">Units</a>
-    <ul>
-      <li><a href="#filters">Filters</a></li>
-      <li><a href="#splits">Splits</a></li>
-      <li><a href="#modifiers">Modifiers</a></li>
-      <li><a href="#generators">Generators</a></li>
-      <li><a href="#calls">Function Calls</a></li>
-      <li><a href="#misc">Miscellaneous</a></li>
-    </ul>
-  </li>
-
-  <li><a href="#extra">Additional Units and Hooks</a></li>
-
-  <li><a href="#examples">Examples</a></li>
+    <li><a href="extra.html">mididings.extra Reference</a></li>
+    <li><a href="examples">Examples</a></li>
 </ul>
-
-
+-->
 
 <h2><a name="basics"></a>Basics</h2>
 
@@ -136,7 +126,7 @@ Reads a standard MIDI file, processes it, then writes the result back to a file.
 
 <h4>MidiEvent</h4>
 <p>
-  Used in conjunction with the Process() and Call() units.
+Used as the MIDI event data type inside the Process() and Call() units.
 </p>
 <p>
   A MidiEvent object has the following attributes:
@@ -315,11 +305,11 @@ ChannelFilter(channel, ...)</h4>
 Filters by event port or channel.
 </p>
 
-<h4>KeyFilter(key)<br>
+<h4>KeyFilter(note)<br>
 KeyFilter(lower, upper)<br>
-KeyFilter(key_range)</h4>
+KeyFilter(note_range)</h4>
 <p>
-Filters by key or key-range. Keys can be MIDI note numbers or note names (e.g. 'g#3').
+Filters by note or note-range. Notes can be MIDI note numbers or note names (e.g. 'g#3').
 Ranges can be 2-tuples of note numbers, or note names (e.g. 'g#3:c6').
 </p>
 
@@ -348,7 +338,7 @@ Filters by PC number.
 <h4>SysExFilter(sysex)</h4>
 <p>
 Filters by sysex data, specified as a string or as a sequence of integers.
-If sysex does end with F7, partial matches that start with the given data bytes are accepted.
+If sysex doesn't end with F7, partial matches that start with the given data bytes are accepted.
 </p>
 
 <h4>SysExFilter(manufacturer=...)</h4>
@@ -367,24 +357,24 @@ ChannelSplit({(channel, ...): patch, ...})</h4>
 Splits by port or channel.
 </p>
 
-<h4>KeySplit(key, patch_lower, patch_upper)<br>
+<h4>KeySplit(note, patch_lower, patch_upper)<br>
 KeySplit({(lower, upper): patch, ...})<br>
-KeySplit({key_range: patch, ...})</h4>
+KeySplit({note_range: patch, ...})</h4>
 <p>
-Splits by key. Non-note events are sent to all units.
+Splits by note. Non-note events are sent to all patches.
 </p>
 
 <h4>VelocitySplit(threshold, patch_lower, patch_upper)<br>
 VelocitySplit({(lower, upper): patch, ...})</h4>
 <p>
-Splits by velocity. Non-note events are sent to all units.
+Splits by velocity. Non-note events are sent to all patches.
 </p>
 
 <h4>CtrlSplit({ctrl: patch, ...})<br>
 CtrlSplit({(ctrl, ...): patch, ...})</h4>
 <p>
 Splits by controller number.
-Non-controller events are left unchanged, but not sent to any of the units.
+Non-controller events are left unchanged, but not sent to any of the patches.
 </p>
 
 <h4>CtrlValueSplit(threshold, patch_lower, patch_upper)<br>
@@ -392,14 +382,14 @@ CtrlValueSplit({value: patch, ...})<br>
 CtrlValueSplit({(lower, upper): patch, ...})</h4>
 <p>
 Splits by controller value.
-Non-controller events are left unchanged, but not sent to any of the units.
+Non-controller events are left unchanged, but not sent to any of the patches.
 </p>
 
 <h4>ProgSplit({program: patch, ...})<br>
 ProgSplit({(program, ...): patch, ...})</h4>
 <p>
 Splits by program number.
-Non-program-change events are left unchanged, but not sent to any of the units.
+Non-program-change events are left unchanged, but not sent to any of the patches.
 </p>
 
 <h4>SysExSplit({sysex: patch, ...})<br>
@@ -419,29 +409,40 @@ Changes port or channel.
 
 <h4>Transpose(offset)</h4>
 <p>
-Transposes all note events.
+Transposes all note events by the given number of semitones.
+</p>
+
+<h4>Key(note)</h4>
+<p>
+Changes note-events to a fixed note number.
 </p>
 
 <h4>Velocity(offset)<br>
 Velocity(multiply=...)<br>
 Velocity(fixed=...)<br>
-Velocity(gamma=...)<br>
-Velocity(curve=...)</h4>
+Velocity(curve=...)<br>
+Velocity(gamma=...)</h4>
 <p>
 Changes velocity by adding an offset, multiplying with a factor, setting it to a fixed value, or applying a velocity-curve.<br>
-gamma uses a quadratic function, where values greater than 1 increase velocity, while values between 0 and 1 decrease it.
-curve uses a somewhat smoother exponential function, where positive values increase velocity, while negative values decrease it.
+gamma uses a simple power function, where values greater than 1 increase velocity, while values between 0 and 1 decrease it.
+curve uses a somewhat smoother exponential function, where positive values increase velocity, while negative values decrease it.<br>
+<img src="velocity.png" alt="Velocity() modes"><br>
+Within mididings, velocity values may be (temporarily) greater than 127 or less than 1.
+When sending events through a MIDI output port, or by using the Sanitize() unit, velocities greater than 127 will automatically
+be reduced to 127, and events with a velocity less than 1 will be removed.
 </p>
 
 <h4>VelocitySlope(notes, offset)<br>
 VelocitySlope(notes, multiply=...)<br>
 VelocitySlope(notes, fixed=...)<br>
-VelocitySlope(notes, gamma=...)<br>
-VelocitySlope(notes, curve=...)</h4>
+VelocitySlope(notes, curve=...)<br>
+VelocitySlope(notes, gamma=...)</h4>
 <p>
 Changes velocity, applying a linear slope between different notes.
-Both parameters must be lists/tuples of the same length, where one velocity value corresponds to each note.<br>
-This can be used for example to fade-in a sound over a region of the keyboard.
+This can be thought of as a Velocity() unit with different parameters for different notes, and is useful for example
+to fade-in a sound over a region of the keyboard.<br>
+Both parameters must be sequences of the same length, where one velocity value corresponds to each note.<br>
+<img src="velocityslope.png" alt="VelocitySlope() example">
 </p>
 
 <h4>VelocityLimit(lower, upper)</h4>
@@ -464,10 +465,10 @@ Likewise, an in value of in_max or greater results in an output value of out_max
 
 <h3><a name="generators"></a>Generators</h3>
 
-<h4>CtrlChange(ctrl, value)<br>
-CtrlChange(port, channel, ctrl, value)<br>
-ProgChange(program)<br>
-ProgChange(port, channel, program)<br>
+<h4>Ctrl(ctrl, value)<br>
+Ctrl(port, channel, ctrl, value)<br>
+Prog(program)<br>
+Prog(port, channel, program)<br>
 NoteOn(note, velocity)<br>
 NoteOn(port, channel, note, velocity)<br>
 NoteOff(note, velocity)<br>
@@ -585,132 +586,6 @@ Prints a fixed string.
 Makes sure the event is a valid MIDI message. Events with invalid port, channel, controller, program or note number are
 discarded, note velocity and controller values are confined to the range 0-127.
 </p>
-
-
-
-<h2><a name="extra"></a>Additional Units and Hooks</h2>
-
-<p>
-These units are defined in the mididings.extra module, and offer some more advanced/specific functionality,
-based on the more basic mididings units.<br>
-Some of these are implemented in Python using Process(), and thus not safe to use with the jack-rt backend.
-</p>
-
-
-<h4>Harmonize(tonic, scale, interval, non_harmonic='below')</h4>
-<p>
-A diatonic harmonizer.
-</p>
-<ul>
-  <li><b>tonic</b>: The tonic of the scale.</li>
-  <li><b>scale</b>: One of:<br>
-  'major', 'minor', 'minor_harmonic', 'ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'.</li>
-  <li><b>interval</b>: The number of steps to transpose the notes by, or one of these interval names:<br>
-  'unison', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'octave',
-  'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth'.<br>
-  It's also possible to pass a list of intervals, to create multiple harmonized voices.</li>
-  <li><b>non_harmonic</b>: What to do with out-of-scale notes:
-  <ul>
-    <li>'skip': Ignore note.</li>
-    <li>'same': Output note as is, without transposing it.</li>
-    <li>'below'/'above': Transpose by the same interval as the next on-scale note below/above.</li>
-  </ul>
-  </li>
-</ul>
-
-<h4>LimitPolyphony(max_polyphony, remove_oldest=True)</h4>
-<p>
-Limits the "MIDI polyphony" to max_polyphony.
-If remove_oldest is true, the oldest notes will be stopped when the maximum polyphony is exceeded.
-If remove_oldest is false, no new notes are accepted while max_polyphony notes are held.<br>
-Note that the actual polyphony of a connected synthesizer can still be higher than the limit set here,
-e.g. due to a long release phase.
-</p>
-
-<h4>MakeMonophonic()</h4>
-<p>
-Makes the MIDI signal "monophonic", i.e. only one note can be played at any given time.
-When a note is released while another one is still held (but silent), the previous one will be retriggered.
-</p>
-
-<h4>SuppressPC()</h4>
-<p>
-Filters out program changes if the same program had previously been selected on the same port/channel.
-</p>
-
-<h4>PedalToNoteoff(ctrl=64, sostenuto=False)</h4>
-<p>
-Converts sustain pedal CCs to note-off events (delaying note-offs until the pedal is released).
-Acts either like a regular sustain pedal (the default) or like a sostenuto pedal.
-</p>
-
-<h4>BlackKeys()<br>
-WhiteKeys()</h4>
-<p>
-Filters notes by key color.
-</p>
-
-<h4>MemorizeScene(memo_file)</h4>
-<p>
-A hook object that saves the currently selected scene number to a file when terminating mididings, and restores it at the next startup.
-memo_file is the path of the file to be used to store the scene number.
-</p>
-
-<h4>OSCInterface(port)</h4>
-<p>
-<i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i><br>
-A hook object that allows controlling mididings via OSC. These messages are currently understood:
-</p>
-<ul>
-  <li><b>/mididings/switch_scene ,i</b>: switches to the given scene number.</li>
-  <li><b>/mididings/quit</b>: terminates mididings.</li>
-</ul>
-
-<h4>SendOSC(target, path, ...)</h4>
-<p>
-<i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i><br>
-Sends an OSC message. Parameters are the same as for liblo.send().
-Additionally, rather than a concrete value, each data argument can be a Python function instead.
-The function should then take a single MidiEvent parameter, and return the value to be sent.
-</p>
-
-<h4>SendDBUS(service, path, interface, method, ...)</h4>
-<p>
-<i>Defined in mididings.extra.dbus. Requires dbus-python.</i><br>
-Sends a DBUS message. Rather than a concrete value, each data argument can be a Python function instead.
-The function should then take a single MidiEvent parameter, and return the value to be sent.
-</p>
-
-<h4>AutoRestart(modules=True, filenames=[])</h4>
-<p>
-<i>Defined in mididings.extra.inotify. Requires <a href="http://trac.dbzteam.org/pyinotify">pyinotify</a> &ge; 0.8.</i><br>
-A hook object that automatically restarts mididings when the script changes.
-If modules is True, all imported local Python modules are monitored for changes as well.
-The filenames parameter allows specifying additional files to be monitored.<br>
-This restarts the entire mididings script, so MIDI processing is interrupted, and mididings does not take care of
-reestablishing any ALSA/JACK connections.
-If the new script contains errors that prevent it from running, mididings exits and needs to be restarted manually
-once the errors are fixed.
-</p>
-
-
-<h2><a name="examples"></a>Examples</h2>
-
-<ul>
-  <li><a href="./examples/transpose.py">transpose.py</a> - probably the most simple example that actually does something useful ;)</li>
-  <li><a href="./examples/connections.py">connections.py</a> - how to connect units in series or in parallel,
-  and how to split by event type or channel</li>
-  <li><a href="./examples/filters.py">filters.py</a> - how to use filters</li>
-  <li><a href="./examples/print.py">print.py</a> - printing MIDI events to stdout</li>
-  <li><a href="./examples/output.py">output.py</a> - uses the Output() unit to simplify MIDI routing and sending program changes</li>
-  <li><a href="./examples/process.py">process.py</a> - shows how to process MIDI events in Python</li>
-  <li><a href="./examples/harmonizer.py">harmonizer.py</a> - example usage of the diatonic harmonizer</li>
-  <li><a href="./examples/hooks.py">hooks.py</a> - demonstrates the use of hooks extending mididings' functionality</li>
-  <li><a href="./examples/aeolus.py">aeolus.py</a> - <a href="http://www.kokkinizita.net/linuxaudio/aeolus/index.html">Aeolus</a>
-  stop control using one controller per stop</li>
-  <li><a href="./examples/klick.py">klick.py</a> - uses SendOSC() to start/stop <a href="http://das.nasophon.de/klick/">klick</a>,
-  or change its tempo</li>
-</ul>
 
 
 </body>
