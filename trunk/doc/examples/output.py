@@ -6,9 +6,8 @@
 # - A sampler, connected to the first output port, listening on channel 1.
 #   Program 1 is an acoustic piano sound, program 4 is a Rhodes piano.
 #
-# - A synthesizer, connected to the second output port.
-#   On channel 3, program 7, there's an organ sound.
-#   On channel 4, there's a string sound (no program change needed).
+# - A synthesizer, connected to the second output port. On channel 3, there's
+#   an organ sound. On channel 4, there's a string sound.
 #
 # Program changes on channel 16 switch between scenes.
 #
@@ -23,7 +22,7 @@ config(
 
 piano   = Output('sampler', 1, 1)
 rhodes  = Output('sampler', 1, 4)
-organ   = Output('synth',   3, 7)
+organ   = Output('synth',   3)
 strings = Output('synth',   4)
 
 
@@ -41,8 +40,8 @@ run(
     },
 
     # control patch: use program changes on channel 16 to switch between scenes
-    control = Filter(PROG) >> ChannelFilter(16) >> SceneSwitch(),
+    control = Filter(PROGRAM) >> ChannelFilter(16) >> SceneSwitch(),
 
     # preprocessing: filter out program changes, everything else is sent to the current scene
-    pre = ~Filter(PROG),
+    pre = ~Filter(PROGRAM),
 )

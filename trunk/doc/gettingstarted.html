@@ -10,23 +10,36 @@
 
 <body>
 
+<h1>Getting Started</h1>
+
 <div class="nav">
     <a href="index.html">mididings Documentation</a>
     <a href="index.html" class="navprev">&lt;- Table of Contents</a>
-    <a href="reference.html" class="navnext">Reference -&gt;</a>
+    <a href="basics.html" class="navnext">Basics -&gt;</a>
 </div>
 
 
-<h1>Getting Started</h1>
-
-<h2>Anatomy of a mididings Script</h2>
+<h2><a name="anatomy"></a>Anatomy of a mididings Script</h2>
 <p>
 mididings configuration files are just Python scripts, although some of Python's features are used in ways for which they weren't intended ;)
 Like any other Python source file, mididings scripts get the filename extension .py.
 </p>
+<p>
+The main difference between mididings and regular Python scripts is that mididings typically uses Python only at startup.
+mididings patches consist of Python objects and nested data structures, but not actual Python code.
+Internally, patches are converted to C++ objects, and the event processing is done entirely in C++.
+It is however possible to explicitly call back into Python, if necessary.
+</p>
+<p>
+Although mididings is a Python module that can theoretically be imported in other Python applications, it's
+really not designed to be used that way. Think of mididings as a standalone application, that just happens to
+use Python as its "user interface".
+</p>
 
 
-<h3>A first example</h3>
+<h2><a name="examples"></a>Examples</h2>
+
+<h3><a name="example1"></a>Example 1</h3>
 <p>
 Let's start with something very simple:
 </p>
@@ -45,7 +58,7 @@ You can start this script by saving it to a Python file and executing it, for ex
 </p>
 
 <div class="example"><pre>
-$ python transpose3.py
+$ python transpose.py
 </pre></div>
 
 <p>
@@ -54,10 +67,10 @@ the input port, transpose all incoming note-on and note-off events up by 3 semit
 Pressing Ctrl+C terminates the script.
 </p>
 
-<h3>That was easy...</h3>
+<h3><a name="example2"></a>Example 2: connecting units</h3>
 
 <p>
-Now, let's try something slightly more complex:
+Ok, that was easy. Now let's try something slightly more complex:
 </p>
 
 <div class="example"><pre>
@@ -95,7 +108,7 @@ Now, let's look at the patch inside the <b>run()</b> function call. There are fo
 Each of these units is quite simple on its own, but what's important is how the units are connected to each other:
 </p>
 <ul>
-    <li><b>A &gt;&gt; B</b> connects two units in series, so all events output by unit A are then passed to unit B.</li>
+    <li><b>A &gt;&gt; B</b> connects two units in series, so every event output by unit A is then passed to unit B.</li>
     <li><b>[A, B, ...]</b> (which is just a list in Python) or <b>A // B</b> connects units in parallel, so each of these
         units gets its own copy of incoming events and processes them individually.</li>
 </ul>
@@ -113,20 +126,68 @@ the lower branch of the patch, and thus never even reach the Channel() unit.
 </p>
 
 
-<h3>Working with multiple scenes</h3>
+<h3><a name="example3"></a>Example 3: multiple scenes</h3>
 <p>
-TODO<br>
+Often it's desirable to run not just a single patch, but many different ones which can be switched using a
+MIDI controller. With mididings it's possible to switch between an arbitrary number of "scenes", each of which
+consists of one patch, and optionally an "init-patch" that will be triggered every time you switch to that scene.
+</p>
+<p>
+Here's an example:
+</p>
+
+<div class="example"><pre>
+from mididings import *
+
+run(
+    scenes = {
+        1:  Scene("channel 1 only",
+                Channel(1)
+            ),
+        2:  Scene("channel 2, program 23",
+                Channel(2),
+                Program(23) &gt;&gt; Channel(2)
+            ),
+        3:  Scene("channel 2, program 42",
+                Channel(2),
+                Program(42) &gt;&gt; Channel(2)
+            ),
+        4:  Scene("channel 1/3 split",
+                KeySplit('c3',
+                    Channel(1),
+                    Channel(3)
+                )
+            ),
+    },
+    control = Filter(PROGRAM) &gt;&gt; SceneSwitch(),
+    pre = ~Filter(PROGRAM),
+)
+</pre></div>
+
+<p>
+This script defines 4 <b>scenes</b>. In the first scene, all incoming events are simply routed to output channel 1.
+In scenes 2 and 3, events are routed to channel 2. Additionally, when switching to one of these scenes,
+MIDI program change messages will be sent on that channel first.
+The fourth scene splits the keyboard at C3 and routes both regions of the keyboard to different output channels.<br>
+The <b>control</b> patch is used to switch between these scenes. The filter lets only program changes pass, which then
+trigger the scene switch.<br>
+In this example we assume that incoming program changes are only used for scene switches, and should not be processed
+by the currently active scene. Therefore the <b>pre</b> patch is used to filter out these events.
+</p>
+
+<p>
+This is a complete overview of the signal flow when using multiple scenes:
 <img src="signalflow.png" alt="Signal flow">
 </p>
-
-
-<h3>Calling back into Python</h3>
 <p>
-TODO
+The control, pre and post patches are optional and can be omitted, as well as any of the init patches.
+The control patch can be used for any event processing that does not depend on the currently active scene.<br>
+Note that the use of init patches can often be significantly simplified by embedding them into the regular patches
+using the Init() and/or Output() units.
 </p>
 
 
-<h2>Command line operation</h2>
+<h2><a name="commandline"></a>Command line usage</h2>
 
 <p>
 With the <b>mididings</b> command line application, simple patches can also be specified directly in your favorite shell,
@@ -152,57 +213,4 @@ $ python -i -c "from mididings import *"
 </pre></div>
 
 
-<h2>Good to know...</h2>
-
-<h3>Operator precendence</h3>
-
-<p>
-Overloading operators in Python does not change their precedence.
-This is a list of all operators relevant to mididings, in order of their precedence (highest to lowest):
-</p>
-
-<table>
-    <tr>
-        <td><b>[A, B, ...]<br>
-            (...)</b></td>
-        <td>Connection in parallel, using a list<br>
-            Binding (parentheses)</td>
-    </tr>
-    <tr>
-        <td><b>~F</b></td>
-        <td>Filter inversion</td>
-    </tr>
-    <tr>
-        <td><b>-F</b></td>
-        <td>"True" filter inversion</td>
-    </tr>
-    <tr>
-        <td><b>A // B<br>
-            S % A</b></td>
-        <td>Connection in parallel<br>
-            Selector</td>
-    </tr>
-    <tr>
-        <td><b>A >> B</b></td>
-        <td>Connection in series</td>
-    </tr>
-    <tr>
-        <td><b>F & G</b></td>
-        <td>Selector AND</td>
-    </tr>
-    <tr>
-        <td><b>F | G</b></td>
-        <td>Selector OR</td>
-    </tr>
-</table>
-
-<p>
-<br>
-In short, just remember that...
-</p>
-
-<ul>
-    <li>parallel connection binds stronger than series.</li>
-    <li>selectors (of more than one filter) must be in parentheses.</li>
-    <li>when in doubt, you can always use additional parentheses.</li>
-</ul>
+</body>

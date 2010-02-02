@@ -1,0 +1,244 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+
+<head>
+    <title>mididings - Basics</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel=stylesheet type="text/css" href="style.css">
+</head>
+
+<body>
+
+<h1>Basics</h1>
+
+<div class="nav">
+    <a href="index.html">mididings Documentation</a>
+    <a href="gettingstarted.html" class="navprev">&lt;- Getting Started</a>
+    <a href="reference.html" class="navnext">Reference -&gt;</a>
+</div>
+
+
+<h2><a name="connect"></a>Connections</h2>
+
+<h3>Serial</h3>
+
+<h4>A &gt;&gt; B</h4>
+<p>
+Connects two units in series. Incoming MIDI events will be processed by unit A first, then by unit B.
+If the event is filtered out by unit A, it is not processed any further, and unit B will not be called.
+</p>
+
+<h3>Parallel</h3>
+
+<h4>A // B</h4>
+<p>
+Connects two units in parallel. Both units will be called with identical copies of incoming MIDI
+events. The output will be the sum of all the units' outputs.
+</p>
+
+<h4>[ A, B, ... ]<br>
+Fork([ A, B, ... ], remove_duplicates=True)</h4>
+<p>
+Connects an arbitrary number of units in parallel.
+With Fork() it's also possible to disable the automatic removal of identical MIDI events by setting
+remove_duplicates to False.
+</p>
+
+<h3>Splits</h3>
+
+<h4>{ T1: A, T2: B, ... }<br>
+Split({ T1: A, T2: B, ... })</h4>
+<p>
+Splits by event type.
+Equivalent to [ Filter(T1) &gt;&gt; A, Filter(T2) &gt;&gt; B, ... ].
+</p>
+
+<h3>Filters and Selectors</h3>
+
+<h4>~F</h4>
+<p>
+Inverts the filter F. Note that for filters which only affect certain kinds of events,
+other events will remain unaffected when the filter is inverted.
+For example, an inverted KeyFilter will match a different note range, but neither the original nor the inverted
+filter will have any effect on control or program changes.
+</p>
+
+<h4>-F</h4>
+<p>
+Inverts the filter F. Unlike ~F, -F matches exactly the events that F doesn't.
+</p>
+
+<h4>F % A</h4>
+<p>
+Applies A only to events which match filter F, but keeps events which don't.
+Equivalent to [ F &gt;&gt; A, -F ].
+</p>
+
+<h4>(S) % A</h4>
+<p>
+Applies A only to events which match selector S. Selectors can be built by combining multiple filters using the operators
+<b>&amp;</b> (AND) and <b>|</b> (OR).
+</p>
+
+
+<h2><a name="notes"></a>Note names and ranges</h2>
+
+<p>
+Many mididings units accept notes and/or note ranges as parameters.
+Notes can be specified either as a MIDI note number or by their name, consisting of one letter,
+optionally 'b' or '#', and an octave number. Examples of valid note names are 'c3', 'g#4', 'eb2'.
+</p>
+<p>
+Note ranges can be specified either as a 2-tuple of note numbers, e.g. (48, 60), or as two note names
+separated by a colon, e.g. 'g#3:c6'. Like all ranges in Python, note ranges are semi-open (do not include
+their upper limit), so 'g#3:c6' matches notes from 'g#3' up to 'b5', but not 'c6'!<br>
+It's also possible to leave out either the upper or the lower limit, for example 'c4:' matches all notes above
+(and including) C4, while ':a2' matches all note up to (but not including) A2.
+</p>
+
+
+<h2><a name="ports"></a>Port numbers and names</h2>
+
+<p>
+Internally, ports are always referred to by their number. When an event is received on the second input port,
+and is not explicitly routed to another port, it will be sent to the second output port.<br>
+If you named your input and output ports using the in_ports and out_ports parameters to config(), you can also refer
+to them by their names in all units that accept ports as parameters.
+To avoid ambiguities, port names should be unique (with the JACK backend they must be).
+</p>
+
+
+<h2><a name="misc"></a>Miscellaneous</h2>
+
+<p>
+A couple of things you might need to know...
+</p>
+
+
+<h3>Overloaded functions</h3>
+
+<p>
+Many function and unit names in mididings are overloaded to have somewhat different meanings depending on the number
+and/or names of their parameters. For example, KeyFilter(note) filters a single note, while KeyFilter(lower, upper)
+filters a range of notes.
+</p>
+<p>
+When multiple versions of a unit accept the same number of parameters, it's necessary to explicitly name the parameters
+of the version you'd like to use. For example, Velocity(42) will call Velocity(offset) with an offset of 42.
+To set the velocity to a fixed value of 42 instead, write Velocity(fixed=42).<br>
+Cases where parameter names are required are indicated in the documentation as "param=...".
+It's usually possible to name parameters like this regardless of whether it's actually necessary.
+</p>
+
+
+<h3>Everything is an object</h3>
+
+<p>
+Everything in mididings is a Python object, and can be assigned to variables, returned from functions, etc.
+</p>
+
+<div class="exampleheader">
+Example: add a fifth (7 semitones) above each note, route all events to channel 2:
+</div>
+<div class="example"><pre>
+def add_interval(n):
+    return Pass() // Transpose(n)
+
+route = Channel(2)
+mypatch = add_interval(7) &gt;&gt; route
+
+run(mypatch)
+</pre></div>
+
+
+<h3>Python syntax</h3>
+
+<p>
+In Python, line breaks delimit statements, and indentation delimits blocks. However, as a rule of thumb,
+both are irrelevant as long as at least one parenthesis or bracket is still open.
+Many mididings patches consist of lists and dictionaries, so line breaks and indentation are usually not an issue.
+</p>
+<p>
+Sometimes it makes sense to put a patch in parentheses to allow it to span multiple lines:
+</p>
+
+<div class="exampleheader">
+Syntax error due to line break:
+</div>
+<div class="example"><pre>
+mypatch = Transpose(12) &gt;&gt; Velocity(curve=1) &gt;&gt;
+          Filter(~PROGRAM)
+</pre></div>
+
+<div class="exampleheader">
+Patch spanning multiple lines:
+</div>
+<div class="example"><pre>
+mypatch = (
+    Transpose(12) &gt;&gt; Velocity(curve=1) &gt;&gt;
+    Filter(~PROGRAM)
+)
+</pre></div>
+
+
+<h3>Operator precendence</h3>
+
+<p>
+Overloading operators in Python does not change their precedence.
+This is a list of all operators relevant to mididings, in order of their precedence (highest to lowest):
+</p>
+
+<table>
+    <tr>
+        <td><b>[A, B, ...]<br>
+            (...)</b></td>
+        <td>Connection in parallel, using a list<br>
+            Binding (parentheses)</td>
+    </tr>
+    <tr>
+        <td><b>~F</b></td>
+        <td>Filter inversion</td>
+    </tr>
+    <tr>
+        <td><b>-F</b></td>
+        <td>"True" filter inversion</td>
+    </tr>
+    <tr>
+        <td><b>A // B<br>
+            S % A</b></td>
+        <td>Connection in parallel<br>
+            Selector</td>
+    </tr>
+    <tr>
+        <td><b>A >> B</b></td>
+        <td>Connection in series</td>
+    </tr>
+    <tr>
+        <td><b>F & G</b></td>
+        <td>Selector AND</td>
+    </tr>
+    <tr>
+        <td><b>F | G</b></td>
+        <td>Selector OR</td>
+    </tr>
+</table>
+
+<p>
+<br>
+In short, just remember that...
+</p>
+
+<ul>
+    <li>parallel connection binds stronger than serial.</li>
+    <li>selectors (of more than one filter) must be in parentheses.</li>
+    <li>when in doubt, you can always use additional parentheses.</li>
+</ul>
+
+<p>
+Also note that operators can't be overloaded if both sides are builtin Python types like lists or dictionaries.
+In some cases it may be necessary to wrap those in Fork() or Split().
+<p>
+
+
+</body>

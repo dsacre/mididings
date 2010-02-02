@@ -13,9 +13,9 @@ config(
 
 run(
     Print('before', portnames='in')
-    >> ~Filter(PROG)
+    >> ~Filter(PROGRAM)
     >> VelocityFilter(80, 128)
     >> Channel(3)
     >> Port('output')
-    >> Print('after')
+    >> Print('after', portnames='out')
 )

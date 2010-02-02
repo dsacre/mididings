@@ -10,54 +10,68 @@
 
 <body>
 
+<h1>Table of Contents</h1>
+
 <div class="nav">
     <a href="index.html">mididings Documentation</a>
     <a href="gettingstarted.html" class="navnext">Getting Started -&gt;</a>
 </div>
 
 
-<h1>Table of Contents</h1>
-
 <ul>
-    <li><a href="gettingstarted.html">Getting Started</a></li>
+    <li><a href="gettingstarted.html">Getting Started</a>
+        <ul>
+            <li><a href="gettingstarted.html#anatomy">Anatomy of a mididings script</a></li>
+            <li><a href="gettingstarted.html#examples">Examples</a>
+                <ul>
+                    <li><a href="gettingstarted.html#example1">Example 1</a></li>
+                    <li><a href="gettingstarted.html#example2">Example 2: connecting units</a></li>
+                    <li><a href="gettingstarted.html#example3">Example 3: multiple scenes</a></li>
+                </ul>
+            </li>
+            <li><a href="gettingstarted.html#commandline">Command line usage</a></li>
+        </ul>
+    </li>
+    <li><a href="basics.html">Basics</a>
+        <ul>
+            <li><a href="basics.html#connect">Connections</a></li>
+            <li><a href="basics.html#notes">Note names and ranges</a></li>
+            <li><a href="basics.html#ports">Port numbers and names</a></li>
+            <li><a href="basics.html#misc">Miscellaneous</a>
+        </ul>
+    </li>
     <li><a href="reference.html">Reference</a>
         <ul>
-            <li><a href="#functions">Functions</a></li>
-            <li><a href="#types">Data Types</a></li>
-            <li><a href="#constants">Constants</a></li>
-            <li><a href="#connect">Making Connections</a></li>
-            <li><a href="#units">Units</a>
+            <li><a href="reference.html#functions">Functions</a></li>
+            <li><a href="reference.html#classes">Classes</a></li>
+            <li><a href="reference.html#constants">Constants</a></li>
+            <li><a href="reference.html#units">Units</a>
                 <ul>
-                    <li><a href="#filters">Filters</a></li>
-                    <li><a href="#splits">Splits</a></li>
-                    <li><a href="#modifiers">Modifiers</a></li>
-                    <li><a href="#generators">Generators</a></li>
-                    <li><a href="#calls">Function Calls</a></li>
-                    <li><a href="#misc">Miscellaneous</a></li>
+                    <li><a href="reference.html#filters">Filters</a></li>
+                    <li><a href="reference.html#splits">Splits</a></li>
+                    <li><a href="reference.html#modifiers">Modifiers</a></li>
+                    <li><a href="reference.html#generators">Generators</a></li>
+                    <li><a href="reference.html#calls">Function Calls</a></li>
+                    <li><a href="reference.html#misc">Miscellaneous</a></li>
                 </ul>
             </li>
         </ul>
     </li>
-    <li><a href="extra.html">Additional Functionality</a>
+    <li><a href="extra.html">Extra</a>
         <ul>
-            <li><a href="#units">Units</a></li>
-            <li><a href="#hooks">Hooks</a></li>
+            <li><a href="extra.html#units">Units</a></li>
+            <li><a href="extra.html#hooks">Hooks</a></li>
         </ul>
     </li>
     <li><a href="examples">Examples</a>
         <ul>
-            <li><a href="./examples/transpose.py">transpose.py</a> - probably the most simple example that actually does something useful ;)</li>
-            <li><a href="./examples/connections.py">connections.py</a> - how to connect units in series or in parallel,
-            and how to split by event type or channel</li>
-            <li><a href="./examples/filters.py">filters.py</a> - how to use filters</li>
             <li><a href="./examples/print.py">print.py</a> - printing MIDI events to stdout</li>
             <li><a href="./examples/output.py">output.py</a> - uses the Output() unit to simplify MIDI routing and sending program changes</li>
             <li><a href="./examples/process.py">process.py</a> - shows how to process MIDI events in Python</li>
-            <li><a href="./examples/harmonizer.py">harmonizer.py</a> - example usage of the diatonic harmonizer</li>
             <li><a href="./examples/hooks.py">hooks.py</a> - demonstrates the use of hooks extending mididings' functionality</li>
             <li><a href="./examples/aeolus.py">aeolus.py</a> - <a href="http://www.kokkinizita.net/linuxaudio/aeolus/index.html">Aeolus</a>
             stop control using one controller per stop</li>
-            <li><a href="./examples/klick.py">klick.py</a> - uses SendOSC() to start/stop <a href="http://das.nasophon.de/klick/">klick</a>,
+            <li><a href="./examples/klick.py">klick.py</a> - uses SendOSC() to start/stop <a href="http://das.nasophon.de/klick/">klick</a>
             or change its tempo</li>
         </ul>
     </li>

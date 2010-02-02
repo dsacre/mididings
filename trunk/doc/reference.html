@@ -10,51 +10,16 @@
 
 <body>
 
+<h1>Reference</h1>
+
 <div class="nav">
     <a href="index.html">mididings Documentation</a>
-    <a href="gettingstarted.html" class="navprev">&lt;- Getting Started</a>
-    <a href="extra.html" class="navnext">Additional Functionality -&gt;</a>
+    <a href="basics.html" class="navprev">&lt;- Basics</a>
+    <a href="extra.html" class="navnext">Extra -&gt;</a>
 </div>
 
 
-<h1>Reference</h1>
-<!--
-<ul>
-    <li><a href="index.html">Index</a></li>
-    <li><a href="gettingstarted.html">Getting Started</a></li>
-    <li><a href="reference.html" class="navcurrent">mididings Reference</a>
-    <ul>
-        <li><a href="#functions">Functions</a></li>
-        <li><a href="#types">Data Types</a></li>
-        <li><a href="#constants">Constants</a></li>
-        <li><a href="#connect">Making Connections</a></li>
-        <li><a href="#units">Units</a>
-            <ul>
-                <li><a href="#filters">Filters</a></li>
-                <li><a href="#splits">Splits</a></li>
-                <li><a href="#modifiers">Modifiers</a></li>
-                <li><a href="#generators">Generators</a></li>
-                <li><a href="#calls">Function Calls</a></li>
-                <li><a href="#misc">Miscellaneous</a></li>
-            </ul>
-        </li>
-    </ul>
-    <li><a href="extra.html">mididings.extra Reference</a></li>
-    <li><a href="examples">Examples</a></li>
-</ul>
--->
-
-<h2><a name="basics"></a>Basics</h2>
-
-<p>
-mididings configuration files are just Python scripts, although mididings uses some of Python's features in ways
-for which they weren't intended ;)<br>
-Basically, the MIDI processing setup is defined in Python, while the actual event processing is done entirely
-in C++. It is however possible to explicitly call back into Python, if necessary.
-</p>
-
-
-<h3><a name="functions"></a>Functions</h3>
+<h2><a name="functions"></a>Functions</h2>
 
 <h4>config(**kwargs)</h4>
 <p>
@@ -65,10 +30,10 @@ Possible keyword arguments are:
 <ul>
   <li><b>backend</b>: MIDI backend to be used:
   <ul>
-    <li>'alsa': Use the ALSA sequencer (this is the default).</li>
-    <li>'jack': Use JACK MIDI. All MIDI events are buffered and processed outside the JACK process callback,
+    <li><b>'alsa'</b>: Use the ALSA sequencer (this is the default).</li>
+    <li><b>'jack'</b>: Use JACK MIDI. All MIDI events are buffered and processed outside the JACK process callback,
     and will thus be delayed by (at least) one period.</li>
-    <li>'jack-rt': MIDI events are processed directly in the JACK process callback. It's not safe to run Python
+    <li><b>'jack-rt'</b>: MIDI events are processed directly in the JACK process callback. It's not safe to run Python
     code in a realtime context, so it's recommended to avoid Process(), which <i>might</i> cause xruns (or worse).
     All other units should be safe to use.</li>
   </ul>
@@ -78,7 +43,8 @@ Possible keyword arguments are:
   or out_<i>n</i>), or lists of port names, in which case the list's length determines the number of ports.</li>
   <li><b>data_offset</b>: 1 (default) or 0. Determines whether program, port and channel numbers will be
   in the range 1-128 or 0-127.</li>
-  <li><b>octave_offset</b>: Default is 2, meaning that "middle C" is designated as C3.</li>
+  <li><b>octave_offset</b>: Offset in octaves from note number 0 to C0.
+  Default is 2, meaning that "middle C" is designated as C3.</li>
   <li><b>initial_scene</b>: The number of the first scene to be activated.</li>
   <li><b>start_delay</b>: The number of seconds before sending any MIDI events (i.e. switching to the first scene).
   A small value like 0.5 can be used to give tools like qjackctl's patchbay time to connect the ports.
@@ -106,7 +72,7 @@ Starts the MIDI processing, using multiple scenes.
 The SceneSwitch() unit can be used to switch between these scenes.
 </p>
 <ul>
-  <li><b>scenes</b>: A dictionary with program numbers as keys, and patches as values.
+  <li><b>scenes</b>: A dictionary with program numbers as keys, and Scene objects or plain patches as values.
   Values can also be tuples with two items, the first being an init-patch that's executed once every time the
   scenes is selected, and the second being the actual patch that processes incoming events.</li>
   <li><b>control</b>: The "control" patch, which is always active, and runs in parallel to the current scene.</li>
@@ -122,7 +88,17 @@ Reads a standard MIDI file, processes it, then writes the result back to a file.
 </p>
 
 
-<h3><a name="types"></a>Data Types</h3>
+<h2><a name="classes"></a>Classes</h2>
+
+<h4>Scene(name, patch, init_patch=None)</h4>
+<p>
+Constructs a Scene object to be used with the run() function.
+</p>
+<ul>
+    <li><b>name</b>: A string describing the scene.</li>
+    <li><b>patch</b>: The patch defining the MIDI processing to take place for incoming events.</li>
+    <li><b>init_patch</b>: An optional patch that will be triggered when switching to this scene.</li>
+</ul>
 
 <h4>MidiEvent</h4>
 <p>
@@ -149,7 +125,7 @@ There are also aliases for these attributes, some of which are only valid for ce
 </ul>
 
 
-<h3><a name="constants"></a>Constants</h3>
+<h2><a name="constants"></a>Constants</h2>
 
 <h4>Event Types</h4>
 <p>
@@ -159,7 +135,7 @@ There are also aliases for these attributes, some of which are only valid for ce
   <li><b>NOTEON</b></li>
   <li><b>NOTEOFF</b></li>
   <li><b>CTRL</b></li>
-  <li><b>PROG</b></li>
+  <li><b>PROGRAM</b></li>
   <li><b>PITCHBEND</b></li>
   <li><b>AFTERTOUCH</b></li>
   <li><b>POLY_AFTERTOUCH</b></li>
@@ -206,76 +182,6 @@ There are also aliases for these attributes, some of which are only valid for ce
 </ul>
 
 
-<h3><a name="connect"></a>Making Connections</h3>
-
-<h4>A &gt;&gt; B</h4>
-<p>
-Connects two units in series. Incoming MIDI events will be processed by unit A first, then by unit B.
-If the event is filtered out by unit A, it is not processed any further, and unit B will not be called.
-</p>
-
-<h4>A // B</h4>
-<p>
-Connects two units in parallel. Both units will be called with identical copies of incoming MIDI
-events. The output will be the sum of all the units' outputs.
-Note that operator // has higher precedence than &gt;&gt;.
-</p>
-
-<h4>[ A, B, ... ]</h4>
-<p>
-Connects an arbitrary number of units in parallel.
-</p>
-
-<h4>Fork([ A, B, ... ], types=ANY, remove_duplicates=True)</h4>
-<p>
-Same as the above, with some additional features:
-</p>
-<ul>
-  <li><b>types</b>: Pass something other than ANY to process only certain types of events, and leave
-  other events unchanged.</li>
-  <li><b>remove_duplicates</b>: Whether duplicates should be discarded when two or more units yield identical MIDI events.</li>
-</ul>
-<p>
-Using Fork() explicitly (instead of just a list) is also useful in situations where both sides of operator &gt;&gt;
-would otherwise be lists, which Python does not allow.
-</p>
-
-<h4>{ T1: A, T2: B, ... }</h4>
-<p>
-Splits by event type.
-Equivalent to [ Filter(T1) &gt;&gt; A, Filter(T2) &gt;&gt; B, ... ].
-</p>
-
-<h4>Split({ T1: A, T2: B, ... })</h4>
-<p>
-Same as the above. Like Fork(), this can be useful to make operator &gt;&gt; work.
-</p>
-
-<h4>~F</h4>
-<p>
-Inverts the filter F. Note that for filters which only affect certain kinds of events,
-other events will remain unaffected when the filter is inverted.
-For example, an inverted KeyFilter will match a different note range, but neither the original nor the inverted
-filter will have any effect on control or program changes.
-</p>
-
-<h4>-F</h4>
-<p>
-Inverts the filter F. Unlike ~F, -F matches exactly the events that F doesn't.
-</p>
-
-<h4>F % A</h4>
-<p>
-Applies A only to events which match filter F, but keeps events which don't.
-Equivalent to [ F &gt;&gt; A, -F ].
-</p>
-
-<h4>(F1 & F2 & ...) % A</h4>
-<p>
-Applies A only to events which match all filters F1, F2, etc.
-</p>
-
-
 <h2><a name="units"></a>Units</h2>
 
 <p>
@@ -309,8 +215,7 @@ Filters by event port or channel.
 KeyFilter(lower, upper)<br>
 KeyFilter(note_range)</h4>
 <p>
-Filters by note or note-range. Notes can be MIDI note numbers or note names (e.g. 'g#3').
-Ranges can be 2-tuples of note numbers, or note names (e.g. 'g#3:c6').
+Filters by note or note-range.
 </p>
 
 <h4>VelocityFilter(value)<br>
@@ -330,7 +235,7 @@ CtrlValueFilter(lower, upper)</h4>
 Filters by CC value.
 </p>
 
-<h4>ProgFilter(program, ...)</h4>
+<h4>ProgramFilter(program, ...)</h4>
 <p>
 Filters by PC number.
 </p>
@@ -385,8 +290,8 @@ Splits by controller value.
 Non-controller events are left unchanged, but not sent to any of the patches.
 </p>
 
-<h4>ProgSplit({program: patch, ...})<br>
-ProgSplit({(program, ...): patch, ...})</h4>
+<h4>ProgramSplit({program: patch, ...})<br>
+ProgramSplit({(program, ...): patch, ...})</h4>
 <p>
 Splits by program number.
 Non-program-change events are left unchanged, but not sent to any of the patches.
@@ -467,8 +372,8 @@ Likewise, an in value of in_max or greater results in an output value of out_max
 
 <h4>Ctrl(ctrl, value)<br>
 Ctrl(port, channel, ctrl, value)<br>
-Prog(program)<br>
-Prog(port, channel, program)<br>
+Program(program)<br>
+Program(port, channel, program)<br>
 NoteOn(note, velocity)<br>
 NoteOn(port, channel, note, velocity)<br>
 NoteOff(note, velocity)<br>
@@ -566,13 +471,12 @@ To send a bank select in addition to the program change, program can be a tuple 
 is the bank number, and the second is the program number.
 </p>
 
-<h4>Print(name=None, types=ANY, portnames=None)</h4>
+<h4>Print(name=None, portnames=None)</h4>
 <p>
 Prints event data.
 </p>
 <ul>
   <li><b>name</b>: A string to be printed before each event.</li>
-  <li><b>types</b>: Restricts printing to certain event types, using a combination of the event type constants described above.</li>
   <li><b>portnames</b>: Pass 'in' or 'out' to print input or output portnames, rather than just numbers.</li>
 </ul>
 

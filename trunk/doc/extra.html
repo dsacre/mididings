@@ -3,28 +3,20 @@
 <html lang="en">
 
 <head>
-    <title>mididings.extra - Reference</title>
+    <title>mididings - Extra</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel=stylesheet type="text/css" href="style.css">
 </head>
 
 <body>
 
-<h1>mididings.extra - Reference</h1>
-<!--
-<ul>
-    <li><a href="index.html">Index</a></li>
-    <li><a href="gettingstarted.html">Getting Started</a></li>
-    <li><a href="reference.html">mididings Reference</a></li>
-    <li><a href="extra.html" class="navcurrent">mididings.extra Reference</a>
-        <ul>
-            <li><a href="#units">Units</a></li>
-            <li><a href="#hooks">Hooks</a></li>
-        </ul>
-    </li>
-    <li><a href="examples">Examples</a></li>
-</ul>
--->
+<h1>Extra</h1>
+
+<div class="nav">
+    <a href="index.html">mididings Documentation</a>
+    <a href="reference.html" class="navprev">&lt;- Reference</a>
+</div>
+
 
 <h2><a name="units"></a>Units</h2>
 
@@ -91,6 +83,14 @@ Converts sustain pedal CCs to note-off events (delaying note-offs until the peda
 Acts either like a regular sustain pedal (the default) or like a sostenuto pedal.
 </p>
 
+<h4>LatchNotes(polyphonic=False, reset=None)</h4>
+<p>
+Makes notes latching, so they will keep playing when the key is released.
+If polyphonic is False, pressing a key will automatically turn off any previous notes.
+If polyphonic is True, each note can be stopped individually by pressing the corresponding key again.
+reset can be a note name/number that when pressed stops all currently playing notes.
+</p>
+
 <h4>BlackKeys()<br>
 WhiteKeys()</h4>
 <p>
@@ -113,7 +113,7 @@ The function should then take a single MidiEvent parameter, and return the value
 </p>
 
 <div class="exampleheader">
-Example: control FFADO output volume using a MIDI controller.
+Example: change FFADO output volume using a MIDI controller.
 </div>
 <div class="example"><pre>
 CtrlFilter(42) &gt;&gt; SendDBUS(
