@@ -11,7 +11,6 @@
 #
 
 from mididings import *
-from mididings.event import *
 from mididings.extra import PerChannel
 
 

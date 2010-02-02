@@ -18,7 +18,7 @@ import mididings.util as _util
 class _LatchNotes(object):
     def __init__(self, polyphonic, reset):
         self.polyphonic = polyphonic
-        self.reset = _util.note_number(reset) if reset != None else -1
+        self.reset = _util.note_number(reset) if reset != None else None
         self.notes = []
 
     def __call__(self, ev):
