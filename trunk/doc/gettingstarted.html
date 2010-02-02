@@ -19,7 +19,7 @@
 </div>
 
 
-<h2><a name="anatomy"></a>Anatomy of a mididings Script</h2>
+<h2><a name="anatomy"></a>Anatomy of a mididings script</h2>
 <p>
 mididings configuration files are just Python scripts, although some of Python's features are used in ways for which they weren't intended ;)
 Like any other Python source file, mididings scripts get the filename extension .py.
@@ -28,7 +28,7 @@ Like any other Python source file, mididings scripts get the filename extension 
 The main difference between mididings and regular Python scripts is that mididings typically uses Python only at startup.
 mididings patches consist of Python objects and nested data structures, but not actual Python code.
 Internally, patches are converted to C++ objects, and the event processing is done entirely in C++.
-It is however possible to explicitly call back into Python, if necessary.
+It is however possible to call back into Python, if necessary.
 </p>
 <p>
 Although mididings is a Python module that can theoretically be imported in other Python applications, it's
@@ -63,7 +63,7 @@ $ python transpose.py
 
 <p>
 What this script does is to create an ALSA MIDI client with one input and one output port. It will then start listening for events on
-the input port, transpose all incoming note-on and note-off events up by 3 semitones, and immediately send all events to the output port.
+the input port, transpose all incoming note-on and note-off events up by 3 semitones, and send all events to the output port.
 Pressing Ctrl+C terminates the script.
 </p>
 
@@ -78,7 +78,7 @@ from mididings import *
 
 config(
     backend='jack-rt',
-    client_name='test',
+    client_name='example',
 )
 
 run(
@@ -92,7 +92,7 @@ run(
 <p>
 The first thing that's new in this example is the <b>config()</b> function. This function is used to configure some global settings, and should
 usually be called only once, at the start of the script. Here, it is used to select the JACK backend instead of ALSA, and to change the
-JACK client name from 'mididings' to 'test'.
+JACK client name from 'mididings' to 'example'.
 </p>
 
 <p>
@@ -119,7 +119,7 @@ A graphical representation of the patch above would look something like this:<br
 </p>
 
 <p>
-Note that for incoming note-on, note-off and CC events, this patch will output two events: one on the original MIDI channel,
+For incoming note-on, note-off and CC events, this patch will output two events: one on the original MIDI channel,
 with notes being transposed by one octave, and one on channel 3, with no transposition.
 All other event types will result in only one event being sent to the output, because those event types are filtered out in
 the lower branch of the patch, and thus never even reach the Channel() unit.
@@ -170,17 +170,17 @@ In scenes 2 and 3, events are routed to channel 2. Additionally, when switching 
 MIDI program change messages will be sent on that channel first.
 The fourth scene splits the keyboard at C3 and routes both regions of the keyboard to different output channels.<br>
 The <b>control</b> patch is used to switch between these scenes. The filter lets only program changes pass, which then
-trigger the scene switch.<br>
-In this example we assume that incoming program changes are only used for scene switches, and should not be processed
+trigger the scene switches.<br>
+In this example we assume that incoming program changes are only used for switching scenes, and should not be processed
 by the currently active scene. Therefore the <b>pre</b> patch is used to filter out these events.
 </p>
 
 <p>
-This is a complete overview of the signal flow when using multiple scenes:
-<img src="signalflow.png" alt="Signal flow">
+This is a complete overview of the event flow when using multiple scenes:
+<img src="eventflow.png" alt="Event flow">
 </p>
 <p>
-The control, pre and post patches are optional and can be omitted, as well as any of the init patches.
+The control, pre and post patches as well as any of the init patches are optional and can be omitted.
 The control patch can be used for any event processing that does not depend on the currently active scene.<br>
 Note that the use of init patches can often be significantly simplified by embedding them into the regular patches
 using the Init() and/or Output() units.
@@ -199,8 +199,7 @@ $ mididings "Transpose(3) &gt;&gt; Channel(2)"
 </pre></div>
 
 <p>
-Just think of the command line argument as being put directly into the run() function.
-See '<kbd>mididings --help</kbd>' for some more options.
+See '<kbd>mididings --help</kbd>' for more options.
 </p>
 
 <p>
