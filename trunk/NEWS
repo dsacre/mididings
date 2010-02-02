@@ -1,3 +1,17 @@
+2010-02-02
+
+  * Major documentation update, now including a tutorial and explaining
+    some of the relevant Python basics.
+  * Renamed a few units and parameters to keep names somewhat consistent.
+  * Removed the types parameters from Fork() and Print(), the same result
+    can be achieved using a selector.
+  * The upper or lower limit for note ranges can now be omitted.
+  * All splits now support an "else" rule. A patch with a key of None is
+    used when none of the other filters match.
+  * Added operator | (OR) for selectors.
+  * Added LatchNotes() to hold notes until the key is pressed again.
+  * Significant performance improvement when calling overloaded functions.
+
 2010-01-12
 
   * Included a command line program "mididings" that allows running
