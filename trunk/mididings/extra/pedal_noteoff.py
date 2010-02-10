@@ -12,6 +12,7 @@
 
 from mididings import *
 from mididings.extra import PerChannel
+import mididings.event as _event
 
 
 class _SustainToNoteoff(object):
@@ -28,7 +29,7 @@ class _SustainToNoteoff(object):
                 return None
             else:
                 # pedal released, send note offs for all stored notes
-                r = [NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.notes]
+                r = [_event.NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.notes]
                 self.notes = []
                 return r
         elif ev.type == NOTEON and self.pedal:
@@ -61,7 +62,7 @@ class _SostenutoToNoteoff(object):
                 return None
             else:
                 # pedal released, send note offs for all stored notes
-                r = [NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.sustained_notes]
+                r = [_event.NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.sustained_notes]
                 self.sustained_notes = []
                 return r
         elif ev.type == NOTEON:

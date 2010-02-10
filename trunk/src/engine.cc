@@ -407,3 +407,12 @@ bool Engine::sanitize_event(MidiEvent & ev) const
             return false;
     }
 }
+
+
+void Engine::output_event(MidiEvent const & ev)
+{
+    boost::mutex::scoped_lock lock(_process_mutex);
+
+    _backend->output_event(ev);
+    _backend->flush_output();
+}

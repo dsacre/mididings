@@ -78,7 +78,7 @@ class Engine(_mididings.Engine):
                 raw_input("press enter to start midi processing...")
 
         global _TheEngine
-        _TheEngine = _weakref.proxy(self)
+        _TheEngine = _weakref.ref(self)
 
         _gc.collect()
         _gc.disable()
@@ -180,21 +180,28 @@ def process_file(infile, outfile, patch):
 
 
 def switch_scene(n):
-    _TheEngine.switch_scene(n)
+    _TheEngine().switch_scene(n)
 
 def current_scene():
-    return _TheEngine.current_scene()
+    return _TheEngine().current_scene()
 
 def get_scenes():
-    return _TheEngine.get_scenes()
+    return _TheEngine().get_scenes()
+
+
+def output_event(ev):
+    _TheEngine().output_event(ev)
 
 
 def get_in_ports():
-    return _TheEngine.in_ports
+    return _TheEngine().in_ports
 
 def get_out_ports():
-    return _TheEngine.out_ports
+    return _TheEngine().out_ports
 
+
+def is_active():
+    return _TheEngine != None and _TheEngine() != None
 
 def quit():
-    _TheEngine.quit()
+    _TheEngine().quit()

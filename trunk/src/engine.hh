@@ -69,6 +69,8 @@ class Engine
 
     int current_scene() const { return _current_num; }
 
+    void output_event(MidiEvent const & ev);
+
     PythonCaller & python_caller() const { return *_python_caller; }
 
 #ifdef ENABLE_TEST

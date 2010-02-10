@@ -12,6 +12,7 @@
 
 from mididings import *
 from mididings.extra import PerChannel
+import mididings.event as _event
 import mididings.util as _util
 
 
@@ -25,7 +26,7 @@ class _LatchNotes(object):
         if ev.type == NOTEON:
             if ev.note == self.reset:
                 # reset all notes
-                r = [NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.notes]
+                r = [_event.NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.notes]
                 self.notes = []
                 return r
 
@@ -37,10 +38,10 @@ class _LatchNotes(object):
                 else:
                     # turn note off
                     self.notes.remove(ev.note)
-                    return NoteOffEvent(ev.port, ev.channel, ev.note, 0)
+                    return _event.NoteOffEvent(ev.port, ev.channel, ev.note, 0)
             else:
                 # turn off previous note, play new note
-                r = [NoteOffEvent(ev.port, ev.channel, self.notes[0], 0)] if len(self.notes) else []
+                r = [_event.NoteOffEvent(ev.port, ev.channel, self.notes[0], 0)] if len(self.notes) else []
                 self.notes = [ev.note]
                 return r + [ev]
 

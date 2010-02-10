@@ -12,6 +12,7 @@
 
 import mididings.misc as _misc
 import mididings.constants as _constants
+import engine as _engine
 from mididings.setup import get_config as _get_config
 
 
@@ -135,8 +136,12 @@ def port_number(port):
         # already a number?
         return int(port) - _get_config('data_offset')
     except ValueError:
-        in_ports = _get_config('in_ports')
-        out_ports = _get_config('out_ports')
+        if _engine.is_active():
+            in_ports = _engine.get_in_ports()
+            out_ports = _engine.get_out_ports()
+        else:
+            in_ports = _get_config('in_ports')
+            out_ports = _get_config('out_ports')
         is_in = (_misc.issequence(in_ports) and port in in_ports)
         is_out = (_misc.issequence(out_ports) and port in out_ports)
 

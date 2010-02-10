@@ -18,6 +18,7 @@ from mididings.extra.polyphony import *
 from mididings.extra.black_keys import *
 from mididings.extra.memorize_scene import *
 from mididings.extra.latch import *
+from mididings.extra.panic import *
 
 
 import mididings.misc as _misc

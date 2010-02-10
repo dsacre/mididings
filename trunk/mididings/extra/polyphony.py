@@ -12,6 +12,7 @@
 
 from mididings import *
 from mididings.extra import PerChannel
+import mididings.event as _event
 
 
 class _LimitPolyphony(object):
@@ -29,7 +30,7 @@ class _LimitPolyphony(object):
             else:
                 if self.remove_oldest:
                     # allow note, but send note-off for oldest first
-                    noteoff = NoteOffEvent(ev.port, ev.channel, self.notes[0], 0)
+                    noteoff = _event.NoteOffEvent(ev.port, ev.channel, self.notes[0], 0)
                     self.notes = self.notes[1:]
                     self.notes.append(ev.note)
                     return [noteoff, ev]
@@ -53,7 +54,7 @@ class _MakeMonophonic(object):
         if ev.type == NOTEON:
             if len(self.notes):
                 # send note off for previous note, and note on for current note
-                noteoff = NoteOffEvent(ev.port, ev.channel, self.notes[-1][0], 0)
+                noteoff = _event.NoteOffEvent(ev.port, ev.channel, self.notes[-1][0], 0)
                 self.notes.append((ev.note, ev.velocity))
                 return [noteoff, ev]
             else:
@@ -69,7 +70,7 @@ class _MakeMonophonic(object):
                     r = ev
                 else:
                     # send note off, and retrigger previous note
-                    noteon = NoteOnEvent(ev.port, ev.channel, self.notes[-2][0], self.notes[-2][1])
+                    noteon = _event.NoteOnEvent(ev.port, ev.channel, self.notes[-2][0], self.notes[-2][1])
                     r = [ev, noteon]
             else:
                 # note isn't sounding, discard note off

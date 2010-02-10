@@ -146,6 +146,7 @@ class deprecated:
                     print "%s() is deprecated" % f.func_name
                 deprecated.already_used.append(f)
             return f(*args, **kwargs)
+        deprecated_wrapper._deprecated = True
         return deprecated_wrapper
 
 
@@ -166,7 +167,11 @@ class NamedBitMask(NamedFlag):
 
 
 def prune_globals(g):
-    return [n for (n, m) in g.items() if not inspect.ismodule(m) and not n.startswith('_')]
+    return [n for (n, m) in g.items()
+        if not inspect.ismodule(m)
+        and not n.startswith('_')
+        #and not (hasattr(m, '_deprecated'))
+    ]
 
 
 def string_to_hex(s):
