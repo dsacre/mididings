@@ -48,10 +48,10 @@ class AutoRestart(object):
         self.notifier.stop()
 
     def _process_IN_MODIFY(self, event):
-        _atexit.register(self._restart, event.pathname)
+        print "file '%s' changed, restarting..." % event.pathname
+        _atexit.register(self._restart)
         _engine.quit()
 
-    def _restart(self, filename):
-        print "file '%s' changed, restarting..." % filename
+    def _restart(self):
         # run the same interpreter with the same arguments again
         _os.execl(_sys.executable, _sys.executable, *_sys.argv)

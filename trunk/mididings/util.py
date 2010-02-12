@@ -48,7 +48,7 @@ NOTE_NAMES = {
 
 CONTROLLER_NAMES = {
      0: 'Bank select (MSB)',
-     1: 'Mod wheel',
+     1: 'Modulation',
      7: 'Volume',
     10: 'Pan',
     11: 'Expression',
