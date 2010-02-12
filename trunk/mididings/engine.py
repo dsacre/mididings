@@ -118,17 +118,14 @@ class Engine(_mididings.Engine):
         found = n in self._scene_names
         name = self._scene_names[n] if found else None
 
-        if _get_config('verbose'):
-            if found:
-                if name:
-                    print "switching to scene %d: %s" % (n, name)
-                else:
-                    print "switching to scene %d" % n
-            else:
-                print "no such scene: %d" % n
-
         if found:
+            if name:
+                print "switching to scene %d: %s" % (n, name)
+            else:
+                print "switching to scene %d" % n
             self._call_hooks('on_switch_scene', n)
+        else:
+            print "no such scene: %d" % n
 
     def _call_hooks(self, name, *args):
         for hook in _get_hooks():
@@ -188,17 +185,22 @@ def current_scene():
 def get_scenes():
     return _TheEngine().get_scenes()
 
-
 def output_event(ev):
     _TheEngine().output_event(ev)
 
-
 def get_in_ports():
-    return _TheEngine().in_ports
+    if is_active():
+        return _TheEngine().in_ports
+    else:
+        r = _get_config('in_ports')
+        return r if _misc.issequence(r) else map(_util.NoDataOffset, range(r))
 
 def get_out_ports():
-    return _TheEngine().out_ports
-
+    if is_active():
+        return _TheEngine().out_ports
+    else:
+        r = _get_config('out_ports')
+        return r if _misc.issequence(r) else map(_util.NoDataOffset, range(r))
 
 def is_active():
     return _TheEngine != None and _TheEngine() != None

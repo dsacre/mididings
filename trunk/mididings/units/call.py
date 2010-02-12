@@ -16,6 +16,7 @@ from mididings.units.base import _Unit, _unit_repr
 
 import mididings.event as _event
 import mididings.misc as _misc
+from mididings.setup import get_config as _get_config
 
 import thread as _thread
 import subprocess as _subprocess
@@ -54,6 +55,8 @@ class _System(_CallBase):
 
 @_unit_repr
 def Process(function):
+    if _get_config('verbose') and _get_config('backend') == 'jack-rt':
+        print "WARNING: using Process() with the 'jack-rt' backend is probably a bad idea"
     return _CallBase(function, False, False)
 
 

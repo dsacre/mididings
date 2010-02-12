@@ -96,14 +96,14 @@ def Harmonize(tonic, scale, interval, non_harmonic='below'):
     # convert all interval names to numbers
     iv = [(_INTERVALS.index(x) if x in _INTERVALS else x) for x in interval]
 
-    # PYTHON VERSION:
+    # python version:
 #    f = [ Process(_Harmonizer(t, s, i, non_harmonic)) for i in iv ]
 
-    # PURE MIDIDINGS VERSION:
+    # pure mididings version:
     f = []
     for i in iv:
         h = _Harmonizer(t, s, i, non_harmonic)
         f.extend([ KeyFilter(x) >> Transpose(h.note_offset(x)) \
                    for x in range(128) if h.note_offset(x) != None ])
 
-    return Split({ NOTE: f, ~NOTE: Pass() })
+    return Filter(NOTE) % f

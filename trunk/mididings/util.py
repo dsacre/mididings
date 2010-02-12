@@ -58,6 +58,10 @@ CONTROLLER_NAMES = {
     66: 'Sostenuto',
     67: 'Soft pedal',
     68: 'Legato pedal',
+    98: 'NRPN (LSB)',
+    99: 'NRPN (MSB)',
+   100: 'RPN (LSB)',
+   101: 'RPN (MSB)',
    121: 'Reset all controllers',
    123: 'All notes off',
 }
@@ -132,16 +136,13 @@ def event_type(type):
 
 # get port number from port name
 def port_number(port):
-    try:
-        # already a number?
+    if isinstance(port, NoDataOffset):
+        return int(port)
+    elif isinstance(port, int):
         return int(port) - _get_config('data_offset')
-    except ValueError:
-        if _engine.is_active():
-            in_ports = _engine.get_in_ports()
-            out_ports = _engine.get_out_ports()
-        else:
-            in_ports = _get_config('in_ports')
-            out_ports = _get_config('out_ports')
+    else:
+        in_ports = _engine.get_in_ports()
+        out_ports = _engine.get_out_ports()
         is_in = (_misc.issequence(in_ports) and port in in_ports)
         is_out = (_misc.issequence(out_ports) and port in out_ports)
 
@@ -156,14 +157,20 @@ def port_number(port):
 
 
 def channel_number(channel):
-    r = channel - _get_config('data_offset')
+    if isinstance(channel, NoDataOffset):
+        r = int(channel)
+    else:
+        r = channel - _get_config('data_offset')
     if r < 0 or r > 15:
         raise ValueError("channel number %d is out of range" % channel)
     return r
 
 
 def program_number(program):
-    r = program - _get_config('data_offset')
+    if isinstance(program, NoDataOffset):
+        r = int(program)
+    else:
+        r = program - _get_config('data_offset')
     if r < 0 or r > 127:
         raise ValueError("program number %d is out of range" % program)
     return r
@@ -188,7 +195,10 @@ def velocity_value(velocity):
 
 
 def scene_number(scene):
-    return scene - _get_config('data_offset')
+    if isinstance(scene, NoDataOffset):
+        return int(scene)
+    else:
+        return scene - _get_config('data_offset')
 
 
 def sysex_data(sysex, allow_partial=False):
@@ -215,3 +225,12 @@ def sysex_manufacturer(manufacturer):
     elif any(ord(c) > 127 for c in manid):
         raise ValueError("manufacturer id out of range")
     return manid
+
+
+class NoDataOffset(int):
+    def __new__(cls, value):
+        return int.__new__(cls, value)
+    def __repr__(self):
+        return 'NoDataOffset(%d)' % self
+    def __str__(self):
+        return 'NoDataOffset(%d)' % self

@@ -12,16 +12,23 @@
 
 from mididings import *
 import mididings.engine as _engine
-import mididings.setup as _setup
 import mididings.event as _event
+import mididings.util as _util
 
 
-def _Panic(ev):
+def _PanicBypass(ev):
     # send all notes off (CC #123) to all output ports and on all channels
     for p in _engine.get_out_ports():
         for c in range(16):
-            _engine.output_event(_event.CtrlEvent(p, c + _setup.get_config('data_offset'), 123, 0))
+            _engine.output_event(_event.CtrlEvent(p, _util.NoDataOffset(c), 123, 0))
 
 
-def Panic():
-    return Call(_Panic) >> Discard()
+def Panic(bypass=True):
+    if bypass:
+        return Call(_PanicBypass) >> Discard()
+    else:
+        return Fork([
+            Ctrl(p, _util.NoDataOffset(c), 123, 0)
+                for p in _engine.get_out_ports()
+                for c in range(16)
+        ])

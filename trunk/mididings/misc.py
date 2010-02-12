@@ -157,6 +157,8 @@ class NamedFlag(int):
         self.name = name
     def __repr__(self):
         return self.name
+    def __str__(self):
+        return self.name
 
 
 class NamedBitMask(NamedFlag):

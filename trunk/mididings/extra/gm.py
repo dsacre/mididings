@@ -10,7 +10,7 @@
 # (at your option) any later version.
 #
 
-from mididings.setup import get_config as _get_config
+import mididings.util as _util
 
 (
     ACOUSTIC_GRAND_PIANO,
@@ -141,4 +141,23 @@ from mididings.setup import get_config as _get_config
     HELICOPTER,
     APPLAUSE,
     GUNSHOT
-) = range(_get_config('data_offset'), 128 + _get_config('data_offset'))
+) = map(_util.NoDataOffset, range(128))
+
+
+CTRL_BANK_SELECT_MSB        = 0
+CTRL_MODULATION             = 1
+CTRL_VOLUME                 = 7
+CTRL_PAN                    = 10
+CTRL_EXPRESSION             = 11
+CTRL_BANK_SELECT_LSB        = 32
+CTRL_SUSTAIN                = 64
+CTRL_PORTAMENTO             = 65
+CTRL_SOSTENUTO              = 66
+CTRL_SOFT_PEDAL             = 67
+CTRL_LEGATO_PEDAL           = 68
+CTRL_NRPN_LSB               = 98
+CTRL_NRPN_MSB               = 99
+CTRL_RPN_LSB                = 100
+CTRL_RPN_MSB                = 101
+CTRL_RESET_ALL_CONTROLLERS  = 121
+CTRL_ALL_NOTES_OFF          = 123
