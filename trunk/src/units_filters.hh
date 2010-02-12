@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
 
 
 class PortFilter
@@ -30,10 +31,7 @@ class PortFilter
 
     virtual bool process_filter(MidiEvent & ev)
     {
-        for (std::vector<int>::iterator i = _ports.begin(); i != _ports.end(); ++i) {
-            if (ev.port == *i) return true;
-        }
-        return false;
+        return (std::find(_ports.begin(), _ports.end(), ev.port) != _ports.end());
     }
 
   private:
@@ -53,10 +51,7 @@ class ChannelFilter
 
     virtual bool process_filter(MidiEvent & ev)
     {
-        for (std::vector<int>::iterator i = _channels.begin(); i != _channels.end(); ++i) {
-            if (ev.channel == *i) return true;
-        }
-        return false;
+        return (std::find(_channels.begin(), _channels.end(), ev.channel) != _channels.end());
     }
 
   private:
@@ -120,10 +115,7 @@ class CtrlFilter
 
     virtual bool process_filter(MidiEvent & ev)
     {
-        for (std::vector<int>::iterator i = _ctrls.begin(); i != _ctrls.end(); ++i) {
-            if (ev.ctrl.param == *i) return true;
-        }
-        return false;
+        return (std::find(_ctrls.begin(), _ctrls.end(), ev.ctrl.param) != _ctrls.end());
     }
 
   private:
@@ -164,10 +156,7 @@ class ProgramFilter
 
     virtual bool process_filter(MidiEvent & ev)
     {
-        for (std::vector<int>::iterator i = _progs.begin(); i != _progs.end(); ++i) {
-            if (ev.ctrl.value == *i) return true;
-        }
-        return false;
+        return (std::find(_progs.begin(), _progs.end(), ev.ctrl.value) != _progs.end());
     }
 
   private:
