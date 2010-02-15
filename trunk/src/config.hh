@@ -31,6 +31,9 @@ namespace Config
     static int const MAX_JACK_EVENTS = 128;
     // maximum size of JACK MIDI events. in reality this depends on the JACK period size...
     static int const MAX_JACK_EVENT_SIZE = 4096;
+
+    // realtime priority offset for buffered JACK backend, subtracted from JACK's own priority
+    static int const JACK_BUFFERED_RTPRIO_OFFSET = 10;
 }
 
 

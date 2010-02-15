@@ -15,9 +15,12 @@
 
 #include <jack/jack.h>
 #include <jack/midiport.h>
+#include <jack/thread.h>
 
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
+
+#include <pthread.h>
 
 #include "util/debug.hh"
 
@@ -199,6 +202,14 @@ void BackendJackBuffered::start(InitFunction init, CycleFunction cycle)
         boost::lambda::bind(init),
         boost::lambda::bind(cycle)
     )));
+
+    // try to use realtime scheduling for MIDI processing thread
+    int jack_rtprio = jack_client_real_time_priority(_client);
+
+    if (jack_rtprio != -1) {
+        int rtprio = jack_rtprio - Config::JACK_BUFFERED_RTPRIO_OFFSET;
+        jack_acquire_real_time_scheduling(_thrd->native_handle(), rtprio);
+    }
 }
 
 
