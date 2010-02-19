@@ -104,7 +104,7 @@ Engine::~Engine()
 
 void Engine::add_scene(int i, PatchPtr patch, PatchPtr init_patch)
 {
-    ASSERT(_patches.find(i) == _patches.end());
+    ASSERT(!has_scene(i));
 
     _patches[i] = patch;
     if (init_patch) {
@@ -141,7 +141,7 @@ void Engine::run_init(int initial_scene)
     if (initial_scene == -1) {
         initial_scene = _patches.begin()->first;
     }
-    ASSERT(_patches.find(initial_scene) != _patches.end());
+    ASSERT(has_scene(initial_scene));
 
     _buffer.clear();
     process_scene_switch(_buffer, initial_scene);

@@ -36,19 +36,28 @@ class SceneSwitch
   : public Unit
 {
   public:
-    SceneSwitch(int num)
+    SceneSwitch(int num, int offset)
       : _num(num)
+      , _offset(offset)
     {
     }
 
     virtual bool process(MidiEvent & ev)
     {
-        TheEngine->switch_scene(get_parameter(_num, ev));
+        if (_offset == 0) {
+            TheEngine->switch_scene(get_parameter(_num, ev));
+        } else {
+            int n = TheEngine->current_scene() + _offset;
+            if (TheEngine->has_scene(n)) {
+                TheEngine->switch_scene(n);
+            }
+        }
         return false;
     }
 
   private:
     int _num;
+    int _offset;
 };
 
 

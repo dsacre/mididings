@@ -68,6 +68,7 @@ class Engine
     bool sanitize_event(MidiEvent & ev) const;
 
     int current_scene() const { return _current_num; }
+    bool has_scene(int n) const { return _patches.find(n) != _patches.end(); }
 
     void output_event(MidiEvent const & ev);
 

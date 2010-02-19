@@ -25,8 +25,14 @@ def Sanitize():
 
 
 @_unit_repr
+@_misc.overload
 def SceneSwitch(number=_constants.EVENT_PROGRAM):
-    return _Unit(_mididings.SceneSwitch(_util.scene_number(number) if number >= 0 else number))
+    return _Unit(_mididings.SceneSwitch(_util.scene_number(number) if number >= 0 else number, 0))
+
+@_unit_repr
+@_misc.overload
+def SceneSwitch(offset):
+    return _Unit(_mididings.SceneSwitch(0, offset))
 
 @_misc.deprecated('SceneSwitch')
 def PatchSwitch(number=_constants.EVENT_PROGRAM):

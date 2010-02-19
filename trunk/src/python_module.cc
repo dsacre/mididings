@@ -81,7 +81,7 @@ BOOST_PYTHON_MODULE(_mididings)
 
     // engine
     class_<Sanitize, bases<Unit>, noncopyable>("Sanitize", init<>());
-    class_<SceneSwitch, bases<Unit>, noncopyable>("SceneSwitch", init<int>());
+    class_<SceneSwitch, bases<Unit>, noncopyable>("SceneSwitch", init<int, int>());
 
     // filters
     class_<PortFilter, bases<Filter>, noncopyable>("PortFilter", init<std::vector<int> const &>());
