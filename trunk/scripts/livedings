@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# mididings
+#
+# Copyright (C) 2008-2010  Dominic Sacré  <dominic.sacre@gmx.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+
+import optparse
+import sys
+
+from mididings.live.livedings import LiveDings
+
+
+if __name__ == '__main__':
+    usage = "Usage: livedings -p control_port -l listen_port [options]"
+    parser = optparse.OptionParser(usage=usage)
+    parser.add_option('-p', dest='control_port', help="OSC port mididings is listening on")
+    parser.add_option('-l', dest='listen_port', help="OSC port for notifications from mididings")
+    parser.add_option('-x', dest='width', type=int, default=1024, help="width of window in pixels (1024)")
+    parser.add_option('-y', dest='height', type=int, default=600, help="height of window in pixels (600)")
+    parser.add_option('-w', dest='list_width', type=int, default=240, help="width of scene list in pixels (320)")
+    parser.add_option('-f', dest='font', default='Sans 32 bold', help="display font (Sans 32 bold)")
+    parser.add_option('-g', dest='list_font', default='Sans 16', help="scene list font (Sans 16)")
+    parser.add_option('-c', dest='color', default='green', help="text color (green)")
+    parser.add_option('-C', dest='color_highlight', default='white', help="highlight text color (white)")
+
+    options, args = parser.parse_args(sys.argv[1:])
+
+    if not options.listen_port:
+        parser.error("no OSC listen port specified")
+    if not options.control_port:
+        parser.error("no OSC control port specified")
+
+    app = LiveDings(options)
+    app.run()

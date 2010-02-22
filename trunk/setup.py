@@ -126,5 +126,6 @@ setup(
     ],
     scripts = [
         'scripts/mididings',
+        'scripts/livedings',
     ],
 )
