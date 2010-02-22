@@ -52,9 +52,11 @@ Engine::Engine(PyObject * self,
                bool verbose)
   : _self(self)
   , _verbose(verbose)
-  , _current(NULL)
-  , _current_num(-1)
+  , _current_patch(NULL)
+  , _current_scene(-1)
+  , _current_subscene(-1)
   , _new_scene(-1)
+  , _new_subscene(-1)
   , _noteon_patches(Config::MAX_SIMULTANEOUS_NOTES)
   , _sustain_patches(Config::MAX_SUSTAIN_PEDALS)
   , _python_caller(new PythonCaller(boost::bind(&Engine::run_async, this)))
@@ -86,6 +88,7 @@ Engine::Engine(PyObject * self,
         throw std::runtime_error("invalid backend selected: " + backend_name);
     }
 
+    // construct a patch with a single sanitize unit
     Patch::UnitPtr sani(new Sanitize);
     Patch::ModulePtr mod(new Patch::Single(sani));
     _sanitize_patch.reset(new Patch(mod));
@@ -104,12 +107,11 @@ Engine::~Engine()
 
 void Engine::add_scene(int i, PatchPtr patch, PatchPtr init_patch)
 {
-    ASSERT(!has_scene(i));
-
-    _patches[i] = patch;
-    if (init_patch) {
-        _init_patches[i] = init_patch;
+    if (!has_scene(i)) {
+        _scenes[i] = std::vector<ScenePtr>();
     }
+
+    _scenes[i].push_back(ScenePtr(new Scene(patch, init_patch)));
 }
 
 
@@ -139,12 +141,14 @@ void Engine::run_init(int initial_scene)
 
     // if no initial scene is specified, use the first one
     if (initial_scene == -1) {
-        initial_scene = _patches.begin()->first;
+        initial_scene = _scenes.begin()->first;
     }
     ASSERT(has_scene(initial_scene));
 
     _buffer.clear();
-    process_scene_switch(_buffer, initial_scene);
+
+    _new_scene = initial_scene;
+    process_scene_switch(_buffer);
 
     _backend->output_events(_buffer.begin(), _buffer.end());
     _backend->flush_output();
@@ -170,10 +174,7 @@ void Engine::run_cycle()
         process(_buffer, ev);
 
         // handle scene switches
-        if (_new_scene != -1) {
-            process_scene_switch(_buffer, _new_scene);
-            _new_scene = -1;
-        }
+        process_scene_switch(_buffer);
 
 #ifdef ENABLE_BENCHMARK
         gettimeofday(&tv2, NULL);
@@ -197,10 +198,7 @@ void Engine::run_async()
 
     _buffer.clear();
 
-    if (_new_scene != -1) {
-        process_scene_switch(_buffer, _new_scene);
-        _new_scene = -1;
-    }
+    process_scene_switch(_buffer);
 
     _backend->output_events(_buffer.begin(), _buffer.end());
     _backend->flush_output();
@@ -213,16 +211,13 @@ std::vector<MidiEvent> Engine::process_test(MidiEvent const & ev)
     std::vector<MidiEvent> v;
     Events buffer;
 
-    if (!_current) {
-        _current = &*_patches.find(0)->second;
+    if (!_current_patch) {
+        _current_patch = &*_scenes.find(0)->second[0]->patch;
     }
 
     process(buffer, ev);
 
-    if (_new_scene != -1) {
-        process_scene_switch(buffer, _new_scene);
-        _new_scene = -1;
-    }
+    process_scene_switch(buffer);
 
     v.insert(v.end(), buffer.begin(), buffer.end());
     return v;
@@ -262,12 +257,12 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
 {
     // note on: store current patch
     if (ev.type == MIDI_EVENT_NOTEON) {
-        _noteon_patches.insert(std::make_pair(make_notekey(ev), _current));
-        return _current;
+        _noteon_patches.insert(std::make_pair(make_notekey(ev), _current_patch));
+        return _current_patch;
     }
     // note off: retrieve and remove stored patch
     else if (ev.type == MIDI_EVENT_NOTEOFF) {
-        NotePatchMap::iterator i = _noteon_patches.find(make_notekey(ev));
+        NotePatchMap::const_iterator i = _noteon_patches.find(make_notekey(ev));
         if (i != _noteon_patches.end()) {
             Patch *p = i->second;
             _noteon_patches.erase(i);
@@ -275,13 +270,14 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
         }
     }
     // sustain pressed
+    // TODO: handle half-pedal correctly
     else if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == 64 && ev.ctrl.value == 127) {
-        _sustain_patches.insert(std::make_pair(make_sustainkey(ev), _current));
-        return _current;
+        _sustain_patches.insert(std::make_pair(make_sustainkey(ev), _current_patch));
+        return _current_patch;
     }
     // sustain released
     else if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == 64 && ev.ctrl.value == 0) {
-        SustainPatchMap::iterator i = _sustain_patches.find(make_sustainkey(ev));
+        SustainPatchMap::const_iterator i = _sustain_patches.find(make_sustainkey(ev));
         if (i != _sustain_patches.end()) {
             Patch *p = i->second;
             _sustain_patches.erase(i);
@@ -290,42 +286,59 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
     }
 
     // anything else: just use current patch
-    return _current;
+    return _current_patch;
 }
 
 
-void Engine::switch_scene(int n)
+void Engine::switch_scene(int scene, int subscene)
 {
-    _new_scene = n;
+    if (scene != -1) {
+        _new_scene = scene;
+    }
+    if (subscene != -1) {
+        _new_subscene = subscene;
+    }
 }
 
 
-void Engine::process_scene_switch(Events & buffer, int n)
+void Engine::process_scene_switch(Events & buffer)
 {
-    if (_patches.size() > 1) {
+    if (_new_scene == -1 && _new_subscene == -1) {
+        // nothing to do
+        return;
+    }
+
+    // call python scene switch handler if we have more than one scene
+    if (_scenes.size() > 1) {
         scoped_gil_lock gil;
         try {
-            boost::python::call_method<void>(_self, "_scene_switch_handler", n);
+            boost::python::call_method<void>(_self, "_scene_switch_handler", _new_scene, _new_subscene);
         } catch (boost::python::error_already_set &) {
             PyErr_Print();
         }
     }
 
-    PatchMap::iterator i = _patches.find(n);
+    // determine the actual scene and subscene number we're switching to
+    int scene = _new_scene != -1 ? _new_scene : _current_scene;
+    int subscene = _new_subscene != -1 ? _new_subscene : 0;
 
-    if (i != _patches.end()) {
-        _current = &*i->second;
-        _current_num = n;
+    SceneMap::const_iterator i = _scenes.find(scene);
 
-        PatchMap::iterator k = _init_patches.find(n);
+    // check if scene and subscene exist
+    if (i != _scenes.end() && static_cast<int>(i->second.size()) > subscene) {
+        // found something...
+        ScenePtr s = i->second[subscene];
 
-        if (k != _init_patches.end()) {
+        // check if the scene has an init patch
+        if (s->init_patch) {
+            // create dummy event to trigger init patch
             MidiEvent ev(MIDI_EVENT_DUMMY, 0, 0, 0, 0);
 
             EventIter it = buffer.insert(buffer.end(), ev);
             EventRange r(EventRange(it, buffer.end()));
 
-            k->second->process(buffer, r);
+            // run event through init patch
+            s->init_patch->process(buffer, r);
 
             if (_post_patch) {
                 _post_patch->process(buffer, r);
@@ -333,7 +346,18 @@ void Engine::process_scene_switch(Events & buffer, int n)
 
             _sanitize_patch->process(buffer, r);
         }
+
+        // store pointer to patch
+        _current_patch = &*s->patch;
+
+        // store scene and subscene numbers
+        _current_scene = scene;
+        _current_subscene = subscene;
     }
+
+    // mark as done
+    _new_scene = -1;
+    _new_subscene = -1;
 }
 
 

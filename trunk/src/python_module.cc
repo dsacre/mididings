@@ -82,6 +82,7 @@ BOOST_PYTHON_MODULE(_mididings)
     // engine
     class_<Sanitize, bases<Unit>, noncopyable>("Sanitize", init<>());
     class_<SceneSwitch, bases<Unit>, noncopyable>("SceneSwitch", init<int, int>());
+    class_<SubSceneSwitch, bases<Unit>, noncopyable>("SubSceneSwitch", init<int, int, bool>());
 
     // filters
     class_<PortFilter, bases<Filter>, noncopyable>("PortFilter", init<std::vector<int> const &>());
@@ -117,6 +118,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .def("start", &Engine::start)
         .def("switch_scene", &Engine::switch_scene)
         .def("current_scene", &Engine::current_scene)
+        .def("current_subscene", &Engine::current_subscene)
         .def("output_event", &Engine::output_event)
 #ifdef ENABLE_TEST
         .def("process", &Engine::process_test)

@@ -15,3 +15,9 @@ class Scene(object):
         self.name = name
         self.patch = patch
         self.init_patch = init_patch
+
+
+class SceneGroup(object):
+    def __init__(self, name, scenes):
+        self.name = name
+        self.scenes = scenes

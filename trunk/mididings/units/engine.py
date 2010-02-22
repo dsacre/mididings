@@ -38,3 +38,13 @@ def SceneSwitch(offset):
 def PatchSwitch(number=_constants.EVENT_PROGRAM):
     return SceneSwitch(number)
 
+
+@_unit_repr
+@_misc.overload
+def SubSceneSwitch(number=_constants.EVENT_PROGRAM):
+    return _Unit(_mididings.SubSceneSwitch(_util.scene_number(number) if number >= 0 else number, 0, False))
+
+@_unit_repr
+@_misc.overload
+def SubSceneSwitch(offset, wrap=True):
+    return _Unit(_mididings.SubSceneSwitch(0, offset, wrap))

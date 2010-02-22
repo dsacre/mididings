@@ -13,7 +13,6 @@
 import _mididings
 import mididings.patch as _patch
 import mididings.scene as _scene
-import mididings.event as _event
 import mididings.util as _util
 import mididings.misc as _misc
 import mididings.setup as _setup
@@ -31,36 +30,35 @@ _TheEngine = None
 
 class Engine(_mididings.Engine):
     def __init__(self, scenes, control, pre, post):
+        # build the actual port names
         self.in_ports = self._make_portnames(_get_config('in_ports'), 'in_')
         self.out_ports = self._make_portnames(_get_config('out_ports'), 'out_')
 
+        # initialize C++ base class
         _mididings.Engine.__init__(
-            self, _get_config('backend'),
+            self,
+            _get_config('backend'),
             _get_config('client_name'),
             _misc.make_string_vector(self.in_ports),
             _misc.make_string_vector(self.out_ports),
             _get_config('verbose')
         )
 
-        self._scene_names = {}
+        self._scenes = {}
 
         for i, s in scenes.items():
-            if isinstance(s, _scene.Scene):
-                init = [s.init_patch] if s.init_patch else []
-                proc = s.patch
-                self._scene_names[i] = s.name if s.name else ''
-            elif isinstance(s, tuple):
-                init = [s[0]]
-                proc = s[1]
-                self._scene_names[i] = ''
+            if isinstance(s, _scene.SceneGroup):
+                self._scenes[i] = (s.name, [])
+
+                for v in s.scenes:
+                    name, proc, init = self._parse_scene(v)
+                    self.add_scene(_util.scene_number(i), _patch.Patch(proc), _patch.Patch(init))
+                    self._scenes[i][1].append(name)
             else:
-                init = []
-                proc = s
-                self._scene_names[i] = ''
+                name, proc, init = self._parse_scene(s)
 
-            init += _patch.get_init_patches(proc)
-
-            self.add_scene(_util.scene_number(i), _patch.Patch(proc), _patch.Patch(init))
+                self._scenes[i] = (name, [])
+                self.add_scene(_util.scene_number(i), _patch.Patch(proc), _patch.Patch(init))
 
         control_patch = _patch.Patch(control) if control else None
         pre_patch = _patch.Patch(pre) if pre else None
@@ -87,7 +85,7 @@ class Engine(_mididings.Engine):
         self._call_hooks('on_start')
 
         n = _get_config('initial_scene')
-        if n != None and n in self._scene_names:
+        if n != None and n in self._scenes:
             initial_scene = _util.scene_number(n)
         else:
             initial_scene = -1
@@ -111,21 +109,55 @@ class Engine(_mididings.Engine):
         if _misc.issequence(ports):
             return ports
         else:
-            return [prefix + str(n + _get_config('data_offset')) for n in range(ports)]
+            return [prefix + str(_util.offset(n)) for n in range(ports)]
 
-    def _scene_switch_handler(self, n):
-        n += _get_config('data_offset')
-        found = n in self._scene_names
-        name = self._scene_names[n] if found else None
-
-        if found:
-            if name:
-                print "switching to scene %d: %s" % (n, name)
-            else:
-                print "switching to scene %d" % n
-            self._call_hooks('on_switch_scene', n)
+    def _parse_scene(self, s):
+        if isinstance(s, _scene.Scene):
+            init = [s.init_patch] if s.init_patch else []
+            proc = s.patch
+            name = s.name if s.name else ''
+        elif isinstance(s, tuple):
+            init = [s[0]]
+            proc = s[1]
+            name = ''
         else:
-            print "no such scene: %d" % n
+            init = []
+            proc = s
+            name = ''
+        init += _patch.get_init_patches(proc)
+        return name, proc, init
+
+    def _scene_switch_handler(self, scene, subscene):
+        if scene == -1:
+            scene = _mididings.Engine.current_scene(self)
+        if subscene == -1:
+            subscene = 0
+
+        subscene_index = subscene
+        scene = _util.offset(scene)
+        subscene = _util.offset(subscene)
+
+        # get string representation of scene/subscene number
+        if scene in self._scenes and self._scenes[scene][1]:
+            number = "%d.%d" % (scene, subscene)
+        else:
+            number = str(scene)
+
+        if scene in self._scenes:
+            # get scene/subscene name
+            scene_data = self._scenes[scene]
+            if scene_data[1]:
+                name = "%s - %s" % (scene_data[0], scene_data[1][subscene_index])
+            else:
+                name = scene_data[0]
+
+            if name:
+                print "switching to scene %s: %s" % (number, name)
+            else:
+                print "switching to scene %s" % number
+            self._call_hooks('on_switch_scene', scene, subscene)
+        else:
+            print "no such scene: %s" % number
 
     def _call_hooks(self, name, *args):
         for hook in _get_hooks():
@@ -133,14 +165,23 @@ class Engine(_mididings.Engine):
                 f = getattr(hook, name)
                 f(*args)
 
-    def switch_scene(self, n):
-        _mididings.Engine.switch_scene(self, _util.scene_number(n))
+    def switch_scene(self, scene, subscene=None):
+        _mididings.Engine.switch_scene(self,
+            _util.scene_number(scene),
+            _util.scene_number(subscene) if subscene != None else -1
+         )
+
+    def switch_subscene(self, subscene):
+        _mididings.Engine.switch_scene(self, -1, _util.scene_number(subscene))
 
     def current_scene(self):
-        return _mididings.Engine.current_scene(self) + _get_config('data_offset')
+        return _util.offset(_mididings.Engine.current_scene(self))
+
+    def current_subscene(self):
+        return _util.offset(_mididings.Engine.current_subscene(self))
 
     def get_scenes(self):
-        return self._scene_names
+        return self._scenes
 
     def quit(self):
         self._quit.set()
@@ -176,11 +217,17 @@ def process_file(infile, outfile, patch):
     e.process_file()
 
 
-def switch_scene(n):
-    _TheEngine().switch_scene(n)
+def switch_scene(scene, subscene=None):
+    _TheEngine().switch_scene(scene, subscene)
+
+def switch_subscene(subscene):
+    _TheEngine().switch_subscene(subscene)
 
 def current_scene():
     return _TheEngine().current_scene()
+
+def current_subscene():
+    return _TheEngine().current_subscene()
 
 def get_scenes():
     return _TheEngine().get_scenes()

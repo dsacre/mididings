@@ -234,3 +234,10 @@ class NoDataOffset(int):
         return 'NoDataOffset(%d)' % self
     def __str__(self):
         return 'NoDataOffset(%d)' % self
+
+
+def offset(n):
+    return n + _get_config('data_offset')
+
+def real(n):
+    return n - _get_config('data_offset')

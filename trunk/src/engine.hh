@@ -40,7 +40,18 @@ class Engine
   public:
 
     typedef boost::shared_ptr<Patch> PatchPtr;
-    typedef std::map<int, PatchPtr> PatchMap;
+
+    struct Scene {
+        Scene(PatchPtr patch_, PatchPtr init_patch_)
+          : patch(patch_), init_patch(init_patch_) { }
+
+        PatchPtr patch;
+        PatchPtr init_patch;
+    };
+
+    typedef boost::shared_ptr<Scene> ScenePtr;
+    typedef std::map<int, std::vector<ScenePtr> > SceneMap;
+
     typedef unsigned int EventKey;
     typedef std::tr1::unordered_map<EventKey, Patch *> NotePatchMap;
     typedef std::tr1::unordered_map<EventKey, Patch *> SustainPatchMap;
@@ -64,11 +75,26 @@ class Engine
 
     void start(int initial_scene);
 
-    void switch_scene(int n);
+    void switch_scene(int scene, int subscene = -1);
+
     bool sanitize_event(MidiEvent & ev) const;
 
-    int current_scene() const { return _current_num; }
-    bool has_scene(int n) const { return _patches.find(n) != _patches.end(); }
+    int current_scene() const {
+        return _current_scene;
+    }
+    int current_subscene() const {
+        return _current_subscene;
+    }
+    bool has_scene(int n) const {
+        return _scenes.find(n) != _scenes.end();
+    }
+    bool has_subscene(int n) const {
+        return num_subscenes() > n;
+    }
+    int num_subscenes() const {
+        SceneMap::const_iterator i = _scenes.find(_current_scene);
+        return i != _scenes.end() ? i->second.size() : 0;
+    }
 
     void output_event(MidiEvent const & ev);
 
@@ -85,7 +111,7 @@ class Engine
     void run_async();
 
     void process(Events & buffer, MidiEvent const & ev);
-    void process_scene_switch(Events & buffer, int n);
+    void process_scene_switch(Events & buffer);
 
 
     Patch * get_matching_patch(MidiEvent const & ev);
@@ -103,18 +129,20 @@ class Engine
 
     boost::shared_ptr<Backend> _backend;
 
-    PatchMap _patches;
-    PatchMap _init_patches;
+    SceneMap _scenes;
 
     PatchPtr _ctrl_patch;
     PatchPtr _pre_patch;
     PatchPtr _post_patch;
     PatchPtr _sanitize_patch;
 
-    Patch * _current;
-    int _current_num;
+    Patch * _current_patch;
+
+    int _current_scene;
+    int _current_subscene;
 
     int _new_scene;
+    int _new_subscene;
 
     NotePatchMap _noteon_patches;
     SustainPatchMap _sustain_patches;

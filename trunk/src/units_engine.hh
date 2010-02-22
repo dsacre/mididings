@@ -47,6 +47,7 @@ class SceneSwitch
         if (_offset == 0) {
             TheEngine->switch_scene(get_parameter(_num, ev));
         } else {
+            // FIXME: handle gaps in scene numbers
             int n = TheEngine->current_scene() + _offset;
             if (TheEngine->has_scene(n)) {
                 TheEngine->switch_scene(n);
@@ -58,6 +59,40 @@ class SceneSwitch
   private:
     int _num;
     int _offset;
+};
+
+
+class SubSceneSwitch
+  : public Unit
+{
+  public:
+    SubSceneSwitch(int num, int offset, bool wrap)
+      : _num(num)
+      , _offset(offset)
+      , _wrap(wrap)
+    {
+    }
+
+    virtual bool process(MidiEvent & ev)
+    {
+        if (_offset == 0) {
+            TheEngine->switch_scene(-1, get_parameter(_num, ev));
+        } else {
+            int n = TheEngine->current_subscene() + _offset;
+            if (_wrap) {
+                n %= TheEngine->num_subscenes();
+            }
+            if (TheEngine->has_subscene(n)) {
+                TheEngine->switch_scene(-1, n);
+            }
+        }
+        return false;
+    }
+
+  private:
+    int _num;
+    int _offset;
+    bool _wrap;
 };
 
 
