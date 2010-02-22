@@ -10,11 +10,10 @@
 # (at your option) any later version.
 #
 
-from mididings.units.base import Chain, Fork, Filter
+from mididings.units.base import Chain, Fork
 from mididings.units.filters import PortFilter, ChannelFilter, KeyFilter, VelocityFilter
 from mididings.units.filters import CtrlFilter, CtrlValueFilter, ProgramFilter, SysExFilter
 
-import mididings.event as _event
 import mididings.misc as _misc
 
 

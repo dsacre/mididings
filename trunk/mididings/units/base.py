@@ -12,7 +12,6 @@
 
 import _mididings
 
-import mididings.constants as _constants
 import mididings.misc as _misc
 
 

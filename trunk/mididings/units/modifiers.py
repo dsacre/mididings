@@ -12,8 +12,7 @@
 
 import _mididings
 
-from mididings.units.base import _Unit, _unit_repr
-from mididings.units.base import Chain, Filter, Split, Pass
+from mididings.units.base import _Unit, _unit_repr, Filter, Split, Pass
 from mididings.units.splits import VelocitySplit
 from mididings.units.generators import NoteOn, NoteOff
 
