@@ -84,18 +84,24 @@ class OSCInterface(object):
             _engine.switch_scene(s[n])
 
     @_liblo.make_method('/mididings/prev_subscene', '')
+    @_liblo.make_method('/mididings/prev_subscene', 'i')
     def prev_subscene_cb(self, path, args):
-        n = _engine.current_subscene() - 1
-        if _util.real(n) >= 0:
-            _engine.switch_subscene(n)
+        s = _engine.get_scenes()[_engine.current_scene()]
+        n = _util.real(_engine.current_subscene()) - 1
+        if len(s[1]) and len(args) and args[0]:
+            n %= len(s[1])
+        if n >= 0:
+            _engine.switch_subscene(_util.offset(n))
 
     @_liblo.make_method('/mididings/next_subscene', '')
+    @_liblo.make_method('/mididings/next_subscene', 'i')
     def next_subscene_cb(self, path, args):
-        n = _engine.current_subscene() + 1
-        s = _engine.get_scenes()[_engine.current_scene()][1]
-        if s and _util.real(n) < len(s):
-            _engine.switch_subscene(n)
-
+        s = _engine.get_scenes()[_engine.current_scene()]
+        n = _util.real(_engine.current_subscene()) + 1
+        if len(s[1]) and len(args) and args[0]:
+            n %= len(s[1])
+        if n < len(s[1]):
+            _engine.switch_subscene(_util.offset(n))
 
     @_liblo.make_method('/mididings/panic', '')
     def panic_cb(self, path, args):
