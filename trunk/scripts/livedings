@@ -17,18 +17,26 @@ import sys
 from mididings.live.livedings import LiveDings
 
 
+def fill_options(options, new_options):
+    for k, v in new_options.items():
+        if getattr(options, k) == None:
+            setattr(options, k, v)
+
+
 if __name__ == '__main__':
     usage = "Usage: livedings -p control_port -l listen_port [options]"
     parser = optparse.OptionParser(usage=usage)
     parser.add_option('-p', dest='control_port', help="OSC port mididings is listening on")
     parser.add_option('-l', dest='listen_port', help="OSC port for notifications from mididings")
-    parser.add_option('-x', dest='width', type=int, default=1024, help="width of window in pixels (1024)")
-    parser.add_option('-y', dest='height', type=int, default=600, help="height of window in pixels (600)")
-    parser.add_option('-w', dest='list_width', type=int, default=240, help="width of scene list in pixels (320)")
-    parser.add_option('-f', dest='font', default='Sans 32 bold', help="display font (Sans 32 bold)")
-    parser.add_option('-g', dest='list_font', default='Sans 16', help="scene list font (Sans 16)")
-    parser.add_option('-c', dest='color', default='green', help="text color (green)")
-    parser.add_option('-C', dest='color_highlight', default='white', help="highlight text color (white)")
+    parser.add_option('-T', dest='themed', default=False, action='store_true', help="enable custom theme")
+    parser.add_option('-x', dest='width', type=int, default=None, help="width of window in pixels")
+    parser.add_option('-y', dest='height', type=int, default=None, help="height of window in pixels")
+    parser.add_option('-w', dest='list_width', type=int, default=None, help="width of scene list in pixels")
+    parser.add_option('-F', dest='font', default=None, help="display font")
+    parser.add_option('-f', dest='list_font', default=None, help="scene list font")
+    parser.add_option('-c', dest='color', default=None, help="text color")
+    parser.add_option('-C', dest='color_highlight', default=None, help="highlight text color")
+    parser.add_option('-b', dest='color_background', default=None, help="background color")
 
     options, args = parser.parse_args(sys.argv[1:])
 
@@ -36,6 +44,29 @@ if __name__ == '__main__':
         parser.error("no OSC listen port specified")
     if not options.control_port:
         parser.error("no OSC control port specified")
+
+    if options.themed:
+        fill_options(options, {
+            'width': 1024,
+            'height': 640,
+            'list_width': 320,
+            'font': 'Sans 32 bold',
+            'list_font': 'Sans 16',
+            'color': 'green',
+            'color_highlight': 'white',
+            'color_background': 'black',
+        })
+    else:
+        fill_options(options, {
+            'width': 640,
+            'height': 400,
+            'list_width': 240,
+            'font': 'Sans 14 bold',
+            'list_font': 'Sans 10',
+            'color': 'gray50',
+            'color_highlight': 'black',
+            'color_background': None,
+        })
 
     app = LiveDings(options)
     app.run()

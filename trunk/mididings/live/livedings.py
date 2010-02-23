@@ -10,9 +10,7 @@
 # (at your option) any later version.
 #
 
-import Tkinter
-
-from themed import LiveThemedFactory
+from widgets import LiveThemedFactory, UnthemedFactory
 from osc_control import LiveOSC
 
 
@@ -24,9 +22,15 @@ class LiveDings(object):
         self.osc = LiveOSC(self, self.options.control_port, self.options.listen_port)
         self.osc.start()
 
+        if self.options.themed:
+            widget_factory = LiveThemedFactory(self.options.color,
+                                               self.options.color_highlight,
+                                               self.options.color_background)
+        else:
+            widget_factory = UnthemedFactory()
+
         # create the main window
-        self.win = Tkinter.Tk()
-        self.win.config(background='black', padx=8, pady=8)
+        self.win = widget_factory.Tk(padx=8, pady=8)
         self.win.title('livedings')
         self.win.minsize(480, 120)
         self.win.geometry('%dx%d' % (self.options.width, self.options.height))
@@ -38,17 +42,17 @@ class LiveDings(object):
         self.win.grid_rowconfigure(0, weight=1)
         self.win.grid_columnconfigure(1, minsize=self.options.list_width, weight=0)
         for n in range(3, 8):
-            self.win.grid_columnconfigure(n, weight=1, minsize=80)
-
-        themed = LiveThemedFactory(self.options)
+            self.win.grid_columnconfigure(n, weight=1, minsize=64)
 
         # create listbox
-        self.listbox = themed.Listbox(self.win)
+        self.listbox = widget_factory.Listbox(self.win, font=self.options.list_font,
+                                              selectmode='single', activestyle='none',
+                                              highlightthickness=0)
         self.listbox.grid(column=1, row=0, rowspan=2, sticky='nsew', padx=8)
         self.listbox.bind('<ButtonRelease-1>', lambda event: self.on_select_scene())
 
         # create scrollbar for listbox. will be attached to the grid only when necessary
-        self.scrollbar = themed.AutoScrollbar(self.win, orient='vertical')
+        self.scrollbar = widget_factory.AutoScrollbar(self.win, orient='vertical', width=16)
         self.scrollbar.set_show_hide(
             lambda: self.scrollbar.grid(column=0, row=0, rowspan=2, sticky='ns'),
             lambda: self.scrollbar.grid_forget()
@@ -57,28 +61,40 @@ class LiveDings(object):
         self.listbox.config(yscrollcommand=self.scrollbar.set)
 
         # create separator
-        separator = themed.Frame(self.win, width=2)
+        separator = widget_factory.Frame(self.win, width=2)
         separator.grid(column=2, row=0, rowspan=2, sticky='ns')
 
         # create canvas
-        self.canvas = Tkinter.Canvas(self.win)
-        self.canvas.config(background='black', highlightthickness=0)
+        self.canvas = widget_factory.Canvas(self.win, highlightthickness=0)
+        if self.options.color_background != None:
+            self.canvas.config(background=self.options.color_background)
         self.canvas.grid(column=3, columnspan=5, row=0, sticky='nsew')
         self.canvas.bind('<Button-1>', self.on_button_press)
         self.canvas.bind('<ButtonRelease-1>', self.on_button_release)
 
         # create buttons
-        self.btn_prev_scene = themed.Button(self.win, text=u"\u25c0\u25c0", width=80, command=self.osc.prev_scene)
+        try:
+            button_size = int(int(self.options.font.split(' ')[1]) / 1.5)
+        except IndexError:
+            button_size = 20
+        button_font = 'Sans %d bold' % button_size
+
+        self.btn_prev_scene = widget_factory.Button(self.win, text=u"\u25c0\u25c0",
+                                                    width=64, font=button_font, command=self.osc.prev_scene)
         self.btn_prev_scene.grid(column=3, row=1, padx=8)
-        self.btn_next_scene = themed.Button(self.win, text=u"\u25b6\u25b6", width=80, command=self.osc.next_scene)
+        self.btn_next_scene = widget_factory.Button(self.win, text=u"\u25b6\u25b6",
+                                                    width=64, font=button_font, command=self.osc.next_scene)
         self.btn_next_scene.grid(column=4, row=1, padx=8)
 
-        self.btn_prev_subscene = themed.Button(self.win, text=u"\u25c0", width=80, command=self.osc.prev_subscene)
+        self.btn_prev_subscene = widget_factory.Button(self.win, text=u"\u25c0",
+                                                       width=64, font=button_font, command=self.osc.prev_subscene)
         self.btn_prev_subscene.grid(column=5, row=1, padx=8)
-        self.btn_next_subscene = themed.Button(self.win, text=u"\u25b6", width=80, command=self.osc.next_subscene)
+        self.btn_next_subscene = widget_factory.Button(self.win, text=u"\u25b6",
+                                                       width=64, font=button_font, command=self.osc.next_subscene)
         self.btn_next_subscene.grid(column=6, row=1, padx=8)
 
-        self.btn_panic = themed.Button(self.win, text="!", width=80, command=self.osc.panic)
+        self.btn_panic = widget_factory.Button(self.win, text="!",
+                                               width=64, font=button_font, command=self.osc.panic)
         self.btn_panic.grid(column=7, row=1, padx=8)
 
         # attempt to calculate the height of one line in the current font. this is crazy...
@@ -111,19 +127,19 @@ class LiveDings(object):
         self._click_y = 0
 
     def on_select_scene(self):
-        n = int(self.listbox.curselection()[0])
-        self.osc.switch_scene(sorted(self.scenes.keys())[n])
+        cursel = self.listbox.curselection()
+        if cursel:
+            self.osc.switch_scene(sorted(self.scenes.keys())[int(cursel[0])])
 
     def on_button_press(self, event):
         self._click_x = event.x
         self._click_y = event.y
 
     def on_button_release(self, event):
-        if (self._click_y < 8 + 3 * self.line_height or
-            self._click_y > 8 + (len(self.scenes[self.current_scene][1])+3) * self.line_height):
-            return
-        n = (self._click_y - (8 + 3 * self.line_height)) / self.line_height
-        self.osc.switch_subscene(n + self.data_offset)
+        if (self._ready and self._click_y > 8 + 3 * self.line_height and
+            self._click_y < 8 + (len(self.scenes[self.current_scene][1])+3) * self.line_height):
+            n = (self._click_y - (8 + 3 * self.line_height)) / self.line_height
+            self.osc.switch_subscene(n + self.data_offset)
 
     def update(self, resize=False):
         width = self.canvas.winfo_width()
