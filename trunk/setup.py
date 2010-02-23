@@ -123,6 +123,7 @@ setup(
         'mididings',
         'mididings.units',
         'mididings.extra',
+        'mididings.live',
     ],
     scripts = [
         'scripts/mididings',
