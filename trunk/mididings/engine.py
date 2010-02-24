@@ -85,11 +85,22 @@ class Engine(_mididings.Engine):
         self._call_hooks('on_start')
 
         n = _get_config('initial_scene')
-        if n != None and n in self._scenes:
+        if n in self._scenes:
+            # scene number
             initial_scene = _util.scene_number(n)
+            initial_subscene = -1
+        elif _misc.issequence(n) and len(n) > 1 and n[0] in self._scenes:
+            # scene number as tuple...
+            initial_scene = _util.scene_number(n[0])
+            if _util.real(n[1]) < len(self._scenes[n[0]][1]):
+                # ...and valid subscene
+                initial_subscene = _util.scene_number(n[1])
+            else:
+                initial_subscene = -1
         else:
             initial_scene = -1
-        self.start(initial_scene)
+            initial_subscene = -1
+        self.start(initial_scene, initial_subscene)
 
         try:
             # wait() with no timeout also blocks KeyboardInterrupt, but a very long timeout doesn't. weird...

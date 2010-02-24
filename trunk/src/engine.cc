@@ -126,16 +126,16 @@ void Engine::set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr po
 }
 
 
-void Engine::start(int initial_scene)
+void Engine::start(int initial_scene, int initial_subscene)
 {
     _backend->start(
-        boost::bind(&Engine::run_init, this, initial_scene),
+        boost::bind(&Engine::run_init, this, initial_scene, initial_subscene),
         boost::bind(&Engine::run_cycle, this)
     );
 }
 
 
-void Engine::run_init(int initial_scene)
+void Engine::run_init(int initial_scene, int initial_subscene)
 {
     boost::mutex::scoped_lock lock(_process_mutex);
 
@@ -148,6 +148,7 @@ void Engine::run_init(int initial_scene)
     _buffer.clear();
 
     _new_scene = initial_scene;
+    _new_subscene = initial_subscene;
     process_scene_switch(_buffer);
 
     _backend->output_events(_buffer.begin(), _buffer.end());

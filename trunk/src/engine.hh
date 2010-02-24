@@ -73,7 +73,7 @@ class Engine
     void add_scene(int i, PatchPtr patch, PatchPtr init_patch);
     void set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch);
 
-    void start(int initial_scene);
+    void start(int initial_scene, int initial_subscene);
 
     void switch_scene(int scene, int subscene = -1);
 
@@ -106,7 +106,7 @@ class Engine
 
   private:
 
-    void run_init(int initial_scene);
+    void run_init(int initial_scene, int initial_subscene);
     void run_cycle();
     void run_async();
 

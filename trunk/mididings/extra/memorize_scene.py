@@ -21,7 +21,16 @@ class MemorizeScene(object):
     def on_start(self):
         try:
             f = open(self.memo_file)
-            _setup.config(initial_scene=int(f.read()))
+            s = f.read()
+            try:
+                # single scene number
+                _setup.config(initial_scene=int(s))
+            except ValueError:
+                try:
+                    # scene and subscene number
+                    _setup.config(initial_scene=tuple(map(int, s.split())))
+                except ValueError:
+                    pass
         except IOError:
             # couldn't open memo file, might not be an error
             pass
@@ -29,6 +38,6 @@ class MemorizeScene(object):
     def on_exit(self):
         try:
             f = open(self.memo_file, 'w')
-            f.write(str(_engine.current_scene()) + '\n')
+            f.write("%d %d\n" % (_engine.current_scene(), _engine.current_subscene()))
         except IOError, ex:
             print "couldn't store current scene:\n%s" % str(ex)
