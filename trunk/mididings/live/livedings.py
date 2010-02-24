@@ -216,7 +216,7 @@ class LiveDings(object):
             self.canvas.create_text(
                 width / 2 + 24,
                 8 + (n+3) * self.line_height,
-                text=s,
+                text=s if s else "(unnamed)",
                 fill=self.options.color_highlight if n + self.data_offset == subscene else self.options.color,
                 font=self.options.font,
                 anchor='n'
