@@ -52,6 +52,7 @@ class LiveThemedFactory(object):
             troughcolor=self.color_background,
             borderwidth=1,
             relief='flat',
+            width=16,
         )
         w.config(**options)
         return w

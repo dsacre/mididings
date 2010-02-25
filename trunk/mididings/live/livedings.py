@@ -52,7 +52,7 @@ class LiveDings(object):
         self.listbox.bind('<ButtonRelease-1>', lambda event: self.on_select_scene())
 
         # create scrollbar for listbox. will be attached to the grid only when necessary
-        self.scrollbar = widget_factory.AutoScrollbar(self.win, orient='vertical', width=16)
+        self.scrollbar = widget_factory.AutoScrollbar(self.win, orient='vertical')
         self.scrollbar.set_show_hide(
             lambda: self.scrollbar.grid(column=0, row=0, rowspan=2, sticky='ns'),
             lambda: self.scrollbar.grid_forget()

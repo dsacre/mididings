@@ -12,8 +12,9 @@
 
 from mididings import Call
 import mididings.engine as _engine
-import mididings.util as _util
 import mididings.setup as _setup
+import mididings.util as _util
+import mididings.misc as _misc
 
 import mididings.extra.panic as _panic
 
@@ -23,7 +24,10 @@ import liblo as _liblo
 class OSCInterface(object):
     def __init__(self, port, notify_ports=[]):
         self.port = port
-        self.notify_ports = notify_ports
+        if _misc.issequence(notify_ports):
+            self.notify_ports = notify_ports
+        else:
+            self.notify_ports = [notify_ports]
 
     def on_start(self):
         if self.port != None:
