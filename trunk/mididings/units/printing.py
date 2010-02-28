@@ -79,7 +79,8 @@ class _PrintString(_CallBase):
         self.string = string
         _CallBase.__init__(self, self.do_print, True, True)
     def do_print(self, ev):
-        print self.string
+        string = self.string(ev) if callable(self.string) else self.string
+        print string
 
 
 @_unit_repr
