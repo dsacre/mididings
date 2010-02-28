@@ -201,7 +201,7 @@ class Engine(_mididings.Engine):
 
 @_misc.overload
 def run(patch):
-    e = Engine({ 0: patch }, None, None, None)
+    e = Engine({ _util.offset(0): patch }, None, None, None)
     e.run()
 
 @_misc.overload
