@@ -63,21 +63,27 @@ class KeyFilter
   : public Filter
 {
   public:
-    KeyFilter(int lower, int upper)
+    KeyFilter(int lower, int upper, std::vector<int> const & notes)
       : Filter(MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF, true)
       , _lower(lower)
       , _upper(upper)
+      , _notes(notes)
     {
     }
 
     virtual bool process_filter(MidiEvent & ev)
     {
-        return ((ev.note.note >= _lower || _lower == 0) &&
-                (ev.note.note < _upper  || _upper == 0));
+        if (_lower || _upper) {
+            return ((ev.note.note >= _lower || _lower == 0) &&
+                    (ev.note.note < _upper  || _upper == 0));
+        } else {
+            return (std::find(_notes.begin(), _notes.end(), ev.note.note) != _notes.end());
+        }
     }
 
   private:
     int _lower, _upper;
+    std::vector<int> _notes;
 };
 
 

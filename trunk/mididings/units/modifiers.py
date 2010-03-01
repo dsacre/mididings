@@ -46,13 +46,12 @@ def Key(note):
 @_unit_repr
 def Velocity(*args, **kwargs):
     value, mode = _misc.call_overload(args, kwargs, [
-            lambda offset: (offset, 1),
-            lambda multiply: (multiply, 2),
-            lambda fixed: (fixed, 3),
-            lambda gamma: (gamma, 4),
-            lambda curve: (curve, 5),
-        ]
-    )
+        lambda offset: (offset, 1),
+        lambda multiply: (multiply, 2),
+        lambda fixed: (fixed, 3),
+        lambda gamma: (gamma, 4),
+        lambda curve: (curve, 5),
+    ])
     return _Unit(_mididings.Velocity(value, mode))
 
 
@@ -72,13 +71,12 @@ def VelocityCurve(gamma):
 @_unit_repr
 def VelocitySlope(*args, **kwargs):
     notes, values, mode = _misc.call_overload(args, kwargs, [
-            lambda notes, offset: (notes, offset, 1),
-            lambda notes, multiply: (notes, multiply, 2),
-            lambda notes, fixed: (notes, fixed, 3),
-            lambda notes, gamma: (notes, gamma, 4),
-            lambda notes, curve: (notes, curve, 5),
-        ]
-    )
+        lambda notes, offset: (notes, offset, 1),
+        lambda notes, multiply: (notes, multiply, 2),
+        lambda notes, fixed: (notes, fixed, 3),
+        lambda notes, gamma: (notes, gamma, 4),
+        lambda notes, curve: (notes, curve, 5),
+    ])
     note_numbers = [_util.note_number(n) for n in notes]
 
     if len(notes) != len(values):

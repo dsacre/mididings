@@ -87,7 +87,7 @@ BOOST_PYTHON_MODULE(_mididings)
     // filters
     class_<PortFilter, bases<Filter>, noncopyable>("PortFilter", init<std::vector<int> const &>());
     class_<ChannelFilter, bases<Filter>, noncopyable>("ChannelFilter", init<std::vector<int> const &>());
-    class_<KeyFilter, bases<Filter>, noncopyable>("KeyFilter", init<int, int>());
+    class_<KeyFilter, bases<Filter>, noncopyable>("KeyFilter", init<int, int, std::vector<int> const &>());
     class_<VelocityFilter, bases<Filter>, noncopyable>("VelocityFilter", init<int, int>());
     class_<CtrlFilter, bases<Filter>, noncopyable>("CtrlFilter", init<std::vector<int> const &>());
     class_<CtrlValueFilter, bases<Filter>, noncopyable>("CtrlValueFilter", init<int, int>());

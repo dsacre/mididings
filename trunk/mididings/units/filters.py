@@ -33,21 +33,25 @@ def ChannelFilter(*args):
 @_unit_repr
 def KeyFilter(*args, **kwargs):
     note_range = _misc.call_overload(args, kwargs, [
-            lambda note_range: _util.note_range(note_range),
-            lambda note: (_util.note_number(note), _util.note_number(note) + 1),
-            lambda lower, upper: _util.note_range((lower, upper)),
-        ]
-    )
-    return _Filter(_mididings.KeyFilter(*note_range))
+        lambda note_range: _util.note_range(note_range),
+        lambda note: (_util.note_number(note), _util.note_number(note) + 1),
+        lambda lower, upper: _util.note_range((lower, upper)),
+        lambda notes: list(notes),
+    ])
+    if isinstance(note_range, list):
+        v = _misc.make_int_vector((_util.note_number(k) for k in note_range))
+        return _Filter(_mididings.KeyFilter(0, 0, v))
+    else:
+        v = _misc.make_int_vector([])
+        return _Filter(_mididings.KeyFilter(note_range[0], note_range[1], v))
 
 
 @_unit_repr
 def VelocityFilter(*args, **kwargs):
     lower, upper = _misc.call_overload(args, kwargs, [
-            lambda value: (value, 0),
-            lambda lower, upper: (lower, upper),
-        ]
-    )
+        lambda value: (value, 0),
+        lambda lower, upper: (lower, upper),
+    ])
     return _Filter(_mididings.VelocityFilter(lower, upper))
 
 
@@ -60,10 +64,9 @@ def CtrlFilter(*args):
 @_unit_repr
 def CtrlValueFilter(*args, **kwargs):
     lower, upper = _misc.call_overload(args, kwargs, [
-            lambda value: (value, 0),
-            lambda lower, upper: (lower, upper),
-        ]
-    )
+        lambda value: (value, 0),
+        lambda lower, upper: (lower, upper),
+    ])
     return _Filter(_mididings.CtrlValueFilter(lower, upper))
 
 

@@ -14,6 +14,9 @@ from mididings import *
 import mididings.util as _util
 import mididings.misc as _misc
 
+import itertools as _itertools
+from operator import itemgetter as _itemgetter
+
 
 _MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11]
 _HARMONIC_MINOR_SCALE = [0, 2, 3, 5, 7, 8, 11]
@@ -29,7 +32,7 @@ class _Harmonizer(object):
         self.tonic = tonic
         self.lookup = {}
 
-        # for each note in the scale, calculate the number of semitones for the interval
+        # for each note in the scale, calculate the transpose interval
         for x in scale:
             l = len(scale)
             i = scale.index(x) + interval
@@ -103,7 +106,14 @@ def Harmonize(tonic, scale, interval, non_harmonic='below'):
     f = []
     for i in iv:
         h = _Harmonizer(t, s, i, non_harmonic)
-        f.extend([ KeyFilter(x) >> Transpose(h.note_offset(x)) \
-                   for x in range(128) if h.note_offset(x) != None ])
+        # get offset for each key
+        offsets = [(x, h.note_offset(x)) for x in range(128)]
+        # group by offset
+        groups = _itertools.groupby(sorted(offsets, key=_itemgetter(1)), key=_itemgetter(1))
+
+        # create one KeyFilter()/Transpose() pair for each offset
+        for off, keys in groups:
+            if off != None:
+                f.append(KeyFilter(notes=[k[0] for k in keys]) >> Transpose(off))
 
     return Filter(NOTE) % f
