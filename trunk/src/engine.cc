@@ -101,8 +101,6 @@ Engine::~Engine()
 
     // needs to be gone before the engine can safely be destroyed
     _python_caller.reset();
-
-    boost::mutex::scoped_lock lock(_process_mutex);
     _backend.reset();
 }
 
