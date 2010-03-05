@@ -10,8 +10,6 @@
 # (at your option) any later version.
 #
 
-from mididings import *
-
 
 class PerChannel(object):
     def __init__(self, factory):

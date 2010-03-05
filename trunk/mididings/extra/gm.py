@@ -13,6 +13,7 @@
 import mididings.util as _util
 
 (
+    # 1
     ACOUSTIC_GRAND_PIANO,
     BRIGHT_ACOUSTIC_PIANO,
     ELECTRIC_GRAND_PIANO,
@@ -21,6 +22,7 @@ import mididings.util as _util
     ELECTRIC_PIANO_2,
     HARPSICHORD,
     CLAVINET,
+    # 9
     CELESTA,
     GLOCKENSPIEL,
     MUSIC_BOX,
@@ -29,6 +31,7 @@ import mididings.util as _util
     XYLOPHONE,
     TUBULAR_BELLS,
     DULCIMER,
+    # 17
     DRAWBAR_ORGAN,
     PERCUSSIVE_ORGAN,
     ROCK_ORGAN,
@@ -37,6 +40,7 @@ import mididings.util as _util
     ACCORDION,
     HARMONICA,
     TANGO_ACCORDION,
+    # 25
     ACOUSTIC_GUITAR_NYLON,
     ACOUSTIC_GUITAR_STEEL,
     ELECTRIC_GUITAR_JAZZ,
@@ -45,6 +49,7 @@ import mididings.util as _util
     OVERDRIVEN_GUITAR,
     DISTORTION_GUITAR,
     GUITAR_HARMONICS,
+    # 33
     ACOUSTIC_BASS,
     ELECTRIC_BASS_FINGER,
     ELECTRIC_BASS_PICK,
@@ -53,6 +58,7 @@ import mididings.util as _util
     SLAP_BASS_2,
     SYNTH_BASS_1,
     SYNTH_BASS_2,
+    # 41
     VIOLIN,
     VIOLA,
     CELLO,
@@ -61,6 +67,7 @@ import mididings.util as _util
     PIZZICATO_STRINGS,
     ORCHESTRAL_HARP,
     TIMPANI,
+    # 49
     STRING_ENSEMBLE_1,
     STRING_ENSEMBLE_2,
     SYNTH_STRINGS_1,
@@ -69,6 +76,7 @@ import mididings.util as _util
     VOICE_OOHS,
     SYNTH_VOICE,
     ORCHESTRA_HIT,
+    # 57
     TRUMPET,
     TROMBONE,
     TUBA,
@@ -77,6 +85,7 @@ import mididings.util as _util
     BRASS_SECTION,
     SYNTHBRASS_1,
     SYNTHBRASS_2,
+    # 65
     SOPRANO_SAX,
     ALTO_SAX,
     TENOR_SAX,
@@ -85,6 +94,7 @@ import mididings.util as _util
     ENGLISH_HORN,
     BASSOON,
     CLARINET,
+    # 73
     PICCOLO,
     FLUTE,
     RECORDER,
@@ -93,6 +103,7 @@ import mididings.util as _util
     SHAKUHACHI,
     WHISTLE,
     OCARINA,
+    # 81
     LEAD_1_SQUARE,
     LEAD_2_SAWTOOTH,
     LEAD_3_CALLIOPE,
@@ -101,6 +112,7 @@ import mididings.util as _util
     LEAD_6_VOICE,
     LEAD_7_FIFTHS,
     LEAD_8_BASS_LEAD,
+    # 89
     PAD_1_NEW_AGE,
     PAD_2_WARM,
     PAD_3_POLYSYNTH,
@@ -109,6 +121,7 @@ import mididings.util as _util
     PAD_6_METALLIC,
     PAD_7_HALO,
     PAD_8_SWEEP,
+    # 97
     FX_1_RAIN,
     FX_2_SOUNDTRACK,
     FX_3_CRYSTAL,
@@ -117,6 +130,7 @@ import mididings.util as _util
     FX_6_GOBLINS,
     FX_7_ECHOES,
     FX_8_SCI_FI,
+    # 105
     SITAR,
     BANJO,
     SHAMISEN,
@@ -125,6 +139,7 @@ import mididings.util as _util
     BAGPIPE,
     FIDDLE,
     SHANAI,
+    # 113
     TINKLE_BELL,
     AGOGO,
     STEEL_DRUMS,
@@ -133,6 +148,7 @@ import mididings.util as _util
     MELODIC_TOM,
     SYNTH_DRUM,
     REVERSE_CYMBAL,
+    # 121
     GUITAR_FRET_NOISE,
     BREATH_NOISE,
     SEASHORE,
