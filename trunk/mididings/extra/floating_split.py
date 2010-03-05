@@ -17,10 +17,11 @@ import time as _time
 
 
 class _FloatingKeySplitAnalyze(object):
-    def __init__(self, threshold_lower, threshold_upper, hold_time):
+    def __init__(self, threshold_lower, threshold_upper, hold_time, margin_lower, margin_upper):
         self.threshold_lower = _util.note_number(threshold_lower)
         self.threshold_upper = _util.note_number(threshold_upper)
-        self.margin = (self.threshold_upper - self.threshold_lower) * 0.7
+        self.margin_lower = margin_lower
+        self.margin_upper = margin_upper
         self.hold_time = hold_time
 
         self.notes_lower = {}
@@ -38,8 +39,8 @@ class _FloatingKeySplitAnalyze(object):
                 del self.notes_upper[k]
 
         # calculate new threshold
-        lower = max(self.notes_lower) if len(self.notes_lower) else self.threshold_lower - self.margin
-        upper = min(self.notes_upper) if len(self.notes_upper) else self.threshold_upper + self.margin
+        lower = max(self.notes_lower) if len(self.notes_lower) else self.threshold_lower - self.margin_lower
+        upper = min(self.notes_upper) if len(self.notes_upper) else self.threshold_upper + self.margin_upper
         self.threshold = min(max((lower + upper + 1) / 2, self.threshold_lower), self.threshold_upper)
 
         if ev.type == NOTEON:
@@ -75,8 +76,9 @@ class _FloatingKeySplitFilter(object):
             return ev
 
 
-def FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper, hold_time=1.0):
-    analyze = _FloatingKeySplitAnalyze(threshold_lower, threshold_upper, hold_time)
+def FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper,
+                     hold_time=1.0, margin_lower=12, margin_upper=12):
+    analyze = _FloatingKeySplitAnalyze(threshold_lower, threshold_upper, hold_time, margin_lower, margin_upper)
     return Split({
         NOTE:   Process(analyze) >> [
                     Process(_FloatingKeySplitFilter(analyze, 0)) >> patch_lower,
