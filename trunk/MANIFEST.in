@@ -5,12 +5,14 @@ include NEWS
 include mididings/*.py
 include mididings/units/*.py
 include mididings/extra/*.py
+include mididings/live/*.py
 include src/SConstruct
 include src/*.hh
 include src/*.cc
 include src/util/*.hh
 include test/unit.py
 include scripts/mididings
+include scripts/livedings
 include doc/*.html
 include doc/*.png
 include doc/style.css

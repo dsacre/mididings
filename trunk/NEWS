@@ -1,3 +1,16 @@
+2010-03-07
+
+  * Added livedings as a graphical frontend to mididings that allows
+    monitoring and triggering scene changes.
+  * Added SceneGroup() to make multiple subscenes accessible under a single
+    program number.
+  * Support floating split points using the new FloatingKeySplit() unit.
+  * Added Panic() to send all-notes-off messages on all channels.
+  * Several new OSC messages supported by mididings.extra.OSCInterface().
+  * New module mididings.extra.gm containing constants for program and
+    controller numbers defined in the General MIDI standard.
+  * Enable realtime scheduling for MIDI processing with the 'jack' backend.
+
 2010-02-02
 
   * Major documentation update, now including a tutorial and explaining
