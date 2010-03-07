@@ -19,7 +19,10 @@
 
 
 <ul>
-    <li><a href="gettingstarted.html">Getting Started</a>
+    <li class="toplevel"><a href="gettingstarted.html">Getting Started</a>
+        <p>
+            Some simple examples. If you have no idea what mididings is all about, this is the place to start.
+        </p>
         <ul>
             <li><a href="gettingstarted.html#anatomy">Anatomy of a mididings script</a></li>
             <li><a href="gettingstarted.html#examples">Examples</a>
@@ -32,7 +35,7 @@
             <li><a href="gettingstarted.html#commandline">Command line usage</a></li>
         </ul>
     </li>
-    <li><a href="basics.html">Basics</a>
+    <li class="toplevel"><a href="basics.html">Basics</a>
         <ul>
             <li><a href="basics.html#connect">Connections</a></li>
             <li><a href="basics.html#notes">Note names and ranges</a></li>
@@ -40,7 +43,10 @@
             <li><a href="basics.html#misc">Miscellaneous</a>
         </ul>
     </li>
-    <li><a href="reference.html">Reference</a>
+    <li class="toplevel"><a href="reference.html">Reference</a>
+        <p>
+            Documentation of the core mididings module.
+        </p>
         <ul>
             <li><a href="reference.html#functions">Functions</a></li>
             <li><a href="reference.html#classes">Classes</a></li>
@@ -57,15 +63,19 @@
             </li>
         </ul>
     </li>
-    <li><a href="extra.html">Extra</a>
+    <li class="toplevel"><a href="extra.html">Extra Reference</a>
+        <p>
+            The mididings.extra package contains functions which require additional dependencies, or which just
+            didn't fit anywhere else.
+        </p>
         <ul>
             <li><a href="extra.html#units">Units</a></li>
             <li><a href="extra.html#hooks">Hooks</a></li>
+            <li><a href="extra.html#misc">Miscellaneous</a></li>
         </ul>
     </li>
-    <li><a href="examples">Examples</a>
+    <li class="toplevel"><a href="examples">Examples</a>
         <ul>
-            <li><a href="./examples/print.py">print.py</a> - printing MIDI events to stdout</li>
             <li><a href="./examples/output.py">output.py</a> - uses the Output() unit to simplify MIDI routing and sending program changes</li>
             <li><a href="./examples/process.py">process.py</a> - shows how to process MIDI events in Python</li>
             <li><a href="./examples/hooks.py">hooks.py</a> - demonstrates the use of hooks extending mididings' functionality</li>

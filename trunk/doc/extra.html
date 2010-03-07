@@ -3,14 +3,14 @@
 <html lang="en">
 
 <head>
-    <title>mididings - Extra</title>
+    <title>mididings - Extra Reference</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel=stylesheet type="text/css" href="style.css">
 </head>
 
 <body>
 
-<h1>Extra</h1>
+<h1>Extra Reference</h1>
 
 <div class="nav">
     <a href="index.html">mididings Documentation</a>
@@ -57,6 +57,25 @@ Example: add a third above each note, based on the C# harmonic minor scale.
 Harmonize('c#', 'minor_harmonic', ['unison', 'third'])
 </pre></div>
 
+<h4>FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper, hold_time=1.0, margin_lower=12, margin_upper=12)</h4>
+<p>
+Creates a floating split point that moves depending on what you are playing.
+</p>
+<ul>
+  <li><b>threshold_lower, threshold_upper</b>: The lower and upper notes between which the split point is allowed to move.</li>
+  <li><b>patch_lower, patch_upper</b>: Patches to which notes below/above the split point will be sent.</b>
+  <li><b>hold_time</b>: Specifies how long released notes will still be taken into account when determining the split point.</li>
+  <li><b>margin_lower, margin_upper</b>: Numbers of semitones specifying how close you must get to the split point before it starts
+    getting pushed into the other direction.</li>
+</ul>
+
+<div class="exampleheader">
+Example: split the keyboard somewhere between C2 and C3.
+</div>
+<div class="example"><pre>
+FloatingKeySplit('c2', 'c3', Channel(1), Channel(2))
+</pre></div>
+
 <h4>LimitPolyphony(max_polyphony, remove_oldest=True)</h4>
 <p>
 Limits the "MIDI polyphony" to max_polyphony.
@@ -97,19 +116,27 @@ WhiteKeys()</h4>
 Filters notes by key color.
 </p>
 
+<h4>Panic(bypass=True)</h4>
+<p>
+Generates all-notes-off messages (CC #123) on all channels.
+If bypass is True, these messages will be sent directly on all output ports, without going through the
+rest of the patch.
+</p>
+
 <h4>SendOSC(target, path, ...)</h4>
 <p>
 <i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i><br>
 Sends an OSC message. Parameters are the same as for liblo.send().
-Additionally, rather than a concrete value, each data argument can be a Python function instead.
-The function should then take a single MidiEvent parameter, and return the value to be sent.
+Additionally, instead of a specific value, each data argument can also be a Python function that takes a
+single MidiEvent parameter, and returns the value to be sent.
 </p>
 
 <h4>SendDBUS(service, path, interface, method, ...)</h4>
 <p>
 <i>Defined in mididings.extra.dbus. Requires dbus-python.</i><br>
-Sends a DBUS message. Rather than a concrete value, each data argument can be a Python function instead.
-The function should then take a single MidiEvent parameter, and return the value to be sent.
+Sends a DBUS message.
+Instead of a specific value, each data argument can also be a Python function that takes a
+single MidiEvent parameter, and returns the value to be sent.
 </p>
 
 <div class="exampleheader">
@@ -134,13 +161,19 @@ Saves the currently selected scene number to a file when terminating mididings, 
 memo_file is the path of the file to be used to store the scene number.
 </p>
 
-<h4>OSCInterface(port)</h4>
+<h4>OSCInterface(port, notify_ports=[])</h4>
 <p>
 <i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i><br>
 Allows controlling mididings via OSC. These messages are currently understood:
 </p>
 <ul>
   <li><b>/mididings/switch_scene ,i</b>: switches to the given scene number.</li>
+  <li><b>/mididings/switch_subscene ,i</b>: switches to the given subscene number.</li>
+  <li><b>/mididings/prev_scene</b>: switches to the previous scene.</li>
+  <li><b>/mididings/next_scene</b>: switches to the next scene.</li>
+  <li><b>/mididings/prev_subscene</b>: switches to the previous subscene.</li>
+  <li><b>/mididings/next_subscene</b>: switches to the next subscene.</li>
+  <li><b>/mididings/panic</b>: sends all-notes-off on all channels and on all output ports.</li>
   <li><b>/mididings/quit</b>: terminates mididings.</li>
 </ul>
 
@@ -155,6 +188,195 @@ reestablishing any ALSA/JACK connections.
 If the new script contains errors that prevent it from running, mididings exits and needs to be restarted manually
 once the errors are fixed.
 </p>
+
+
+<h2><a name="misc"></a>Miscellaneous</h2>
+
+<h4>livedings</h4>
+<p>
+livedings is a graphical frontend for mididings that allows you to monitor and trigger scene changes.
+It runs as a separate application that uses OSC to communicate with mididings.
+To use it, enable the OSCInterface hook in your mididings script, specifying two unused UDP ports:
+</p>
+
+<div class="example"><pre>
+from mididings.extra import OSCInterface
+
+hook(OSCInterface(56418, 56419))
+...
+</pre></div>
+
+<p>
+Then run livedings with the same port numbers:
+</p>
+
+<div class="example"><pre>
+$ livedings -p 56418 -l 56419
+</pre></div>
+
+<p>
+The first port is used by mididings to listen for commands, the second one is used to notify livedings of scene changes.<br>
+By default, livedings uses the standard Tk theme. Specify the <kbd>-T</kbd> option to switch to a custom theme with higher
+contrast and larger fonts. See '<kbd>livedings --help</kbd>' for more options.
+</p>
+
+
+<h4>gm</h4>
+<p>
+The <i>mididings.extra.gm</i> module contains constants for program and controller numbers defined in the General MIDI standard.
+</p>
+<p>
+<b>Programs:</b><br>
+ACOUSTIC_GRAND_PIANO,
+BRIGHT_ACOUSTIC_PIANO,
+ELECTRIC_GRAND_PIANO,
+HONKY_TONK_PIANO,
+ELECTRIC_PIANO_1,
+ELECTRIC_PIANO_2,
+HARPSICHORD,
+CLAVINET,
+CELESTA,
+GLOCKENSPIEL,
+MUSIC_BOX,
+VIBRAPHONE,
+MARIMBA,
+XYLOPHONE,
+TUBULAR_BELLS,
+DULCIMER,
+DRAWBAR_ORGAN,
+PERCUSSIVE_ORGAN,
+ROCK_ORGAN,
+CHURCH_ORGAN,
+REED_ORGAN,
+ACCORDION,
+HARMONICA,
+TANGO_ACCORDION,
+ACOUSTIC_GUITAR_NYLON,
+ACOUSTIC_GUITAR_STEEL,
+ELECTRIC_GUITAR_JAZZ,
+ELECTRIC_GUITAR_CLEAN,
+ELECTRIC_GUITAR_MUTED,
+OVERDRIVEN_GUITAR,
+DISTORTION_GUITAR,
+GUITAR_HARMONICS,
+ACOUSTIC_BASS,
+ELECTRIC_BASS_FINGER,
+ELECTRIC_BASS_PICK,
+FRETLESS_BASS,
+SLAP_BASS_1,
+SLAP_BASS_2,
+SYNTH_BASS_1,
+SYNTH_BASS_2,
+VIOLIN,
+VIOLA,
+CELLO,
+CONTRABASS,
+TREMOLO_STRINGS,
+PIZZICATO_STRINGS,
+ORCHESTRAL_HARP,
+TIMPANI,
+STRING_ENSEMBLE_1,
+STRING_ENSEMBLE_2,
+SYNTH_STRINGS_1,
+SYNTH_STRINGS_2,
+CHOIR_AAHS,
+VOICE_OOHS,
+SYNTH_VOICE,
+ORCHESTRA_HIT,
+TRUMPET,
+TROMBONE,
+TUBA,
+MUTED_TRUMPET,
+FRENCH_HORN,
+BRASS_SECTION,
+SYNTHBRASS_1,
+SYNTHBRASS_2,
+SOPRANO_SAX,
+ALTO_SAX,
+TENOR_SAX,
+BARITONE_SAX,
+OBOE,
+ENGLISH_HORN,
+BASSOON,
+CLARINET,
+PICCOLO,
+FLUTE,
+RECORDER,
+PAN_FLUTE,
+BLOWN_BOTTLE,
+SHAKUHACHI,
+WHISTLE,
+OCARINA,
+LEAD_1_SQUARE,
+LEAD_2_SAWTOOTH,
+LEAD_3_CALLIOPE,
+LEAD_4_CHIFF,
+LEAD_5_CHARANG,
+LEAD_6_VOICE,
+LEAD_7_FIFTHS,
+LEAD_8_BASS_LEAD,
+PAD_1_NEW_AGE,
+PAD_2_WARM,
+PAD_3_POLYSYNTH,
+PAD_4_CHOIR,
+PAD_5_BOWED,
+PAD_6_METALLIC,
+PAD_7_HALO,
+PAD_8_SWEEP,
+FX_1_RAIN,
+FX_2_SOUNDTRACK,
+FX_3_CRYSTAL,
+FX_4_ATMOSPHERE,
+FX_5_BRIGHTNESS,
+FX_6_GOBLINS,
+FX_7_ECHOES,
+FX_8_SCI_FI,
+SITAR,
+BANJO,
+SHAMISEN,
+KOTO,
+KALIMBA,
+BAGPIPE,
+FIDDLE,
+SHANAI,
+TINKLE_BELL,
+AGOGO,
+STEEL_DRUMS,
+WOODBLOCK,
+TAIKO_DRUM,
+MELODIC_TOM,
+SYNTH_DRUM,
+REVERSE_CYMBAL,
+GUITAR_FRET_NOISE,
+BREATH_NOISE,
+SEASHORE,
+BIRD_TWEET,
+TELEPHONE_RING,
+HELICOPTER,
+APPLAUSE,
+GUNSHOT.
+</p>
+<p>
+<b>Controllers:</b><br>
+CTRL_BANK_SELECT_MSB,
+CTRL_MODULATION,
+CTRL_VOLUME,
+CTRL_PAN,
+CTRL_EXPRESSION,
+CTRL_BANK_SELECT_LSB,
+CTRL_SUSTAIN,
+CTRL_PORTAMENTO,
+CTRL_SOSTENUTO,
+CTRL_SOFT_PEDAL,
+CTRL_LEGATO_PEDAL,
+CTRL_NRPN_LSB,
+CTRL_NRPN_MSB,
+CTRL_RPN_LSB,
+CTRL_RPN_MSB,
+CTRL_RESET_ALL_CONTROLLERS,
+CTRL_ALL_NOTES_OFF.
+</p>
+
 
 </body>
 

@@ -15,7 +15,7 @@
 <div class="nav">
     <a href="index.html">mididings Documentation</a>
     <a href="basics.html" class="navprev">&lt;- Basics</a>
-    <a href="extra.html" class="navnext">Extra -&gt;</a>
+    <a href="extra.html" class="navnext">Extra Reference -&gt;</a>
 </div>
 
 
@@ -99,6 +99,13 @@ Constructs a Scene object to be used with the run() function.
     <li><b>patch</b>: The patch defining the MIDI processing to take place for incoming events.</li>
     <li><b>init_patch</b>: An optional patch that will be triggered when switching to this scene.</li>
 </ul>
+
+<h4>SceneGroup(name, [subscene, ...])</h4>
+<p>
+Constructs a SceneGroup object.
+This can be used to group multiple scenes under a common name and program number.
+Each of the subscenes should be a Scene object.
+</p>
 
 <h4>MidiEvent</h4>
 <p>
@@ -213,7 +220,8 @@ Filters by event port or channel.
 
 <h4>KeyFilter(note)<br>
 KeyFilter(lower, upper)<br>
-KeyFilter(note_range)</h4>
+KeyFilter(note_range)<br>
+KeyFilter(notes=...)</h4>
 <p>
 Filters by note or note-range.
 </p>
@@ -450,11 +458,20 @@ Discards the current event.
 </p>
 
 <h4>SceneSwitch()<br>
-SceneSwitch(number)</h4>
+SceneSwitch(number)<br>
+SceneSwitch(offset=...)</h4>
 <p>
 Switches to another scene.
 number should be a scene number, or one of the EVENT_* constants.
+offset can be positive or negative and will be added to the current scene number.
 Without parameters, the program number of the incoming event (should be a program change) will be used.
+</p>
+
+<h4>SubSceneSwitch()<br>
+SubSceneSwitch(number)<br>
+SubSceneSwitch(offset=..., wrap=True)</h4>
+<p>
+Switches between subscenes within a scene group.
 </p>
 
 <h4>Init(patch)</h4>
@@ -482,7 +499,8 @@ Prints event data.
 
 <h4>Print(string=...)</h4>
 <p>
-Prints a fixed string.
+Prints a string.
+Instead of a fixed value, string can also be a Python function that takes a single MidiEvent parameter, and returns the string to be sent.
 </p>
 
 <h4>Sanitize()</h4>
