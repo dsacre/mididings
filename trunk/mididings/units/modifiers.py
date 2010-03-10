@@ -105,12 +105,20 @@ def VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper):
     return VelocitySlope((note_lower, note_upper), fixed=(value_lower, value_upper))
 
 
-def VelocityLimit(lower, upper):
-    return Filter(_constants.NOTE) % VelocitySplit({
-        (0, lower):     Velocity(fixed=lower),
-        (lower, upper): Pass(),
-        (upper, 0):     Velocity(fixed=upper),
-    })
+def VelocityLimit(*args, **kwargs):
+    lower, upper = _misc.call_overload(args, kwargs, [
+        lambda lower, upper: (lower, upper),
+        lambda upper: (0, upper),
+        lambda lower: (lower, 0),
+    ])
+
+    d = { (lower, upper): Pass() }
+    if lower:
+        d[(0, lower)] = Velocity(fixed=lower)
+    if upper:
+        d[(upper, 0)] = Velocity(fixed=upper)
+
+    return Filter(_constants.NOTE) % VelocitySplit(d)
 
 
 @_unit_repr
