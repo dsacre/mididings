@@ -21,6 +21,7 @@ from mididings.setup import get_config as _get_config
 import thread as _thread
 import subprocess as _subprocess
 import functools as _functools
+import inspect as _inspect
 
 
 class _CallBase(_Unit):
@@ -30,7 +31,13 @@ class _CallBase(_Unit):
     def do_call(self, ev):
         # add additional properties that don't exist on the C++ side
         ev.__class__ = _event.MidiEvent
-        return self.fun(ev)
+        # call the function
+        r = self.fun(ev)
+        # if the function returned a generator, it needs to be made into a list before returning to C++
+        if _inspect.isgenerator(r):
+            return list(r)
+        else:
+            return r
 
 
 class _CallThread(_CallBase):
