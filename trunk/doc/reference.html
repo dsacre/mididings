@@ -10,7 +10,7 @@
 
 <body>
 
-<h1>Reference</h1>
+<h1>mididings - Reference</h1>
 
 <div class="nav">
     <a href="index.html">mididings Documentation</a>
@@ -106,6 +106,11 @@ Constructs a SceneGroup object.
 This can be used to group multiple scenes under a common name and program number.
 Each of the subscenes should be a Scene object.
 </p>
+<div class="example"><div class="header">
+Discard all events except note-on, note-off and control changes:
+</div>
+Filter(NOTE|CTRL)
+</div>
 
 <h4>MidiEvent</h4>
 <p>
@@ -211,11 +216,16 @@ These are the basic building blocks from which you can build your patches.
 <p>
 Filters by one or more event types.
 </p>
+<div class="example"><div class="header">
+Discard all events except note-on, note-off and control changes:
+</div>
+Filter(NOTE|CTRL)
+</div>
 
 <h4>PortFilter(port, ...)<br>
 ChannelFilter(channel, ...)</h4>
 <p>
-Filters by event port or channel.
+Filters by event port(s) or channel(s).
 </p>
 
 <h4>KeyFilter(note)<br>
@@ -227,17 +237,21 @@ Filters by note or note-range.
 </p>
 
 <h4>VelocityFilter(value)<br>
+VelocityFilter(lower=...)<br>
+VelocityFilter(upper=...)<br>
 VelocityFilter(lower, upper)</h4>
 <p>
-Filters by note velocity. A lower or upper value of 0 means no limit.
+Filters by note-on velocity.
 </p>
 
 <h4>CtrlFilter(ctrl, ...)</h4>
 <p>
-Filters by CC number.
+Filters by CC number(s).
 </p>
 
 <h4>CtrlValueFilter(value)<br>
+CtrlValueFilter(lower=...)<br>
+CtrlValueFilter(upper=...)<br>
 CtrlValueFilter(lower, upper)</h4>
 <p>
 Filters by CC value.
@@ -245,7 +259,7 @@ Filters by CC value.
 
 <h4>ProgramFilter(program, ...)</h4>
 <p>
-Filters by PC number.
+Filters by PC number(s).
 </p>
 
 <h4>SysExFilter(sysex)</h4>
@@ -253,11 +267,21 @@ Filters by PC number.
 Filters by sysex data, specified as a string or as a sequence of integers.
 If sysex doesn't end with F7, partial matches that start with the given data bytes are accepted.
 </p>
+<div class="example"><div class="header">
+Filter out SysEx events for Roland devices with device ID 0x10:
+</div>
+SysExFilter('\xf0\x41\x10')
+</div>
 
 <h4>SysExFilter(manufacturer=...)</h4>
 <p>
 Filters by sysex manufacturer id, which can be a string or a sequence of integers, with a length of one or three bytes.
 </p>
+<div class="example"><div class="header">
+Filter out SysEx events for Yamaha devices:
+</div>
+SysExFilter(manufacturer=0x43)
+</div>
 
 
 <h3><a name="splits"></a>Splits</h3>
@@ -344,6 +368,11 @@ Within mididings, velocity values may be (temporarily) greater than 127 or less 
 When sending events through a MIDI output port, or by using the Sanitize() unit, velocities greater than 127 will automatically
 be reduced to 127, and events with a velocity less than 1 will be removed.
 </p>
+<div class="example"><div class="header">
+Increase velocity of note-on events, making the keyboard feel softer:
+</div>
+Velocity(curve=1.0)
+</div>
 
 <h4>VelocitySlope(notes, offset)<br>
 VelocitySlope(notes, multiply=...)<br>
@@ -357,10 +386,16 @@ to fade-in a sound over a region of the keyboard.<br>
 Both parameters must be sequences of the same length, where one velocity value corresponds to each note.<br>
 <img src="velocityslope.png" alt="VelocitySlope() example">
 </p>
+<div class="example"><div class="header">
+Apply a velocity slope as seen in the graphic above:
+</div>
+VelocitySlope(notes=('b1','g2','g#3','d4'), offset=(-64, 32, 32, 0))
+</div>
+
 
 <h4>VelocityLimit(lower, upper)<br>
 VelocityLimit(upper)<br>
-VelocityLimit(lower)</h4>
+VelocityLimit(lower=...)</h4>
 <p>
 Confines velocity to values between lower and upper (inclusive).
 </p>
@@ -369,6 +404,11 @@ Confines velocity to values between lower and upper (inclusive).
 <p>
 Maps one controller to another (i.e. changes the CC number).
 </p>
+<div class="example"><div class="header">
+Convert sustain pedal to sostenuto:
+</div>
+CtrlMap(64, 66)
+</div>
 
 <h4>CtrlRange(ctrl, out_min, out_max, in_min=0, in_max=127)</h4>
 <p>
@@ -376,6 +416,11 @@ Maps controller range in to out.<br>
 An input value of in_min or less results in an output value of out_min.
 Likewise, an in value of in_max or greater results in an output value of out_max.
 </p>
+<div class="example"><div class="header">
+Invert controller 11 (expression):
+</div>
+CtrlRange(11, 127, 0)
+</div>
 
 
 <h3><a name="generators"></a>Generators</h3>
@@ -393,6 +438,11 @@ Changes the type of the event.
 If port and channel are omitted, the values of the input event are used.<br>
 To "reuse" other values from the incoming event, one of the EVENT_* constants can be used in place of any parameter.
 </p>
+<div class="example"><div class="header">
+Convert aftertouch to CC #1 (modulation):
+</div>
+Filter(AFTERTOUCH) % Ctrl(1, EVENT_VALUE)
+</div>
 
 <h4>SysEx(sysex)<br>
 SysEx(port, sysex)</h4>
@@ -421,6 +471,7 @@ Calls a Python function. This will stall any other MIDI processing until the fun
     <li>A list of MidiEvent objects: output multiple events.</li>
     <li>An empty list or None: discard current event.</li>
   </ul>
+  Alternatively, function can be a generator that yields MidiEvent objects.
   </li>
 </ul>
 
@@ -482,13 +533,42 @@ Executes patch when switching to the scene containing this unit (essentially add
 see run() for more information).
 </p>
 
-<h4>Output(port, channel, program=None, volume=None)</h4>
+<h4>Output(port, channel, program=None, volume=None, pan=None, expression=None, ctrls={})</h4>
 <p>
 Routes incoming events to the specified port/channel.
-Optionally, when switching to the scene containing this unit, a program change and/or volume change (CC 7) can be sent.
+Optionally, when switching to the scene containing this unit, a program change and/or arbitrary control changes can be sent.
 To send a bank select in addition to the program change, program can be a tuple with two elements, where the first element
 is the bank number, and the second is the program number.
 </p>
+
+<div class="example"><div class="header">
+Route all events to output 'synth', channel 1, and set the volume to 100:
+</div>
+Output('synth', 1, volume=100)
+</div>
+
+<h4>OutputTemplate(*args, **kwargs)</h4>
+<p>
+Creates an object that when called will behave like Output(), with args and kwargs replacing some of its arguments.
+This works just like <kbd>functools.partial(Output, *args, **kwargs)</kbd>, but with the added benefit that an OutputTemplate
+object also supports operator &gt;&gt; like any unit.
+</p>
+
+<div class="example"><div class="header">
+Define an instrument by specifying its output port, channel, program number and transposition,
+then use the same instrument in two different patches at different volumes:
+</div><pre>
+synth = Transpose(12) &gt;&gt; OutputTemplate('synth', 1, 42)
+
+patch1 = synth(64)
+patch2 = synth(127)
+
+</pre><div class="header">
+This is equivalent to:
+</div><pre>
+patch1 = Transpose(12) &gt;&gt; Output('synth', 1, 42, 64)
+patch2 = Transpose(12) &gt;&gt; Output('synth', 1, 42, 127)
+</pre></div>
 
 <h4>Print(name=None, portnames=None)</h4>
 <p>
@@ -496,14 +576,26 @@ Prints event data.
 </p>
 <ul>
   <li><b>name</b>: A string to be printed before each event.</li>
-  <li><b>portnames</b>: Pass 'in' or 'out' to print input or output portnames, rather than just numbers.</li>
+  <li><b>portnames</b>: Pass 'in' or 'out' to print input or output port names, rather than just numbers.</li>
 </ul>
+
+<div class="example"><div class="header">
+A simple MIDI event monitor:
+</div>
+$ mididings "Print()"
+</div>
 
 <h4>Print(string=...)</h4>
 <p>
 Prints a string.
 Instead of a fixed value, string can also be a Python function that takes a single MidiEvent parameter, and returns the string to be sent.
 </p>
+
+<div class="example"><div class="header">
+Print a graph of note-on velocities:
+</div>
+Filter(NOTEON) % Print(string=lambda ev: '#'*ev.velocity)
+</div>
 
 <h4>Sanitize()</h4>
 <p>

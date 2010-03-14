@@ -1,6 +1,6 @@
 body {
     max-width: 60em;
-    font-size: 90%;
+    font-size: 85%;
     font-family: sans-serif;
 }
 
@@ -33,12 +33,13 @@ h4 {
     color: #333;
     padding-left: 0.5em;
     margin-bottom: 0.2em;
-    margin-left: 0.8em;
+    margin-left: 0.5em;
 }
 
 p, table {
     margin-left: 2em;
     margin-top: 0.4em;
+    margin-bottom: 0.8em;
 }
 
 ul {
@@ -75,28 +76,27 @@ a {
 }
 
 li {
-    margin-top: 0.3em;
-    margin-bottom: 0.3em;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
 }
 
 li.toplevel {
     margin-bottom: 1em;
 }
 
-div.exampleheader {
-    font-weight: bold;
-    font-style: italic;
-    font-size: 95%;
-    color: #888;
-    margin: 0em 1.6em 0.2em 2.8em;
-}
-
 div.example {
     background-color: #ffd;
     margin: 0em 1.2em 1em 2.2em;
-    padding: 5px;
+    padding: 3px;
     border: 1px dashed #edb;
+    font-size: 95%;
     font-family: monospace;
+}
+
+div.example > div.header {
+    font-style: italic;
+    color: #556;
+    margin-bottom: 0.3em;
 }
 
 

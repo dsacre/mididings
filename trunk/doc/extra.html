@@ -10,7 +10,7 @@
 
 <body>
 
-<h1>Extra Reference</h1>
+<h1>mididings - Extra Reference</h1>
 
 <div class="nav">
     <a href="index.html">mididings Documentation</a>
@@ -50,12 +50,11 @@ A diatonic harmonizer.
   </li>
 </ul>
 
-<div class="exampleheader">
-Example: add a third above each note, based on the C# harmonic minor scale.
+<div class="example"><div class="header">
+Add a third above each note, based on the C# harmonic minor scale:
 </div>
-<div class="example"><pre>
 Harmonize('c#', 'minor_harmonic', ['unison', 'third'])
-</pre></div>
+</div>
 
 <h4>FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper, hold_time=1.0, margin_lower=12, margin_upper=12)</h4>
 <p>
@@ -69,12 +68,21 @@ Creates a floating split point that moves depending on what you are playing.
     getting pushed into the other direction.</li>
 </ul>
 
-<div class="exampleheader">
-Example: split the keyboard somewhere between C2 and C3.
+<div class="example"><div class="header">
+Split the keyboard somewhere between C2 and C3:
 </div>
-<div class="example"><pre>
 FloatingKeySplit('c2', 'c3', Channel(1), Channel(2))
-</pre></div>
+</div>
+
+<h4>VoiceFilter(voice='highest', time=0.2, retrigger=False)</h4>
+<p>
+Filters individual voices from a chord.
+voice must be 'highest', 'lowest', or an index (positive or negative, the same way Python lists are indexed,
+with 0 being the lowest voice).<br>
+When a key is already held, and then becomes active for this voice because another key was pressed/released, the note will
+only be played if retrigger is True, or if the time since the key-press is less than the number of seconds specified by the
+time parameter.
+</p>
 
 <h4>LimitPolyphony(max_polyphony, remove_oldest=True)</h4>
 <p>
@@ -110,10 +118,9 @@ If polyphonic is True, each note can be stopped individually by pressing the cor
 reset can be a note name/number that when pressed stops all currently playing notes.
 </p>
 
-<h4>BlackKeys()<br>
-WhiteKeys()</h4>
+<h4>KeyColorFilter(color)</h4>
 <p>
-Filters notes by key color.
+Filters notes by key color ('black' or 'white').
 </p>
 
 <h4>Panic(bypass=True)</h4>
@@ -139,10 +146,9 @@ Instead of a specific value, each data argument can also be a Python function th
 single MidiEvent parameter, and returns the value to be sent.
 </p>
 
-<div class="exampleheader">
-Example: change FFADO output volume using a MIDI controller.
-</div>
-<div class="example"><pre>
+<div class="example"><div class="header">
+Change FFADO output volume using a MIDI controller:
+</div><pre>
 CtrlFilter(42) &gt;&gt; SendDBUS(
     'org.ffado.Control',
     '/org/ffado/Control/DeviceManager/%s/Mixer/OUT0Gain' % DEVICEID,
@@ -210,9 +216,9 @@ hook(OSCInterface(56418, 56419))
 Then run livedings with the same port numbers:
 </p>
 
-<div class="example"><pre>
+<div class="example">
 $ livedings -p 56418 -l 56419
-</pre></div>
+</div>
 
 <p>
 The first port is used by mididings to listen for commands, the second one is used to notify livedings of scene changes.<br>

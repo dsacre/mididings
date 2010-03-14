@@ -10,7 +10,7 @@
 
 <body>
 
-<h1>Basics</h1>
+<h1>mididings - Basics</h1>
 
 <div class="nav">
     <a href="index.html">mididings Documentation</a>
@@ -138,10 +138,9 @@ It's usually possible to name parameters like this regardless of whether it's ac
 Everything in mididings is a Python object, and can be assigned to variables, returned from functions, etc.
 </p>
 
-<div class="exampleheader">
-Example: add a fifth (7 semitones) above each note, route all events to channel 2:
-</div>
-<div class="example"><pre>
+<div class="example"><div class="header">
+Add a fifth (7 semitones) above each note, route all events to channel 2:
+</div><pre>
 def add_interval(n):
     return Pass() // Transpose(n)
 
@@ -163,18 +162,15 @@ Many mididings patches consist of lists and dictionaries, so line breaks and ind
 Sometimes it makes sense to put a patch in parentheses to allow it to span multiple lines:
 </p>
 
-<div class="exampleheader">
+<div class="example"><div class="header">
 Syntax error due to line break:
-</div>
-<div class="example"><pre>
+</div><pre>
 mypatch = Transpose(12) &gt;&gt; Velocity(curve=1) &gt;&gt;
           Filter(~PROGRAM)
-</pre></div>
 
-<div class="exampleheader">
-Patch spanning multiple lines:
-</div>
-<div class="example"><pre>
+</pre><div class="header">
+Valid patch spanning multiple lines:
+</div><pre>
 mypatch = (
     Transpose(12) &gt;&gt; Velocity(curve=1) &gt;&gt;
     Filter(~PROGRAM)
