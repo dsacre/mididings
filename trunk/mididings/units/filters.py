@@ -49,7 +49,9 @@ def KeyFilter(*args, **kwargs):
 @_unit_repr
 def VelocityFilter(*args, **kwargs):
     lower, upper = _misc.call_overload(args, kwargs, [
-        lambda value: (value, 0),
+        lambda value: (value, value+1),
+        lambda lower: (lower, 0),
+        lambda upper: (0, upper),
         lambda lower, upper: (lower, upper),
     ])
     return _Filter(_mididings.VelocityFilter(lower, upper))
@@ -64,7 +66,9 @@ def CtrlFilter(*args):
 @_unit_repr
 def CtrlValueFilter(*args, **kwargs):
     lower, upper = _misc.call_overload(args, kwargs, [
-        lambda value: (value, 0),
+        lambda value: (value, value+1),
+        lambda lower: (lower, 0),
+        lambda upper: (0, upper),
         lambda lower, upper: (lower, upper),
     ])
     return _Filter(_mididings.CtrlValueFilter(lower, upper))

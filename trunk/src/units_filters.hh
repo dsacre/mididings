@@ -101,7 +101,7 @@ class VelocityFilter
     virtual bool process_filter(MidiEvent & ev)
     {
         return ((ev.note.velocity >= _lower || _lower == 0) &&
-                (ev.note.velocity < _upper || _upper == 0));
+                (ev.note.velocity < _upper  || _upper == 0));
     }
 
   private:
@@ -142,7 +142,8 @@ class CtrlValueFilter
 
     virtual bool process_filter(MidiEvent & ev)
     {
-        return ((ev.ctrl.value >= _lower && ev.ctrl.value < _upper) || (ev.ctrl.value == _lower && !_upper));
+        return ((ev.ctrl.value >= _lower || _lower == 0) &&
+                (ev.ctrl.value < _upper  || _upper == 0));
     }
 
   private:
