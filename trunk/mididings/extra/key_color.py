@@ -18,13 +18,8 @@ _BLACK_KEYS = [_n for _n in range(128) if _n%12 in _BLACK]
 _WHITE_KEYS = [_n for _n in range(128) if _n%12 not in _BLACK]
 
 
-def BlackKeys():
-    return Fork([
-        KeyFilter(n) for n in _BLACK_KEYS
-    ], NOTE)
-
-
-def WhiteKeys():
-    return Fork([
-        KeyFilter(n) for n in _WHITE_KEYS
-    ], NOTE)
+def KeyColorFilter(color):
+    if color == 'black':
+        return KeyFilter(notes=_BLACK_KEYS)
+    elif color == 'white':
+        return KeyFilter(notes=_WHITE_KEYS)
