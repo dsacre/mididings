@@ -12,7 +12,6 @@
 
 import mididings.engine as _engine
 
-import atexit as _atexit
 import os as _os
 import sys as _sys
 
@@ -49,9 +48,4 @@ class AutoRestart(object):
 
     def _process_IN_MODIFY(self, event):
         print "file '%s' changed, restarting..." % event.pathname
-        _atexit.register(self._restart)
-        _engine.quit()
-
-    def _restart(self):
-        # run the same interpreter with the same arguments again
-        _os.execl(_sys.executable, _sys.executable, *_sys.argv)
+        _engine.restart()

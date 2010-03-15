@@ -23,6 +23,9 @@ import time as _time
 import weakref as _weakref
 import threading as _threading
 import gc as _gc
+import atexit as _atexit
+import os as _os
+import sys as _sys
 
 
 _TheEngine = None
@@ -194,6 +197,14 @@ class Engine(_mididings.Engine):
     def get_scenes(self):
         return self._scenes
 
+    def restart(self):
+        _atexit.register(self._restart)
+        self.quit()
+
+    def _restart(self):
+        # run the same interpreter with the same arguments again
+        _os.execl(_sys.executable, _sys.executable, *_sys.argv)
+
     def quit(self):
         self._quit.set()
 
@@ -262,6 +273,9 @@ def get_out_ports():
 
 def is_active():
     return _TheEngine != None and _TheEngine() != None
+
+def restart():
+    _TheEngine().restart()
 
 def quit():
     _TheEngine().quit()

@@ -109,7 +109,11 @@ class OSCInterface(object):
 
     @_liblo.make_method('/mididings/panic', '')
     def panic_cb(self, path, args):
-        _panic.panic_bypass()
+        _panic._panic_bypass()
+
+    @_liblo.make_method('/mididings/restart', '')
+    def restart_cb(self, path, args):
+        _engine.restart()
 
     @_liblo.make_method('/mididings/quit', '')
     def quit_cb(self, path, args):
