@@ -22,38 +22,41 @@ class _Unit(object):
     def __init__(self, unit):
         self.unit = unit
 
-    # operator >> connects units in series
     def __rshift__(self, other):
+        """operator >>: connect units in series"""
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
         return _join_units(Chain, self, other)
 
     def __rrshift__(self, other):
+        """operator >>: connect units in series"""
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
         return _join_units(Chain, other, self)
 
-    # operator // connects units in parallel
     def __floordiv__(self, other):
+        """operator //: connect units in parallel"""
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
         return _join_units(Fork, self, other)
 
     def __rfloordiv__(self, other):
+        """operator //: connect units in parallel"""
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
         return _join_units(Fork, other, self)
 
     def __repr__(self):
-        name = self._name if hasattr(self, '_name') else self.__class__.__name__
-
-        if hasattr(self, '_args') and hasattr(self, '_kwargs'):
+        # anything that went through @_unit_repr will have _name, _args and _kwargs attributes
+        if hasattr(self, '_name'):
+            name = self._name
             args = ', '.join(repr(a) for a in self._args)
             kwargs = ', '.join('%s=%s' % (k, repr(self._kwargs[k])) for k in self._kwargs)
             sep = ', ' if args and kwargs else ''
             return '%s(%s%s%s)' % (name, args, sep, kwargs)
         else:
-            return name
+            # is this the best we can do?
+            return self.__class__.__name__
 
 
 _UNIT_TYPES = (_Unit, list, dict)
@@ -119,20 +122,24 @@ class Split(_Unit, dict):
 
 
 class _Selector(object):
-    # operator &
+    """
+    base class for anything that can act as a selector.
+    derived classes must implement methods build() and build_inverted().
+    """
     def __and__(self, other):
+        """operator &"""
         if not isinstance(other, _Selector):
             return NotImplemented
         return _join_units(_AndSelector, self, other)
 
-    # operator |
     def __or__(self, other):
+        """operator |"""
         if not isinstance(other, _Selector):
             return NotImplemented
         return _join_units(_OrSelector, self, other)
 
-    # operator %
     def __mod__(self, other):
+        """operator %"""
         return Fork([
             self.build() >> other,
             self.build_inverted(),
@@ -168,12 +175,12 @@ class _Filter(_Unit, _Selector):
     def __init__(self, unit):
         _Unit.__init__(self, unit)
 
-    # operator ~ inverts the filter, but still acts on the same event types
     def __invert__(self):
+        """operator ~: invert the filter, but still acts on the same event types"""
         return _InvertedFilter(self, False)
 
-    # operator - inverts the filter, ignoring event types
     def __neg__(self):
+        """operator -: invert the filter, ignoring event types"""
         return _InvertedFilter(self, True)
 
     def build(self):
@@ -208,9 +215,15 @@ def Filter(*args):
 
 @_unit_repr
 def Pass(p=True):
+    """
+    pass all events.
+    """
     return _Unit(_mididings.Pass(p))
 
 
 @_unit_repr
 def Discard():
+    """
+    discard all events.
+    """
     return _Unit(_mididings.Pass(False))
