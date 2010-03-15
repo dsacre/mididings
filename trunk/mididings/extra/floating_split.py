@@ -65,15 +65,13 @@ class _FloatingKeySplitFilter(object):
         self.index = index
 
     def __call__(self, ev):
-        if ev.type == NOTEON:
-            if (self.index == 0 and ev.note < self.analyze.threshold or
-                self.index == 1 and ev.note >= self.analyze.threshold):
-                return ev
-            else:
-                return None
-        elif ev.type == NOTEOFF:
-            # TODO: no need to send every note-off to both patches
+        # the split point can never move past a note that's still being held, so this is
+        # valid for both note-on and note-off events
+        if (self.index == 0 and ev.note < self.analyze.threshold or
+            self.index == 1 and ev.note >= self.analyze.threshold):
             return ev
+        else:
+            return None
 
 
 def FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper,
