@@ -63,7 +63,6 @@ libraries = []
 library_dirs = []
 
 
-pkgconfig('jack')
 pkgconfig('glib-2.0')
 libraries.append(boost_lib_name('boost_python'))
 libraries.append(boost_lib_name('boost_thread'))
@@ -78,6 +77,7 @@ if config['alsa-seq']:
 if config['jack-midi']:
     define_macros.append(('ENABLE_JACK_MIDI', 1))
     sources.append('src/backend_jack.cc')
+    pkgconfig('jack')
 
 if config['smf']:
     define_macros.append(('ENABLE_SMF', 1))
