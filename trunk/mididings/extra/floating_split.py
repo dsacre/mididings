@@ -82,5 +82,5 @@ def FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper,
                     Process(_FloatingKeySplitFilter(analyze, 0)) >> patch_lower,
                     Process(_FloatingKeySplitFilter(analyze, 1)) >> patch_upper,
                 ],
-        None:   patch_lower // patch_upper,
+        None:   [ patch_lower, patch_upper ],
     })
