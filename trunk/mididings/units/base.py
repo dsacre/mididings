@@ -46,6 +46,10 @@ class _Unit(object):
             return NotImplemented
         return _join_units(Fork, other, self)
 
+    def __pos__(self):
+        """unary operator +: add Pass() in parallel to this unit"""
+        return Fork([ Pass(), self ])
+
     def __repr__(self):
         # anything that went through @_unit_repr will have _name, _args and _kwargs attributes
         if hasattr(self, '_name'):
@@ -176,11 +180,11 @@ class _Filter(_Unit, _Selector):
         _Unit.__init__(self, unit)
 
     def __invert__(self):
-        """operator ~: invert the filter, but still acts on the same event types"""
+        """unary operator ~: invert the filter, but still acts on the same event types"""
         return _InvertedFilter(self, False)
 
     def __neg__(self):
-        """operator -: invert the filter, ignoring event types"""
+        """unary operator -: invert the filter, ignoring event types"""
         return _InvertedFilter(self, True)
 
     def build(self):
