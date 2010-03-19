@@ -1,3 +1,11 @@
+2010-03-18
+  * Added VoiceFilter() to filter individual voices from a chord.
+  * The Output() unit can now send arbitrary control changes, and a new
+    class OutputTemplate was added to simplify creating partially
+    parametrized outputs.
+  * Added lots of new examples to the documentation.
+  * Several minor fixes and cleanup.
+
 2010-03-07
 
   * Added livedings as a graphical frontend to mididings that allows
