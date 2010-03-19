@@ -21,14 +21,14 @@
 
 <h2><a name="anatomy"></a>Anatomy of a mididings script</h2>
 <p>
-mididings configuration files are just Python scripts, although some of Python's features are used in ways for which they weren't intended ;)
-Like any other Python source file, mididings scripts get the filename extension .py.
+mididings configuration files are just Python scripts, although some of Python's features are used in ways for which they weren't intended ;)<br>
+Technically speaking, mididings is an embedded domain-specific language (DSL) based on Python.
 </p>
 <p>
 The main difference between mididings and regular Python scripts is that mididings typically uses Python only at startup.
 mididings patches consist of Python objects and nested data structures, but not actual Python code.
 Internally, patches are converted to C++ objects, and the event processing is done entirely in C++.
-It is however possible to call back into Python, if necessary.
+It is however possible to call back into Python, if necessary.<br>
 </p>
 <p>
 Although mididings is a Python module that can theoretically be imported in other Python applications, it's
@@ -109,7 +109,7 @@ Each of these units is quite simple on its own, but what's important is how the 
 </p>
 <ul>
     <li><b>A &gt;&gt; B</b> connects two units in series, so every event output by unit A is then passed to unit B.</li>
-    <li><b>[A, B, ...]</b> (which is just a list in Python) or <b>A // B</b> connects units in parallel, so each of these
+    <li><b>[A, B, ...]</b> (which is just a list in Python) connects units in parallel, so each of these
         units gets its own copy of incoming events and processes them individually.</li>
 </ul>
 
@@ -168,7 +168,9 @@ run(
 This script defines 4 <b>scenes</b>. In the first scene, all incoming events are simply routed to output channel 1.
 In scenes 2 and 3, events are routed to channel 2. Additionally, when switching to one of these scenes,
 MIDI program change messages will be sent on that channel first.
-The fourth scene splits the keyboard at C3 and routes both regions of the keyboard to different output channels.<br>
+The fourth scene splits the keyboard at C3 and routes both regions of the keyboard to different output channels.
+</p>
+<p>
 The <b>control</b> patch is used to switch between these scenes. The filter lets only program changes pass, which then
 trigger the scene switches.<br>
 In this example we assume that incoming program changes are only used for switching scenes, and should not be processed
@@ -181,9 +183,11 @@ This is a complete overview of the event flow when using multiple scenes:
 </p>
 <p>
 The control, pre and post patches as well as any of the init patches are optional and can be omitted.
-The control patch can be used for any event processing that does not depend on the currently active scene.<br>
-Note that the use of init patches can often be significantly simplified by embedding them into the regular patches
-using the Init() and/or Output() units.
+The control patch can be used for any event processing that does not depend on the currently active scene.
+</p>
+<p>
+Note that the use of init patches can often be significantly simplified by embedding them into the regular patches,
+in particular using the Output() unit and the OutputTemplate class.
 </p>
 
 

@@ -107,10 +107,14 @@ This can be used to group multiple scenes under a common name and program number
 Each of the subscenes should be a Scene object.
 </p>
 <div class="example"><div class="header">
-Discard all events except note-on, note-off and control changes:
-</div>
-Filter(NOTE|CTRL)
-</div>
+Define one scene (song) with 3 subscenes (parts):
+</div><pre>
+SceneGroup("Example Song", [
+    Scene("Intro", intro_patch),
+    Scene("Verse", verse_patch),
+    Scene("Chorus", chorus_patch),
+])
+</pre></div>
 
 <h4>MidiEvent</h4>
 <p>
@@ -174,7 +178,7 @@ There are also aliases for these attributes, some of which are only valid for ce
   <li><b>ANY</b></li>
 </ul>
 <p>
-  When building filters, event types can be combined using | (bitwise or) and ~ (bitwise negation).<br>
+  Event types are bit masks, so when building filters, they can be combined using | (bitwise or) and ~ (bitwise negation).<br>
 </p>
 
 <h4>Event Attributes</h4>
@@ -222,16 +226,21 @@ Discard all events except note-on, note-off and control changes:
 Filter(NOTE|CTRL)
 </div>
 
-<h4>PortFilter(port, ...)<br>
-ChannelFilter(channel, ...)</h4>
+<h4>PortFilter(port, ...)</h4>
 <p>
-Filters by event port(s) or channel(s).
+Filters by port(s).
 </p>
 
-<h4>KeyFilter(note)<br>
+<h4>ChannelFilter(channel, ...)</h4>
+<p>
+Filters by channel(s).
+</p>
+
+<h4>KeyFilter(note_range)<br>
 KeyFilter(lower, upper)<br>
-KeyFilter(note_range)<br>
-KeyFilter(notes=...)</h4>
+KeyFilter(lower=...)<br>
+KeyFilter(upper=...)<br>
+KeyFilter(notes=[...])</h4>
 <p>
 Filters by note or note-range.
 </p>
@@ -287,11 +296,15 @@ SysExFilter(manufacturer=0x43)
 <h3><a name="splits"></a>Splits</h3>
 
 <h4>PortSplit({port: patch, ...})<br>
-PortSplit({(port, ...): patch, ...})<br>
-ChannelSplit({channel: patch, ...})<br>
+PortSplit({(port, ...): patch, ...})</h4>
+<p>
+Splits by port.
+</p>
+
+<h4>ChannelSplit({channel: patch, ...})<br>
 ChannelSplit({(channel, ...): patch, ...})</h4>
 <p>
-Splits by port or channel.
+Splits by channel.
 </p>
 
 <h4>KeySplit(note, patch_lower, patch_upper)<br>
@@ -338,10 +351,14 @@ Splits by sysex data or manufacturer id.
 
 <h3><a name="modifiers"></a>Modifiers</h3>
 
-<h4>Port(port)<br>
-Channel(channel)</h4>
+<h4>Port(port)</h4>
 <p>
-Changes port or channel.
+Changes port.
+</p>
+
+<h4>Channel(channel)</h4>
+<p>
+Changes channel.
 </p>
 
 <h4>Transpose(offset)</h4>
@@ -417,7 +434,7 @@ An input value of in_min or less results in an output value of out_min.
 Likewise, an in value of in_max or greater results in an output value of out_max.
 </p>
 <div class="example"><div class="header">
-Invert controller 11 (expression):
+Invert CC #11 (expression):
 </div>
 CtrlRange(11, 127, 0)
 </div>

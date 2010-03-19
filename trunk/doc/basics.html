@@ -28,6 +28,11 @@
 Connects two units in series. Incoming MIDI events will be processed by unit A first, then by unit B.
 If the event is filtered out by unit A, it is not processed any further, and unit B will not be called.
 </p>
+<div class="example"><div class="header">
+Transpose one octave down, then set channel to 1:
+</div>
+Transpose(-12) &gt;&gt; Channel(1)
+</div>
 
 <h3>Parallel</h3>
 
@@ -44,6 +49,15 @@ Connects an arbitrary number of units in parallel.
 With Fork() it's also possible to disable the automatic removal of identical MIDI events by setting
 remove_duplicates to False.
 </p>
+<div class="example"><div class="header">
+Send events to both channels 1 and 2:
+</div>
+Channel(1) // Channel(2)
+<br><br><div class="header">
+or:
+</div>
+[ Channel(1), Channel(2) ]
+</div>
 
 <h4>+A</h4>
 <p>
@@ -59,6 +73,11 @@ Split({ T1: A, T2: B, ... })</h4>
 Splits by event type.
 Equivalent to [ Filter(T1) &gt;&gt; A, Filter(T2) &gt;&gt; B, ... ].
 </p>
+<div class="example"><div class="header">
+Send note events to channel 1 and CC events to channel 2:
+</div>
+{ NOTE: Channel(1), CTRL: Channel(2) }
+</div>
 
 <h3>Filters and selectors</h3>
 
@@ -69,6 +88,11 @@ other events will remain unaffected when the filter is inverted.
 For example, an inverted KeyFilter will match a different note range, but neither the original nor the inverted
 filter will have any effect on control or program changes.
 </p>
+<div class="example"><div class="header">
+Remove CC events with controller number 42:
+</div>
+~CtrlFilter(42)
+</div>
 
 <h4>-F</h4>
 <p>
@@ -80,12 +104,22 @@ Inverts the filter F. Unlike ~F, -F matches exactly the events that F doesn't.
 Applies A only to events which match filter F, but keeps events which don't.
 Equivalent to [ F &gt;&gt; A, -F ].
 </p>
+<div class="example"><div class="header">
+Transpose only events on channel 2:
+</div>
+ChannelFilter(2) % Transpose(3)
+</div>
 
 <h4>(S) % A</h4>
 <p>
 Applies A only to events which match selector S. Selectors can be built by combining multiple filters using the operators
 <b>&amp;</b> (AND) and <b>|</b> (OR).
 </p>
+<div class="example"><div class="header">
+Change CC events with controller number 23 or 42 from channel 1 to channel 2:
+</div>
+(ChannelFilter(1) &amp; (CtrlFilter(23) | CtrlFilter(42))) % Channel(2)
+</div>
 
 
 <h2><a name="notes"></a>Note names and ranges</h2>
@@ -131,11 +165,18 @@ filters a range of notes.
 </p>
 <p>
 When multiple versions of a unit accept the same number of parameters, it's necessary to explicitly name the parameters
-of the version you'd like to use. For example, Velocity(42) will call Velocity(offset) with an offset of 42.
-To set the velocity to a fixed value of 42 instead, write Velocity(fixed=42).<br>
-Cases where parameter names are required are indicated in the documentation as "param=...".
+of the version you'd like to use. Cases where parameter names are required are indicated in the documentation as "param=...".
 It's usually possible to name parameters like this regardless of whether it's actually necessary.
 </p>
+<div class="example"><div class="header">
+Add an offset of 42 to velocity values:
+</div>
+Velocity(42)
+<br><br><div class="header">
+Set velocities to a fixed value of 42:
+</div>
+Velocity(fixed=42)
+</div>
 
 
 <h3>Everything is an object</h3>
@@ -145,7 +186,7 @@ Everything in mididings is a Python object, and can be assigned to variables, re
 </p>
 
 <div class="example"><div class="header">
-Add a fifth (7 semitones) above each note, route all events to channel 2:
+Add a fifth (7 semitones) above each note, route all events to channel 2 (of course there are easier ways to do this):
 </div><pre>
 def add_interval(n):
     return Pass() // Transpose(n)
@@ -168,17 +209,9 @@ Many mididings patches consist of lists and dictionaries, so line breaks and ind
 Sometimes it makes sense to put a patch in parentheses to allow it to span multiple lines:
 </p>
 
-<div class="example"><div class="header">
-Syntax error due to line break:
-</div><pre>
-mypatch = Transpose(12) &gt;&gt; Velocity(curve=1) &gt;&gt;
-          Filter(~PROGRAM)
-
-</pre><div class="header">
-Valid patch spanning multiple lines:
-</div><pre>
+<div class="example"><pre>
 mypatch = (
-    Transpose(12) &gt;&gt; Velocity(curve=1) &gt;&gt;
+    Transpose(12) &gt;&gt; Velocity(curve=1.0) &gt;&gt;
     Filter(~PROGRAM)
 )
 </pre></div>
@@ -203,8 +236,10 @@ This is a list of all operators relevant to mididings, in order of their precede
         <td>Filter inversion</td>
     </tr>
     <tr>
-        <td><b>-F</b></td>
-        <td>"True" filter inversion</td>
+        <td><b>-F<br>
+            +F</b></td>
+        <td>"True" filter inversion<br>
+            Apply to duplicate</td>
     </tr>
     <tr>
         <td><b>A // B<br>
