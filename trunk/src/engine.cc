@@ -364,6 +364,8 @@ void Engine::process_scene_switch(Events & buffer)
 
 bool Engine::sanitize_event(MidiEvent & ev) const
 {
+    // FIXME: std::cout is not RT-safe!
+
     if (ev.port < 0 || (_backend && ev.port >= static_cast<int>(_backend->num_out_ports()))) {
         if (_verbose) std::cout << "invalid port, event discarded" << std::endl;
         return false;

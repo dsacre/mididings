@@ -18,8 +18,8 @@ _config = {
     'data_offset':      1,
     'octave_offset':    2,
     'initial_scene':    None,
-    'verbose':          True,
     'start_delay':      None,
+    'silent':           False,
 }
 
 _config_override = []

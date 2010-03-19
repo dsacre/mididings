@@ -15,7 +15,7 @@ import mididings.constants as _constants
 from mididings.setup import get_config as _get_config
 
 
-NOTE_NUMBERS = {
+_NOTE_NUMBERS = {
     'c':   0,
     'c#':  1, 'db':  1,
     'd':   2,
@@ -30,7 +30,7 @@ NOTE_NUMBERS = {
     'b':  11,
 }
 
-NOTE_NAMES = {
+_NOTE_NAMES = {
      0: 'c',
      1: 'c#',
      2: 'd',
@@ -45,7 +45,7 @@ NOTE_NAMES = {
     11: 'b',
 }
 
-CONTROLLER_NAMES = {
+_CONTROLLER_NAMES = {
      0: 'Bank select (MSB)',
      1: 'Modulation',
      7: 'Volume',
@@ -66,8 +66,10 @@ CONTROLLER_NAMES = {
 }
 
 
-# convert note name to MIDI note number
 def note_number(note):
+    """
+    Convert note name/number to MIDI note number.
+    """
     try:
         # already a number?
         r = int(note)
@@ -80,7 +82,7 @@ def note_number(note):
         try:
             name = note[:i]
             octave = int(note[i:])
-            r = NOTE_NUMBERS[name] + (octave + _get_config('octave_offset')) * 12
+            r = _NOTE_NUMBERS[name] + (octave + _get_config('octave_offset')) * 12
         except Exception:
             raise ValueError("invalid note name '%s'" % note)
 
@@ -89,8 +91,10 @@ def note_number(note):
     return r
 
 
-# convert note range to tuple of MIDI note numbers
 def note_range(notes):
+    """
+    Convert note range to tuple of MIDI note numbers.
+    """
     try:
         # single note
         n = note_number(notes)
@@ -110,37 +114,44 @@ def note_range(notes):
                 raise ValueError("invalid note range '%s'" % notes)
 
 
-# get note name from MIDI note number
 def note_name(note):
-    return NOTE_NAMES[note % 12] + str((note / 12) - _get_config('octave_offset'))
+    """
+    Get note name from MIDI note number.
+    """
+    return _NOTE_NAMES[note % 12] + str((note / 12) - _get_config('octave_offset'))
 
 
 def tonic_note_number(key):
-    return NOTE_NUMBERS[key]
+    return _NOTE_NUMBERS[key]
 
 
-# get controller description
 def controller_name(ctrl):
-    if ctrl in CONTROLLER_NAMES:
-        return CONTROLLER_NAMES[ctrl]
+    """
+    Get controller description.
+    """
+    if ctrl in _CONTROLLER_NAMES:
+        return _CONTROLLER_NAMES[ctrl]
     else:
         return None
 
 
 def event_type(type):
+    """
+    Check and return event type.
+    """
     if type not in (1 << x for x in range(_constants._NUM_EVENT_TYPES)):
         raise ValueError("invalid event type %s" % repr(type))
     return type
 
 
-# get port number from port name
 def port_number(port):
-    if isinstance(port, NoDataOffset):
-        return int(port)
-    elif isinstance(port, int):
-        return int(port) - _get_config('data_offset')
+    """
+    Convert port number/name to actual port number.
+    """
+    if isinstance(port, int):
+        return actual(port)
     else:
-        # XXX: work around for circular absolute imports
+        # XXX workaround for circular absolute imports
         import mididings.engine as engine
 
         in_ports = engine.get_in_ports()
@@ -159,20 +170,14 @@ def port_number(port):
 
 
 def channel_number(channel):
-    if isinstance(channel, NoDataOffset):
-        r = int(channel)
-    else:
-        r = channel - _get_config('data_offset')
+    r = actual(channel)
     if r < 0 or r > 15:
         raise ValueError("channel number %d is out of range" % channel)
     return r
 
 
 def program_number(program):
-    if isinstance(program, NoDataOffset):
-        r = int(program)
-    else:
-        r = program - _get_config('data_offset')
+    r = actual(program)
     if r < 0 or r > 127:
         raise ValueError("program number %d is out of range" % program)
     return r
@@ -197,10 +202,7 @@ def velocity_value(velocity):
 
 
 def scene_number(scene):
-    if isinstance(scene, NoDataOffset):
-        return int(scene)
-    else:
-        return scene - _get_config('data_offset')
+    return actual(scene)
 
 
 def sysex_data(sysex, allow_partial=False):
@@ -230,6 +232,9 @@ def sysex_manufacturer(manufacturer):
 
 
 class NoDataOffset(int):
+    """
+    An integer type that's unaffected by data offset conversions.
+    """
     def __new__(cls, value):
         return int.__new__(cls, value)
     def __repr__(self):
@@ -239,7 +244,17 @@ class NoDataOffset(int):
 
 
 def offset(n):
+    """
+    Add current data offset.
+    """
     return n + _get_config('data_offset')
 
-def real(n):
-    return n - _get_config('data_offset')
+
+def actual(n):
+    """
+    Subtract current data offset to get the "real" value used on the C++ side.
+    """
+    if isinstance(n, NoDataOffset):
+        return int(n)
+    else:
+        return n - _get_config('data_offset')

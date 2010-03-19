@@ -10,8 +10,12 @@
 # (at your option) any later version.
 #
 
-from widgets import LiveThemedFactory, UnthemedFactory
-from osc_control import LiveOSC
+from mididings.live.widgets import LiveThemedFactory, UnthemedFactory
+from mididings.live.osc_control import LiveOSC
+
+import sys
+if sys.version_info >= (3,):
+    unichr = chr
 
 
 class LiveDings(object):
@@ -79,17 +83,17 @@ class LiveDings(object):
             button_size = 20
         button_font = 'Sans %d bold' % button_size
 
-        self.btn_prev_scene = widget_factory.Button(self.win, text=u"\u25c0\u25c0",
+        self.btn_prev_scene = widget_factory.Button(self.win, text=unichr(0x25c0)*2,
                                                     width=64, font=button_font, command=self.osc.prev_scene)
         self.btn_prev_scene.grid(column=3, row=1, padx=8)
-        self.btn_next_scene = widget_factory.Button(self.win, text=u"\u25b6\u25b6",
+        self.btn_next_scene = widget_factory.Button(self.win, text=unichr(0x25b6)*2,
                                                     width=64, font=button_font, command=self.osc.next_scene)
         self.btn_next_scene.grid(column=4, row=1, padx=8)
 
-        self.btn_prev_subscene = widget_factory.Button(self.win, text=u"\u25c0",
+        self.btn_prev_subscene = widget_factory.Button(self.win, text=unichr(0x25c0),
                                                        width=64, font=button_font, command=self.osc.prev_subscene)
         self.btn_prev_subscene.grid(column=5, row=1, padx=8)
-        self.btn_next_subscene = widget_factory.Button(self.win, text=u"\u25b6",
+        self.btn_next_subscene = widget_factory.Button(self.win, text=unichr(0x25b6),
                                                        width=64, font=button_font, command=self.osc.next_subscene)
         self.btn_next_subscene.grid(column=6, row=1, padx=8)
 
@@ -226,7 +230,7 @@ class LiveDings(object):
         self.canvas.create_text(
             16,
             8 + 1.5 * self.line_height if not has_subscenes else 8 + (subscene - self.data_offset + 3) * self.line_height,
-            text=u"\u25b6",
+            text=unichr(0x25b6),
             fill=self.options.color_highlight,
             font=self.options.font,
             anchor='nw'

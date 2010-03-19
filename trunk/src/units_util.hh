@@ -32,7 +32,7 @@ enum ParameterIndices {
     PARAMETER_DATA2 = -4,
 };
 
-#include <iostream>
+
 inline int apply_velocity(int velocity, float value, VelocityMode mode)
 {
     if (velocity == 0) {

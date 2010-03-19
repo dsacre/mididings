@@ -18,10 +18,14 @@ import mididings.event as _event
 import mididings.misc as _misc
 from mididings.setup import get_config as _get_config
 
-import thread as _thread
+import sys as _sys
+if _sys.version_info >= (3,):
+    import _thread
+else:
+    import thread as _thread
 import subprocess as _subprocess
 import functools as _functools
-import inspect as _inspect
+import types as _types
 
 
 class _CallBase(_Unit):
@@ -34,7 +38,7 @@ class _CallBase(_Unit):
         # call the function
         r = self.fun(ev)
         # if the function returned a generator, it needs to be made into a list before returning to C++
-        if _inspect.isgenerator(r):
+        if isinstance(r, _types.GeneratorType):
             return list(r)
         else:
             return r
@@ -56,14 +60,14 @@ class _System(_CallBase):
         self.cmd = cmd
         _CallBase.__init__(self, self.do_system, True, True)
     def do_system(self, ev):
-        cmd = self.cmd(ev) if callable(self.cmd) else self.cmd
+        cmd = self.cmd(ev) if hasattr(self.cmd, '__call__') else self.cmd
         _subprocess.Popen(cmd, shell=True)
 
 
 @_unit_repr
 def Process(function):
-    if _get_config('verbose') and _get_config('backend') == 'jack-rt':
-        print "WARNING: using Process() with the 'jack-rt' backend is probably a bad idea"
+    if _get_config('backend') == 'jack-rt' and not _get_config('silent'):
+        print("WARNING: using Process() with the 'jack-rt' backend is probably a bad idea")
     return _CallBase(function, False, False)
 
 
@@ -72,7 +76,7 @@ def Process(function):
 def Call(function):
     def wrapper(function, ev):
         if function(ev) != None:
-            print "return value from Call() ignored. please use Process() instead"
+            print("return value from Call() ignored. please use Process() instead")
     return _CallBase(_functools.partial(wrapper, function), True, True)
 
 @_unit_repr

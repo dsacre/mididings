@@ -10,7 +10,12 @@
 # (at your option) any later version.
 #
 
-import Tkinter
+import sys
+
+if sys.version_info < (3,):
+    import Tkinter
+else:
+    import tkinter as Tkinter
 
 
 class AutoScrollbar(Tkinter.Scrollbar):

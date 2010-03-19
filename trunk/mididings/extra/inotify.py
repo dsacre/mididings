@@ -47,5 +47,5 @@ class AutoRestart(object):
         self.notifier.stop()
 
     def _process_IN_MODIFY(self, event):
-        print "file '%s' changed, restarting..." % event.pathname
+        print("file '%s' changed, restarting..." % event.pathname)
         _engine.restart()

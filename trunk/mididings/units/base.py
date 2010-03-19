@@ -14,40 +14,45 @@ import _mididings
 
 import mididings.misc as _misc
 
+import sys as _sys
+if _sys.version_info >= (3,):
+    import functools
+    reduce = functools.reduce
+
 
 class _Unit(object):
     """
-    wrapper class for all units.
+    Wrapper class for all units.
     """
     def __init__(self, unit):
         self.unit = unit
 
     def __rshift__(self, other):
-        """operator >>: connect units in series"""
+        """Operator >>: connect units in series"""
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
         return _join_units(Chain, self, other)
 
     def __rrshift__(self, other):
-        """operator >>: connect units in series"""
+        """Operator >>: connect units in series"""
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
         return _join_units(Chain, other, self)
 
     def __floordiv__(self, other):
-        """operator //: connect units in parallel"""
+        """Operator //: connect units in parallel"""
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
         return _join_units(Fork, self, other)
 
     def __rfloordiv__(self, other):
-        """operator //: connect units in parallel"""
+        """Operator //: connect units in parallel"""
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
         return _join_units(Fork, other, self)
 
     def __pos__(self):
-        """unary operator +: add Pass() in parallel to this unit"""
+        """Unary operator +: apply to duplicate"""
         return Fork([ Pass(), self ])
 
     def __repr__(self):
@@ -69,7 +74,7 @@ _UNIT_TYPES = (_Unit, list, dict)
 
 def _join_units(t, a, b):
     """
-    combine units in a single instance of type t, avoiding nesting if possible.
+    Combine units in a single instance of type t, avoiding nesting if possible.
     """
     if not isinstance(a, t):
         a = [a]
@@ -80,7 +85,7 @@ def _join_units(t, a, b):
 
 def _unit_repr(f):
     """
-    decorator that modifies the target function f to store its arguments in the returned unit.
+    Decorator that modifies the target function f to store its arguments in the returned unit.
     """
     def unit_wrapper(*args, **kwargs):
         u = f(*args, **kwargs)
@@ -93,7 +98,7 @@ def _unit_repr(f):
 
 class Chain(_Unit, list):
     """
-    units connected in series.
+    Units connected in series.
     """
     def __init__(self, units):
         list.__init__(self, units)
@@ -104,7 +109,7 @@ class Chain(_Unit, list):
 
 class Fork(_Unit, list):
     """
-    units connected in parallel.
+    Units connected in parallel.
     """
     def __init__(self, units, remove_duplicates=None):
         list.__init__(self, units)
@@ -120,7 +125,7 @@ class Fork(_Unit, list):
 
 class Split(_Unit, dict):
     """
-    split events by type.
+    Split events by type.
     """
     def __init__(self, d):
         dict.__init__(self, d)
@@ -131,23 +136,23 @@ class Split(_Unit, dict):
 
 class _Selector(object):
     """
-    base class for anything that can act as a selector.
-    derived classes must implement methods build() and build_inverted().
+    Base class for anything that can act as a selector.
+    Derived classes must implement methods build() and build_inverted().
     """
     def __and__(self, other):
-        """operator &"""
+        """Operator &"""
         if not isinstance(other, _Selector):
             return NotImplemented
         return _join_units(_AndSelector, self, other)
 
     def __or__(self, other):
-        """operator |"""
+        """Operator |"""
         if not isinstance(other, _Selector):
             return NotImplemented
         return _join_units(_OrSelector, self, other)
 
     def __mod__(self, other):
-        """operator %: apply the selector"""
+        """Operator %: apply the selector"""
         return Fork([
             self.build() >> other,
             self.build_inverted(),
@@ -178,17 +183,17 @@ class _OrSelector(_Selector):
 
 class _Filter(_Unit, _Selector):
     """
-    wrapper class for all filters.
+    Wrapper class for all filters.
     """
     def __init__(self, unit):
         _Unit.__init__(self, unit)
 
     def __invert__(self):
-        """unary operator ~: invert the filter, but still act on the same event types"""
+        """Unary operator ~: invert the filter, but still act on the same event types"""
         return _InvertedFilter(self, False)
 
     def __neg__(self):
-        """unary operator -: invert the filter, ignoring event types"""
+        """Unary operator -: invert the filter, ignoring event types"""
         return _InvertedFilter(self, True)
 
     def build(self):
@@ -200,7 +205,7 @@ class _Filter(_Unit, _Selector):
 
 class _InvertedFilter(_Filter):
     """
-    inverted filter. keeps a reference to the original filter unit.
+    Inverted filter. keeps a reference to the original filter unit.
     """
     def __init__(self, filt, ignore_types):
         self.filt = filt
@@ -215,7 +220,7 @@ class _InvertedFilter(_Filter):
 @_unit_repr
 def Filter(*args):
     """
-    filter by event type.
+    Filter by event type.
     """
     if len(args) > 1:
         # reduce all arguments to a single bitmask
@@ -228,7 +233,7 @@ def Filter(*args):
 @_unit_repr
 def Pass(p=True):
     """
-    pass all events.
+    Pass all events.
     """
     return _Unit(_mididings.Pass(p))
 
@@ -236,6 +241,6 @@ def Pass(p=True):
 @_unit_repr
 def Discard():
     """
-    discard all events.
+    Discard all events.
     """
     return _Unit(_mididings.Pass(False))

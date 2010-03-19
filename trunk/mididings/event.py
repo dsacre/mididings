@@ -21,18 +21,22 @@ from mididings.setup import get_config as _get_config
 def _make_get_set(type, data, offset=lambda: 0):
     def getter(self):
         if not self.type & type and not type == _constants.ANY:
-            print "midi event attribute error"
+            print("midi event attribute error")
         return getattr(self, data) + offset()
 
     def setter(self, value):
         if not self.type & type and not type == _constants.ANY:
-            print "midi event attribute error"
+            print("midi event attribute error")
         setattr(self, data, value - offset())
 
     return (getter, setter)
 
 
 class MidiEvent(_mididings.MidiEvent):
+    """
+    The main MIDI event class.
+    All event data is part of the C++ base class.
+    """
     def __init__(self, type=0, port_=0, channel_=0, data1=0, data2=0):
         _mididings.MidiEvent.__init__(self)
         self.type = type
@@ -106,17 +110,20 @@ class MidiEvent(_mididings.MidiEvent):
     def __repr__(self):
         return 'MidiEvent(%d, %d, %d, %d, %d)' % (self.type, self.port_, self.channel_, self.data1, self.data2)
 
-    # for backward compatibility
-    type_     = property(*_make_get_set(_constants.ANY, 'type'))
-
+    # port/channel attributes with data offset
     port      = property(*_make_get_set(_constants.ANY, 'port_', lambda: _get_config('data_offset')))
     channel   = property(*_make_get_set(_constants.ANY, 'channel_', lambda: _get_config('data_offset')))
 
+    # event-type specific attributes
     note      = property(*_make_get_set(_constants.NOTE, 'data1'))
     velocity  = property(*_make_get_set(_constants.NOTE, 'data2'))
     param     = property(*_make_get_set(_constants.CTRL | _constants.POLY_AFTERTOUCH, 'data1'))
-    value     = property(*_make_get_set(_constants.CTRL | _constants.PITCHBEND | _constants.AFTERTOUCH | _constants.POLY_AFTERTOUCH, 'data2'))
+    value     = property(*_make_get_set(_constants.CTRL | _constants.PITCHBEND |
+                                        _constants.AFTERTOUCH | _constants.POLY_AFTERTOUCH, 'data2'))
     program   = property(*_make_get_set(_constants.PROGRAM, 'data2', lambda: _get_config('data_offset')))
+
+    # for backward compatibility
+    type_     = property(*_make_get_set(_constants.ANY, 'type'))
 
 
 def NoteOnEvent(port, channel, note, velocity):

@@ -13,6 +13,8 @@
 import mididings.setup as _setup
 import mididings.engine as _engine
 
+import sys as _sys
+
 
 class MemorizeScene(object):
     def __init__(self, memo_file):
@@ -39,5 +41,7 @@ class MemorizeScene(object):
         try:
             f = open(self.memo_file, 'w')
             f.write("%d %d\n" % (_engine.current_scene(), _engine.current_subscene()))
-        except IOError, ex:
-            print "couldn't store current scene:\n%s" % str(ex)
+        except IOError:
+            # yuck. not willing to break compatibility with python 2.5 just yet...
+            _, ex, _ = _sys.exc_info()
+            print("couldn't store current scene:\n%s" % str(ex))

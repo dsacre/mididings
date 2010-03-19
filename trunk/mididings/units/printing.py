@@ -71,7 +71,7 @@ class _Print(_CallBase):
             eventmax = 0
         eventstr = ev.to_string(self.ports, _Print.max_portname_length, eventmax)
 
-        print '%s%s' % (namestr, eventstr)
+        print('%s%s' % (namestr, eventstr))
 
 
 class _PrintString(_CallBase):
@@ -79,8 +79,8 @@ class _PrintString(_CallBase):
         self.string = string
         _CallBase.__init__(self, self.do_print, True, True)
     def do_print(self, ev):
-        string = self.string(ev) if callable(self.string) else self.string
-        print string
+        string = self.string(ev) if hasattr(self.string, '__call__') else self.string
+        print(string)
 
 
 @_unit_repr

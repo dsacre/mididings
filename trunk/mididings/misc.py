@@ -96,7 +96,7 @@ def call_overload(args, kwargs, funcs, name=None):
 
         argstr = ', '.join(itertools.chain(
             names[:len(names)-len(defvals)],
-            ('%s=%s' % a for a in itertools.izip(names[-len(defvals):], defvals)),
+            ('%s=%s' % a for a in zip(names[-len(defvals):], defvals)),
         ))
         candidates.append('%s(%s)' % (name, argstr))
 
@@ -121,10 +121,10 @@ def overload(f):
     """
     decorator that marks a function as being overloaded.
     """
-    k = (f.func_name, f.__module__)
+    k = (f.__name__, f.__module__)
     if k not in Overload.registry:
-        Overload.registry[k] = Overload(f.func_name)
-    assert f.func_name == Overload.registry[k].name
+        Overload.registry[k] = Overload(f.__name__)
+    assert f.__name__ == Overload.registry[k].name
     Overload.registry[k].add(f)
     return Overload.registry[k]
 
@@ -140,11 +140,11 @@ class deprecated:
 
     def __call__(self, f):
         def deprecated_wrapper(*args, **kwargs):
-            if get_config('verbose') and f not in deprecated.already_used:
+            if f not in deprecated.already_used and not get_config('silent'):
                 if self.replacement:
-                    print "%s() is deprecated, please use %s() instead" % (f.func_name, self.replacement)
+                    print("%s() is deprecated, please use %s() instead" % (f.__name__, self.replacement))
                 else:
-                    print "%s() is deprecated" % f.func_name
+                    print("%s() is deprecated" % f.__name__)
                 deprecated.already_used.append(f)
             return f(*args, **kwargs)
         deprecated_wrapper._deprecated = True

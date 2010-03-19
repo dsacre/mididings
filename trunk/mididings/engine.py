@@ -28,6 +28,9 @@ import atexit as _atexit
 import os as _os
 import sys as _sys
 
+if _sys.version_info >= (3,):
+    raw_input = input
+
 
 _TheEngine = None
 
@@ -45,7 +48,7 @@ class Engine(_mididings.Engine):
             _get_config('client_name'),
             _misc.make_string_vector(self.in_ports),
             _misc.make_string_vector(self.out_ports),
-            _get_config('verbose')
+            not _get_config('silent')
         )
 
         self._scenes = {}
@@ -96,7 +99,7 @@ class Engine(_mididings.Engine):
         elif _misc.issequence(n) and len(n) > 1 and n[0] in self._scenes:
             # scene number as tuple...
             initial_scene = _util.scene_number(n[0])
-            if _util.real(n[1]) < len(self._scenes[n[0]][1]):
+            if _util.actual(n[1]) < len(self._scenes[n[0]][1]):
                 # ...and valid subscene
                 initial_subscene = _util.scene_number(n[1])
             else:
@@ -143,36 +146,48 @@ class Engine(_mididings.Engine):
         return name, proc, init
 
     def _scene_switch_handler(self, scene, subscene):
+        # the scene and subscene parameters are the actual numbers without offset!
         if scene == -1:
+            # no scene specified, use current
             scene = _mididings.Engine.current_scene(self)
         if subscene == -1:
+            # no subscene specified, use first
             subscene = 0
 
+        # save actual subscene index
         subscene_index = subscene
+
+        # add data offset to scene/subscene numbers
         scene = _util.offset(scene)
         subscene = _util.offset(subscene)
 
+        found = (scene in self._scenes and
+                 (not subscene_index or subscene_index < len(self._scenes[scene][1])))
+
         # get string representation of scene/subscene number
-        if scene in self._scenes and self._scenes[scene][1]:
+        if subscene_index:
             number = "%d.%d" % (scene, subscene)
         else:
             number = str(scene)
 
-        if scene in self._scenes:
-            # get scene/subscene name
-            scene_data = self._scenes[scene]
-            if scene_data[1]:
-                name = "%s - %s" % (scene_data[0], scene_data[1][subscene_index])
-            else:
-                name = scene_data[0]
+        if not _get_config('silent'):
+            if found:
+                # get scene/subscene name
+                scene_data = self._scenes[scene]
+                if scene_data[1]:
+                    name = "%s - %s" % (scene_data[0], scene_data[1][subscene_index])
+                else:
+                    name = scene_data[0]
 
-            if name:
-                print "switching to scene %s: %s" % (number, name)
+                if name:
+                    print("switching to scene %s: %s" % (number, name))
+                else:
+                    print("switching to scene %s" % number)
             else:
-                print "switching to scene %s" % number
+                print("no such scene: %s" % number)
+
+        if found:
             self._call_hooks('on_switch_scene', scene, subscene)
-        else:
-            print "no such scene: %s" % number
 
     def _call_hooks(self, name, *args):
         for hook in _get_hooks():
@@ -264,14 +279,14 @@ def get_in_ports():
         return _TheEngine().in_ports
     else:
         r = _get_config('in_ports')
-        return r if _misc.issequence(r) else map(_util.NoDataOffset, range(r))
+        return r if _misc.issequence(r) else list(map(_util.NoDataOffset, range(r)))
 
 def get_out_ports():
     if is_active():
         return _TheEngine().out_ports
     else:
         r = _get_config('out_ports')
-        return r if _misc.issequence(r) else map(_util.NoDataOffset, range(r))
+        return r if _misc.issequence(r) else list(map(_util.NoDataOffset, range(r)))
 
 def is_active():
     return _TheEngine != None and _TheEngine() != None

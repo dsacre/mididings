@@ -40,7 +40,10 @@ class Dings(object):
         # just a kludge to make AutoRestart() work
         sys.modules['dings_main'] = type('FakeModule', (), {'__file__': filename})
 
-        execfile(filename, self.dings_dict)
+        if sys.version_info >= (3,):
+            exec(compile(open(filename).read(), filename, 'exec'), self.dings_dict)
+        else:
+            execfile(filename, self.dings_dict)
 
     def run_patch(self, in_ports, out_ports, patch):
         if in_ports:

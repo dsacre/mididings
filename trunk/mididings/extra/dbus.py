@@ -29,7 +29,7 @@ class _SendDBUS(object):
     def __call__(self, ev):
         obj = self.bus.get_object(self.service, self.path)
         func = obj.get_dbus_method(self.method, self.interface)
-        args = ((x(ev) if callable(x) else x) for x in self.args)
+        args = ((x(ev) if hasattr(x, '__call__') else x) for x in self.args)
         func(*args)
 
 

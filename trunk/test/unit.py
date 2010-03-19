@@ -234,7 +234,7 @@ class SimpleTestCase(unittest.TestCase):
         assert r[0].data2 == 127
 
     def testSceneSwitch(self):
-        config(verbose=False)
+        config(silent=True)
         p = {
             0:  Split({
                     PROG:  SceneSwitch(),

@@ -3,8 +3,12 @@
 from distutils.core import setup, Extension
 from distutils import sysconfig
 import sys
-import commands
 import os.path
+
+if sys.version_info >= (3,):
+    from subprocess import getstatusoutput
+else:
+    from commands import getstatusoutput
 
 
 config = {
@@ -28,7 +32,7 @@ check_option('smf', sys.argv[1:])
 
 
 def pkgconfig(pkg):
-    status, output = commands.getstatusoutput('pkg-config --libs --cflags %s' % pkg)
+    status, output = getstatusoutput('pkg-config --libs --cflags %s' % pkg)
     if status:
         sys.exit("couldn't find package '%s'" % pkg)
     for token in output.split():
@@ -62,11 +66,17 @@ define_macros = []
 libraries = []
 library_dirs = []
 
+include_dirs.append('src')
 
 pkgconfig('glib-2.0')
+
 libraries.append(boost_lib_name('boost_python'))
 libraries.append(boost_lib_name('boost_thread'))
-include_dirs.append('src')
+
+#include_dirs.append('/opt/boost1.42-py3/include')
+#library_dirs.append('/opt/boost1.42-py3/lib')
+#libraries.append('boost_python3')
+#libraries.append('boost_thread')
 
 
 if config['alsa-seq']:
@@ -115,6 +125,7 @@ setup(
             name = '_mididings',
             sources = sources,
             include_dirs = include_dirs,
+            library_dirs = library_dirs,
             libraries = libraries,
             define_macros = define_macros,
         ),

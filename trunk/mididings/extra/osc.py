@@ -91,7 +91,7 @@ class OSCInterface(object):
     @_liblo.make_method('/mididings/prev_subscene', 'i')
     def prev_subscene_cb(self, path, args):
         s = _engine.get_scenes()[_engine.current_scene()]
-        n = _util.real(_engine.current_subscene()) - 1
+        n = _util.actual(_engine.current_subscene()) - 1
         if len(s[1]) and len(args) and args[0]:
             n %= len(s[1])
         if n >= 0:
@@ -101,7 +101,7 @@ class OSCInterface(object):
     @_liblo.make_method('/mididings/next_subscene', 'i')
     def next_subscene_cb(self, path, args):
         s = _engine.get_scenes()[_engine.current_scene()]
-        n = _util.real(_engine.current_subscene()) + 1
+        n = _util.actual(_engine.current_subscene()) + 1
         if len(s[1]) and len(args) and args[0]:
             n %= len(s[1])
         if n < len(s[1]):
@@ -128,7 +128,7 @@ class _SendOSC(object):
         self.args = args
 
     def __call__(self, ev):
-        args = ((x(ev) if callable(x) else x) for x in self.args)
+        args = ((x(ev) if hasattr(x, '__call__') else x) for x in self.args)
         _liblo.send(self.target, self.path, *args)
 
 

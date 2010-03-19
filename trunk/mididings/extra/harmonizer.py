@@ -41,7 +41,7 @@ class _Harmonizer(object):
 
             self.lookup[x] = hx - x
 
-        r = range(12)
+        r = list(range(12))
         if non_harmonic == 'above':
             # reverse order to make sure higher notes are already calculated
             r.reverse()
