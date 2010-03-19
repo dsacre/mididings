@@ -11,6 +11,7 @@
 #
 
 import _mididings
+
 import mididings.patch as _patch
 import mididings.scene as _scene
 import mididings.util as _util

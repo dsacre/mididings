@@ -63,10 +63,14 @@ class _Unit(object):
             return self.__class__.__name__
 
 
+# the types we accept as part of a patch
 _UNIT_TYPES = (_Unit, list, dict)
 
 
 def _join_units(t, a, b):
+    """
+    combine units in a single instance of type t, avoiding nesting if possible.
+    """
     if not isinstance(a, t):
         a = [a]
     if not isinstance(b, t):
@@ -143,33 +147,33 @@ class _Selector(object):
         return _join_units(_OrSelector, self, other)
 
     def __mod__(self, other):
-        """operator %"""
+        """operator %: apply the selector"""
         return Fork([
             self.build() >> other,
             self.build_inverted(),
         ])
 
 
-class _AndSelector(list, _Selector):
+class _AndSelector(_Selector):
     def __init__(self, conditions):
-        list.__init__(self, conditions)
+        self.conditions = conditions
 
     def build(self):
-        return Chain(p.build() for p in self)
+        return Chain(p.build() for p in self.conditions)
 
     def build_inverted(self):
-        return Fork(p.build_inverted() for p in self)
+        return Fork(p.build_inverted() for p in self.conditions)
 
 
-class _OrSelector(list, _Selector):
+class _OrSelector(_Selector):
     def __init__(self, conditions):
-        list.__init__(self, conditions)
+        self.conditions = conditions
 
     def build(self):
-        return Fork(p.build() for p in self)
+        return Fork(p.build() for p in self.conditions)
 
     def build_inverted(self):
-        return Chain(p.build_inverted() for p in self)
+        return Chain(p.build_inverted() for p in self.conditions)
 
 
 class _Filter(_Unit, _Selector):
@@ -180,7 +184,7 @@ class _Filter(_Unit, _Selector):
         _Unit.__init__(self, unit)
 
     def __invert__(self):
-        """unary operator ~: invert the filter, but still acts on the same event types"""
+        """unary operator ~: invert the filter, but still act on the same event types"""
         return _InvertedFilter(self, False)
 
     def __neg__(self):
@@ -195,6 +199,9 @@ class _Filter(_Unit, _Selector):
 
 
 class _InvertedFilter(_Filter):
+    """
+    inverted filter. keeps a reference to the original filter unit.
+    """
     def __init__(self, filt, ignore_types):
         self.filt = filt
         self.ignore_types = ignore_types
@@ -211,6 +218,7 @@ def Filter(*args):
     filter by event type.
     """
     if len(args) > 1:
+        # reduce all arguments to a single bitmask
         types = reduce(lambda x,y: x|y, args)
     else:
         types = args[0]

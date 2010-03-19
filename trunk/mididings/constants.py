@@ -10,8 +10,8 @@
 # (at your option) any later version.
 #
 
-from misc import NamedFlag as _NamedFlag
-from misc import NamedBitMask as _NamedBitMask
+from mididings.misc import NamedFlag as _NamedFlag
+from mididings.misc import NamedBitMask as _NamedBitMask
 
 
 NONE            = _NamedBitMask(0, 'NONE')

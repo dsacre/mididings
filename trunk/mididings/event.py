@@ -11,10 +11,11 @@
 #
 
 import _mididings
-import constants as _constants
-import util as _util
-import misc as _misc
-from setup import get_config as _get_config
+
+import mididings.constants as _constants
+import mididings.util as _util
+import mididings.misc as _misc
+from mididings.setup import get_config as _get_config
 
 
 def _make_get_set(type, data, offset=lambda: 0):

@@ -12,7 +12,6 @@
 
 import mididings.misc as _misc
 import mididings.constants as _constants
-import engine as _engine
 from mididings.setup import get_config as _get_config
 
 
@@ -141,8 +140,11 @@ def port_number(port):
     elif isinstance(port, int):
         return int(port) - _get_config('data_offset')
     else:
-        in_ports = _engine.get_in_ports()
-        out_ports = _engine.get_out_ports()
+        # XXX: work around for circular absolute imports
+        import mididings.engine as engine
+
+        in_ports = engine.get_in_ports()
+        out_ports = engine.get_out_ports()
         is_in = (_misc.issequence(in_ports) and port in in_ports)
         is_out = (_misc.issequence(out_ports) and port in out_ports)
 

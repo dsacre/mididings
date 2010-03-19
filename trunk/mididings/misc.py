@@ -11,7 +11,8 @@
 #
 
 import _mididings
-from setup import get_config
+
+from mididings.setup import get_config
 
 import inspect
 import itertools
