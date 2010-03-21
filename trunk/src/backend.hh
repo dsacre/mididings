@@ -29,8 +29,7 @@ class Backend
     {
         BackendError(std::string const & w)
           : std::runtime_error(w)
-        {
-        }
+        { }
     };
 
     typedef boost::function<void ()> InitFunction;
@@ -39,24 +38,33 @@ class Backend
     Backend() { }
     virtual ~Backend() { }
 
+    // start MIDI processing, run init function.
+    // depending on the backend, cycle may be called once (and not return) or periodically.
     virtual void start(InitFunction init, CycleFunction cycle) = 0;
 
+    // get one event from input, return true if an event was read.
+    // depending on the backend, this may block until an event is available.
     virtual bool input_event(MidiEvent & ev) = 0;
-    virtual void output_event(MidiEvent const & ev) = 0;
-    virtual void flush_output() { };
 
+    // send one event to the output.
+    virtual void output_event(MidiEvent const & ev) = 0;
+
+    // send multiple events to the output.
     template <typename IterT>
-    void output_events(IterT begin, IterT end)
-    {
+    void output_events(IterT begin, IterT end) {
         for (IterT it = begin; it != end; ++it) {
             output_event(*it);
         }
     }
 
+    // return the number of output ports
     virtual std::size_t num_out_ports() const = 0;
 
   protected:
+    // convert normalized MIDI data to one MidiEvent
     static MidiEvent buffer_to_midi_event(unsigned char *data, std::size_t len, int port, uint64_t frame);
+
+    // convert MidiEvent object to normalized MIDI data
     static std::size_t midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame);
 };
 

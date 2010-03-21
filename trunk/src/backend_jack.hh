@@ -30,7 +30,7 @@
 
 
 /*
- * JACK backend base class
+ * JACK backend base class.
  */
 class BackendJack
   : public Backend
@@ -44,7 +44,7 @@ class BackendJack
     virtual std::size_t num_out_ports() const { return _out_ports.size(); }
 
   protected:
-    // this should be pure virtual.
+    // XXX this should be pure virtual.
     // it isn't, because the process thread is started within the c'tor
     virtual int process(jack_nframes_t) { return 0; } //= 0;
 

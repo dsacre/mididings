@@ -152,7 +152,6 @@ void Engine::run_init(int initial_scene, int initial_subscene)
     process_scene_switch(_buffer);
 
     _backend->output_events(_buffer.begin(), _buffer.end());
-    _backend->flush_output();
 }
 
 
@@ -183,7 +182,6 @@ void Engine::run_cycle()
 #endif
 
         _backend->output_events(_buffer.begin(), _buffer.end());
-        _backend->flush_output();
     }
 }
 
@@ -195,14 +193,15 @@ void Engine::run_async()
         return;
     }
 
-    boost::mutex::scoped_lock lock(_process_mutex);
+    if (_new_scene != -1 || _new_subscene != -1) {
+        boost::mutex::scoped_lock lock(_process_mutex);
 
-    _buffer.clear();
+        _buffer.clear();
 
-    process_scene_switch(_buffer);
+        process_scene_switch(_buffer);
 
-    _backend->output_events(_buffer.begin(), _buffer.end());
-    _backend->flush_output();
+        _backend->output_events(_buffer.begin(), _buffer.end());
+    }
 }
 
 
@@ -441,5 +440,4 @@ void Engine::output_event(MidiEvent const & ev)
     boost::mutex::scoped_lock lock(_process_mutex);
 
     _backend->output_event(ev);
-    _backend->flush_output();
 }

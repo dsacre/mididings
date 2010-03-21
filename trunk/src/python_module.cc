@@ -146,7 +146,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .def_readwrite("channel_", &MidiEvent::channel)
         .def_readwrite("data1", &MidiEvent::data1)
         .def_readwrite("data2", &MidiEvent::data2)
-        .def("get_sysex_data", &MidiEvent::get_sysex_data)
+        .add_property("sysex", &MidiEvent::get_sysex_data, &MidiEvent::set_sysex_data)
         .def(bp::self == bp::self)
         .def_pickle(midi_event_pickle_suite())
     ;

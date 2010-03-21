@@ -12,7 +12,6 @@
 #ifndef _MIDI_EVENT_HH
 #define _MIDI_EVENT_HH
 
-#include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 #include <string>
 
@@ -48,7 +47,7 @@ typedef unsigned int MidiEventTypes;
 struct MidiEvent
 {
     typedef std::string SysExData;
-    typedef boost::shared_ptr<SysExData const> SysExPtr;
+    typedef boost::shared_ptr<SysExData> SysExPtr;
 
     struct null_deleter {
         void operator()(void const *) const {}
@@ -76,20 +75,13 @@ struct MidiEvent
       , frame(0)
     {
     }
-/*
-    MidiEvent(int port_, std::string const & sysex_)
-      : type(MIDI_EVENT_SYSEX)
-      , port(port_)
-      , channel(0)
-      , data1(0)
-      , data2(0)
-      , frame(0)
-    {
-        sysex.reset(&sysex_, null_deleter());
+
+    SysExData get_sysex_data() const {
+        return *sysex;
     }
-*/
-    std::string get_sysex_data() const {
-        return std::string(*sysex);
+
+    void set_sysex_data(SysExData const & sysex_) {
+        sysex.reset(new SysExData(sysex_));
     }
 
     MidiEventType type;
@@ -121,13 +113,15 @@ struct MidiEvent
 
 inline bool operator==(MidiEvent const & lhs, MidiEvent const & rhs)
 {
-    return (lhs.type == rhs.type &&
-            lhs.port == rhs.port &&
-            lhs.channel == rhs.channel &&
-            lhs.data1 == rhs.data1 &&
-            lhs.data2 == rhs.data2);
-
-    // TODO: frame? sysex?
+    return (
+        lhs.type == rhs.type &&
+        lhs.port == rhs.port &&
+        lhs.channel == rhs.channel &&
+        lhs.data1 == rhs.data1 &&
+        lhs.data2 == rhs.data2 &&
+        ((!lhs.sysex && !rhs.sysex) || (lhs.sysex && rhs.sysex && *lhs.sysex == *rhs.sysex)) &&
+        lhs.frame == rhs.frame
+    );
 }
 
 

@@ -36,22 +36,30 @@ class BackendAlsa
 
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
-    virtual void flush_output();
 
     virtual std::size_t num_out_ports() const { return _portid_out.size(); }
 
   private:
-    MidiEvent alsa_to_midi_event(snd_seq_event_t const & alsa_ev);
-    snd_seq_event_t midi_event_to_alsa(MidiEvent const & ev);
+    void alsa_to_midi_event(MidiEvent & ev, snd_seq_event_t const & alsa_ev);
+    void alsa_to_midi_event_sysex(MidiEvent & ev, snd_seq_event_t const & alsa_ev);
+    void alsa_to_midi_event_generic(MidiEvent & ev, snd_seq_event_t const & alsa_ev);
+
+    void midi_event_to_alsa(snd_seq_event_t & alsa_ev, MidiEvent const & ev, std::size_t & count);
+    void midi_event_to_alsa_sysex(snd_seq_event_t & alsa_ev, MidiEvent const & ev, std::size_t & count);
+    void midi_event_to_alsa_generic(snd_seq_event_t & alsa_ev, MidiEvent const & ev);
 
     void terminate_thread();
 
     snd_seq_t *_seq;
+
     std::vector<int> _portid_in;        // alsa input port ids
     std::map<int, int> _portid_in_rev;  // reverse mapping (port id -> port #)
     std::vector<int> _portid_out;       // alsa output port ids
 
     snd_midi_event_t *_parser;
+
+    // per-port buffers for incoming sysex data
+    std::map<int, MidiEvent::SysExPtr> _sysex_buffer;
 
     boost::scoped_ptr<boost::thread> _thrd;
 };

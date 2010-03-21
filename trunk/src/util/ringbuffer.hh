@@ -10,7 +10,6 @@
 #ifndef _DAS_RINGBUFFER_HH
 #define _DAS_RINGBUFFER_HH
 
-
 #include <boost/noncopyable.hpp>
 #include <glib.h>
 
@@ -18,8 +17,8 @@
 namespace das {
 
 /*
- * lock-free ring buffer.
- * inspired by and partly copied from Raul::RingBuffer by Dave Robillard
+ * lock-free ring buffer, supports storing C++ objects.
+ * inspired by and partly copied from Raul::RingBuffer by Dave Robillard.
  */
 template <typename T>
 class ringbuffer : boost::noncopyable

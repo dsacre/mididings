@@ -12,6 +12,8 @@
 #ifndef _CONFIG_HH
 #define _CONFIG_HH
 
+#include <cstring>
+
 
 namespace Config
 {
@@ -27,6 +29,8 @@ namespace Config
     static int const MAX_ASYNC_CALLS = 256;
     static int const ASYNC_JOIN_TIMEOUT = 3000;
     static int const ASYNC_CALLBACK_INTERVAL = 50;
+
+    static std::size_t const ALSA_SYSEX_CHUNK_SIZE = 256;
 
     static int const MAX_JACK_EVENTS = 128;
     // maximum size of JACK MIDI events. in reality this depends on the JACK period size...

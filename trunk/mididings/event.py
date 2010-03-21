@@ -70,7 +70,7 @@ class MidiEvent(_mididings.MidiEvent):
         elif self.type == _constants.PROGRAM:
             s = 'Program:      %3d' % self.program
         elif self.type == _constants.SYSEX:
-            data = self.get_sysex_data()
+            data = self.sysex
             if max_length:
                 m = (max_length - len(h) - 25) / 3
                 if len(data) > m:
