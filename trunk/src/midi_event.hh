@@ -12,6 +12,7 @@
 #ifndef _MIDI_EVENT_HH
 #define _MIDI_EVENT_HH
 
+#include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 #include <string>
 
