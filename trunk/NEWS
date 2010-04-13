@@ -1,3 +1,15 @@
+2010-04-13
+
+  * Added support for Python 3.x (requires a recent Boost.Python built for
+    Python 3, and most likely some manual fiddling with the setup.py
+    script).
+  * Fixed some compatibility issues with Python 2.5 (thanks to Moritz
+    Firsching for the bug report).
+  * Added support for SysEx messages larger than ALSA's buffer size.
+  * Fixed a race condition that could lead to a crash when terminating
+    mididings while an event is being processed.
+  * Fixed the JACK backend so multiple input ports can be used.
+
 2010-03-18
 
   * Added VoiceFilter() to filter individual voices from a chord.
