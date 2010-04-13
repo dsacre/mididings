@@ -78,9 +78,9 @@ class BackendJackBuffered
     BackendJackBuffered(std::string const & client_name,
                         std::vector<std::string> const & in_portnames,
                         std::vector<std::string> const & out_portnames);
-    virtual ~BackendJackBuffered();
 
     virtual void start(InitFunction init, CycleFunction cycle);
+    virtual void stop();
 
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
@@ -111,7 +111,6 @@ class BackendJackRealtime
     BackendJackRealtime(std::string const & client_name,
                         std::vector<std::string> const & in_portnames,
                         std::vector<std::string> const & out_portnames);
-    virtual ~BackendJackRealtime() { }
 
     virtual void start(InitFunction init, CycleFunction cycle);
 

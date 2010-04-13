@@ -42,6 +42,9 @@ class Backend
     // depending on the backend, cycle may be called once (and not return) or periodically.
     virtual void start(InitFunction init, CycleFunction cycle) = 0;
 
+    // stop MIDI processing.
+    virtual void stop() { }
+
     // get one event from input, return true if an event was read.
     // depending on the backend, this may block until an event is available.
     virtual bool input_event(MidiEvent & ev) = 0;

@@ -101,7 +101,7 @@ void BackendJack::clear_buffers(jack_nframes_t nframes)
 
 bool BackendJack::read_event(MidiEvent & ev, jack_nframes_t nframes)
 {
-    if (_input_port < static_cast<int>(_in_ports.size()))
+    while (_input_port < static_cast<int>(_in_ports.size()))
     {
         void *port_buffer = jack_port_get_buffer(_in_ports[_input_port], nframes);
         int num_events = jack_midi_get_event_count(port_buffer);
@@ -181,7 +181,7 @@ BackendJackBuffered::BackendJackBuffered(std::string const & client_name,
 }
 
 
-BackendJackBuffered::~BackendJackBuffered()
+void BackendJackBuffered::stop()
 {
     if (_thrd) {
         _quit = true;

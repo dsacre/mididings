@@ -80,12 +80,6 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
 
 BackendAlsa::~BackendAlsa()
 {
-    if (_thrd) {
-        // notify event processing thread and wait for it to terminate
-        terminate_thread();
-        _thrd->join();
-    }
-
     snd_midi_event_free(_parser);
 
     BOOST_FOREACH (int i, _portid_in) {
@@ -111,6 +105,26 @@ void BackendAlsa::start(InitFunction init, CycleFunction cycle)
         boost::lambda::bind(init),
         boost::lambda::bind(cycle)
     )));
+}
+
+
+void BackendAlsa::stop()
+{
+    if (_thrd) {
+        // send event to ourselves to make snd_seq_event_input() return
+        snd_seq_event_t ev;
+        snd_seq_ev_clear(&ev);
+
+        snd_seq_ev_set_direct(&ev);
+        ev.type = SND_SEQ_EVENT_USR0;
+        ev.source.port = _portid_out[0];
+        ev.dest.client = snd_seq_client_id(_seq);
+        ev.dest.port = _portid_in[0];
+        snd_seq_event_output_direct(_seq, &ev);
+
+        // wait for event processing thread to terminate
+        _thrd->join();
+    }
 }
 
 
@@ -369,19 +383,4 @@ void BackendAlsa::output_event(MidiEvent const & ev)
             ::usleep(Config::ALSA_SYSEX_CHUNK_SIZE * 352);
         }
     } while (count);
-}
-
-
-void BackendAlsa::terminate_thread()
-{
-    // send event to ourselves to make snd_seq_event_input() return
-    snd_seq_event_t ev;
-    snd_seq_ev_clear(&ev);
-
-    snd_seq_ev_set_direct(&ev);
-    ev.type = SND_SEQ_EVENT_USR0;
-    ev.source.port = _portid_out[0];
-    ev.dest.client = snd_seq_client_id(_seq);
-    ev.dest.port = _portid_in[0];
-    snd_seq_event_output_direct(_seq, &ev);
 }

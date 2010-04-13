@@ -33,6 +33,7 @@ class BackendAlsa
     virtual ~BackendAlsa();
 
     virtual void start(InitFunction init, CycleFunction cycle);
+    virtual void stop();
 
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
@@ -47,8 +48,6 @@ class BackendAlsa
     void midi_event_to_alsa(snd_seq_event_t & alsa_ev, MidiEvent const & ev, std::size_t & count);
     void midi_event_to_alsa_sysex(snd_seq_event_t & alsa_ev, MidiEvent const & ev, std::size_t & count);
     void midi_event_to_alsa_generic(snd_seq_event_t & alsa_ev, MidiEvent const & ev);
-
-    void terminate_thread();
 
     snd_seq_t *_seq;
 

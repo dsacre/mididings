@@ -99,9 +99,10 @@ Engine::~Engine()
 {
     DEBUG_FN();
 
-    // needs to be gone before the engine can safely be destroyed
+    // this needs to be gone before the engine can safely be destroyed
     _python_caller.reset();
-    _backend.reset();
+
+    _backend->stop();
 }
 
 
