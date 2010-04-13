@@ -466,6 +466,11 @@ SysEx(port, sysex)</h4>
 <p>
 Creates a new system exclusive event. sysex can be a string or a sequence of integers, and must include the leading F0 and trailing F7 bytes.
 </p>
+<div class="example"><div class="header">
+Send a SysEx message read from a file:
+</div>
+SysEx(open('example.syx').read())
+</div>
 
 <h4>Generator(type, port, channel, data1=0, data2=0)</h4>
 <p>
