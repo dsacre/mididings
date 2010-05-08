@@ -3,7 +3,8 @@
 #
 # klick: http://das.nasophon.de/klick/
 #
-# CC 13 runs/terminates the klick process (alternatively, run "klick -P -o 1234"),
+# CC 13 runs/terminates the klick process (alternatively,
+# run "klick -P -o 1234"),
 # CC 14 starts/stops the metronome, and CC 15 changes tempo.
 #
 

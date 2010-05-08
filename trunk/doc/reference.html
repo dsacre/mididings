@@ -116,30 +116,6 @@ SceneGroup("Example Song", [
 ])
 </pre></div>
 
-<h4>MidiEvent</h4>
-<p>
-Used as the MIDI event data type inside the Process() and Call() units.
-</p>
-<p>
-  A MidiEvent object has the following attributes:
-</p>
-<ul>
-  <li><b>type</b>: The event type, one of the constants described below.</li>
-  <li><b>port</b>: The event port.</li>
-  <li><b>channel</b>: The event channel.</li>
-  <li><b>data1, data2</b>: Data bytes, meaning depends on event type.</li>
-</ul>
-<p>
-There are also aliases for these attributes, some of which are only valid for certain types of events:
-</p>
-<ul>
-  <li><b>note</b>: Note number, alias for data1.</li>
-  <li><b>velocity</b>: Note velocity, alias for data2.</li>
-  <li><b>param</b>: Controller number, alias for data1.</li>
-  <li><b>value</b>: Controller parameter, alias for data2.</li>
-  <li><b>program</b>: Program number, alias for data2. Unlike data2, this value is affected by the data_offset setting.</li>
-</ul>
-
 
 <h2><a name="constants"></a>Constants</h2>
 
@@ -623,6 +599,92 @@ Filter(NOTEON) % Print(string=lambda ev: '#'*ev.velocity)
 <p>
 Makes sure the event is a valid MIDI message. Events with invalid port, channel, controller, program or note number are
 discarded, note velocity and controller values are confined to the range 0-127.
+</p>
+
+
+<h2><a name="submodules"></a>Submodules</h2>
+
+<h3>mididings.event</h3>
+<p>
+This module defines classes and functions for dealing with MIDI events in Python code,
+e.g. using Process() or Call().
+</p>
+
+<h4>MidiEvent(type, port_, channel_, data1, data2)</h4>
+<p>
+The class used as the MIDI event data type inside the Process() and Call() units.
+</p>
+<p>
+  A MidiEvent object has the following attributes:
+</p>
+<ul>
+  <li><b>type</b>: The event type, one of the constants described below.</li>
+  <li><b>port</b>: The event port.</li>
+  <li><b>channel</b>: The event channel.</li>
+  <li><b>data1, data2</b>: Data bytes, meaning depends on event type.</li>
+</ul>
+<p>
+There are also aliases for these attributes, some of which are only valid for certain types of events:
+</p>
+<ul>
+  <li><b>note</b>: Note number, alias for data1.</li>
+  <li><b>velocity</b>: Note velocity, alias for data2.</li>
+  <li><b>param</b>: Controller number, alias for data1.</li>
+  <li><b>value</b>: Controller parameter, alias for data2.</li>
+  <li><b>program</b>: Program number, alias for data2. Unlike data2, this value is affected by the data_offset setting.</li>
+</ul>
+
+<h4>NoteOnEvent(port, channel, note, velocity)<br>
+NoteOffEvent(port, channel, note, velocity=0)<br>
+CtrlEvent(port, channel, param, value)<br>
+ProgramEvent(port, channel, program)</h4>
+<p>
+Auxiliary functions to create new MidiEvent objects of a certain type.
+</p>
+
+<h3>mididings.engine</h3>
+<p>
+This module defines some basic functions that can be called from Python code, for example inside Call().
+</p>
+
+<h4>switch_scene(scene, subscene=None)<br>
+switch_subscene(subscene)</h4>
+<p>
+Switches the current scene and/or subscene.
+</p>
+
+<h4>current_scene()<br>
+current_subscene()</h4>
+<p>
+Returns the current scene or subscene number.
+</p>
+
+<h4>get_scenes()</h4>
+<p>
+Returns a dictionary of all scenes.
+Keys are scene numbers, values are tuples containing the scene name and a (possibly empty) list of subscene names.
+</p>
+
+<h4>output_event(ev)</h4>
+<p>
+Sends a MIDI event directly to an output port, completely bypassing any other event processing.
+</p>
+
+<h4>get_in_ports()<br>
+get_out_ports()</h4>
+<p>
+Returns a list of the configured input/output port names.
+</p>
+
+<h4>is_active()</h4>
+<p>
+Returns True if the mididings engine is active (the run() function is running).
+</p>
+
+<h4>restart()<br>
+quit()</h4>
+<p>
+Restarts or quits mididings.
 </p>
 
 

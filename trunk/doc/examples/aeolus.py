@@ -5,9 +5,9 @@
 # uses CC #98 to enable/disable stops. Changing a stop requires one message
 # to select the button group and action, and another to select the button.
 #
-# This script converts simple CC messages, one CC# per stop, to the format expected
-# by Aeolus. CCs 0-56 are mapped to the 57 buttons of the Aeolus default instrument.
-# Stops are enabled by controller values >= 64.
+# This script converts simple CC messages, one CC# per stop, to the format
+# expected by Aeolus. CCs 0-56 are mapped to the 57 buttons of the Aeolus
+# default instrument. Stops are enabled by controller values >= 64.
 #
 
 from mididings import *
