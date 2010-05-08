@@ -1,3 +1,10 @@
+2010-05-08
+
+  * Include 64 bit library directories in the search for the correct boost
+    library names (bug reported by Niels Mayer).
+  * Added new examples skeleton.py and router.py.
+  * Documented the mididings.event and mididings.engine submodules.
+
 2010-04-13
 
   * Added support for Python 3.x (requires a recent Boost.Python built for
