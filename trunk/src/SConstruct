@@ -4,12 +4,12 @@ import os
 from distutils import sysconfig
 
 def boost_lib_name(lib):
-    for libdir in ('/usr/lib', '/usr/local/lib'):
+    for libdir in ('/usr/lib', '/usr/local/lib', '/usr/lib64', '/usr/local/lib64'):
         for suffix in ('', '-mt'):
             libname = 'lib%s%s.so' % (lib, suffix)
             if os.path.isfile(os.path.join(libdir, libname)):
                 return lib + suffix
-    return lib
+    return lib + '-mt'
 
 env = Environment(
 #    CCFLAGS = ['-O2', '-W', '-Wall', '-finline-functions', '-fvisibility=hidden'],
