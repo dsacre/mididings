@@ -165,7 +165,7 @@ class Engine(_mididings.Engine):
                  (not subscene_index or subscene_index < len(self._scenes[scene][1])))
 
         # get string representation of scene/subscene number
-        if subscene_index:
+        if subscene_index or (scene in self._scenes and len(self._scenes[scene][1])):
             number = "%d.%d" % (scene, subscene)
         else:
             number = str(scene)
