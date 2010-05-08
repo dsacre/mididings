@@ -18,15 +18,15 @@ import mididings.misc as _misc
 from mididings.setup import get_config as _get_config
 
 
-def _make_get_set(type, data, offset=lambda: 0):
+def _make_get_set(type, data, name=None, offset=lambda: 0):
     def getter(self):
         if not self.type & type and not type == _constants.ANY:
-            print("midi event attribute error")
+            raise AttributeError("event type '%s' has no attribute '%s'" % (self.type_to_string(), name))
         return getattr(self, data) + offset()
 
     def setter(self, value):
         if not self.type & type and not type == _constants.ANY:
-            print("midi event attribute error")
+            raise AttributeError("event type '%s' has no attribute '%s'" % (self.type_to_string(), name))
         setattr(self, data, value - offset())
 
     return (getter, setter)
@@ -45,6 +45,12 @@ class MidiEvent(_mididings.MidiEvent):
         self.data1 = data1
         self.data2 = data2
 
+    def type_to_string(self):
+        try:
+            return _constants._EVENT_TYPE_NAMES[self.type]
+        except KeyError:
+            return 'None'
+
     def to_string(self, portnames=[], portname_length=0, max_length=0):
         if len(portnames) > self.port_:
             port = portnames[self.port_]
@@ -52,23 +58,24 @@ class MidiEvent(_mididings.MidiEvent):
             port = str(self.port)
 
         h = '[%*s, %2d]' % (max(portname_length, 2), port, self.channel)
+        t = self.type_to_string()
 
         if self.type == _constants.NOTEON:
-            s = 'Note On:  %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
+            s = '  %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
         elif self.type == _constants.NOTEOFF:
-            s = 'Note Off: %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
+            s = ' %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
         elif self.type == _constants.CTRL:
-            s = 'Ctrl:     %3d %3d' % (self.param, self.value)
+            s = '     %3d %3d' % (self.param, self.value)
             n = _util.controller_name(self.param)
             if n: s += '  (%s)' % n
         elif self.type == _constants.PITCHBEND:
-            s = 'Pitch Bend: %+5d' % self.value
+            s = ' %5d' % self.value
         elif self.type == _constants.AFTERTOUCH:
-            s = 'Aftertouch:   %3d' % self.value
+            s = '   %3d' % self.value
         elif self.type == _constants.POLY_AFTERTOUCH:
-            s = 'Poly Aftertouch: %3d %3d  (%s)' % (self.note, self.value, _util.note_name(self.note))
+            s = ' %3d %3d  (%s)' % (self.note, self.value, _util.note_name(self.note))
         elif self.type == _constants.PROGRAM:
-            s = 'Program:      %3d' % self.program
+            s = '      %3d' % self.program
         elif self.type == _constants.SYSEX:
             data = self.sysex
             if max_length:
@@ -79,48 +86,35 @@ class MidiEvent(_mididings.MidiEvent):
                     hexstring = _misc.string_to_hex(data)
             else:
                 hexstring = _misc.string_to_hex(data)
-            s = 'SysEx:   %8d  [%s]' % (len(data), hexstring)
+            s = '   %8d  [%s]' % (len(data), hexstring)
         elif self.type == _constants.SYSCM_QFRAME:
-            s = 'SysCm QFrame: %3d' % self.data1
+            s = ' %3d' % self.data1
         elif self.type == _constants.SYSCM_SONGPOS:
-            s = 'SysCm SongPos:%3d %3d' % (self.data1, self.data2)
+            s = '%3d %3d' % (self.data1, self.data2)
         elif self.type == _constants.SYSCM_SONGSEL:
-            s = 'SysCm SongSel:%3d' % self.data1
-        elif self.type == _constants.SYSCM_TUNEREQ:
-            s = 'SysCm TuneReq'
-        elif self.type == _constants.SYSRT_CLOCK:
-            s = 'SysRt Clock'
-        elif self.type == _constants.SYSRT_START:
-            s = 'SysRt Start'
-        elif self.type == _constants.SYSRT_CONTINUE:
-            s = 'SysRt Continue'
-        elif self.type == _constants.SYSRT_STOP:
-            s = 'SysRt Stop'
-        elif self.type == _constants.SYSRT_SENSING:
-            s = 'SysRt Sensing'
-        elif self.type == _constants.SYSRT_RESET:
-            s = 'SysRt Reset'
-        elif self.type == _constants.DUMMY:
-            s = 'Dummy'
+            s = '%3d' % self.data1
         else:
-            s = 'None'
+            s = None
 
-        return '%s %s' % (h, s)
+        if s:
+            return '%s %s:%s' % (h, t, s)
+        else:
+            return '%s %s' % (h, t)
 
     def __repr__(self):
         return 'MidiEvent(%d, %d, %d, %d, %d)' % (self.type, self.port_, self.channel_, self.data1, self.data2)
 
     # port/channel attributes with data offset
-    port      = property(*_make_get_set(_constants.ANY, 'port_', lambda: _get_config('data_offset')))
-    channel   = property(*_make_get_set(_constants.ANY, 'channel_', lambda: _get_config('data_offset')))
+    port      = property(*_make_get_set(_constants.ANY, 'port_', offset=lambda: _get_config('data_offset')))
+    channel   = property(*_make_get_set(_constants.ANY, 'channel_', offset=lambda: _get_config('data_offset')))
 
     # event-type specific attributes
-    note      = property(*_make_get_set(_constants.NOTE, 'data1'))
-    velocity  = property(*_make_get_set(_constants.NOTE, 'data2'))
-    param     = property(*_make_get_set(_constants.CTRL | _constants.POLY_AFTERTOUCH, 'data1'))
+    note      = property(*_make_get_set(_constants.NOTE, 'data1', 'note'))
+    velocity  = property(*_make_get_set(_constants.NOTE, 'data2', 'velocity'))
+    param     = property(*_make_get_set(_constants.CTRL | _constants.POLY_AFTERTOUCH, 'data1', 'param'))
     value     = property(*_make_get_set(_constants.CTRL | _constants.PITCHBEND |
-                                        _constants.AFTERTOUCH | _constants.POLY_AFTERTOUCH, 'data2'))
-    program   = property(*_make_get_set(_constants.PROGRAM, 'data2', lambda: _get_config('data_offset')))
+                                        _constants.AFTERTOUCH | _constants.POLY_AFTERTOUCH, 'data2', 'value'))
+    program   = property(*_make_get_set(_constants.PROGRAM, 'data2', 'program', offset=lambda: _get_config('data_offset')))
 
     # for backward compatibility
     type_     = property(*_make_get_set(_constants.ANY, 'type'))
@@ -131,8 +125,8 @@ def NoteOnEvent(port, channel, note, velocity):
         _constants.NOTEON,
         _util.port_number(port),
         _util.channel_number(channel),
-        _util.note_number(note),
-        _util.velocity_value(velocity)
+        _util.note_number(note, False),
+        _util.velocity_value(velocity, False)
     )
 
 def NoteOffEvent(port, channel, note, velocity=0):
@@ -140,8 +134,8 @@ def NoteOffEvent(port, channel, note, velocity=0):
         _constants.NOTEOFF,
         _util.port_number(port),
         _util.channel_number(channel),
-        _util.note_number(note),
-        _util.velocity_value(velocity)
+        _util.note_number(note, False),
+        _util.velocity_value(velocity, False)
     )
 
 def CtrlEvent(port, channel, param, value):
@@ -150,7 +144,7 @@ def CtrlEvent(port, channel, param, value):
         _util.port_number(port),
         _util.channel_number(channel),
         _util.ctrl_number(param),
-        _util.ctrl_value(value)
+        _util.ctrl_value(value, False)
     )
 
 def ProgramEvent(port, channel, program):
@@ -159,5 +153,5 @@ def ProgramEvent(port, channel, program):
         _util.port_number(port),
         _util.channel_number(channel),
         0,
-        _util.program_number(program)
+        _util.program_number(program, False)
     )

@@ -66,7 +66,7 @@ _CONTROLLER_NAMES = {
 }
 
 
-def note_number(note):
+def note_number(note, check=True):
     """
     Convert note name/number to MIDI note number.
     """
@@ -86,7 +86,7 @@ def note_number(note):
         except Exception:
             raise ValueError("invalid note name '%s'" % note)
 
-    if r < 0 or r > 127:
+    if check and (r < 0 or r > 127):
         raise ValueError("note number %d is out of range" % r)
     return r
 
@@ -176,9 +176,9 @@ def channel_number(channel):
     return r
 
 
-def program_number(program):
+def program_number(program, check=True):
     r = actual(program)
-    if r < 0 or r > 127:
+    if check and (r < 0 or r > 127):
         raise ValueError("program number %d is out of range" % program)
     return r
 
@@ -189,14 +189,14 @@ def ctrl_number(ctrl):
     return ctrl
 
 
-def ctrl_value(value):
-    if value < 0 or value > 127:
+def ctrl_value(value, check=True):
+    if check and (value < 0 or value > 127):
         raise ValueError("controller value %d is out of range" % value)
     return value
 
 
-def velocity_value(velocity):
-    if velocity < 0 or velocity > 127:
+def velocity_value(velocity, check=True):
+    if check and (velocity < 0 or velocity > 127):
         raise ValueError("velocity %d is out of range" % velocity)
     return velocity
 

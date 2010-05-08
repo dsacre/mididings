@@ -49,6 +49,28 @@ ANY             = _NamedBitMask(~0, 'ANY')
 
 _NUM_EVENT_TYPES = 18
 
+_EVENT_TYPE_NAMES = {
+    NOTEON:         'Note On',
+    NOTEOFF:        'Note Off',
+    CTRL:           'Ctrl',
+    PITCHBEND:      'Pitch Bend',
+    AFTERTOUCH:     'Aftertouch',
+    POLY_AFTERTOUCH:'Poly Aftertouch',
+    PROGRAM:        'Program',
+    SYSEX:          'SysEx',
+    SYSCM_QFRAME:   'SysCm QFrame',
+    SYSCM_SONGPOS:  'SysCm SongPos',
+    SYSCM_SONGSEL:  'SysCm SongSel',
+    SYSCM_TUNEREQ:  'SysCm TuneReq',
+    SYSRT_CLOCK:    'SysRt Clock',
+    SYSRT_START:    'SysRt Start',
+    SYSRT_CONTINUE: 'SysRt Continue',
+    SYSRT_STOP:     'SysRt Stop',
+    SYSRT_SENSING:  'SysRt Sensing',
+    SYSRT_RESET:    'SysRt Reset',
+    DUMMY:          'Dummy',
+}
+
 
 EVENT_PORT      = _NamedFlag(-1, 'EVENT_PORT')
 EVENT_CHANNEL   = _NamedFlag(-2, 'EVENT_CHANNEL')
