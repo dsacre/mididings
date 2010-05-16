@@ -351,7 +351,8 @@ Changes note-events to a fixed note number.
 Velocity(multiply=...)<br>
 Velocity(fixed=...)<br>
 Velocity(curve=...)<br>
-Velocity(gamma=...)</h4>
+Velocity(gamma=...)<br>
+Velocity(multiply, offset)</h4>
 <p>
 Changes velocity by adding an offset, multiplying with a factor, setting it to a fixed value, or applying a velocity-curve.<br>
 gamma uses a simple power function, where values greater than 1 increase velocity, while values between 0 and 1 decrease it.
@@ -371,7 +372,8 @@ Velocity(curve=1.0)
 VelocitySlope(notes, multiply=...)<br>
 VelocitySlope(notes, fixed=...)<br>
 VelocitySlope(notes, curve=...)<br>
-VelocitySlope(notes, gamma=...)</h4>
+VelocitySlope(notes, gamma=...)<br>
+VelocitySlope(notes, multiply, offset)</h4>
 <p>
 Changes velocity, applying a linear slope between different notes.
 This can be thought of as a Velocity() unit with different parameters for different notes, and is useful for example
@@ -405,9 +407,9 @@ CtrlMap(64, 66)
 
 <h4>CtrlRange(ctrl, out_min, out_max, in_min=0, in_max=127)</h4>
 <p>
-Maps controller range in to out.<br>
-An input value of in_min or less results in an output value of out_min.
-Likewise, an in value of in_max or greater results in an output value of out_max.
+Maps controller values from one range of values (default is 0-127) to another.<br>
+Any input value less than or equal to in_min results in an output value of out_min.
+Likewise, any value of in_max or greater results in an output value of out_max.
 </p>
 <div class="example"><div class="header">
 Invert CC #11 (expression):
@@ -415,17 +417,32 @@ Invert CC #11 (expression):
 CtrlRange(11, 127, 0)
 </div>
 
+<h4>CtrlCurve(ctrl, gamma)<br>
+CtrlCurve(ctrl, curve=...)<br>
+CtrlCurve(ctrl, offset=...)<br>
+CtrlCurve(ctrl, multiply=...)<br>
+CtrlCurve(ctrl, multiply, offset)</h4>
+<p>
+Changes controller values by applying a curve, offset or multiplication. See Velocity() for a description of the parameters.
+</p>
+
 
 <h3><a name="generators"></a>Generators</h3>
 
-<h4>Ctrl(ctrl, value)<br>
+<h4>NoteOn(note, velocity)<br>
+NoteOn(port, channel, note, velocity)<br>
+NoteOff(note, velocity)<br>
+NoteOff(port, channel, note, velocity)<br>
+Ctrl(ctrl, value)<br>
 Ctrl(port, channel, ctrl, value)<br>
 Program(program)<br>
 Program(port, channel, program)<br>
-NoteOn(note, velocity)<br>
-NoteOn(port, channel, note, velocity)<br>
-NoteOff(note, velocity)<br>
-NoteOff(port, channel, note, velocity)</h4>
+PitchBend(value)<br>
+PitchBend(port, channel, value)<br>
+Aftertouch(value)<br>
+Aftertouch(port, channel, value)<br>
+
+</h4>
 <p>
 Changes the type of the event.
 If port and channel are omitted, the values of the input event are used.<br>
@@ -610,7 +627,7 @@ This module defines classes and functions for dealing with MIDI events in Python
 e.g. using Process() or Call().
 </p>
 
-<h4>MidiEvent(type, port_, channel_, data1, data2)</h4>
+<h4>MidiEvent(type, port, channel, data1, data2)</h4>
 <p>
 The class used as the MIDI event data type inside the Process() and Call() units.
 </p>
@@ -637,7 +654,9 @@ There are also aliases for these attributes, some of which are only valid for ce
 <h4>NoteOnEvent(port, channel, note, velocity)<br>
 NoteOffEvent(port, channel, note, velocity=0)<br>
 CtrlEvent(port, channel, param, value)<br>
-ProgramEvent(port, channel, program)</h4>
+ProgramEvent(port, channel, program)<br>
+PitchBendEvent(port, channel, value)<br>
+AftertouchEvent(port, channel, value)</h4>
 <p>
 Auxiliary functions to create new MidiEvent objects of a certain type.
 </p>
