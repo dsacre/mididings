@@ -45,6 +45,9 @@ class MidiEvent(_mididings.MidiEvent):
         self.data1 = data1
         self.data2 = data2
 
+    def __getinitargs__(self):
+        return (self.type, self.port, self.channel, self.data1, self.data2)
+
     def type_to_string(self):
         try:
             return _constants._EVENT_TYPE_NAMES[self.type]

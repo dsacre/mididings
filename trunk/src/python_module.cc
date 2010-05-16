@@ -14,7 +14,6 @@
 #include <boost/python/class.hpp>
 #include <boost/python/scope.hpp>
 #include <boost/python/operators.hpp>
-#include <boost/python/tuple.hpp>
 
 #ifdef ENABLE_TEST
     #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -40,15 +39,6 @@ static inline int midi_event_get_type(MidiEvent & ev) {
 static inline void midi_event_set_type(MidiEvent & ev, int t) {
     ev.type = static_cast<MidiEventType>(t);
 }
-
-// very primitive pickling support for MidiEvent objects
-struct midi_event_pickle_suite
-  : boost::python::pickle_suite
-{
-    static boost::python::tuple getinitargs(const MidiEvent & w) {
-        return boost::python::make_tuple(static_cast<int>(w.type), w.port, w.channel, w.data1, w.data2);
-    }
-};
 
 // simple wrapper for vector types, with no methods other than push_back
 template <typename T>
@@ -148,7 +138,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .def_readwrite("data2", &MidiEvent::data2)
         .add_property("sysex", &MidiEvent::get_sysex_data, &MidiEvent::set_sysex_data)
         .def(bp::self == bp::self)
-        .def_pickle(midi_event_pickle_suite())
+        .enable_pickling()
     ;
 
     vector_wrapper<int>("int_vector");
