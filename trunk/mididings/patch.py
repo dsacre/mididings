@@ -51,7 +51,7 @@ class Patch(_mididings.Patch):
                 return Patch.Extended(p.unit)
 
         raise TypeError("type '%s' not allowed in patch:\n"
-                        "offending object is: %s" % (type(p).__name__, repr(p)))
+                        "offending object is: %r" % (type(p).__name__, p))
 
 
 def get_init_patches(patch):

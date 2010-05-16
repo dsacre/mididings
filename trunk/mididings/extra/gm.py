@@ -162,10 +162,12 @@ import mididings.util as _util
 
 CTRL_BANK_SELECT_MSB        = 0
 CTRL_MODULATION             = 1
+CTRL_DATA_ENTRY_MSB         = 6
 CTRL_VOLUME                 = 7
 CTRL_PAN                    = 10
 CTRL_EXPRESSION             = 11
 CTRL_BANK_SELECT_LSB        = 32
+CTRL_DATA_ENTRY_LSB         = 38
 CTRL_SUSTAIN                = 64
 CTRL_PORTAMENTO             = 65
 CTRL_SOSTENUTO              = 66

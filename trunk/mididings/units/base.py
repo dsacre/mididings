@@ -60,7 +60,7 @@ class _Unit(object):
         if hasattr(self, '_name'):
             name = self._name
             args = ', '.join(repr(a) for a in self._args)
-            kwargs = ', '.join('%s=%s' % (k, repr(self._kwargs[k])) for k in self._kwargs)
+            kwargs = ', '.join('%s=%r' % (k, self._kwargs[k]) for k in self._kwargs)
             sep = ', ' if args and kwargs else ''
             return '%s(%s%s%s)' % (name, args, sep, kwargs)
         else:
@@ -118,7 +118,7 @@ class Fork(_Unit, list):
     def __repr__(self):
         r = '[' + ', '.join(repr(u) for u in self) + ']'
         if self.remove_duplicates != None:
-            return 'Fork(%s, remove_duplicates=%s)' % (r, repr(self.remove_duplicates))
+            return 'Fork(%s, remove_duplicates=%r)' % (r, self.remove_duplicates)
         else:
             return r
 
@@ -131,7 +131,7 @@ class Split(_Unit, dict):
         dict.__init__(self, d)
 
     def __repr__(self):
-        return '{' + ', '.join('%s: %s' % (repr(t), repr(self[t])) for t in self.keys()) + '}'
+        return '{' + ', '.join('%r: %r' % (t, self[t]) for t in self.keys()) + '}'
 
 
 class _Selector(object):
@@ -214,7 +214,7 @@ class _InvertedFilter(_Filter):
 
     def __repr__(self):
         prefix = '-' if self.ignore_types else '~'
-        return '%s%s' % (prefix, repr(self.filt))
+        return '%s%r' % (prefix, self.filt)
 
 
 @_unit_repr

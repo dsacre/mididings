@@ -88,6 +88,30 @@ def NoteOff(*args, **kwargs):
     )
 
 
+def PitchBend(*args, **kwargs):
+    port, channel, value = _misc.call_overload(args, kwargs, [
+        lambda value: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, value),
+        lambda port, channel, value: (port, channel, value)
+    ])
+    return Generator(
+        _constants.PITCHBEND,
+        port, channel,
+        0, value
+    )
+
+
+def Aftertouch(*args, **kwargs):
+    port, channel, value = _misc.call_overload(args, kwargs, [
+        lambda value: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, value),
+        lambda port, channel, value: (port, channel, value)
+    ])
+    return Generator(
+        _constants.AFTERTOUCH,
+        port, channel,
+        0, value
+    )
+
+
 def SysEx(*args, **kwargs):
     port, sysex = _misc.call_overload(args, kwargs, [
         lambda sysex: (_constants.EVENT_PORT, sysex),

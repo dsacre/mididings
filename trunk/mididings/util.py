@@ -48,10 +48,12 @@ _NOTE_NAMES = {
 _CONTROLLER_NAMES = {
      0: 'Bank select (MSB)',
      1: 'Modulation',
+     6: 'Data entry (MSB)',
      7: 'Volume',
     10: 'Pan',
     11: 'Expression',
     32: 'Bank select (LSB)',
+    38: 'Data entry (LSB)',
     64: 'Sustain',
     65: 'Portamento',
     66: 'Sostenuto',
@@ -140,7 +142,7 @@ def event_type(type):
     Check and return event type.
     """
     if type not in (1 << x for x in range(_constants._NUM_EVENT_TYPES)):
-        raise ValueError("invalid event type %s" % repr(type))
+        raise ValueError("invalid event type %r" % type)
     return type
 
 
