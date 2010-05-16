@@ -1,3 +1,10 @@
+2010-05-16
+
+  * Added CtrlCurve() unit and a shortcut version of Velocity() to specify
+    multiply and offset at the same time.
+  * Added generators for pitch bend and aftertouch events.
+  * Fixed MidiEvent constructor to take data_offset setting into account.
+
 2010-05-08
 
   * Include 64 bit library directories in the search for the correct boost

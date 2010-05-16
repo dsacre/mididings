@@ -114,7 +114,7 @@ sysconfig.customize_compiler = my_customize_compiler
 
 setup(
     name = 'mididings',
-    version = '20100508',
+    version = '20100516',
     author = 'Dominic Sacre',
     author_email = 'dominic.sacre@gmx.de',
     url = 'http://das.nasophon.de/mididings/',
