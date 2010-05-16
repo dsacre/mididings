@@ -92,6 +92,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<VelocitySlope, bases<Unit>, noncopyable>("VelocitySlope", init<std::vector<int> const &, std::vector<float> const &, int>());
     class_<CtrlMap, bases<Unit>, noncopyable>("CtrlMap", init<int, int>());
     class_<CtrlRange, bases<Unit>, noncopyable>("CtrlRange", init<int, int, int, int, int>());
+    class_<CtrlCurve, bases<Unit>, noncopyable>("CtrlCurve", init<int, float, int>());
 
     // generators
     class_<Generator, bases<Unit>, noncopyable>("Generator", init<int, int, int, int, int>());

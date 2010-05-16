@@ -45,14 +45,18 @@ def Key(note):
 
 @_unit_repr
 def Velocity(*args, **kwargs):
-    value, mode = _misc.call_overload(args, kwargs, [
+    param, mode = _misc.call_overload(args, kwargs, [
         lambda offset: (offset, 1),
         lambda multiply: (multiply, 2),
         lambda fixed: (fixed, 3),
         lambda gamma: (gamma, 4),
         lambda curve: (curve, 5),
+        lambda multiply, offset: ((multiply, offset), 6),
     ])
-    return _Unit(_mididings.Velocity(value, mode))
+    if mode == 6:
+        return Velocity(multiply=param[0]) >> Velocity(offset=param[1])
+    else:
+        return _Unit(_mididings.Velocity(param, mode))
 
 
 @_misc.deprecated('Velocity')
@@ -70,26 +74,30 @@ def VelocityCurve(gamma):
 
 @_unit_repr
 def VelocitySlope(*args, **kwargs):
-    notes, values, mode = _misc.call_overload(args, kwargs, [
+    notes, params, mode = _misc.call_overload(args, kwargs, [
         lambda notes, offset: (notes, offset, 1),
         lambda notes, multiply: (notes, multiply, 2),
         lambda notes, fixed: (notes, fixed, 3),
         lambda notes, gamma: (notes, gamma, 4),
         lambda notes, curve: (notes, curve, 5),
+        lambda notes, multiply, offset: (notes, (multiply, offset), 6),
     ])
     note_numbers = [_util.note_number(n) for n in notes]
 
-    if len(notes) != len(values):
+    if len(notes) != len(params) and mode != 6:
         raise ValueError("notes and velocity values must be sequences of the same length")
     if len(notes) < 2:
         raise ValueError("need at least two notes")
     if sorted(note_numbers) != note_numbers:
         raise ValueError("notes must be in ascending order")
 
-    return _Unit(_mididings.VelocitySlope(
-        _misc.make_int_vector(note_numbers),
-        _misc.make_float_vector(values), mode
-    ))
+    if mode == 6:
+        return VelocitySlope(notes, multiply=params[0]) >> VelocitySlope(notes, offset=params[1])
+    else:
+        return _Unit(_mididings.VelocitySlope(
+            _misc.make_int_vector(note_numbers),
+            _misc.make_float_vector(params), mode
+        ))
 
 
 @_misc.deprecated('VelocitySlope')
@@ -137,3 +145,18 @@ def CtrlRange(ctrl, out_min, out_max, in_min=0, in_max=127):
         _util.ctrl_number(ctrl),
         out_min, out_max, in_min, in_max
     ))
+
+
+@_unit_repr
+def CtrlCurve(*args, **kwargs):
+    ctrl, param, mode = _misc.call_overload(args, kwargs, [
+        lambda ctrl, gamma: (ctrl, gamma, 4),
+        lambda ctrl, curve: (ctrl, curve, 5),
+        lambda ctrl, offset: (ctrl, offset, 1),
+        lambda ctrl, multiply: (ctrl, multiply, 2),
+        lambda ctrl, multiply, offset: (ctrl, (multiply, offset), 6),
+    ])
+    if mode == 6:
+        return CtrlCurve(ctrl, multiply=param[0]) >> CtrlCurve(ctrl, offset=param[1])
+    else:
+        return _Unit(_mididings.CtrlCurve(ctrl, param, mode))

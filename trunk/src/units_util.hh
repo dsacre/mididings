@@ -16,12 +16,12 @@
 #include <algorithm>
 
 
-enum VelocityMode {
-    VELOCITY_MODE_OFFSET = 1,
-    VELOCITY_MODE_MULTIPLY = 2,
-    VELOCITY_MODE_FIXED = 3,
-    VELOCITY_MODE_GAMMA = 4,
-    VELOCITY_MODE_CURVE = 5,
+enum TransformMode {
+    TRANSFORM_MODE_OFFSET = 1,
+    TRANSFORM_MODE_MULTIPLY = 2,
+    TRANSFORM_MODE_FIXED = 3,
+    TRANSFORM_MODE_GAMMA = 4,
+    TRANSFORM_MODE_CURVE = 5,
 };
 
 
@@ -33,40 +33,36 @@ enum ParameterIndices {
 };
 
 
-inline int apply_velocity(int velocity, float value, VelocityMode mode)
+inline int apply_transform(int value, float param, TransformMode mode)
 {
-    if (velocity == 0) {
-        return 0;
-    }
-
     switch (mode) {
-      case VELOCITY_MODE_OFFSET:
-        return velocity + (int)value;
+      case TRANSFORM_MODE_OFFSET:
+        return value + (int)param;
 
-      case VELOCITY_MODE_MULTIPLY:
-        return (int)(velocity * value);
+      case TRANSFORM_MODE_MULTIPLY:
+        return (int)(value * param);
 
-      case VELOCITY_MODE_FIXED:
-        return (int)value;
+      case TRANSFORM_MODE_FIXED:
+        return (int)param;
 
-      case VELOCITY_MODE_GAMMA:
-        if (velocity > 0) {
-            float a = (float)velocity / 127.f;
-            float b = ::powf(a, 1.f / value);
+      case TRANSFORM_MODE_GAMMA:
+        if (value > 0) {
+            float a = (float)value / 127.f;
+            float b = ::powf(a, 1.f / param);
             return std::max(1, (int)::rintf(b * 127.f));
         } else {
-            return velocity;
+            return value;
         }
 
-      case VELOCITY_MODE_CURVE:
-        if (velocity > 0) {
-            if (value != 0) {
-                float p = -value;
-                float a = ::expf(p * velocity / 127.f) - 1;
+      case TRANSFORM_MODE_CURVE:
+        if (value > 0) {
+            if (param != 0) {
+                float p = -param;
+                float a = ::expf(p * value / 127.f) - 1;
                 float b = ::expf(p) - 1;
                 return std::max(1, (int)(127.f * a / b));
             } else {
-                return velocity;
+                return value;
             }
         } else {
             return 0;

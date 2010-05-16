@@ -84,22 +84,22 @@ class Velocity
   : public Unit
 {
   public:
-    Velocity(float value, int mode)
-      : _value(value)
+    Velocity(float param, int mode)
+      : _param(param)
       , _mode(mode)
     {
     }
 
     virtual bool process(MidiEvent & ev)
     {
-        if (ev.type == MIDI_EVENT_NOTEON) {
-            ev.note.velocity = apply_velocity(ev.note.velocity, _value, (VelocityMode)_mode);
+        if (ev.type == MIDI_EVENT_NOTEON && ev.note.velocity > 0) {
+            ev.note.velocity = apply_transform(ev.note.velocity, _param, (TransformMode)_mode);
         }
         return true;
     }
 
   private:
-    float _value;
+    float _param;
     int _mode;
 };
 
@@ -108,12 +108,12 @@ class VelocitySlope
   : public Unit
 {
   public:
-    VelocitySlope(std::vector<int> notes, std::vector<float> values, int mode)
+    VelocitySlope(std::vector<int> notes, std::vector<float> params, int mode)
       : _notes(notes)
-      , _values(values)
+      , _params(params)
       , _mode(mode)
     {
-        ASSERT(notes.size() == values.size());
+        ASSERT(notes.size() == params.size());
         ASSERT(notes.size() > 1);
         for (unsigned int n = 0; n < notes.size() - 1; ++n) {
             ASSERT(notes[n] <= notes[n + 1]);
@@ -122,14 +122,14 @@ class VelocitySlope
 
     virtual bool process(MidiEvent & ev)
     {
-        if (ev.type == MIDI_EVENT_NOTEON) {
+        if (ev.type == MIDI_EVENT_NOTEON && ev.note.velocity > 0) {
             unsigned int n = 0;
             while (n < _notes.size() - 2 && _notes[n + 1] < ev.note.note) ++n;
 
-            ev.note.velocity = apply_velocity(
+            ev.note.velocity = apply_transform(
                 ev.note.velocity,
-                map_range(ev.note.note, _notes[n], _notes[n + 1], _values[n], _values[n + 1]),
-                (VelocityMode)_mode
+                map_range(ev.note.note, _notes[n], _notes[n + 1], _params[n], _params[n + 1]),
+                (TransformMode)_mode
             );
         }
         return true;
@@ -137,7 +137,7 @@ class VelocitySlope
 
   private:
     std::vector<int> _notes;
-    std::vector<float> _values;
+    std::vector<float> _params;
     int _mode;
 };
 
@@ -190,6 +190,32 @@ class CtrlRange
     int _controller;
     int _in_min, _in_max;
     int _out_min, _out_max;
+};
+
+
+class CtrlCurve
+  : public Unit
+{
+  public:
+    CtrlCurve(int controller, float param, int mode)
+      : _controller(controller)
+      , _param(param)
+      , _mode(mode)
+    {
+    }
+
+    virtual bool process(MidiEvent & ev)
+    {
+        if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _controller) {
+            ev.ctrl.value = apply_transform(ev.ctrl.value, _param, (TransformMode)_mode);
+        }
+        return true;
+    }
+
+  private:
+    int _controller;
+    float _param;
+    int _mode;
 };
 
 
