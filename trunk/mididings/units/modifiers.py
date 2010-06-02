@@ -114,17 +114,17 @@ def VelocityGradientFixed(note_lower, note_upper, value_lower, value_upper):
 
 
 def VelocityLimit(*args, **kwargs):
-    lower, upper = _misc.call_overload(args, kwargs, [
-        lambda lower, upper: (lower, upper),
-        lambda upper: (0, upper),
-        lambda lower: (lower, 0),
+    min, max = _misc.call_overload(args, kwargs, [
+        lambda min, max: (min, max),
+        lambda max: (0, max),
+        lambda min: (min, 0),
     ])
 
-    d = { (lower, upper): Pass() }
-    if lower:
-        d[(0, lower)] = Velocity(fixed=lower)
-    if upper:
-        d[(upper, 0)] = Velocity(fixed=upper)
+    d = { (min, max): Pass() }
+    if min:
+        d[(0, min)] = Velocity(fixed=min)
+    if max:
+        d[(max, 0)] = Velocity(fixed=max)
 
     return Filter(_constants.NOTE) % VelocitySplit(d)
 
@@ -138,12 +138,14 @@ def CtrlMap(ctrl_in, ctrl_out):
 
 
 @_unit_repr
-def CtrlRange(ctrl, out_min, out_max, in_min=0, in_max=127):
-    if not in_min < in_max:
-        raise ValueError("in_min must be less than in_max")
+def CtrlRange(ctrl, min, max, in_min=0, in_max=127):
+    if in_min > in_max:
+        # swap ranges so that in_min is less than in_max
+        in_min, in_max = in_max, in_min
+        min, max = max, min
     return _Unit(_mididings.CtrlRange(
         _util.ctrl_number(ctrl),
-        out_min, out_max, in_min, in_max
+        min, max, in_min, in_max
     ))
 
 
@@ -160,3 +162,13 @@ def CtrlCurve(*args, **kwargs):
         return CtrlCurve(ctrl, multiply=param[0]) >> CtrlCurve(ctrl, offset=param[1])
     else:
         return _Unit(_mididings.CtrlCurve(ctrl, param, mode))
+
+
+@_unit_repr
+@_misc.overload
+def PitchbendRange(min, max, in_min=-8192, in_max=8191):
+    return _Unit(_mididings.PitchbendRange(min, max, in_min, in_max))
+
+@_misc.overload
+def PitchbendRange(down, up, range):
+    return PitchbendRange(int(float(down)/range*8192), int(float(up)/range*8191))

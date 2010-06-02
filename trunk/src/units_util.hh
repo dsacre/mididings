@@ -81,19 +81,15 @@ inline int apply_transform(int value, float param, TransformMode mode)
 template <typename A, typename V>
 V map_range(A arg, A arg_lower, A arg_upper, V val_lower, V val_upper)
 {
-    V value;
-
     if (arg <= arg_lower) {
-        value = val_lower;
+        return val_lower;
     } else if (arg >= arg_upper) {
-        value = val_upper;
+        return val_upper;
     } else {
-        A dx = arg_upper - arg_lower;
-        V dy = val_upper - val_lower;
-        value = (V)((dy / dx) * (arg - arg_lower) + val_lower);
+        float dx = arg_upper - arg_lower;
+        float dy = val_upper - val_lower;
+        return static_cast<V>((dy / dx) * (arg - arg_lower) + val_lower);
     }
-
-    return value;
 }
 
 

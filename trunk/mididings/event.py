@@ -71,7 +71,7 @@ class MidiEvent(_mididings.MidiEvent):
             n = _util.controller_name(self.param)
             if n: s += '  (%s)' % n
         elif self.type == _constants.PITCHBEND:
-            s = 'Pitch Bend: %5d' % self.value
+            s = 'Pitchbend:  %5d' % self.value
         elif self.type == _constants.AFTERTOUCH:
             s = 'Aftertouch:   %3d' % self.value
         elif self.type == _constants.POLY_AFTERTOUCH:
@@ -171,7 +171,7 @@ def ProgramEvent(port, channel, program):
         _util.program_number(program, False)
     )
 
-def PitchBendEvent(port, channel, value):
+def PitchbendEvent(port, channel, value):
     return MidiEvent(
         _constants.PITCHBEND,
         port,

@@ -93,6 +93,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<CtrlMap, bases<Unit>, noncopyable>("CtrlMap", init<int, int>());
     class_<CtrlRange, bases<Unit>, noncopyable>("CtrlRange", init<int, int, int, int, int>());
     class_<CtrlCurve, bases<Unit>, noncopyable>("CtrlCurve", init<int, float, int>());
+    class_<PitchbendRange, bases<Unit>, noncopyable>("PitchbendRange", init<int, int, int, int>());
 
     // generators
     class_<Generator, bases<Unit>, noncopyable>("Generator", init<int, int, int, int, int>());

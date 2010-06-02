@@ -88,7 +88,7 @@ def NoteOff(*args, **kwargs):
     )
 
 
-def PitchBend(*args, **kwargs):
+def Pitchbend(*args, **kwargs):
     port, channel, value = _misc.call_overload(args, kwargs, [
         lambda value: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, value),
         lambda port, channel, value: (port, channel, value)

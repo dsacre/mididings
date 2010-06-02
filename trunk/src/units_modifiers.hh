@@ -170,26 +170,30 @@ class CtrlRange
   : public Unit
 {
   public:
-    CtrlRange(int controller, int out_min, int out_max, int in_min, int in_max)
-      : _controller(controller)
-      , _in_min(in_min), _in_max(in_max)
-      , _out_min(out_min), _out_max(out_max)
+    CtrlRange(int ctrl, int min, int max, int in_min, int in_max)
+      : _ctrl(ctrl)
+      , _min(min)
+      , _max(max)
+      , _in_min(in_min)
+      , _in_max(in_max)
     {
         ASSERT(in_min < in_max);
     }
 
     virtual bool process(MidiEvent & ev)
     {
-        if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _controller) {
-            ev.ctrl.value = map_range(ev.ctrl.value, _in_min, _in_max, _out_min, _out_max);
+        if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _ctrl) {
+            ev.ctrl.value = map_range(ev.ctrl.value, _in_min, _in_max, _min, _max);
         }
         return true;
     }
 
   private:
-    int _controller;
-    int _in_min, _in_max;
-    int _out_min, _out_max;
+    int _ctrl;
+    int _min;
+    int _max;
+    int _in_min;
+    int _in_max;
 };
 
 
@@ -197,8 +201,8 @@ class CtrlCurve
   : public Unit
 {
   public:
-    CtrlCurve(int controller, float param, int mode)
-      : _controller(controller)
+    CtrlCurve(int ctrl, float param, int mode)
+      : _ctrl(ctrl)
       , _param(param)
       , _mode(mode)
     {
@@ -206,16 +210,48 @@ class CtrlCurve
 
     virtual bool process(MidiEvent & ev)
     {
-        if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _controller) {
+        if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _ctrl) {
             ev.ctrl.value = apply_transform(ev.ctrl.value, _param, (TransformMode)_mode);
         }
         return true;
     }
 
   private:
-    int _controller;
+    int _ctrl;
     float _param;
     int _mode;
+};
+
+
+class PitchbendRange
+  : public Unit
+{
+  public:
+    PitchbendRange(int min, int max, int in_min, int in_max)
+      : _min(min)
+      , _max(max)
+      , _in_min(in_min)
+      , _in_max(in_max)
+    {
+    }
+
+    virtual bool process(MidiEvent & ev)
+    {
+        if (ev.type == MIDI_EVENT_PITCHBEND) {
+            if (ev.ctrl.value >= 0) {
+                ev.ctrl.value = map_range(ev.ctrl.value, 0, _in_max, 0, _max);
+            } else {
+                ev.ctrl.value = map_range(ev.ctrl.value, _in_min, 0, _min, 0);
+            }
+        }
+        return true;
+    }
+
+  private:
+    int _min;
+    int _max;
+    int _in_min;
+    int _in_max;
 };
 
 
