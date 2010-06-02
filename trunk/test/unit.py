@@ -209,7 +209,7 @@ class SimpleTestCase(unittest.TestCase):
     def testDataOffset(self):
         config(data_offset = 1)
         p = Channel(6)
-        ev = MidiEvent(PROG, 0, 0, 0, 41)
+        ev = MidiEvent(PROG, 1, 1, 0, 41)
         assert ev.channel_ == 0
         assert ev.data2 == 41
         def foo(ev):

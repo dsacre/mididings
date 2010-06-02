@@ -102,7 +102,9 @@ Engine::~Engine()
     // this needs to be gone before the engine can safely be destroyed
     _python_caller.reset();
 
-    _backend->stop();
+    if (_backend) {
+        _backend->stop();
+    }
 }
 
 
