@@ -388,11 +388,11 @@ VelocitySlope(notes=('b1','g2','g#3','d4'), offset=(-64, 32, 32, 0))
 </div>
 
 
-<h4>VelocityLimit(lower, upper)<br>
-VelocityLimit(upper)<br>
-VelocityLimit(lower=...)</h4>
+<h4>VelocityLimit(min, max)<br>
+VelocityLimit(min)<br>
+VelocityLimit(max=...)</h4>
 <p>
-Confines velocity to values between lower and upper (inclusive).
+Confines velocity to values between min and max.
 </p>
 
 <h4>CtrlMap(ctrl_in, ctrl_out)</h4>
@@ -405,11 +405,11 @@ Convert sustain pedal to sostenuto:
 CtrlMap(64, 66)
 </div>
 
-<h4>CtrlRange(ctrl, out_min, out_max, in_min=0, in_max=127)</h4>
+<h4>CtrlRange(ctrl, min, max, in_min=0, in_max=127)</h4>
 <p>
 Maps controller values from one range of values (default is 0-127) to another.<br>
-Any input value less than or equal to in_min results in an output value of out_min.
-Likewise, any value of in_max or greater results in an output value of out_max.
+Any input value less than or equal to in_min results in an output value of min.
+Likewise, any value of in_max or greater results in an output value of max.
 </p>
 <div class="example"><div class="header">
 Invert CC #11 (expression):
@@ -426,6 +426,21 @@ CtrlCurve(ctrl, multiply, offset)</h4>
 Changes controller values by applying a curve, offset or multiplication. See Velocity() for a description of the parameters.
 </p>
 
+<h4>PitchbendRange(min, max, in_min=-8192, in_max=8191)</h4>
+<p>
+Changes the pitchbend range to values between min and max.
+</p>
+
+<h4>PitchbendRange(down, up, range=...)</h4>
+<p>
+Changes the pitchbend range to the specified number of semitones.
+</p>
+<div class="example"><div class="header">
+Bend a full octave down, but only one whole step up, assuming the tone generator is set to a (symmetric) range of 12 semitones.
+</div>
+PitchbendRange(-12, 2, range=12)
+</div>
+
 
 <h3><a name="generators"></a>Generators</h3>
 
@@ -437,8 +452,8 @@ Ctrl(ctrl, value)<br>
 Ctrl(port, channel, ctrl, value)<br>
 Program(program)<br>
 Program(port, channel, program)<br>
-PitchBend(value)<br>
-PitchBend(port, channel, value)<br>
+Pitchbend(value)<br>
+Pitchbend(port, channel, value)<br>
 Aftertouch(value)<br>
 Aftertouch(port, channel, value)<br>
 
@@ -655,7 +670,7 @@ There are also aliases for these attributes, some of which are only valid for ce
 NoteOffEvent(port, channel, note, velocity=0)<br>
 CtrlEvent(port, channel, param, value)<br>
 ProgramEvent(port, channel, program)<br>
-PitchBendEvent(port, channel, value)<br>
+PitchbendEvent(port, channel, value)<br>
 AftertouchEvent(port, channel, value)</h4>
 <p>
 Auxiliary functions to create new MidiEvent objects of a certain type.
