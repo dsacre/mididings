@@ -1,3 +1,12 @@
+2010-06-02
+
+  * Fixed the utterly broken CtrlRange() unit.
+  * Added new PitchbendRange() unit.
+  * Fixed PedalToNoteoff() when using sostenuto (releasing the pedal caused
+    note-offs to be sent for keys which were still pressed).
+  * Fixed a small error in the livedings/OSCInterface documentation (thanks
+    to Christopher Arndt).
+
 2010-05-16
 
   * Added CtrlCurve() unit and a shortcut version of Velocity() to specify
