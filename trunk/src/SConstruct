@@ -40,11 +40,14 @@ cv_opt = sysconfig.get_config_var('CFLAGS')
 cflags = [ x for x in cv_opt.split() if x not in ['-g', '-O2', '-Wstrict-prototypes', '-DNDEBUG'] ]
 env.Append(CCFLAGS = cflags)
 
+# avoid some annoying warnings caused by recent boost versions and an overreacting gcc
+env.Append(CCFLAGS = '-Wno-missing-field-initializers')
+
 env.Append(
     CPPPATH = [sysconfig.get_python_inc(plat_specific=1)],
     LIBPATH = [sysconfig.get_python_lib(plat_specific=1)]
-#    CPPPATH = ['/opt/boost1.42-py3/include', '/opt/python3.1/include/python3.1'],
-#    LIBPATH = ['/opt/boost1.42-py3/lib', '/opt/python3.1/lib'],
+#    CPPPATH = ['/opt/boost1.43/include', '/opt/python3.1/include/python3.1'],
+#    LIBPATH = ['/opt/boost1.43/lib', '/opt/python3.1/lib'],
 )
 
 sources = [
@@ -61,8 +64,8 @@ if 'ENABLE_ALSA_SEQ' in env['CPPDEFINES']:
     env.ParseConfig('pkg-config --cflags --libs alsa')
     sources.append('backend_alsa.cc')
 
-env.ParseConfig('pkg-config --cflags --libs jack')
 if 'ENABLE_JACK_MIDI' in env['CPPDEFINES']:
+    env.ParseConfig('pkg-config --cflags --libs jack')
     sources.append('backend_jack.cc')
 
 if 'ENABLE_SMF' in env['CPPDEFINES']:

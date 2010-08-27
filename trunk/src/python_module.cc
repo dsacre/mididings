@@ -9,6 +9,16 @@
  * (at your option) any later version.
  */
 
+#include "config.hh"
+#include "engine.hh"
+#include "patch.hh"
+#include "units_base.hh"
+#include "units_engine.hh"
+#include "units_filters.hh"
+#include "units_modifiers.hh"
+#include "units_generators.hh"
+#include "units_call.hh"
+
 #include <boost/python/module.hpp>
 #include <boost/python/def.hpp>
 #include <boost/python/class.hpp>
@@ -22,18 +32,9 @@
 #include <vector>
 #include <string>
 
-#include "engine.hh"
-#include "patch.hh"
-#include "units_base.hh"
-#include "units_engine.hh"
-#include "units_filters.hh"
-#include "units_modifiers.hh"
-#include "units_generators.hh"
-#include "units_call.hh"
-
 
 // getter/setter functions for MidiEvent.type, to allow MidiEventType <-> int conversion
-static inline int midi_event_get_type(MidiEvent & ev) {
+static inline int midi_event_get_type(MidiEvent const & ev) {
     return static_cast<int>(ev.type);
 }
 static inline void midi_event_set_type(MidiEvent & ev, int t) {
@@ -51,11 +52,11 @@ static void vector_wrapper(char const *name) {
 
 BOOST_PYTHON_MODULE(_mididings)
 {
-    using boost::python::class_;
-    using boost::python::bases;
-    using boost::python::init;
-    using boost::noncopyable;
     namespace bp = boost::python;
+    using bp::class_;
+    using bp::bases;
+    using bp::init;
+    using boost::noncopyable;
 
     PyEval_InitThreads();
 

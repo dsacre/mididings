@@ -9,9 +9,9 @@
  * (at your option) any later version.
  */
 
+#include "config.hh"
 #include "backend_jack.hh"
 #include "midi_event.hh"
-#include "config.hh"
 
 #include <jack/jack.h>
 #include <jack/midiport.h>

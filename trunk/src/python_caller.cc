@@ -65,7 +65,7 @@ PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::
         bp::object ret = fun(*it);
 
         if (ret.ptr() == Py_None) {
-            // returned none
+            // returned None
             return delete_event(buf, it);
         }
 

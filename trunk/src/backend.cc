@@ -9,6 +9,7 @@
  * (at your option) any later version.
  */
 
+#include "config.hh"
 #include "backend.hh"
 #include "midi_event.hh"
 

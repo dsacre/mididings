@@ -73,9 +73,11 @@ pkgconfig('glib-2.0')
 libraries.append(boost_lib_name('boost_python'))
 libraries.append(boost_lib_name('boost_thread'))
 
-#include_dirs.append('/opt/boost1.42-py3/include')
-#library_dirs.append('/opt/boost1.42-py3/lib')
-#libraries.append('boost_python3')
+# uncomment and adapt these to build using a custom install of boost.
+# you may also need to comment out the two lines above
+#include_dirs.append('/opt/boost1.43/include')
+#library_dirs.append('/opt/boost1.43/lib')
+#libraries.append('boost_python')
 #libraries.append('boost_thread')
 
 
@@ -102,6 +104,8 @@ def my_customize_compiler(compiler):
     try:
         # -Wstrict-prototypes is not valid for C++
         compiler.compiler_so.remove('-Wstrict-prototypes')
+        # immediately stop on error
+        compiler.compiler_so.append('-Wfatal-errors')
         # some options to reduce the size of the binary
         compiler.compiler_so.remove('-g')
         compiler.compiler_so.append('-finline-functions')
