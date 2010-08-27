@@ -25,7 +25,7 @@
 
 <h4>A &gt;&gt; B</h4>
 <p>
-Connects two units in series. Incoming MIDI events will be processed by unit A first, then by unit B.
+Connects units in series. Incoming MIDI events will be processed by unit A first, then by unit B.
 If the event is filtered out by unit A, it is not processed any further, and unit B will not be called.
 </p>
 <div class="example"><div class="header">
@@ -34,11 +34,16 @@ Transpose one octave down, then set channel to 1:
 Transpose(-12) &gt;&gt; Channel(1)
 </div>
 
+<h4>Chain([ A, B, ... ])</h4>
+<p>
+Connects an arbitrary number of units in series.
+</p>
+
 <h3>Parallel</h3>
 
 <h4>A // B</h4>
 <p>
-Connects two units in parallel. Both units will be called with identical copies of incoming MIDI
+Connects units in parallel. Both units will be called with identical copies of incoming MIDI
 events. The output will be the sum of all the units' outputs.
 </p>
 
