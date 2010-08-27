@@ -14,10 +14,10 @@ import _mididings
 
 import mididings.misc as _misc
 
+import functools as _functools
 import sys as _sys
-if _sys.version_info >= (3,):
-    import functools
-    reduce = functools.reduce
+if _sys.version_info < (2,6):
+    _functools.reduce = reduce
 
 
 class _Unit(object):
@@ -87,6 +87,7 @@ def _unit_repr(f):
     """
     Decorator that modifies the target function f to store its arguments in the returned unit.
     """
+    @_functools.wraps(f)
     def unit_wrapper(*args, **kwargs):
         u = f(*args, **kwargs)
         u._name = f.name if isinstance(f, _misc.Overload) else f.__name__
@@ -224,7 +225,7 @@ def Filter(*args):
     """
     if len(args) > 1:
         # reduce all arguments to a single bitmask
-        types = reduce(lambda x,y: x|y, args)
+        types = _functools.reduce(lambda x,y: x|y, args)
     else:
         types = args[0]
     return _Filter(_mididings.TypeFilter(types))

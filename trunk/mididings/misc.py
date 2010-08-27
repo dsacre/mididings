@@ -16,6 +16,7 @@ from mididings.setup import get_config
 
 import inspect
 import itertools
+import functools
 import termios
 import fcntl
 import struct
@@ -126,7 +127,11 @@ def overload(f):
         Overload.registry[k] = Overload(f.__name__)
     assert f.__name__ == Overload.registry[k].name
     Overload.registry[k].add(f)
-    return Overload.registry[k]
+
+    @functools.wraps(f)
+    def overload_wrapper(*args, **kwargs):
+        return Overload.registry[k](*args, **kwargs)
+    return overload_wrapper
 
 
 class deprecated:
@@ -139,6 +144,7 @@ class deprecated:
         self.replacement = replacement
 
     def __call__(self, f):
+        @functools.wraps(f)
         def deprecated_wrapper(*args, **kwargs):
             if f not in deprecated.already_used and not get_config('silent'):
                 if self.replacement:
