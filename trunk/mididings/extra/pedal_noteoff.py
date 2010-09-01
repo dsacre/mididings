@@ -22,7 +22,7 @@ class _SustainToNoteoff(object):
         self.notes = set()
 
     def __call__(self, ev):
-        if ev.type == CTRL and ev.param == self.ctrl:
+        if ev.type == CTRL and ev.ctrl == self.ctrl:
             self.pedal = (ev.value >= 64)
             if self.pedal:
                 # pedal pressed
@@ -52,7 +52,7 @@ class _SostenutoToNoteoff(object):
         self.sustained_notes = set()
 
     def __call__(self, ev):
-        if ev.type == CTRL and ev.param == self.ctrl:
+        if ev.type == CTRL and ev.ctrl == self.ctrl:
             self.pedal = (ev.value >= 64)
             if self.pedal:
                 # pedal pressed, remember currently held notes

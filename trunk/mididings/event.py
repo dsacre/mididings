@@ -67,8 +67,8 @@ class MidiEvent(_mididings.MidiEvent):
         elif self.type == _constants.NOTEOFF:
             s = 'Note Off: %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
         elif self.type == _constants.CTRL:
-            s = 'Ctrl:     %3d %3d' % (self.param, self.value)
-            n = _util.controller_name(self.param)
+            s = 'Ctrl:     %3d %3d' % (self.ctrl, self.value)
+            n = _util.controller_name(self.ctrl)
             if n: s += '  (%s)' % n
         elif self.type == _constants.PITCHBEND:
             s = 'Pitchbend:  %5d' % self.value
@@ -124,15 +124,16 @@ class MidiEvent(_mididings.MidiEvent):
     channel   = property(*_make_get_set(_constants.ANY, 'channel_', offset=lambda: _get_config('data_offset')))
 
     # event-type specific attributes
-    note      = property(*_make_get_set(_constants.NOTE, 'data1', 'note'))
+    note      = property(*_make_get_set(_constants.NOTE | _constants.POLY_AFTERTOUCH, 'data1', 'note'))
     velocity  = property(*_make_get_set(_constants.NOTE, 'data2', 'velocity'))
-    param     = property(*_make_get_set(_constants.CTRL | _constants.POLY_AFTERTOUCH, 'data1', 'param'))
+    ctrl      = property(*_make_get_set(_constants.CTRL, 'data1', 'ctrl'))
     value     = property(*_make_get_set(_constants.CTRL | _constants.PITCHBEND |
                                         _constants.AFTERTOUCH | _constants.POLY_AFTERTOUCH, 'data2', 'value'))
     program   = property(*_make_get_set(_constants.PROGRAM, 'data2', 'program', offset=lambda: _get_config('data_offset')))
 
     # for backward compatibility
     type_     = property(*_make_get_set(_constants.ANY, 'type'))
+    param     = property(*_make_get_set(_constants.CTRL, 'data1', 'ctrl'))
 
 
 def NoteOnEvent(port, channel, note, velocity):
@@ -153,12 +154,12 @@ def NoteOffEvent(port, channel, note, velocity=0):
         _util.velocity_value(velocity, False)
     )
 
-def CtrlEvent(port, channel, param, value):
+def CtrlEvent(port, channel, ctrl, value):
     return MidiEvent(
         _constants.CTRL,
         port,
         channel,
-        _util.ctrl_number(param),
+        _util.ctrl_number(ctrl),
         _util.ctrl_value(value, False)
     )
 

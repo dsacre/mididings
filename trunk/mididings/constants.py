@@ -81,7 +81,10 @@ EVENT_DATA2     = _NamedFlag(-4, 'EVENT_DATA2')
 EVENT_NOTE      = _NamedFlag(-3, 'EVENT_NOTE')
 EVENT_VELOCITY  = _NamedFlag(-4, 'EVENT_VELOCITY')
 # controller
-EVENT_PARAM     = _NamedFlag(-3, 'EVENT_PARAM')
+EVENT_CTRL      = _NamedFlag(-3, 'EVENT_CTRL')
+# for backward compatibility
+EVENT_PARAM     = _NamedFlag(-3, 'EVENT_CTRL')
+EVENT_PARAM._deprecated = True
 EVENT_VALUE     = _NamedFlag(-4, 'EVENT_VALUE')
 # program change
 EVENT_PROGRAM   = _NamedFlag(-4, 'EVENT_PROGRAM')
