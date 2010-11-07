@@ -9,14 +9,17 @@
  * (at your option) any later version.
  */
 
-#ifndef _CONFIG_HH
-#define _CONFIG_HH
+#ifndef MIDIDINGS_CONFIG_HH
+#define MIDIDINGS_CONFIG_HH
 
 // XXX Python.h must be included before any system header, so let's get this over with.
 // this allows us to keep the include order sane everywhere else
 #include <Python.h>
 
 #include <cstring>
+
+
+namespace Mididings {
 
 
 namespace Config
@@ -45,4 +48,7 @@ namespace Config
 }
 
 
-#endif // _CONFIG_HH
+} // Mididings
+
+
+#endif // MIDIDINGS_CONFIG_HH

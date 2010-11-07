@@ -9,10 +9,10 @@
  * (at your option) any later version.
  */
 
-#ifndef _BACKEND_SMF_HH
-#define _BACKEND_SMF_HH
+#ifndef MIDIDINGS_BACKEND_SMF_HH
+#define MIDIDINGS_BACKEND_SMF_HH
 
-#include "backend.hh"
+#include "backend/base.hh"
 #include "midi_event.hh"
 
 #include <string>
@@ -21,12 +21,16 @@
 #include <smf.h>
 
 
-class BackendSmf
-  : public Backend
+namespace Mididings {
+namespace Backend {
+
+
+class SMFBackend
+  : public BackendBase
 {
   public:
-    BackendSmf(std::string const & infile, std::string const & outfile);
-    virtual ~BackendSmf();
+    SMFBackend(std::string const & infile, std::string const & outfile);
+    virtual ~SMFBackend();
 
     virtual void start(InitFunction init, CycleFunction cycle);
 
@@ -43,4 +47,8 @@ class BackendSmf
 };
 
 
-#endif // _BACKEND_SMF_HH
+} // Backend
+} // Mididings
+
+
+#endif // MIDIDINGS_BACKEND_SMF_HH

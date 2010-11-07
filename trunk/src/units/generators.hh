@@ -9,13 +9,17 @@
  * (at your option) any later version.
  */
 
-#ifndef _UNITS_GENERATORS_HH
-#define _UNITS_GENERATORS_HH
+#ifndef MIDIDINGS_UNITS_GENERATORS_HH
+#define MIDIDINGS_UNITS_GENERATORS_HH
 
-#include "units_base.hh"
-#include "units_util.hh"
+#include "units/base.hh"
+#include "units/util.hh"
 
 #include <string>
+
+
+namespace Mididings {
+namespace Units {
 
 
 class Generator
@@ -84,4 +88,8 @@ class SysExGenerator
 };
 
 
-#endif // _UNITS_GENERATORS_HH
+} // Units
+} // Mididings
+
+
+#endif // MIDIDINGS_UNITS_GENERATORS_HH

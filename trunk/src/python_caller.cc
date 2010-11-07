@@ -11,7 +11,6 @@
 
 #include "config.hh"
 #include "python_caller.hh"
-#include "python_util.hh"
 
 #include <boost/bind.hpp>
 
@@ -26,9 +25,13 @@
 #include <boost/python/list.hpp>
 #include <boost/python/stl_iterator.hpp>
 
+#include "util/python.hh"
 #include "util/debug.hh"
 
 namespace bp = boost::python;
+
+
+namespace Mididings {
 
 
 PythonCaller::PythonCaller(EngineCallback engine_callback)
@@ -57,7 +60,7 @@ PythonCaller::~PythonCaller()
 
 PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::object const & fun)
 {
-    scoped_gil_lock gil;
+    das::scoped_gil_lock gil;
 
     try
     {
@@ -159,7 +162,7 @@ void PythonCaller::async_thread()
         }
 
         if (_rb->read_space()) {
-            scoped_gil_lock gil;
+            das::scoped_gil_lock gil;
 
             // read event from ringbuffer
             AsyncCallInfo c;
@@ -190,3 +193,6 @@ void PythonCaller::async_thread()
         _engine_callback();
     }
 }
+
+
+} // Mididings

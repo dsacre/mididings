@@ -9,8 +9,8 @@
  * (at your option) any later version.
  */
 
-#ifndef _PYTHON_CALL_HH
-#define _PYTHON_CALL_HH
+#ifndef MIDIDINGS_PYTHON_CALLER_HH
+#define MIDIDINGS_PYTHON_CALLER_HH
 
 #include "midi_event.hh"
 #include "patch.hh"
@@ -24,6 +24,9 @@
 #include <boost/noncopyable.hpp>
 
 #include "util/ringbuffer.hh"
+
+
+namespace Mididings {
 
 
 class PythonCaller
@@ -74,4 +77,7 @@ class PythonCaller
 };
 
 
-#endif // _PYTHON_CALL_HH
+} // Mididings
+
+
+#endif // MIDIDINGS_PYTHON_CALLER_HH

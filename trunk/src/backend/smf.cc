@@ -10,15 +10,19 @@
  */
 
 #include "config.hh"
-#include "backend_smf.hh"
+#include "backend/smf.hh"
 
 
-BackendSmf::BackendSmf(std::string const & infile, std::string const & outfile)
+namespace Mididings {
+namespace Backend {
+
+
+SMFBackend::SMFBackend(std::string const & infile, std::string const & outfile)
   : _outfile(outfile)
 {
     smf_t *smf_in = smf_load(infile.c_str());
     if (!smf_in) {
-        throw BackendError("couldn't load input file");
+        throw Error("couldn't load input file");
     }
     _smf_in.reset(smf_in, smf_delete);
 
@@ -34,23 +38,23 @@ BackendSmf::BackendSmf(std::string const & infile, std::string const & outfile)
 }
 
 
-BackendSmf::~BackendSmf()
+SMFBackend::~SMFBackend()
 {
 }
 
 
-void BackendSmf::start(InitFunction init, CycleFunction cycle)
+void SMFBackend::start(InitFunction init, CycleFunction cycle)
 {
     init();
     cycle();
 
     if (smf_save(_smf_out.get(), _outfile.c_str())) {
-        throw BackendError("couldn't save output file");
+        throw Error("couldn't save output file");
     }
 }
 
 
-bool BackendSmf::input_event(MidiEvent & ev)
+bool SMFBackend::input_event(MidiEvent & ev)
 {
     while (true)
     {
@@ -72,7 +76,7 @@ bool BackendSmf::input_event(MidiEvent & ev)
 }
 
 
-void BackendSmf::output_event(MidiEvent const & ev)
+void SMFBackend::output_event(MidiEvent const & ev)
 {
     unsigned char data[3];
     std::size_t len;
@@ -84,3 +88,7 @@ void BackendSmf::output_event(MidiEvent const & ev)
     smf_event_t *smf_ev = smf_event_new_from_pointer(data, len);
     smf_track_add_event_pulses(smf_get_track_by_number(_smf_out.get(), track + 1), smf_ev, pulses);
 }
+
+
+} // Backend
+} // Mididings

@@ -10,7 +10,7 @@
  */
 
 #include "patch.hh"
-#include "units_base.hh"
+#include "units/base.hh"
 #include "engine.hh"
 
 #include <algorithm>
@@ -18,7 +18,9 @@
 #include <sstream>
 
 #include "util/debug.hh"
-#include "util/string.hh"
+
+
+namespace Mididings {
 
 
 void Patch::Chain::process(Events & buf, EventRange & r)
@@ -156,3 +158,6 @@ std::string Patch::debug_range(std::string const & str, Events & buf, EventRange
     }
     return os.str();
 }
+
+
+} // Mididings

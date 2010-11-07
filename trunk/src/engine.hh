@@ -9,11 +9,11 @@
  * (at your option) any later version.
  */
 
-#ifndef _ENGINE_HH
-#define _ENGINE_HH
+#ifndef MIDIDINGS_ENGINE_HH
+#define MIDIDINGS_ENGINE_HH
 
 #include "patch.hh"
-#include "backend.hh"
+#include "backend/base.hh"
 #include "python_caller.hh"
 
 #include <string>
@@ -25,17 +25,19 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <boost/thread/mutex.hpp>
-
 #include <boost/python/object.hpp>
 
 #include "util/global_object.hh"
+
+
+namespace Mididings {
 
 
 extern class Engine * TheEngine;
 
 
 class Engine
-  : public das::global_object<Engine, ::TheEngine>
+  : public das::global_object<Engine, TheEngine>
 {
   public:
 
@@ -127,7 +129,7 @@ class Engine
     PyObject * _self;
     bool _verbose;
 
-    boost::shared_ptr<Backend> _backend;
+    boost::shared_ptr<Backend::BackendBase> _backend;
 
     SceneMap _scenes;
 
@@ -155,4 +157,7 @@ class Engine
 };
 
 
-#endif // _ENGINE_HH
+} // Mididings
+
+
+#endif // MIDIDINGS_ENGINE_HH

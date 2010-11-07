@@ -9,12 +9,15 @@
  * (at your option) any later version.
  */
 
-#ifndef _MIDI_EVENT_HH
-#define _MIDI_EVENT_HH
+#ifndef MIDIDINGS_MIDI_EVENT_HH
+#define MIDIDINGS_MIDI_EVENT_HH
 
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 #include <string>
+
+
+namespace Mididings {
 
 
 enum MidiEventType
@@ -126,4 +129,7 @@ inline bool operator==(MidiEvent const & lhs, MidiEvent const & rhs)
 }
 
 
-#endif // _MIDI_EVENT_HH
+} // Mididings
+
+
+#endif // MIDIDINGS_MIDI_EVENT_HH

@@ -7,8 +7,8 @@
  * (at your option) any later version.
  */
 
-#ifndef _DAS_RINGBUFFER_HH
-#define _DAS_RINGBUFFER_HH
+#ifndef DAS_UTIL_RINGBUFFER_HH
+#define DAS_UTIL_RINGBUFFER_HH
 
 #include <boost/noncopyable.hpp>
 #include <glib.h>
@@ -102,4 +102,4 @@ protected:
 } // namespace das
 
 
-#endif // _DAS_RINGBUFFER_HH
+#endif // DAS_UTIL_RINGBUFFER_HH

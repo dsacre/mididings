@@ -9,8 +9,8 @@
  * (at your option) any later version.
  */
 
-#ifndef _BACKEND_HH
-#define _BACKEND_HH
+#ifndef MIDIDINGS_BACKEND_BASE_HH
+#define MIDIDINGS_BACKEND_BASE_HH
 
 #include <string>
 #include <stdexcept>
@@ -20,23 +20,29 @@
 #include "midi_event.hh"
 
 
-class Backend
+namespace Mididings {
+namespace Backend {
+
+
+struct Error
+  : public std::runtime_error
+{
+    Error(std::string const & w)
+      : std::runtime_error(w)
+    {
+    }
+};
+
+
+class BackendBase
   : boost::noncopyable
 {
   public:
-    struct BackendError
-      : public std::runtime_error
-    {
-        BackendError(std::string const & w)
-          : std::runtime_error(w)
-        { }
-    };
-
     typedef boost::function<void ()> InitFunction;
     typedef boost::function<void ()> CycleFunction;
 
-    Backend() { }
-    virtual ~Backend() { }
+    BackendBase() { }
+    virtual ~BackendBase() { }
 
     // start MIDI processing, run init function.
     // depending on the backend, cycle may be called once (and not return) or periodically.
@@ -72,4 +78,8 @@ class Backend
 };
 
 
-#endif // _BACKEND_HH
+} // Backend
+} // Mididings
+
+
+#endif // MIDIDINGS_BACKEND_BASE_HH

@@ -9,12 +9,16 @@
  * (at your option) any later version.
  */
 
-#ifndef _UNITS_ENGINE_HH
-#define _UNITS_ENGINE_HH
+#ifndef MIDIDINGS_UNITS_ENGINE_HH
+#define MIDIDINGS_UNITS_ENGINE_HH
 
-#include "units_base.hh"
-#include "units_util.hh"
+#include "units/base.hh"
+#include "units/util.hh"
 #include "engine.hh"
+
+
+namespace Mididings {
+namespace Units {
 
 
 class Sanitize
@@ -96,4 +100,8 @@ class SubSceneSwitch
 };
 
 
-#endif // _UNITS_ENGINE_HH
+} // Units
+} // Mididings
+
+
+#endif // MIDIDINGS_UNITS_ENGINE_HH

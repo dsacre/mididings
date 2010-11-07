@@ -7,8 +7,8 @@
  * (at your option) any later version.
  */
 
-#ifndef _DAS_STRING_HH
-#define _DAS_STRING_HH
+#ifndef DAS_UTIL_STRING_HH
+#define DAS_UTIL_STRING_HH
 
 #include <string>
 #include <sstream>
@@ -41,4 +41,4 @@ class make_string
 
 } // namespace das
 
-#endif // _DAS_STRING_HH
+#endif // DAS_UTIL_STRING_HH

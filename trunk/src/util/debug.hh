@@ -7,8 +7,8 @@
  * (at your option) any later version.
  */
 
-#ifndef _DAS_DEBUG_HH
-#define _DAS_DEBUG_HH
+#ifndef DAS_UTIL_DEBUG_HH
+#define DAS_UTIL_DEBUG_HH
 
 
 #ifndef NDEBUG
@@ -40,4 +40,4 @@
 #endif
 
 
-#endif // _DAS_DEBUG_HH
+#endif // DAS_UTIL_DEBUG_HH

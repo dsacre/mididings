@@ -1,6 +1,4 @@
 /*
- * mididings
- *
  * Copyright (C) 2008-2010  Dominic Sacré  <dominic.sacre@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -9,12 +7,14 @@
  * (at your option) any later version.
  */
 
-#ifndef _PYTHON_UTIL_HH
-#define _PYTHON_UTIL_HH
+#ifndef DAS_UTIL_PYTHON_HH
+#define DAS_UTIL_PYTHON_HH
 
 #include <Python.h>
 
 #include <boost/noncopyable.hpp>
+
+namespace das {
 
 
 class scoped_gil_lock
@@ -34,4 +34,7 @@ class scoped_gil_lock
 };
 
 
-#endif // _PYTHON_UTIL_HH
+} // namespace das
+
+
+#endif // DAS_UTIL_PYTHON_HH

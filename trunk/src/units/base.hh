@@ -9,16 +9,20 @@
  * (at your option) any later version.
  */
 
-#ifndef _UNITS_BASE_HH
-#define _UNITS_BASE_HH
+#ifndef MIDIDINGS_UNITS_BASE_HH
+#define MIDIDINGS_UNITS_BASE_HH
 
 #include "midi_event.hh"
 #include "patch.hh"
-#include "units_util.hh"
+#include "units/util.hh"
 
 #include <boost/shared_ptr.hpp>
 
 #include "util/debug.hh"
+
+
+namespace Mididings {
+namespace Units {
 
 
 class Unit
@@ -169,4 +173,8 @@ class Pass
 };
 
 
-#endif // _UNITS_BASE_HH
+} // Units
+} // Mididings
+
+
+#endif // MIDIDINGS_UNITS_BASE_HH

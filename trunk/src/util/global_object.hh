@@ -7,8 +7,8 @@
  * (at your option) any later version.
  */
 
-#ifndef _DAS_GLOBAL_OBJECT_HH
-#define _DAS_GLOBAL_OBJECT_HH
+#ifndef DAS_UTIL_GLOBAL_OBJECT_HH
+#define DAS_UTIL_GLOBAL_OBJECT_HH
 
 #include <boost/noncopyable.hpp>
 #include "util/debug.hh"
@@ -35,4 +35,4 @@ class global_object
 
 } // namespace das
 
-#endif // _DAS_GLOBAL_OBJECT_HH
+#endif // DAS_UTIL_GLOBAL_OBJECT_HH

@@ -9,13 +9,17 @@
  * (at your option) any later version.
  */
 
-#ifndef _UNITS_MODIFIERS_HH
-#define _UNITS_MODIFIERS_HH
+#ifndef MIDIDINGS_UNITS_MODIFIERS_HH
+#define MIDIDINGS_UNITS_MODIFIERS_HH
 
-#include "units_base.hh"
-#include "units_util.hh"
+#include "units/base.hh"
+#include "units/util.hh"
 
 #include <vector>
+
+
+namespace Mididings {
+namespace Units {
 
 
 class Port
@@ -255,4 +259,8 @@ class PitchbendRange
 };
 
 
-#endif // _UNITS_MODIFIERS_HH
+} // Units
+} // Mididings
+
+
+#endif // MIDIDINGS_UNITS_MODIFIERS_HH

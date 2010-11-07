@@ -9,10 +9,10 @@
  * (at your option) any later version.
  */
 
-#ifndef _BACKEND_ALSA_HH
-#define _BACKEND_ALSA_HH
+#ifndef MIDIDINGS_BACKEND_ALSA_HH
+#define MIDIDINGS_BACKEND_ALSA_HH
 
-#include "backend.hh"
+#include "backend/base.hh"
 
 #include <alsa/asoundlib.h>
 
@@ -23,14 +23,18 @@
 #include <boost/thread/thread.hpp>
 
 
-class BackendAlsa
-  : public Backend
+namespace Mididings {
+namespace Backend {
+
+
+class ALSABackend
+  : public BackendBase
 {
   public:
-    BackendAlsa(std::string const & client_name,
+    ALSABackend(std::string const & client_name,
                 std::vector<std::string> const & in_ports,
                 std::vector<std::string> const & out_ports);
-    virtual ~BackendAlsa();
+    virtual ~ALSABackend();
 
     virtual void start(InitFunction init, CycleFunction cycle);
     virtual void stop();
@@ -64,4 +68,8 @@ class BackendAlsa
 };
 
 
-#endif // _BACKEND_ALSA_HH
+} // Backend
+} // Mididings
+
+
+#endif // MIDIDINGS_BACKEND_ALSA_HH

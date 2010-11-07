@@ -9,13 +9,12 @@
  * (at your option) any later version.
  */
 
-#ifndef _PATCH_HH
-#define _PATCH_HH
+#ifndef MIDIDINGS_PATCH_HH
+#define MIDIDINGS_PATCH_HH
 
 #include "config.hh"
 #include "midi_event.hh"
-class Unit;
-class UnitEx;
+#include "curious_alloc.hh"
 
 #include <vector>
 #include <list>
@@ -25,19 +24,26 @@ class UnitEx;
 #include <boost/range/iterator_range.hpp>
 
 #include "util/debug.hh"
-#include "util/curious_alloc.hh"
+
+
+namespace Mididings {
+
+namespace Units {
+class Unit;
+class UnitEx;
+}
 
 
 class Patch
 {
   public:
 
-    typedef std::list<MidiEvent, das::curious_alloc<MidiEvent, Config::MAX_EVENTS> > Events;
+    typedef std::list<MidiEvent, curious_alloc<MidiEvent, Config::MAX_EVENTS> > Events;
     typedef Events::iterator EventIter;
     typedef boost::iterator_range<EventIter> EventRange;
 
-    typedef boost::shared_ptr<Unit> UnitPtr;
-    typedef boost::shared_ptr<UnitEx> UnitExPtr;
+    typedef boost::shared_ptr<Units::Unit> UnitPtr;
+    typedef boost::shared_ptr<Units::UnitEx> UnitExPtr;
 
 
     class Module
@@ -157,4 +163,7 @@ class Patch
 };
 
 
-#endif // _PATCH_HH
+} // Mididings
+
+
+#endif // MIDIDINGS_PATCH_HH

@@ -9,14 +9,18 @@
  * (at your option) any later version.
  */
 
-#ifndef _UNITS_FILTERS_HH
-#define _UNITS_FILTERS_HH
+#ifndef MIDIDINGS_UNITS_FILTERS_HH
+#define MIDIDINGS_UNITS_FILTERS_HH
 
-#include "units_base.hh"
+#include "units/base.hh"
 
 #include <vector>
 #include <string>
 #include <algorithm>
+
+
+namespace Mididings {
+namespace Units {
 
 
 class PortFilter
@@ -196,4 +200,8 @@ class SysExFilter
 };
 
 
-#endif // _UNITS_FILTERS_HH
+} // Units
+} // Mididings
+
+
+#endif // MIDIDINGS_UNITS_FILTERS_HH

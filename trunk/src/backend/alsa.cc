@@ -10,7 +10,7 @@
  */
 
 #include "config.hh"
-#include "backend_alsa.hh"
+#include "backend/alsa.hh"
 #include "midi_event.hh"
 
 #include <alsa/asoundlib.h>
@@ -24,7 +24,11 @@
 #include "util/debug.hh"
 
 
-BackendAlsa::BackendAlsa(std::string const & client_name,
+namespace Mididings {
+namespace Backend {
+
+
+ALSABackend::ALSABackend(std::string const & client_name,
                          std::vector<std::string> const & in_ports,
                          std::vector<std::string> const & out_ports)
   : _portid_in(in_ports.size())
@@ -36,7 +40,7 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
 
     // create sequencer client
     if (snd_seq_open(&_seq, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
-        throw BackendError("error opening alsa sequencer");
+        throw Error("error opening alsa sequencer");
     }
 
     snd_seq_set_client_name(_seq, client_name.c_str());
@@ -48,7 +52,7 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
                         SND_SEQ_PORT_TYPE_APPLICATION);
 
         if (id < 0) {
-            throw BackendError("error creating sequencer input port");
+            throw Error("error creating sequencer input port");
         }
 
         _portid_in[n] = id;
@@ -62,7 +66,7 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
                         SND_SEQ_PORT_TYPE_APPLICATION);
 
         if (id < 0) {
-            throw BackendError("error creating sequencer output port");
+            throw Error("error creating sequencer output port");
         }
 
         _portid_out[n] = id;
@@ -71,14 +75,14 @@ BackendAlsa::BackendAlsa(std::string const & client_name,
     // initialize MIDI event parser.
     // we don't use the parser for sysex, so a 12 byte buffer will do
     if (snd_midi_event_new(12, &_parser)) {
-        throw BackendError("error initializing MIDI event parser");
+        throw Error("error initializing MIDI event parser");
     }
     snd_midi_event_init(_parser);
     snd_midi_event_no_status(_parser, 1);
 }
 
 
-BackendAlsa::~BackendAlsa()
+ALSABackend::~ALSABackend()
 {
     snd_midi_event_free(_parser);
 
@@ -94,7 +98,7 @@ BackendAlsa::~BackendAlsa()
 }
 
 
-void BackendAlsa::start(InitFunction init, CycleFunction cycle)
+void ALSABackend::start(InitFunction init, CycleFunction cycle)
 {
     // discard events which were received while processing wasn't ready
     snd_seq_drop_input(_seq);
@@ -108,7 +112,7 @@ void BackendAlsa::start(InitFunction init, CycleFunction cycle)
 }
 
 
-void BackendAlsa::stop()
+void ALSABackend::stop()
 {
     if (_thrd) {
         // send event to ourselves to make snd_seq_event_input() return
@@ -128,7 +132,7 @@ void BackendAlsa::stop()
 }
 
 
-void BackendAlsa::alsa_to_midi_event(MidiEvent & ev, snd_seq_event_t const & alsa_ev)
+void ALSABackend::alsa_to_midi_event(MidiEvent & ev, snd_seq_event_t const & alsa_ev)
 {
     ev.port = _portid_in_rev[alsa_ev.dest.port];
 
@@ -203,7 +207,7 @@ void BackendAlsa::alsa_to_midi_event(MidiEvent & ev, snd_seq_event_t const & als
 }
 
 
-void BackendAlsa::alsa_to_midi_event_sysex(MidiEvent & ev, snd_seq_event_t const & alsa_ev)
+void ALSABackend::alsa_to_midi_event_sysex(MidiEvent & ev, snd_seq_event_t const & alsa_ev)
 {
     unsigned char *ptr = static_cast<unsigned char *>(alsa_ev.data.ext.ptr);
     std::size_t len = alsa_ev.data.ext.len;
@@ -236,7 +240,7 @@ void BackendAlsa::alsa_to_midi_event_sysex(MidiEvent & ev, snd_seq_event_t const
 }
 
 
-void BackendAlsa::alsa_to_midi_event_generic(MidiEvent & ev, snd_seq_event_t const & alsa_ev)
+void ALSABackend::alsa_to_midi_event_generic(MidiEvent & ev, snd_seq_event_t const & alsa_ev)
 {
     unsigned char buf[12];
 
@@ -247,7 +251,7 @@ void BackendAlsa::alsa_to_midi_event_generic(MidiEvent & ev, snd_seq_event_t con
 }
 
 
-void BackendAlsa::midi_event_to_alsa(snd_seq_event_t & alsa_ev, MidiEvent const & ev, std::size_t & count)
+void ALSABackend::midi_event_to_alsa(snd_seq_event_t & alsa_ev, MidiEvent const & ev, std::size_t & count)
 {
     ASSERT(ev.type != MIDI_EVENT_NONE);
     ASSERT((uint)ev.port < _portid_out.size());
@@ -298,7 +302,7 @@ void BackendAlsa::midi_event_to_alsa(snd_seq_event_t & alsa_ev, MidiEvent const 
 }
 
 
-void BackendAlsa::midi_event_to_alsa_sysex(snd_seq_event_t & alsa_ev, MidiEvent const & ev, std::size_t & count)
+void ALSABackend::midi_event_to_alsa_sysex(snd_seq_event_t & alsa_ev, MidiEvent const & ev, std::size_t & count)
 {
     char const * data = ev.sysex->c_str();
     std::size_t size = ev.sysex->size();
@@ -318,7 +322,7 @@ void BackendAlsa::midi_event_to_alsa_sysex(snd_seq_event_t & alsa_ev, MidiEvent 
 }
 
 
-void BackendAlsa::midi_event_to_alsa_generic(snd_seq_event_t & alsa_ev, MidiEvent const & ev)
+void ALSABackend::midi_event_to_alsa_generic(snd_seq_event_t & alsa_ev, MidiEvent const & ev)
 {
     // maximum size of non-sysex sequencer events is 12 bytes
     unsigned char buf[12];
@@ -333,7 +337,7 @@ void BackendAlsa::midi_event_to_alsa_generic(snd_seq_event_t & alsa_ev, MidiEven
 }
 
 
-bool BackendAlsa::input_event(MidiEvent & ev)
+bool ALSABackend::input_event(MidiEvent & ev)
 {
     snd_seq_event_t *alsa_ev;
 
@@ -359,7 +363,7 @@ bool BackendAlsa::input_event(MidiEvent & ev)
 }
 
 
-void BackendAlsa::output_event(MidiEvent const & ev)
+void ALSABackend::output_event(MidiEvent const & ev)
 {
     snd_seq_event_t alsa_ev;
 
@@ -384,3 +388,7 @@ void BackendAlsa::output_event(MidiEvent const & ev)
         }
     } while (count);
 }
+
+
+} // Backend
+} // Mididings

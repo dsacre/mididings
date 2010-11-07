@@ -12,12 +12,12 @@
 #include "config.hh"
 #include "engine.hh"
 #include "patch.hh"
-#include "units_base.hh"
-#include "units_engine.hh"
-#include "units_filters.hh"
-#include "units_modifiers.hh"
-#include "units_generators.hh"
-#include "units_call.hh"
+#include "units/base.hh"
+#include "units/engine.hh"
+#include "units/filters.hh"
+#include "units/modifiers.hh"
+#include "units/generators.hh"
+#include "units/call.hh"
 
 #include <boost/python/module.hpp>
 #include <boost/python/def.hpp>
@@ -31,6 +31,9 @@
 
 #include <vector>
 #include <string>
+
+
+namespace Mididings {
 
 
 // getter/setter functions for MidiEvent.type, to allow MidiEventType <-> int conversion
@@ -57,6 +60,7 @@ BOOST_PYTHON_MODULE(_mididings)
     using bp::bases;
     using bp::init;
     using boost::noncopyable;
+    using namespace Units;
 
     PyEval_InitThreads();
 
@@ -154,3 +158,6 @@ BOOST_PYTHON_MODULE(_mididings)
     ;
 #endif // ENABLE_TEST
 }
+
+
+} // Mididings

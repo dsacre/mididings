@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2008  Dominic Sacré  <dominic.sacre@gmx.de>
+ * mididings
+ *
+ * Copyright (C) 2008-2010  Dominic Sacré  <dominic.sacre@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -7,15 +9,15 @@
  * (at your option) any later version.
  */
 
-#ifndef _DAS_CURIOUS_ALLOC_HH
-#define _DAS_CURIOUS_ALLOC_HH
+#ifndef MIDIDINGS_CURIOUS_ALLOC_HH
+#define MIDIDINGS_CURIOUS_ALLOC_HH
 
 #include <new>
 
 #include "util/debug.hh"
 
 
-namespace das {
+namespace Mididings {
 
 /*
  * constant-time allocation/deallocation from a fixed size pool of N elements.
@@ -110,6 +112,7 @@ template <typename T, std::size_t N> std::size_t curious_alloc<T, N>::count_ = 0
 template <typename T, std::size_t N> std::size_t curious_alloc<T, N>::index_ = 0;
 
 
-} // namespace das
+} // Mididings
 
-#endif // _DAS_CURIOUS_ALLOC_HH
+
+#endif // MIDIDINGS_CURIOUS_ALLOC_HH

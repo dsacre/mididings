@@ -9,12 +9,16 @@
  * (at your option) any later version.
  */
 
-#ifndef _UNITS_CALL_HH
-#define _UNITS_CALL_HH
+#ifndef MIDIDINGS_UNITS_CALL_HH
+#define MIDIDINGS_UNITS_CALL_HH
 
-#include "units_base.hh"
+#include "units/base.hh"
 
 #include <boost/python/object.hpp>
+
+
+namespace Mididings {
+namespace Units {
 
 
 class Call
@@ -46,5 +50,9 @@ class Call
 };
 
 
-#endif // _UNITS_CALL_HH
+} // Units
+} // Mididings
+
+
+#endif // MIDIDINGS_UNITS_CALL_HH
 

@@ -51,25 +51,25 @@ env.Append(
 )
 
 sources = [
-    'backend.cc',
     'engine.cc',
     'patch.cc',
     'python_caller.cc',
     'python_module.cc',
+    'backend/base.cc',
 ]
 
 env.ParseConfig('pkg-config --cflags --libs glib-2.0')
 
 if 'ENABLE_ALSA_SEQ' in env['CPPDEFINES']:
     env.ParseConfig('pkg-config --cflags --libs alsa')
-    sources.append('backend_alsa.cc')
+    sources.append('backend/alsa.cc')
 
 if 'ENABLE_JACK_MIDI' in env['CPPDEFINES']:
     env.ParseConfig('pkg-config --cflags --libs jack')
-    sources.append('backend_jack.cc')
+    sources.append(['backend/jack.cc', 'backend/jack_buffered.cc', 'backend/jack_realtime.cc'])
 
 if 'ENABLE_SMF' in env['CPPDEFINES']:
     env.ParseConfig('pkg-config --cflags --libs smf')
-    sources.append('backend_smf.cc')
+    sources.append('backend/smf.cc')
 
 env.SharedLibrary('_mididings', sources, SHLIBPREFIX='', SHOBJSUFFIX='.o')

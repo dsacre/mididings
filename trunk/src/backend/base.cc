@@ -10,13 +10,16 @@
  */
 
 #include "config.hh"
-#include "backend.hh"
-#include "midi_event.hh"
+#include "backend/base.hh"
 
 #include <algorithm>
 
 
-MidiEvent Backend::buffer_to_midi_event(unsigned char *data, std::size_t len, int port, uint64_t frame)
+namespace Mididings {
+namespace Backend {
+
+
+MidiEvent BackendBase::buffer_to_midi_event(unsigned char *data, std::size_t len, int port, uint64_t frame)
 {
     MidiEvent ev;
 
@@ -124,7 +127,7 @@ MidiEvent Backend::buffer_to_midi_event(unsigned char *data, std::size_t len, in
 }
 
 
-std::size_t Backend::midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame)
+std::size_t BackendBase::midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame)
 {
     frame = ev.frame;
     port = ev.port;
@@ -231,3 +234,7 @@ std::size_t Backend::midi_event_to_buffer(MidiEvent const & ev, unsigned char *d
 
     return len;
 }
+
+
+} // Backend
+} // Mididings

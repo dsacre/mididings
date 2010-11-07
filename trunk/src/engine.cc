@@ -13,18 +13,19 @@
 #include "engine.hh"
 
 #ifdef ENABLE_ALSA_SEQ
-  #include "backend_alsa.hh"
+  #include "backend/alsa.hh"
 #endif
 #ifdef ENABLE_JACK_MIDI
-  #include "backend_jack.hh"
+  #include "backend/jack_buffered.hh"
+  #include "backend/jack_realtime.hh"
 #endif
 #ifdef ENABLE_SMF
-  #include "backend_smf.hh"
+  #include "backend/smf.hh"
 #endif
 
-#include "python_util.hh"
-#include "units_base.hh"
-#include "units_engine.hh"
+#include "util/python.hh"
+#include "units/base.hh"
+#include "units/engine.hh"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -39,6 +40,9 @@
 #include <boost/python/call_method.hpp>
 
 #include "util/debug.hh"
+
+
+namespace Mididings {
 
 
 Engine * TheEngine = NULL;
@@ -68,20 +72,20 @@ Engine::Engine(PyObject * self,
     }
 #ifdef ENABLE_ALSA_SEQ
     else if (backend_name == "alsa") {
-        _backend.reset(new BackendAlsa(client_name, in_ports, out_ports));
+        _backend.reset(new Backend::ALSABackend(client_name, in_ports, out_ports));
     }
 #endif
 #ifdef ENABLE_JACK_MIDI
     else if (backend_name == "jack") {
-        _backend.reset(new BackendJackBuffered(client_name, in_ports, out_ports));
+        _backend.reset(new Backend::JACKBufferedBackend(client_name, in_ports, out_ports));
     }
     else if (backend_name == "jack-rt") {
-        _backend.reset(new BackendJackRealtime(client_name, in_ports, out_ports));
+        _backend.reset(new Backend::JACKRealtimeBackend(client_name, in_ports, out_ports));
     }
 #endif
 #ifdef ENABLE_SMF
     else if (backend_name == "smf") {
-        _backend.reset(new BackendSmf(in_ports[0], out_ports[0]));
+        _backend.reset(new Backend::SMFBackend(in_ports[0], out_ports[0]));
     }
 #endif
     else {
@@ -89,7 +93,7 @@ Engine::Engine(PyObject * self,
     }
 
     // construct a patch with a single sanitize unit
-    Patch::UnitPtr sani(new Sanitize);
+    Patch::UnitPtr sani(new Units::Sanitize);
     Patch::ModulePtr mod(new Patch::Single(sani));
     _sanitize_patch.reset(new Patch(mod));
 }
@@ -313,7 +317,7 @@ void Engine::process_scene_switch(Events & buffer)
 
     // call python scene switch handler if we have more than one scene
     if (_scenes.size() > 1) {
-        scoped_gil_lock gil;
+        das::scoped_gil_lock gil;
         try {
             boost::python::call_method<void>(_self, "_scene_switch_handler", _new_scene, _new_subscene);
         } catch (boost::python::error_already_set &) {
@@ -444,3 +448,6 @@ void Engine::output_event(MidiEvent const & ev)
 
     _backend->output_event(ev);
 }
+
+
+} // Mididings

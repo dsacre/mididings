@@ -9,11 +9,15 @@
  * (at your option) any later version.
  */
 
-#ifndef _UNITS_UTIL_HH
-#define _UNITS_UTIL_HH
+#ifndef MIDIDINGS_UNITS_UTIL_HH
+#define MIDIDINGS_UNITS_UTIL_HH
 
 #include <cmath>
 #include <algorithm>
+
+
+namespace Mididings {
+namespace Units {
 
 
 enum TransformMode {
@@ -115,4 +119,8 @@ inline int get_parameter(int value, MidiEvent const & ev)
 }
 
 
-#endif // _UNITS_UTIL_HH
+} // Units
+} // Mididings
+
+
+#endif // MIDIDINGS_UNITS_UTIL_HH
