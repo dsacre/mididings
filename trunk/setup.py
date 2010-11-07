@@ -54,11 +54,11 @@ def boost_lib_name(lib):
 
 
 sources = [
-    'src/backend.cc',
     'src/engine.cc',
     'src/patch.cc',
     'src/python_caller.cc',
     'src/python_module.cc',
+    'src/backend/base.cc',
 ]
 
 include_dirs = []
@@ -83,17 +83,19 @@ libraries.append(boost_lib_name('boost_thread'))
 
 if config['alsa-seq']:
     define_macros.append(('ENABLE_ALSA_SEQ', 1))
-    sources.append('src/backend_alsa.cc')
+    sources.append('src/backend/alsa.cc')
     pkgconfig('alsa')
 
 if config['jack-midi']:
     define_macros.append(('ENABLE_JACK_MIDI', 1))
-    sources.append('src/backend_jack.cc')
+    sources.extend(['src/backend/jack.cc',
+                    'src/backend/jack_buffered.cc',
+                    'src/backend/jack_realtime.cc'])
     pkgconfig('jack')
 
 if config['smf']:
     define_macros.append(('ENABLE_SMF', 1))
-    sources.append('src/backend_smf.cc')
+    sources.append('src/backend/smf.cc')
     pkgconfig('smf')
 
 

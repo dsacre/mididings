@@ -22,7 +22,7 @@ env = Environment(
 #        'ENABLE_BENCHMARK',
         'ENABLE_ALSA_SEQ',
         'ENABLE_JACK_MIDI',
-#        'ENABLE_SMF',
+        'ENABLE_SMF',
     ],
     CPPPATH = ['.'],
     ENV = os.environ,
