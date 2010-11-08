@@ -117,6 +117,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .def("current_scene", &Engine::current_scene)
         .def("current_subscene", &Engine::current_subscene)
         .def("output_event", &Engine::output_event)
+        .def("time", &Engine::time)
 #ifdef ENABLE_TEST
         .def("process", &Engine::process_test)
 #endif // ENABLE_TEST

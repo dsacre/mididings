@@ -156,8 +156,8 @@ def port_number(port):
         # XXX workaround for circular absolute imports
         import mididings.engine as engine
 
-        in_ports = engine.get_in_ports()
-        out_ports = engine.get_out_ports()
+        in_ports = engine.in_ports()
+        out_ports = engine.out_ports()
         is_in = (_misc.issequence(in_ports) and port in in_ports)
         is_out = (_misc.issequence(out_ports) and port in out_ports)
 

@@ -13,8 +13,7 @@
 from mididings import *
 from mididings.extra import PerChannel
 import mididings.event as _event
-
-import time as _time
+import mididings.engine as _engine
 
 
 class _VoiceFilter(object):
@@ -30,7 +29,7 @@ class _VoiceFilter(object):
 
         if ev.type == NOTEON:
             # store new note, its velocity, and its time
-            self.notes[ev.note] = (ev.velocity, _time.time())
+            self.notes[ev.note] = (ev.velocity, _engine.time())
         elif ev.type == NOTEOFF:
             # delete released note
             del self.notes[ev.note]
@@ -48,7 +47,7 @@ class _VoiceFilter(object):
             # yield note-on for new note
             if self.current_voice and (ev.note == self.current_voice or
                                        self.retrigger or
-                                      _time.time() < self.notes[self.current_voice][1] + self.time):
+                                      _engine.time() < self.notes[self.current_voice][1] + self.time):
                 yield _event.NoteOnEvent(ev.port, ev.channel, self.current_voice, self.notes[self.current_voice][0])
 
 

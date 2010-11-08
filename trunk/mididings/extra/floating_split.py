@@ -12,8 +12,7 @@
 
 from mididings import *
 import mididings.util as _util
-
-import time as _time
+import mididings.engine as _engine
 
 
 class _FloatingKeySplitAnalyze(object):
@@ -28,7 +27,7 @@ class _FloatingKeySplitAnalyze(object):
         self.notes_upper = {}
 
     def __call__(self, ev):
-        now = _time.time()
+        now = _engine.time()
 
         # remove old notes from the lists if hold_time has elapsed
         for k, t in self.notes_lower.items():

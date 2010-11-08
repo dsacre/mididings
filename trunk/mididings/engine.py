@@ -204,11 +204,11 @@ class Engine(_mididings.Engine):
     def switch_subscene(self, subscene):
         _mididings.Engine.switch_scene(self, -1, _util.scene_number(subscene))
 
-    def current_scene(self):
-        return _util.offset(_mididings.Engine.current_scene(self))
+    def get_current_scene(self):
+        return _util.offset(_mididings.Engine.get_current_scene(self))
 
-    def current_subscene(self):
-        return _util.offset(_mididings.Engine.current_subscene(self))
+    def get_current_subscene(self):
+        return _util.offset(_mididings.Engine.get_current_subscene(self))
 
     def get_scenes(self):
         return self._scenes
@@ -268,28 +268,47 @@ def current_scene():
 def current_subscene():
     return _TheEngine().current_subscene()
 
-def get_scenes():
+def scenes():
     return _TheEngine().get_scenes()
+
+@_misc.deprecated('scenes')
+def get_scenes():
+    return scenes()
 
 def output_event(ev):
     _TheEngine().output_event(ev)
 
-def get_in_ports():
-    if is_active():
+def in_ports():
+    if active():
         return _TheEngine().in_ports
     else:
         r = _get_config('in_ports')
         return r if _misc.issequence(r) else list(map(_util.NoDataOffset, range(r)))
 
-def get_out_ports():
-    if is_active():
+def out_ports():
+    if active():
         return _TheEngine().out_ports
     else:
         r = _get_config('out_ports')
         return r if _misc.issequence(r) else list(map(_util.NoDataOffset, range(r)))
 
-def is_active():
+@_misc.deprecated('in_ports')
+def get_in_ports():
+    return in_ports()
+
+@_misc.deprecated('out_ports')
+def get_out_ports():
+    return out_ports()
+
+def time():
+    return _TheEngine().time()
+
+def active():
     return _TheEngine != None and _TheEngine() != None
+
+@_misc.deprecated('active')
+def is_active():
+    return active()
 
 def restart():
     _TheEngine().restart()

@@ -46,15 +46,15 @@ class _Print(_CallBase):
         # (delayed 'til first use, because the engine doesn't yet exist during __init__)
         if self.ports == None:
             if self.portnames == 'in':
-                self.ports = engine.get_in_ports()
+                self.ports = engine.in_ports()
             elif self.portnames == 'out':
-                self.ports = engine.get_out_ports()
+                self.ports = engine.out_ports()
             else:
                 self.ports = []
 
         # find maximum port name length (delayed for the same reason as above)
         if _Print.portnames_used and _Print.max_portname_length == -1:
-            all_ports = engine.get_in_ports() + engine.get_out_ports()
+            all_ports = engine.in_ports() + engine.out_ports()
             _Print.max_portname_length = max(len(p) for p in all_ports)
 
         if self.name:

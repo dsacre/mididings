@@ -53,7 +53,7 @@ class OSCInterface(object):
 
             # send list of scenes
             _liblo.send(p, '/mididings/begin_scenes')
-            s = _engine.get_scenes()
+            s = _engine.scenes()
             for n in sorted(s.keys()):
                 _liblo.send(p, '/mididings/add_scene', n, s[n][0], *s[n][1])
             _liblo.send(p, '/mididings/end_scenes')
@@ -75,14 +75,14 @@ class OSCInterface(object):
 
     @_liblo.make_method('/mididings/prev_scene', '')
     def prev_scene_cb(self, path, args):
-        s = sorted(_engine.get_scenes().keys())
+        s = sorted(_engine.scenes().keys())
         n = s.index(_engine.current_scene()) - 1
         if n >= 0:
             _engine.switch_scene(s[n])
 
     @_liblo.make_method('/mididings/next_scene', '')
     def next_scene_cb(self, path, args):
-        s = sorted(_engine.get_scenes().keys())
+        s = sorted(_engine.scenes().keys())
         n = s.index(_engine.current_scene()) + 1
         if n < len(s):
             _engine.switch_scene(s[n])
@@ -90,7 +90,7 @@ class OSCInterface(object):
     @_liblo.make_method('/mididings/prev_subscene', '')
     @_liblo.make_method('/mididings/prev_subscene', 'i')
     def prev_subscene_cb(self, path, args):
-        s = _engine.get_scenes()[_engine.current_scene()]
+        s = _engine.scenes()[_engine.current_scene()]
         n = _util.actual(_engine.current_subscene()) - 1
         if len(s[1]) and len(args) and args[0]:
             n %= len(s[1])
@@ -100,7 +100,7 @@ class OSCInterface(object):
     @_liblo.make_method('/mididings/next_subscene', '')
     @_liblo.make_method('/mididings/next_subscene', 'i')
     def next_subscene_cb(self, path, args):
-        s = _engine.get_scenes()[_engine.current_scene()]
+        s = _engine.scenes()[_engine.current_scene()]
         n = _util.actual(_engine.current_subscene()) + 1
         if len(s[1]) and len(args) and args[0]:
             n %= len(s[1])

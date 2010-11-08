@@ -18,7 +18,7 @@ import mididings.util as _util
 
 def _panic_bypass():
     # send all notes off (CC #123) and sustain off (CC #64) to all output ports and on all channels
-    for p in _engine.get_out_ports():
+    for p in _engine.out_ports():
         for c in range(16):
             _engine.output_event(_event.CtrlEvent(p, _util.NoDataOffset(c), 123, 0))
             _engine.output_event(_event.CtrlEvent(p, _util.NoDataOffset(c), 64, 0))
@@ -30,6 +30,6 @@ def Panic(bypass=True):
     else:
         return Fork([
             (Ctrl(p, _util.NoDataOffset(c), 123, 0) // Ctrl(p, _util.NoDataOffset(c), 64, 0))
-                for p in _engine.get_out_ports()
+                for p in _engine.out_ports()
                 for c in range(16)
         ])

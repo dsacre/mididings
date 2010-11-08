@@ -100,6 +100,8 @@ class Engine
 
     void output_event(MidiEvent const & ev);
 
+    double time();
+
     PythonCaller & python_caller() const { return *_python_caller; }
 
 #ifdef ENABLE_TEST

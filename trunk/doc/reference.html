@@ -693,7 +693,7 @@ current_subscene()</h4>
 Returns the current scene or subscene number.
 </p>
 
-<h4>get_scenes()</h4>
+<h4>scenes()</h4>
 <p>
 Returns a dictionary of all scenes.
 Keys are scene numbers, values are tuples containing the scene name and a (possibly empty) list of subscene names.
@@ -704,13 +704,19 @@ Keys are scene numbers, values are tuples containing the scene name and a (possi
 Sends a MIDI event directly to an output port, completely bypassing any other event processing.
 </p>
 
-<h4>get_in_ports()<br>
-get_out_ports()</h4>
+<h4>in_ports()<br>
+out_ports()</h4>
 <p>
 Returns a list of the configured input/output port names.
 </p>
 
-<h4>is_active()</h4>
+<h4>time()</h4>
+<p>
+Returns the time in seconds (floating point) since some unspecified starting point.
+Unlike Python's time.time(), this clock is guaranteed to be monotonic.
+</p>
+
+<h4>active()</h4>
 <p>
 Returns True if the mididings engine is active (the run() function is running).
 </p>

@@ -31,10 +31,10 @@
 #include <boost/bind.hpp>
 
 #include <iostream>
+#include <time.h>
 
 #ifdef ENABLE_BENCHMARK
   #include <sys/time.h>
-  #include <time.h>
 #endif
 
 #include <boost/python/call_method.hpp>
@@ -447,6 +447,15 @@ void Engine::output_event(MidiEvent const & ev)
     boost::mutex::scoped_lock lock(_process_mutex);
 
     _backend->output_event(ev);
+}
+
+
+double Engine::time()
+{
+    ::timespec t;
+    ::clock_gettime(CLOCK_MONOTONIC, &t);
+
+    return t.tv_sec + 1e-9 * t.tv_nsec;
 }
 
 
