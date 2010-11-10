@@ -204,13 +204,13 @@ class Engine(_mididings.Engine):
     def switch_subscene(self, subscene):
         _mididings.Engine.switch_scene(self, -1, _util.scene_number(subscene))
 
-    def get_current_scene(self):
-        return _util.offset(_mididings.Engine.get_current_scene(self))
+    def current_scene(self):
+        return _util.offset(_mididings.Engine.current_scene(self))
 
-    def get_current_subscene(self):
-        return _util.offset(_mididings.Engine.get_current_subscene(self))
+    def current_subscene(self):
+        return _util.offset(_mididings.Engine.current_subscene(self))
 
-    def get_scenes(self):
+    def scenes(self):
         return self._scenes
 
     def restart(self):
@@ -269,7 +269,7 @@ def current_subscene():
     return _TheEngine().current_subscene()
 
 def scenes():
-    return _TheEngine().get_scenes()
+    return _TheEngine().scenes()
 
 @_misc.deprecated('scenes')
 def get_scenes():
