@@ -38,11 +38,6 @@ SMFBackend::SMFBackend(std::string const & infile, std::string const & outfile)
 }
 
 
-SMFBackend::~SMFBackend()
-{
-}
-
-
 void SMFBackend::start(InitFunction init, CycleFunction cycle)
 {
     init();

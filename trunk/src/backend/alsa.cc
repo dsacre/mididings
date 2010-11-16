@@ -383,7 +383,7 @@ void ALSABackend::output_event(MidiEvent const & ev)
 
         if (count) {
             // wait as long as it takes for one chunk to be transmitted at MIDI baud rate.
-            // constant copied from from Simple Sysexxer by Christoph Eckert.
+            // constant copied from Simple Sysexxer by Christoph Eckert.
             ::usleep(Config::ALSA_SYSEX_CHUNK_SIZE * 352);
         }
     } while (count);

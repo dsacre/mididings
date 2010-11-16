@@ -30,9 +30,9 @@ class SMFBackend
 {
   public:
     SMFBackend(std::string const & infile, std::string const & outfile);
-    virtual ~SMFBackend();
 
     virtual void start(InitFunction init, CycleFunction cycle);
+    virtual void stop() { }
 
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);

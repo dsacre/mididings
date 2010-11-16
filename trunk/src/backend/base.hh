@@ -13,7 +13,9 @@
 #define MIDIDINGS_BACKEND_BASE_HH
 
 #include <string>
+#include <vector>
 #include <stdexcept>
+#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
@@ -34,6 +36,12 @@ struct Error
 };
 
 
+boost::shared_ptr<class BackendBase> create(std::string const & backend_name,
+                                            std::string const & client_name,
+                                            std::vector<std::string> const & in_ports,
+                                            std::vector<std::string> const & out_ports);
+
+
 class BackendBase
   : boost::noncopyable
 {
@@ -49,7 +57,7 @@ class BackendBase
     virtual void start(InitFunction init, CycleFunction cycle) = 0;
 
     // stop MIDI processing.
-    virtual void stop() { }
+    virtual void stop() = 0;
 
     // get one event from input, return true if an event was read.
     // depending on the backend, this may block until an event is available.

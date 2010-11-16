@@ -11,13 +11,57 @@
 
 #include "config.hh"
 #include "backend/base.hh"
+#ifdef ENABLE_ALSA_SEQ
+  #include "backend/alsa.hh"
+#endif
+#ifdef ENABLE_JACK_MIDI
+  #include "backend/jack_buffered.hh"
+  #include "backend/jack_realtime.hh"
+#endif
+#ifdef ENABLE_SMF
+  #include "backend/smf.hh"
+#endif
 
 #include <algorithm>
+#include <boost/make_shared.hpp>
 
 
 namespace Mididings {
 namespace Backend {
 
+
+boost::shared_ptr<BackendBase> create(std::string const & backend_name,
+                                      std::string const & client_name,
+                                      std::vector<std::string> const & in_ports,
+                                      std::vector<std::string> const & out_ports)
+{
+    if (backend_name == "dummy") {
+        // return empty shared pointer
+        return boost::shared_ptr<BackendBase>();
+    }
+#ifdef ENABLE_ALSA_SEQ
+    else if (backend_name == "alsa") {
+        return boost::make_shared<ALSABackend>(client_name, in_ports, out_ports);
+    }
+#endif
+#ifdef ENABLE_JACK_MIDI
+    else if (backend_name == "jack") {
+        return boost::make_shared<JACKBufferedBackend>(client_name, in_ports, out_ports);
+    }
+    else if (backend_name == "jack-rt") {
+        return boost::make_shared<JACKRealtimeBackend>(client_name, in_ports, out_ports);
+    }
+#endif
+#ifdef ENABLE_SMF
+    else if (backend_name == "smf") {
+        return boost::make_shared<SMFBackend>(in_ports[0], out_ports[0]);
+    }
+#endif
+    else {
+        throw Error("invalid backend selected: " + backend_name);
+    }
+}
+                                      
 
 MidiEvent BackendBase::buffer_to_midi_event(unsigned char *data, std::size_t len, int port, uint64_t frame)
 {

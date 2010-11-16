@@ -34,6 +34,7 @@ class JACKRealtimeBackend
                         std::vector<std::string> const & out_portnames);
 
     virtual void start(InitFunction init, CycleFunction cycle);
+    virtual void stop() { }
 
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);

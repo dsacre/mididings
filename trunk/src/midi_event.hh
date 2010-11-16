@@ -54,7 +54,7 @@ struct MidiEvent
     typedef boost::shared_ptr<SysExData> SysExPtr;
 
     struct null_deleter {
-        void operator()(void const *) const {}
+        void operator()(void const *) const { }
     };
 
 

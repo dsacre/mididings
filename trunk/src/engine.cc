@@ -12,17 +12,6 @@
 #include "config.hh"
 #include "engine.hh"
 
-#ifdef ENABLE_ALSA_SEQ
-  #include "backend/alsa.hh"
-#endif
-#ifdef ENABLE_JACK_MIDI
-  #include "backend/jack_buffered.hh"
-  #include "backend/jack_realtime.hh"
-#endif
-#ifdef ENABLE_SMF
-  #include "backend/smf.hh"
-#endif
-
 #include "util/python.hh"
 #include "units/base.hh"
 #include "units/engine.hh"
@@ -67,30 +56,7 @@ Engine::Engine(PyObject * self,
 {
     DEBUG_FN();
 
-    if (backend_name == "dummy") {
-        // nothing to do
-    }
-#ifdef ENABLE_ALSA_SEQ
-    else if (backend_name == "alsa") {
-        _backend.reset(new Backend::ALSABackend(client_name, in_ports, out_ports));
-    }
-#endif
-#ifdef ENABLE_JACK_MIDI
-    else if (backend_name == "jack") {
-        _backend.reset(new Backend::JACKBufferedBackend(client_name, in_ports, out_ports));
-    }
-    else if (backend_name == "jack-rt") {
-        _backend.reset(new Backend::JACKRealtimeBackend(client_name, in_ports, out_ports));
-    }
-#endif
-#ifdef ENABLE_SMF
-    else if (backend_name == "smf") {
-        _backend.reset(new Backend::SMFBackend(in_ports[0], out_ports[0]));
-    }
-#endif
-    else {
-        throw std::runtime_error("invalid backend selected: " + backend_name);
-    }
+    _backend = Backend::create(backend_name, client_name, in_ports, out_ports);
 
     // construct a patch with a single sanitize unit
     Patch::UnitPtr sani(new Units::Sanitize);
