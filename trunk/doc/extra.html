@@ -188,7 +188,7 @@ Saves the currently selected scene number to a file when terminating mididings, 
 memo_file is the path of the file to be used to store the scene number.
 </p>
 
-<h4>OSCInterface(port, notify_ports=[])</h4>
+<h4>OSCInterface(port=56418, notify_ports=[56419])</h4>
 <p>
 <i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i>
 </p><p>
@@ -226,26 +226,25 @@ once the errors are fixed.
 <p>
 livedings is a graphical frontend for mididings that allows you to monitor and trigger scene changes.
 It runs as a separate application that uses OSC to communicate with mididings.
-To use it, enable the OSCInterface hook in your mididings script, specifying two unused UDP ports:
+To use it, enable the OSCInterface hook in your mididings script:
 </p>
 
 <div class="example"><pre>
 from mididings.extra.osc import OSCInterface
 
-hook(OSCInterface(56418, 56419))
+hook(OSCInterface())
 ...
 </pre></div>
 
 <p>
-Then run livedings with the same port numbers:
+Then run livedings:
 </p>
 
 <div class="example">
-$ livedings -p 56418 -l 56419
+$ livedings
 </div>
 
 <p>
-The first port is used by mididings to listen for commands, the second one is used to notify livedings of scene changes.<br>
 By default, livedings uses the standard Tk theme. Specify the <kbd>-T</kbd> option to switch to a custom theme with higher
 contrast and larger fonts. See '<kbd>livedings --help</kbd>' for more options.
 </p>

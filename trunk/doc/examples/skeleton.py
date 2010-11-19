@@ -29,10 +29,10 @@ config(
 
 hook(
     # some functions (like scene switching) can be controlled via OSC.
-    # the first port number is used to control mididings, while mididings
-    # will send notification to the second one. this is needed for the
-    # livedings GUI, for example.
-    #OSCInterface(56418, 56419),
+    # this is needed for the livedings GUI, for example.
+    # by default, UDP port 56418 is used to control mididings, and mididings
+    # will send notification to port 56419.
+    #OSCInterface(),
 
     # uncomment this if you want mididings to restore the previously active
     # scene when it is restarted

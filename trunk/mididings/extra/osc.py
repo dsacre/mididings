@@ -22,7 +22,7 @@ import liblo as _liblo
 
 
 class OSCInterface(object):
-    def __init__(self, port, notify_ports=[]):
+    def __init__(self, port=56418, notify_ports=[56419]):
         self.port = port
         if _misc.issequence(notify_ports):
             self.notify_ports = notify_ports

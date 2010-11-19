@@ -24,12 +24,10 @@ def fill_options(options, new_options):
 
 
 if __name__ == '__main__':
-    usage = "Usage: livedings control_port listen_port [options]\n\n" \
-            "control_port           OSC port mididings is listening on\n" \
-            "listen_port            OSC port for notifications from mididings"
+    usage = "Usage: livedings [options]"
     parser = optparse.OptionParser(usage=usage)
-    parser.add_option('-p', dest='control_port', help=optparse.SUPPRESS_HELP)
-    parser.add_option('-l', dest='listen_port', help=optparse.SUPPRESS_HELP)
+    parser.add_option('-p', dest='control_port', default=56418, help="OSC port mididings is listening on (56418)")
+    parser.add_option('-l', dest='listen_port', default=56419, help="OSC port for notifications from mididings (56419)")
     parser.add_option('-T', dest='themed', default=False, action='store_true', help="enable custom theme and larger fonts")
     parser.add_option('-x', dest='width', type=int, default=None, help="width of window in pixels (640)")
     parser.add_option('-y', dest='height', type=int, default=None, help="height of window in pixels (400)")
@@ -42,17 +40,10 @@ if __name__ == '__main__':
 
     options, args = parser.parse_args(sys.argv[1:])
 
-    if len(args) > 0:
-        options.control_port = args[0]
-    if len(args) > 1:
-        options.listen_port = args[1]
-    if len(args) > 2:
-        parser.error("too many arguments")
-
-    if not options.control_port:
-        parser.error("no OSC control port specified")
     if not options.listen_port:
         parser.error("no OSC listen port specified")
+    if not options.control_port:
+        parser.error("no OSC control port specified")
 
     if options.themed:
         fill_options(options, {
