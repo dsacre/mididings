@@ -168,7 +168,7 @@ SceneGroup("Example Song", [
   <li><b>EVENT_DATA2</b></li>
   <li><b>EVENT_NOTE</b></li>
   <li><b>EVENT_VELOCITY</b></li>
-  <li><b>EVENT_PARAM</b></li>
+  <li><b>EVENT_CTRL</b></li>
   <li><b>EVENT_VALUE</b></li>
   <li><b>EVENT_PROGRAM</b></li>
 </ul>
@@ -661,14 +661,14 @@ There are also aliases for these attributes, some of which are only valid for ce
 <ul>
   <li><b>note</b>: Note number, alias for data1.</li>
   <li><b>velocity</b>: Note velocity, alias for data2.</li>
-  <li><b>param</b>: Controller number, alias for data1.</li>
+  <li><b>ctrl</b>: Controller number, alias for data1.</li>
   <li><b>value</b>: Controller parameter, alias for data2.</li>
   <li><b>program</b>: Program number, alias for data2. Unlike data2, this value is affected by the data_offset setting.</li>
 </ul>
 
 <h4>NoteOnEvent(port, channel, note, velocity)<br>
 NoteOffEvent(port, channel, note, velocity=0)<br>
-CtrlEvent(port, channel, param, value)<br>
+CtrlEvent(port, channel, ctrl, value)<br>
 ProgramEvent(port, channel, program)<br>
 PitchbendEvent(port, channel, value)<br>
 AftertouchEvent(port, channel, value)</h4>
