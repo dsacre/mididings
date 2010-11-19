@@ -58,7 +58,8 @@ Harmonize('c#', 'minor_harmonic', ['unison', 'third'])
 
 <h4>FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper, hold_time=1.0, margin_lower=12, margin_upper=12)</h4>
 <p>
-Creates a floating split point that moves depending on what you are playing.
+Creates a floating split point that moves dynamically depending on what you are playing, allowing a region of the keyboard
+to be shared between two split zones.
 </p>
 <ul>
   <li><b>threshold_lower, threshold_upper</b>: The lower and upper notes between which the split point is allowed to move.</li>
@@ -74,9 +75,10 @@ Split the keyboard somewhere between C2 and C3:
 FloatingKeySplit('c2', 'c3', Channel(1), Channel(2))
 </div>
 
-<h4>VoiceFilter(voice='highest', time=0.2, retrigger=False)</h4>
+<h4>VoiceFilter(voice='highest', time=0.1, retrigger=False)</h4>
 <p>
 Filters individual voices from a chord.
+</p><p>
 voice must be 'highest', 'lowest', or an index (positive or negative, the same way Python lists are indexed,
 with 0 being the lowest voice).<br>
 When a key is already held, and then becomes active for this voice because another key was pressed/released, the note will
@@ -84,9 +86,26 @@ only be played if retrigger is True, or if the time since the key-press is less 
 time parameter.
 </p>
 
+<h4>VoiceSplit([patch, ...], fallback='highest', time=0.1, retrigger=False)</h4>
+<p>
+Creates multiple VoiceFilter() units to route each voice to a different instrument.
+</p><p>
+Regardless of the number of voices specified, the lowest and highest note played will always be routed to the first
+and last patch in the list, respectively.
+When the number of notes played is less than the number of voices specified, &quot;surplus&quot; voices will fall back
+to the highest or lowest note played, as specified by the fallback parameter.
+</p>
+
+<div class="example"><div class="header">
+Route up to three voices to different channels:
+</div>
+VoiceSplit([Channel(1), Channel(2), Channel(3)])
+</div>
+
 <h4>LimitPolyphony(max_polyphony, remove_oldest=True)</h4>
 <p>
 Limits the "MIDI polyphony" to max_polyphony.
+</p><p>
 If remove_oldest is true, the oldest notes will be stopped when the maximum polyphony is exceeded.
 If remove_oldest is false, no new notes are accepted while max_polyphony notes are held.<br>
 Note that the actual polyphony of a connected synthesizer can still be higher than the limit set here,
@@ -113,7 +132,7 @@ Acts either like a regular sustain pedal (the default) or like a sostenuto pedal
 <h4>LatchNotes(polyphonic=False, reset=None)</h4>
 <p>
 Makes notes latching, so they will keep playing when the key is released.
-If polyphonic is False, pressing a key will automatically turn off any previous notes.
+</p><p>If polyphonic is False, pressing a key will automatically turn off any previous notes.
 If polyphonic is True, each note can be stopped individually by pressing the corresponding key again.
 reset can be a note name/number that when pressed stops all currently playing notes.
 </p>
@@ -132,7 +151,8 @@ rest of the patch.
 
 <h4>SendOSC(target, path, ...)</h4>
 <p>
-<i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i><br>
+<i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i>
+</p><p>
 Sends an OSC message. Parameters are the same as for liblo.send().
 Additionally, instead of a specific value, each data argument can also be a Python function that takes a
 single MidiEvent parameter, and returns the value to be sent.
@@ -140,7 +160,8 @@ single MidiEvent parameter, and returns the value to be sent.
 
 <h4>SendDBUS(service, path, interface, method, ...)</h4>
 <p>
-<i>Defined in mididings.extra.dbus. Requires dbus-python.</i><br>
+<i>Defined in mididings.extra.dbus. Requires dbus-python.</i>
+</p><p>
 Sends a DBUS message.
 Instead of a specific value, each data argument can also be a Python function that takes a
 single MidiEvent parameter, and returns the value to be sent.
@@ -169,7 +190,8 @@ memo_file is the path of the file to be used to store the scene number.
 
 <h4>OSCInterface(port, notify_ports=[])</h4>
 <p>
-<i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i><br>
+<i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i>
+</p><p>
 Allows controlling mididings via OSC. These messages are currently understood:
 </p>
 <ul>
@@ -185,8 +207,10 @@ Allows controlling mididings via OSC. These messages are currently understood:
 
 <h4>AutoRestart(modules=True, filenames=[])</h4>
 <p>
-<i>Defined in mididings.extra.inotify. Requires <a href="http://trac.dbzteam.org/pyinotify">pyinotify</a> &ge; 0.8.</i><br>
+<i>Defined in mididings.extra.inotify. Requires <a href="http://trac.dbzteam.org/pyinotify">pyinotify</a> &ge; 0.8.</i>
+</p><p>
 Automatically restarts mididings when the script changes.
+</p><p>
 If modules is True, all imported local Python modules are monitored for changes as well.
 The filenames parameter allows specifying additional files to be monitored.<br>
 This restarts the entire mididings script, so MIDI processing is interrupted, and mididings does not take care of
