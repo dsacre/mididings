@@ -37,16 +37,16 @@ namespace Mididings {
 
 
 // getter/setter functions for MidiEvent.type, to allow MidiEventType <-> int conversion
-static inline int midi_event_get_type(MidiEvent const & ev) {
+inline int midi_event_get_type(MidiEvent const & ev) {
     return static_cast<int>(ev.type);
 }
-static inline void midi_event_set_type(MidiEvent & ev, int t) {
+inline void midi_event_set_type(MidiEvent & ev, int t) {
     ev.type = static_cast<MidiEventType>(t);
 }
 
 // simple wrapper for vector types, with no methods other than push_back
 template <typename T>
-static void vector_wrapper(char const *name) {
+void vector_wrapper(char const *name) {
     boost::python::class_<std::vector<T>, boost::noncopyable>(name)
         .def("push_back", &std::vector<T>::push_back)
     ;
