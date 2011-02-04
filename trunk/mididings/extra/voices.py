@@ -89,12 +89,12 @@ def VoiceSplit(patches, fallback='highest', time=0.1, retrigger=False):
     vf = lambda n: VoiceFilter(n, time, retrigger)
 
     if fallback == 'lowest':
-        return (
+        return Fork(
             [ vf( 0) >> patches[ 0] ] +
             [ vf( n) >> patches[ n] for n in range(-len(patches) + 1, 0) ]
         )
     else: # highest
-        return (
+        return Fork(
             [ vf( n) >> patches[ n] for n in range(len(patches) - 1) ] +
             [ vf(-1) >> patches[-1] ]
         )
