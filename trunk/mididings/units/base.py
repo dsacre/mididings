@@ -28,36 +28,47 @@ class _Unit(object):
         self.unit = unit
 
     def __rshift__(self, other):
-        """Operator >>: connect units in series"""
+        """
+        Connect units in series (operator >>).
+        """
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
         return _join_units(Chain, self, other)
 
     def __rrshift__(self, other):
-        """Operator >>: connect units in series"""
+        """
+        Connect units in series (operator >>).
+        """
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
         return _join_units(Chain, other, self)
 
     def __floordiv__(self, other):
-        """Operator //: connect units in parallel"""
+        """
+        Connect units in parallel (operator //).
+        """
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
         return _join_units(Fork, self, other)
 
     def __rfloordiv__(self, other):
-        """Operator //: connect units in parallel"""
+        """
+        Connect units in parallel (operator //).
+        """
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
         return _join_units(Fork, other, self)
 
     def __pos__(self):
-        """Unary operator +: apply to duplicate"""
+        """
+        Apply to duplicate (unary operator +)
+        """
         return Fork([ Pass(), self ])
 
     def __repr__(self):
-        # anything that went through @_unit_repr will have _name, _args and _kwargs attributes
         if hasattr(self, '_name'):
+            # anything that went through @_unit_repr will have _name, _args
+            # and _kwargs attributes
             name = self._name
             args = ', '.join(repr(a) for a in self._args)
             kwargs = ', '.join('%s=%r' % (k, self._kwargs[k]) for k in self._kwargs)
@@ -85,7 +96,8 @@ def _join_units(t, a, b):
 
 def _unit_repr(f):
     """
-    Decorator that modifies the target function f to store its arguments in the returned unit.
+    Decorator that modifies the target function f to store its arguments in the
+    returned unit.
     """
     @_functools.wraps(f)
     def unit_wrapper(*args, **kwargs):
@@ -141,19 +153,25 @@ class _Selector(object):
     Derived classes must implement methods build() and build_inverted().
     """
     def __and__(self, other):
-        """Operator &"""
+        """
+        Return conjunction of multiple filters (operator &).
+        """
         if not isinstance(other, _Selector):
             return NotImplemented
-        return _join_units(_AndSelector, self, other)
+        return _join_selectors(_AndSelector, self, other)
 
     def __or__(self, other):
-        """Operator |"""
+        """
+        Return disjunction of multiple filters (operator |).
+        """
         if not isinstance(other, _Selector):
             return NotImplemented
-        return _join_units(_OrSelector, self, other)
+        return _join_selectors(_OrSelector, self, other)
 
     def __mod__(self, other):
-        """Operator %: apply the selector"""
+        """
+        Apply the selector (operator %).
+        """
         return Fork([
             self.build() >> other,
             self.build_inverted(),
@@ -161,6 +179,9 @@ class _Selector(object):
 
 
 class _AndSelector(_Selector):
+    """
+    Conjunction of multiple filters.
+    """
     def __init__(self, conditions):
         self.conditions = conditions
 
@@ -172,6 +193,9 @@ class _AndSelector(_Selector):
 
 
 class _OrSelector(_Selector):
+    """
+    Disjunction of multiple filters.
+    """
     def __init__(self, conditions):
         self.conditions = conditions
 
@@ -182,6 +206,21 @@ class _OrSelector(_Selector):
         return Chain(p.build_inverted() for p in self.conditions)
 
 
+def _join_selectors(t, a, b):
+    """
+    Combine selectors in a single instance of type t.
+    """
+    if isinstance(a, t):
+        a = a.conditions
+    else:
+        a = [a]
+    if isinstance(b, t):
+        b = b.conditions
+    else:
+        b = [b]
+    return t(a + b)
+
+
 class _Filter(_Unit, _Selector):
     """
     Wrapper class for all filters.
@@ -190,11 +229,16 @@ class _Filter(_Unit, _Selector):
         _Unit.__init__(self, unit)
 
     def __invert__(self):
-        """Unary operator ~: invert the filter, but still act on the same event types"""
+        """
+        Invert the filter, but still act on the same event types (unary
+        operator ~).
+        """
         return _InvertedFilter(self, False)
 
     def __neg__(self):
-        """Unary operator -: invert the filter, ignoring event types"""
+        """
+        Invert the filter, ignoring event types (unary operator -)
+        """
         return _InvertedFilter(self, True)
 
     def build(self):

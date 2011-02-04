@@ -67,13 +67,11 @@ class Filter
   public:
     Filter()
       : _handled_types(MIDI_EVENT_ANY)
-      , _pass_other(false)
     {
     }
 
-    Filter(MidiEventTypes handled_types, bool pass_other)
+    Filter(MidiEventTypes handled_types)
       : _handled_types(handled_types)
-      , _pass_other(pass_other)
     {
     }
 
@@ -83,7 +81,7 @@ class Filter
         if (ev.type & handled_types()) {
             return process_filter(ev);
         } else {
-            return pass_other();
+            return true;
         }
     }
 
@@ -94,14 +92,8 @@ class Filter
         return _handled_types;
     }
 
-    bool pass_other() const
-    {
-        return _pass_other;
-    }
-
   private:
     MidiEventTypes _handled_types;
-    bool _pass_other;
 };
 
 
@@ -124,7 +116,7 @@ class InvertedFilter
             if (ev.type & _filter->handled_types()) {
                 return !_filter->process_filter(ev);
             } else {
-                return _filter->pass_other();
+                return true;
             }
         }
     }

@@ -123,7 +123,7 @@ class SimpleTestCase(unittest.TestCase):
         self.check_filter(CtrlFilter(23), {
             self.ctrl23:    (True, False),
             self.ctrl42:    (False, True),
-            self.noteon66:  (False, False),
+            self.noteon66:  (True, True),
         })
 
     def testSelector(self):
@@ -139,7 +139,7 @@ class SimpleTestCase(unittest.TestCase):
             self.ctrl23:    True,
             self.ctrl42:    True,
         })
-        p = (CtrlFilter(42) & CtrlValueFilter(123)) % Discard()
+        p = (Filter(CTRL) & CtrlFilter(42) & CtrlValueFilter(123)) % Discard()
         self.check_patch(p, {
             self.noteon66:  True,
             self.ctrl23:    True,
@@ -147,7 +147,7 @@ class SimpleTestCase(unittest.TestCase):
         })
         p = (CtrlFilter(42) | CtrlValueFilter(123)) % Discard()
         self.check_patch(p, {
-            self.noteon66:  True,
+            self.noteon66:  False,
             self.ctrl23:    True,
             self.ctrl42:    False,
         })
@@ -159,7 +159,7 @@ class SimpleTestCase(unittest.TestCase):
         })
         p = CtrlFilter(42) % (CtrlValueFilter(123) % Discard())
         self.check_patch(p, {
-            self.noteon66:  True,
+            self.noteon66:  False,
             self.ctrl23:    True,
             self.ctrl42:    False,
         })
