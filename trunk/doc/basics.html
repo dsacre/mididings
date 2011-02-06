@@ -23,7 +23,8 @@
 
 <h3>Serial</h3>
 
-<h4>A &gt;&gt; B</h4>
+<h4>A &gt;&gt; B<br>
+Chain([ A, B, ... ])</h4>
 <p>
 Connects units in series. Incoming MIDI events will be processed by unit A first, then by unit B.
 If the event is filtered out by unit A, it is not processed any further, and unit B will not be called.
@@ -34,23 +35,14 @@ Transpose one octave down, then set channel to 1:
 Transpose(-12) &gt;&gt; Channel(1)
 </div>
 
-<h4>Chain([ A, B, ... ])</h4>
-<p>
-Connects an arbitrary number of units in series.
-</p>
-
 <h3>Parallel</h3>
 
-<h4>A // B</h4>
-<p>
-Connects units in parallel. Both units will be called with identical copies of incoming MIDI
-events. The output will be the sum of all the units' outputs.
-</p>
-
-<h4>[ A, B, ... ]<br>
+<h4>A // B<br>
+[ A, B, ... ]<br>
 Fork([ A, B, ... ], remove_duplicates=True)</h4>
 <p>
-Connects an arbitrary number of units in parallel.
+Connects units in parallel. All units will be called with identical copies of incoming MIDI
+events. The output will be the sum of all the units' outputs.
 With Fork() it's also possible to disable the automatic removal of identical MIDI events by setting
 remove_duplicates to False.
 </p>
@@ -84,9 +76,10 @@ Send note events to channel 1 and CC events to channel 2:
 { NOTE: Channel(1), CTRL: Channel(2) }
 </div>
 
-<h3>Filters and selectors</h3>
+<h3>Filters</h3>
 
-<h4>~F</h4>
+<h4>~F<br>
+F.invert()</h4>
 <p>
 Inverts the filter F. Note that for filters which only affect certain kinds of events,
 other events will remain unaffected when the filter is inverted.
@@ -99,27 +92,44 @@ Remove CC events with controller number 42:
 ~CtrlFilter(42)
 </div>
 
-<h4>-F</h4>
+<h4>-F<br>
+F.negate()</h4>
 <p>
-Inverts the filter F. Unlike ~F, this matches exactly the events that F doesn't.
+Negates the filter F. Unlike ~F, this matches exactly the events that F doesn't.
 </p>
 
-<h4>F % A</h4>
+<h3>Selectors</h3>
+
 <p>
-Applies A only to events which match filter F, but keeps events which don't.
-Equivalent to [ F &gt;&gt; A, -F ].
+Every filter can act as a selector.
+In addition, it's possible to combine multiple filters into more complex selectors:
+</p>
+
+<h4>S1 &amp; S2<br>
+AndSelector([S1, S2, ...])</h4>
+<p>
+Builds a selector for events that match all of the given filters or selectors.
+</p>
+
+<h4>S1 | S2<br>
+OrSelector([S1, S2, ...])</h4>
+<p>
+Builds a selector for events that match at least one of the given filters or selectors.
+</p>
+
+<h4>S % A<br>
+S.apply(A)</h4>
+<p>
+Applies A only to events which match selector S, but keeps events which don't.
+If S is a single filter, this is equivalent to [ S &gt;&gt; A, -S ].<br>
+Note that operator % has higher precedence than &amp; and |, so the selector will usually have to
+be written in parentheses.
 </p>
 <div class="example"><div class="header">
 Transpose only events on channel 2:
 </div>
 ChannelFilter(2) % Transpose(3)
 </div>
-
-<h4>(S) % A</h4>
-<p>
-Applies A only to events which match selector S. Selectors can be built by combining multiple filters using the operators
-<b>&amp;</b> (AND) and <b>|</b> (OR).
-</p>
 <div class="example"><div class="header">
 Change CC events with controller number 23 or 42 from channel 1 to channel 2:
 </div>
@@ -243,7 +253,7 @@ This is a list of all operators relevant to mididings, in order of their precede
     <tr>
         <td><b>-F<br>
             +F</b></td>
-        <td>"True" filter inversion<br>
+        <td>Filter negation<br>
             Apply to duplicate</td>
     </tr>
     <tr>

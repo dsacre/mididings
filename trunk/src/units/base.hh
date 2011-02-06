@@ -66,19 +66,19 @@ class Filter
 
   public:
     Filter()
-      : _handled_types(MIDI_EVENT_ANY)
+      : _types(MIDI_EVENT_ANY)
     {
     }
 
-    Filter(MidiEventTypes handled_types)
-      : _handled_types(handled_types)
+    Filter(MidiEventTypes types)
+      : _types(types)
     {
     }
 
   protected:
     virtual bool process(MidiEvent & ev)
     {
-        if (ev.type & handled_types()) {
+        if (ev.type & types()) {
             return process_filter(ev);
         } else {
             return true;
@@ -87,13 +87,13 @@ class Filter
 
     virtual bool process_filter(MidiEvent & ev) = 0;
 
-    MidiEventTypes handled_types() const
+    MidiEventTypes types() const
     {
-        return _handled_types;
+        return _types;
     }
 
   private:
-    MidiEventTypes _handled_types;
+    MidiEventTypes _types;
 };
 
 
@@ -101,19 +101,19 @@ class InvertedFilter
   : public Filter
 {
   public:
-    InvertedFilter(boost::shared_ptr<Filter> filter, bool ignore_types)
+    InvertedFilter(boost::shared_ptr<Filter> filter, bool negate)
       : Filter()
       , _filter(filter)
-      , _ignore_types(ignore_types)
+      , _negate(negate)
     {
     }
 
     virtual bool process_filter(MidiEvent & ev)
     {
-        if (_ignore_types) {
+        if (_negate) {
             return !_filter->process(ev);
         } else {
-            if (ev.type & _filter->handled_types()) {
+            if (ev.type & _filter->types()) {
                 return !_filter->process_filter(ev);
             } else {
                 return true;
@@ -123,7 +123,7 @@ class InvertedFilter
 
   private:
     boost::shared_ptr<Filter> _filter;
-    bool _ignore_types;
+    bool _negate;
 };
 
 

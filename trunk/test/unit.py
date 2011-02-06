@@ -23,6 +23,7 @@ class SimpleTestCase(unittest.TestCase):
         self.noteon66   = MidiEvent(NOTEON, 0, 0, 66, 23)
         self.noteon42   = MidiEvent(NOTEON, 0, 0, 42, 127)
         self.noteon23   = MidiEvent(NOTEON, 0, 1, 23, 127)
+        self.noteoff66  = MidiEvent(NOTEOFF, 0, 0, 66, 127)
         self.ctrl23     = MidiEvent(CTRL, 0, 0, 23, 42)
         self.ctrl42     = MidiEvent(CTRL, 0, 0, 42, 123)
         self.prog7      = MidiEvent(PROG, 0, 0, 0, 7)
@@ -101,7 +102,15 @@ class SimpleTestCase(unittest.TestCase):
     def testFilter(self):
         self.check_filter(Filter(PROG), {
             self.noteon66:  (False, True),
+            self.noteoff66: (False, True),
+            self.ctrl23:    (False, True),
             self.prog7:     (True, False),
+        })
+        self.check_filter(Filter(NOTE), {
+            self.noteon66:  (True, False),
+            self.noteoff66: (True, False),
+            self.ctrl23:    (False, True),
+            self.prog7:     (False, True),
         })
 
     def testPortFilter(self):
@@ -124,6 +133,8 @@ class SimpleTestCase(unittest.TestCase):
             self.ctrl23:    (True, False),
             self.ctrl42:    (False, True),
             self.noteon66:  (True, True),
+            self.noteoff66: (True, True),
+            self.prog7:     (True, True),
         })
 
     def testSelector(self):

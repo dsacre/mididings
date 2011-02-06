@@ -150,7 +150,7 @@ class Split(_Unit, dict):
 class _Selector(object):
     """
     Base class for anything that can act as a selector.
-    Derived classes must implement methods build() and build_inverted().
+    Derived classes must implement methods build() and build_negated().
     """
     def __and__(self, other):
         """
@@ -158,7 +158,7 @@ class _Selector(object):
         """
         if not isinstance(other, _Selector):
             return NotImplemented
-        return _join_selectors(_AndSelector, self, other)
+        return _join_selectors(AndSelector, self, other)
 
     def __or__(self, other):
         """
@@ -166,19 +166,22 @@ class _Selector(object):
         """
         if not isinstance(other, _Selector):
             return NotImplemented
-        return _join_selectors(_OrSelector, self, other)
+        return _join_selectors(OrSelector, self, other)
 
     def __mod__(self, other):
         """
         Apply the selector (operator %).
         """
+        return self.apply(other)
+
+    def apply(self, patch):
         return Fork([
-            self.build() >> other,
-            self.build_inverted(),
+            self.build() >> patch,
+            self.build_negated(),
         ])
 
 
-class _AndSelector(_Selector):
+class AndSelector(_Selector):
     """
     Conjunction of multiple filters.
     """
@@ -188,11 +191,11 @@ class _AndSelector(_Selector):
     def build(self):
         return Chain(p.build() for p in self.conditions)
 
-    def build_inverted(self):
-        return Fork(p.build_inverted() for p in self.conditions)
+    def build_negated(self):
+        return Fork(p.build_negated() for p in self.conditions)
 
 
-class _OrSelector(_Selector):
+class OrSelector(_Selector):
     """
     Disjunction of multiple filters.
     """
@@ -202,8 +205,8 @@ class _OrSelector(_Selector):
     def build(self):
         return Fork(p.build() for p in self.conditions)
 
-    def build_inverted(self):
-        return Chain(p.build_inverted() for p in self.conditions)
+    def build_negated(self):
+        return Chain(p.build_negated() for p in self.conditions)
 
 
 def _join_selectors(t, a, b):
@@ -230,35 +233,41 @@ class _Filter(_Unit, _Selector):
 
     def __invert__(self):
         """
-        Invert the filter, but still act on the same event types (unary
+        Invert the filter (still act on the same event types, unary
         operator ~).
         """
-        return _InvertedFilter(self, False)
+        return self.invert()
 
     def __neg__(self):
         """
-        Invert the filter, ignoring event types (unary operator -)
+        Negate the filter (ignoring event types, unary operator -)
         """
+        return self.negate()
+
+    def invert(self):
+        return _InvertedFilter(self, False)
+
+    def negate(self):
         return _InvertedFilter(self, True)
 
     def build(self):
         return self
 
-    def build_inverted(self):
-        return -self
+    def build_negated(self):
+        return self.negate()
 
 
 class _InvertedFilter(_Filter):
     """
     Inverted filter. keeps a reference to the original filter unit.
     """
-    def __init__(self, filt, ignore_types):
+    def __init__(self, filt, negate):
         self.filt = filt
-        self.ignore_types = ignore_types
-        _Filter.__init__(self, _mididings.InvertedFilter(filt.unit, ignore_types))
+        self.negate = negate
+        _Filter.__init__(self, _mididings.InvertedFilter(filt.unit, negate))
 
     def __repr__(self):
-        prefix = '-' if self.ignore_types else '~'
+        prefix = '-' if self.negate else '~'
         return '%s%r' % (prefix, self.filt)
 
 
