@@ -26,7 +26,7 @@ class SimpleTestCase(unittest.TestCase):
         self.noteoff66  = MidiEvent(NOTEOFF, 0, 0, 66, 127)
         self.ctrl23     = MidiEvent(CTRL, 0, 0, 23, 42)
         self.ctrl42     = MidiEvent(CTRL, 0, 0, 42, 123)
-        self.prog7      = MidiEvent(PROG, 0, 0, 0, 7)
+        self.program7   = MidiEvent(PROGRAM, 0, 0, 0, 7)
 
     def tearDown(self):
         pass
@@ -100,17 +100,17 @@ class SimpleTestCase(unittest.TestCase):
         })
 
     def testFilter(self):
-        self.check_filter(Filter(PROG), {
+        self.check_filter(Filter(PROGRAM), {
             self.noteon66:  (False, True),
             self.noteoff66: (False, True),
             self.ctrl23:    (False, True),
-            self.prog7:     (True, False),
+            self.program7:  (True, False),
         })
         self.check_filter(Filter(NOTE), {
             self.noteon66:  (True, False),
             self.noteoff66: (True, False),
             self.ctrl23:    (False, True),
-            self.prog7:     (False, True),
+            self.program7:  (False, True),
         })
 
     def testPortFilter(self):
@@ -125,7 +125,7 @@ class SimpleTestCase(unittest.TestCase):
         self.check_filter(VelocityFilter(64, 128), {
             self.noteon66:  (False, True),
             self.noteon42:  (True, False),
-            self.prog7:     (True, True),
+            self.program7:  (True, True),
         })
 
     def testCtrlFilter(self):
@@ -134,7 +134,7 @@ class SimpleTestCase(unittest.TestCase):
             self.ctrl42:    (False, True),
             self.noteon66:  (True, True),
             self.noteoff66: (True, True),
-            self.prog7:     (True, True),
+            self.program7:  (True, True),
         })
 
     def testSelector(self):
@@ -176,10 +176,10 @@ class SimpleTestCase(unittest.TestCase):
         })
 
     def testSplit(self):
-        p = Split({ NOTE: Channel(1), PROG: Channel(2) })
+        p = Split({ NOTE: Channel(1), PROGRAM: Channel(2) })
         self.check_patch(p, {
             self.noteon66:  [self.modify_event(self.noteon66, channel_=1)],
-            self.prog7:     [self.modify_event(self.prog7, channel_=2)],
+            self.program7:  [self.modify_event(self.program7, channel_=2)],
             self.ctrl23:    [],
         })
 
@@ -200,7 +200,7 @@ class SimpleTestCase(unittest.TestCase):
         self.check_patch(p, {
             self.noteon66:  [self.modify_event(self.noteon66, channel_=7)],
             self.noteon42:  [self.modify_event(self.noteon42, channel_=3)],
-            self.prog7:     [self.modify_event(self.prog7, channel_=3), self.modify_event(self.prog7, channel_=7)],
+            self.program7:  [self.modify_event(self.program7, channel_=3), self.modify_event(self.program7, channel_=7)],
         })
 
     def testProcess(self):
@@ -232,7 +232,7 @@ class SimpleTestCase(unittest.TestCase):
     def testDataOffset(self):
         config(data_offset = 1)
         p = Channel(6)
-        ev = MidiEvent(PROG, 1, 1, 0, 41)
+        ev = MidiEvent(PROGRAM, 1, 1, 0, 41)
         assert ev.channel_ == 0
         assert ev.data2 == 41
         def foo(ev):
@@ -260,14 +260,14 @@ class SimpleTestCase(unittest.TestCase):
         config(silent=True)
         p = {
             0:  Split({
-                    PROG:  SceneSwitch(),
-                    ~PROG: Channel(7),
+                    PROGRAM:  SceneSwitch(),
+                    ~PROGRAM: Channel(7),
                 }),
             1: Channel(13),
         }
         events = (
             MidiEvent(NOTEON, 0, 0, 69, 123),
-            MidiEvent(PROG, 0, 0, 0, 1),
+            MidiEvent(PROGRAM, 0, 0, 0, 1),
             MidiEvent(NOTEON, 0, 0, 23, 42),
             MidiEvent(NOTEOFF, 0, 0, 69, 0),
         )
