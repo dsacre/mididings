@@ -237,14 +237,6 @@ def run(scenes, control=None, pre=None, post=None):
     e = Engine(scenes, control, pre, post)
     e.run()
 
-@_misc.deprecated('run')
-def run_scenes(scenes, control=None, pre=None, post=None):
-    run(scenes, control, pre, post)
-
-@_misc.deprecated('run')
-def run_patches(patches, control=None, pre=None, post=None):
-    run(patches, control, pre, post)
-
 
 def process_file(infile, outfile, patch):
     _setup.config(False,
@@ -271,10 +263,6 @@ def current_subscene():
 def scenes():
     return _TheEngine().scenes()
 
-@_misc.deprecated('scenes')
-def get_scenes():
-    return scenes()
-
 def output_event(ev):
     _TheEngine().output_event(ev)
 
@@ -292,23 +280,11 @@ def out_ports():
         r = _get_config('out_ports')
         return r if _misc.issequence(r) else list(map(_util.NoDataOffset, range(r)))
 
-@_misc.deprecated('in_ports')
-def get_in_ports():
-    return in_ports()
-
-@_misc.deprecated('out_ports')
-def get_out_ports():
-    return out_ports()
-
 def time():
     return _TheEngine().time()
 
 def active():
     return _TheEngine != None and _TheEngine() != None
-
-@_misc.deprecated('active')
-def is_active():
-    return active()
 
 def restart():
     _TheEngine().restart()

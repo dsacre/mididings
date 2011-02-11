@@ -92,14 +92,3 @@ def Print(name=None, portnames=None):
 @_misc.overload
 def Print(string):
     return _PrintString(string)
-
-
-# for backward compatibility
-Print.PORTNAMES_NONE = None
-Print.PORTNAMES_IN = 'in'
-Print.PORTNAMES_OUT = 'out'
-
-
-@_misc.deprecated('Print')
-def PrintString(string):
-    return Print(string=string)

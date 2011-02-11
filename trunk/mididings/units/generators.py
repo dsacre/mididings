@@ -41,10 +41,6 @@ def Ctrl(*args, **kwargs):
         _util.ctrl_value(value) if value >= 0 else value
     )
 
-@_misc.deprecated('Ctrl')
-def CtrlChange(*args, **kwargs):
-    return Ctrl(*args, **kwargs)
-
 
 def Program(*args, **kwargs):
     port, channel, program = _misc.call_overload(args, kwargs, [
@@ -56,10 +52,6 @@ def Program(*args, **kwargs):
         port, channel,
         0, _util.program_number(program)
     )
-
-@_misc.deprecated('Program')
-def ProgChange(*args, **kwargs):
-    return Program(*args, **kwargs)
 
 
 def NoteOn(*args, **kwargs):

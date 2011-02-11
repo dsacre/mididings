@@ -29,10 +29,6 @@ class _Init(_Unit):
 def Init(patch):
     return _Init(patch)
 
-@_misc.deprecated('Init')
-def InitAction(action):
-    return Init(action)
-
 
 def Output(port, channel, program=None, volume=None, pan=None, expression=None, ctrls={}):
     if isinstance(program, tuple):

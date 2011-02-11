@@ -86,15 +86,6 @@ def Call(thread):
     return _CallThread(thread)
 
 
-@_misc.deprecated('Call')
-def CallAsync(function):
-    return Call(function)
-
-@_misc.deprecated('Call')
-def CallThread(function):
-    return Call(thread=function)
-
-
 @_unit_repr
 def System(cmd):
     return _System(cmd)

@@ -85,10 +85,6 @@ def CtrlValueSplit(threshold, patch_lower, patch_upper):
 def ProgramSplit(d):
     return _make_split(ProgramFilter, d)
 
-@_misc.deprecated('ProgramSplit')
-def ProgSplit(d):
-    return ProgramSplit(d)
-
 
 @_misc.overload
 def SysExSplit(d):

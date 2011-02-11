@@ -24,9 +24,6 @@ PITCHBEND       = _NamedBitMask(1 << 3, 'PITCHBEND')
 AFTERTOUCH      = _NamedBitMask(1 << 4, 'AFTERTOUCH')
 POLY_AFTERTOUCH = _NamedBitMask(1 << 5, 'POLY_AFTERTOUCH')
 PROGRAM         = _NamedBitMask(1 << 6, 'PROGRAM')
-# for backward compatibility
-PROG            = _NamedBitMask(1 << 6, 'PROGRAM')
-PROG._deprecated = True
 
 SYSEX           = _NamedBitMask(1 << 7, 'SYSEX')
 

@@ -34,11 +34,6 @@ def SceneSwitch(number=_constants.EVENT_PROGRAM):
 def SceneSwitch(offset):
     return _Unit(_mididings.SceneSwitch(0, offset))
 
-@_misc.deprecated('SceneSwitch')
-def PatchSwitch(number=_constants.EVENT_PROGRAM):
-    return SceneSwitch(number)
-
-
 @_unit_repr
 @_misc.overload
 def SubSceneSwitch(number=_constants.EVENT_PROGRAM):

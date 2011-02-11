@@ -80,10 +80,6 @@ def ProgramFilter(*args):
     v = _misc.make_int_vector(_util.program_number(p) for p in _misc.flatten(args))
     return _Filter(_mididings.ProgramFilter(v))
 
-@_misc.deprecated('ProgramFilter')
-def ProgFilter(*args):
-    return ProgramFilter(*args)
-
 
 @_unit_repr
 @_misc.overload
