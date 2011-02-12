@@ -120,7 +120,7 @@ sysconfig.customize_compiler = my_customize_compiler
 
 setup(
     name = 'mididings',
-    version = '0.9.0',
+    version = '20101119',
     author = 'Dominic Sacre',
     author_email = 'dominic.sacre@gmx.de',
     url = 'http://das.nasophon.de/mididings/',

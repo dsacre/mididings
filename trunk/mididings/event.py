@@ -132,6 +132,7 @@ class MidiEvent(_mididings.MidiEvent):
     program   = property(*_make_get_set(_constants.PROGRAM, 'data2', 'program', offset=lambda: _get_config('data_offset')))
 
     # for backward compatibility
+    type_     = property(*_make_get_set(_constants.ANY, 'type'))
     param     = property(*_make_get_set(_constants.CTRL, 'data1', 'ctrl'))
 
 
