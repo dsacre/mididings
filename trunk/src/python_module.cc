@@ -107,7 +107,7 @@ BOOST_PYTHON_MODULE(_mididings)
     // call
     class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
 
-    // main engine class, derived in python
+    // main engine class, derived from in python
     class_<Engine, Engine, noncopyable>("Engine", init<std::string const &, std::string const &,
                                                        std::vector<std::string> const &, std::vector<std::string> const &, bool>())
         .def("add_scene", &Engine::add_scene)
@@ -123,7 +123,7 @@ BOOST_PYTHON_MODULE(_mididings)
 #endif // ENABLE_TEST
     ;
 
-    // patch class, derived in python
+    // patch class, derived from in python
     {
     bp::scope patch_scope = class_<Patch, noncopyable>("Patch", init<Patch::ModulePtr>());
 
@@ -137,7 +137,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<Patch::Extended, bases<Patch::Module>, noncopyable>("Extended", init<boost::shared_ptr<UnitEx> >());
     }
 
-    // midi event class, derived in python
+    // midi event class, derived from in python
     class_<MidiEvent>("MidiEvent")
         .add_property("type", &midi_event_get_type, &midi_event_set_type)
         .def_readwrite("port_", &MidiEvent::port)

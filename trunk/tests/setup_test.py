@@ -18,22 +18,30 @@ from mididings.event import *
 
 class SetupTestCase(tests.helpers.MididingsTestCase):
 
-    def test_DataOffset(self):
+    def test_data_offset(self):
+        ev = self.make_event(PROGRAM, 0, 6, 0, 41)
+
         config(data_offset = 1)
-        p = Channel(6)
-        ev = MidiEvent(PROGRAM, 1, 1, 0, 41)
-        self.assertEqual(ev.channel_, 0)
-        self.assertEqual(ev.data2, 41)
+
         def foo(ev):
-            self.assertEqual(ev.channel, 1)
-            self.assertEqual(ev.channel_, 0)
+            self.assertEqual(ev.port, 1)
+            self.assertEqual(ev.port_, 0)
+            self.assertEqual(ev.channel, 7)
+            self.assertEqual(ev.channel_, 6)
             self.assertEqual(ev.program, 42)
             self.assertEqual(ev.data2, 41)
-            ev.channel = 6
-        r = self.run_patch(p, ev)
-        self.assertEqual(r[0].channel_, 5)
+            ev.port = 3
+            ev.channel = 5
+            ev.program = 66
+            return ev
 
-    def test_NamedPorts(self):
+        r = self.run_patch(Process(foo), ev)
+
+        self.assertEqual(r[0].port_, 2)
+        self.assertEqual(r[0].channel_, 4)
+        self.assertEqual(r[0].data2, 65)
+
+    def test_named_ports(self):
         config(out_ports = ['foo', 'bar', 'baz'])
         ev = self.make_event(port=0)
 

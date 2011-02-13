@@ -34,3 +34,21 @@ class CallTestCase(tests.helpers.MididingsTestCase):
         self.check_patch(Process(foo), {
             self.make_event(NOTEON, 0, 0, 66, 23): [self.make_event(CTRL, 4, 5, 23, 42)],
         })
+
+        ev = self.make_event()
+
+        self.check_patch(Process(lambda ev: ev), {
+            ev: [ev]
+        })
+
+        self.check_patch(Process(lambda ev: None), {
+            ev: []
+        })
+
+        self.check_patch(Process(lambda ev: []), {
+            ev: []
+        })
+
+        self.check_patch(Process(lambda ev: [ev, ev, ev]), {
+            ev: [ev, ev, ev]
+        })

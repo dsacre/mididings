@@ -136,6 +136,9 @@ class MidiEvent(_mididings.MidiEvent):
 
 
 def NoteOnEvent(port, channel, note, velocity):
+    """
+    Create a new note-on event object.
+    """
     return MidiEvent(
         _constants.NOTEON,
         port,
@@ -145,6 +148,9 @@ def NoteOnEvent(port, channel, note, velocity):
     )
 
 def NoteOffEvent(port, channel, note, velocity=0):
+    """
+    Create a new note-off event object.
+    """
     return MidiEvent(
         _constants.NOTEOFF,
         port,
@@ -154,6 +160,9 @@ def NoteOffEvent(port, channel, note, velocity=0):
     )
 
 def CtrlEvent(port, channel, ctrl, value):
+    """
+    Create a new control change event object.
+    """
     return MidiEvent(
         _constants.CTRL,
         port,
@@ -162,16 +171,10 @@ def CtrlEvent(port, channel, ctrl, value):
         _util.ctrl_value(value, False)
     )
 
-def ProgramEvent(port, channel, program):
-    return MidiEvent(
-        _constants.PROGRAM,
-        port,
-        channel,
-        0,
-        _util.program_number(program, False)
-    )
-
 def PitchbendEvent(port, channel, value):
+    """
+    Create a new pitch bend event object.
+    """
     return MidiEvent(
         _constants.PITCHBEND,
         port,
@@ -180,9 +183,32 @@ def PitchbendEvent(port, channel, value):
     )
 
 def AftertouchEvent(port, channel, value):
+    """
+    Create a new aftertouch event object.
+    """
     return MidiEvent(
         _constants.AFTERTOUCH,
         port,
         channel,
         value
     )
+
+def ProgramEvent(port, channel, program):
+    """
+    Create a new program change event object.
+    """
+    return MidiEvent(
+        _constants.PROGRAM,
+        port,
+        channel,
+        0,
+        _util.program_number(program, False)
+    )
+
+def SysExEvent(port, sysex):
+    """
+    Create a new sysex event object.
+    """
+    ev = MidiEvent(_constants.SYSEX, port, 0, 0, 0)
+    ev.sysex = sysex
+    return ev

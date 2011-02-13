@@ -35,11 +35,18 @@ if _sys.version_info >= (3,):
 _TheEngine = None
 
 
+def _make_portnames(ports, prefix):
+    if _misc.issequence(ports):
+        return ports
+    else:
+        return [prefix + str(_util.offset(n)) for n in range(ports)]
+
+
 class Engine(_mididings.Engine):
     def __init__(self, scenes, control, pre, post):
         # build the actual port names
-        self.in_ports = self._make_portnames(_get_config('in_ports'), 'in_')
-        self.out_ports = self._make_portnames(_get_config('out_ports'), 'out_')
+        self.in_ports = _make_portnames(_get_config('in_ports'), 'in_')
+        self.out_ports = _make_portnames(_get_config('out_ports'), 'out_')
 
         # initialize C++ base class
         _mididings.Engine.__init__(
@@ -122,12 +129,6 @@ class Engine(_mididings.Engine):
 
     def process_file(self):
         self.start(0)
-
-    def _make_portnames(self, ports, prefix):
-        if _misc.issequence(ports):
-            return ports
-        else:
-            return [prefix + str(_util.offset(n)) for n in range(ports)]
 
     def _parse_scene(self, s):
         if isinstance(s, _scene.Scene):
@@ -229,16 +230,27 @@ class Engine(_mididings.Engine):
 
 @_misc.overload
 def run(patch):
+    """
+    Create the engine and start event processing. This function does not
+    usually return until mididings exits.
+    """
     e = Engine({ _util.offset(0): patch }, None, None, None)
     e.run()
 
 @_misc.overload
 def run(scenes, control=None, pre=None, post=None):
+    """
+    Create the engine and start event processing. This function does not
+    usually return until mididings exits.
+    """
     e = Engine(scenes, control, pre, post)
     e.run()
 
 
 def process_file(infile, outfile, patch):
+    """
+    Process a MIDI file using the smf backend.
+    """
     _setup.config(False,
         backend = 'smf',
         in_ports = [infile],
@@ -249,45 +261,81 @@ def process_file(infile, outfile, patch):
 
 
 def switch_scene(scene, subscene=None):
+    """
+    Switch to the given scene number.
+    """
     _TheEngine().switch_scene(scene, subscene)
 
 def switch_subscene(subscene):
+    """
+    Switch to the given subscene number.
+    """
     _TheEngine().switch_subscene(subscene)
 
 def current_scene():
+    """
+    Return the current scene number.
+    """
     return _TheEngine().current_scene()
 
 def current_subscene():
+    """
+    Return the current subscene number.
+    """
     return _TheEngine().current_subscene()
 
 def scenes():
+    """
+    Return a mapping from scene numbers to a tuple of the form
+    (scene_name, [subscene_name, ...]).
+    """
     return _TheEngine().scenes()
 
 def output_event(ev):
+    """
+    Send an event directly to an output port.
+    """
     _TheEngine().output_event(ev)
 
 def in_ports():
+    """
+    Return the list of input port names.
+    """
     if active():
         return _TheEngine().in_ports
     else:
-        r = _get_config('in_ports')
-        return r if _misc.issequence(r) else list(map(_util.NoDataOffset, range(r)))
+        return _make_portnames(_get_config('in_ports'), 'in_')
 
 def out_ports():
+    """
+    Return the list of output port names.
+    """
     if active():
         return _TheEngine().out_ports
     else:
-        r = _get_config('out_ports')
-        return r if _misc.issequence(r) else list(map(_util.NoDataOffset, range(r)))
+        return _make_portnames(_get_config('out_ports'), 'out_')
 
 def time():
+    """
+    Return a floating point number of seconds since some unspecified starting
+    point.
+    """
     return _TheEngine().time()
 
 def active():
+    """
+    Return True if the engine is running, otherwise False.
+    """
     return _TheEngine != None and _TheEngine() != None
 
 def restart():
+    """
+    Restart mididings.
+    """
     _TheEngine().restart()
 
 def quit():
+    """
+    Quit mididings.
+    """
     _TheEngine().quit()
