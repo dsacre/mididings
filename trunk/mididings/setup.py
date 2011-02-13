@@ -10,7 +10,16 @@
 # (at your option) any later version.
 #
 
-_config = {
+import mididings.misc as _misc
+
+
+_VALID_BACKENDS = [
+    'alsa',
+    'jack',
+    'jack-rt',
+]
+
+_DEFAULT_CONFIG = {
     'backend':          'alsa',
     'client_name':      'mididings',
     'in_ports':         1,
@@ -22,17 +31,57 @@ _config = {
     'silent':           False,
 }
 
+_config = _DEFAULT_CONFIG.copy()
 _config_override = []
-
 _hooks = []
 
 
-def config(override=False, **kwargs):
-    for k in kwargs:
+def config(override=False, check=True, **kwargs):
+    for k, v in kwargs.items():
+        # check if the name of the config variable is known
         if k not in _config:
-            raise TypeError('unknown config variable: %s' % k)
+            raise ValueError("unknown config variable '%s'" % k)
+
+        # check if the value and/or type is valid for the given config variable
+        if check:
+            if k == 'backend' and v not in _VALID_BACKENDS:
+                raise ValueError("backend must be one of %s" % ', '.join("'%s'" % x for x in _VALID_BACKENDS))
+
+            if k == 'client_name' and not isinstance(v, str):
+                raise TypeError("client_name must be a string")
+
+            if k in ('in_ports', 'out_ports'):
+                if isinstance(v, int):
+                    if v < 1:
+                        raise ValueError("%s can't be less than one" % k)
+                elif _misc.issequence(v):
+                    if not _misc.issequenceof(v, str):
+                        raise TypeError("all values in %s must be strings" % k)
+                else:
+                    raise TypeError("%s must be an integer or a sequence" % k)
+
+            if k == 'data_offset' and v not in (0, 1):
+                raise ValueError("data_offset must be 0 or 1")
+
+            if k == 'octave_offset' and not isinstance(v, int):
+                raise TypeError("octave_offset must be an integer")
+
+            if k == 'initial_scene':
+                if not isinstance(v, int) and not _misc.issequenceof(v, int):
+                    raise TypeError("initial_scene must be an integer or a tuple of two integers")
+
+            if k == 'start_delay':
+                if not isinstance(v, (int, float, type(None))):
+                    raise TypeError("start_delay must be a number or None")
+                if v != None and v < 0:
+                    raise ValueError("start_delay must be a positive number")
+
+            if k == 'silent' and not isinstance(v, bool):
+                raise TypeError("silent must be a boolean")
+
+        # everything seems ok, go ahead and change the config
         if override or k not in _config_override:
-            _config[k] = kwargs[k]
+            _config[k] = v
         if override:
             _config_override.append(k)
 
@@ -45,3 +94,10 @@ def hook(*args):
 
 def get_hooks():
     return _hooks
+
+
+def reset():
+    global _config, _config_override, _hooks
+    _config = _DEFAULT_CONFIG.copy()
+    _config_override = []
+    _hooks = []

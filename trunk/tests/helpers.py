@@ -21,7 +21,8 @@ from mididings.event import *
 
 class MididingsTestCase(unittest.TestCase):
     def setUp(self):
-        config(data_offset = 0)
+        setup.reset()
+        setup.config(data_offset = 0)
 
     def check_patch(self, patch, d):
         """
@@ -77,7 +78,9 @@ class MididingsTestCase(unittest.TestCase):
         Run the given events through the given scenes, return the list of
         resulting events.
         """
-        setup.config(False, backend='dummy')
+        setup.config(check=False,
+            backend='dummy'
+        )
         e = engine.Engine(scenes, None, None, None)
         r = []
         if not misc.issequence(events):

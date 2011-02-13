@@ -12,8 +12,6 @@
 
 import _mididings
 
-from mididings.setup import get_config
-
 import inspect
 import itertools
 import functools
@@ -41,6 +39,9 @@ def issequence(seq, accept_string=False):
         return True
     except TypeError:
         return False
+
+def issequenceof(seq, t):
+    return issequence(seq) and all(isinstance(v, t) for v in seq)
 
 
 def seq_to_string(seq):
@@ -144,6 +145,9 @@ class deprecated:
         self.replacement = replacement
 
     def __call__(self, f):
+        # XXX: avoid circular import
+        from mididings.setup import get_config
+
         @functools.wraps(f)
         def deprecated_wrapper(*args, **kwargs):
             if f not in deprecated.already_used and not get_config('silent'):

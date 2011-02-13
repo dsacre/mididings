@@ -151,6 +151,8 @@ def port_number(port):
     Convert port number/name to actual port number.
     """
     if isinstance(port, int):
+        if port < _get_config('data_offset'):
+            raise ValueError("invalid port number %d" % port)
         return actual(port)
     else:
         # XXX workaround for circular absolute imports

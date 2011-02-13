@@ -25,10 +25,11 @@ class FiltersTestCase(tests.helpers.MididingsTestCase):
             self.make_event(port=0): (False, True),
         })
 
-        # TODO: invalid port numbers
-
         with self.assertRaises(ValueError):
             PortFilter('nonexist')
+
+        with self.assertRaises(ValueError):
+            PortFilter(-1)
 
     def test_ChannelFilter(self):
         self.check_filter(ChannelFilter(2), {
@@ -82,5 +83,3 @@ class FiltersTestCase(tests.helpers.MididingsTestCase):
             self.make_event(PROGRAM, value=13): (False, True),
             self.make_event(CTRL): (True, True),
         })
-
-    # TODO: SysExFilter
