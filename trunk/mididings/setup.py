@@ -36,14 +36,14 @@ _config_override = []
 _hooks = []
 
 
-def config(override=False, check=True, **kwargs):
+def config(_override=False, _check=True, **kwargs):
     for k, v in kwargs.items():
         # check if the name of the config variable is known
         if k not in _config:
             raise ValueError("unknown config variable '%s'" % k)
 
         # check if the value and/or type is valid for the given config variable
-        if check:
+        if _check:
             if k == 'backend' and v not in _VALID_BACKENDS:
                 raise ValueError("backend must be one of %s" % ', '.join("'%s'" % x for x in _VALID_BACKENDS))
 
@@ -80,9 +80,9 @@ def config(override=False, check=True, **kwargs):
                 raise TypeError("silent must be a boolean")
 
         # everything seems ok, go ahead and change the config
-        if override or k not in _config_override:
+        if _override or k not in _config_override:
             _config[k] = v
-        if override:
+        if _override:
             _config_override.append(k)
 
 def get_config(var):

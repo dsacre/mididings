@@ -251,7 +251,7 @@ def process_file(infile, outfile, patch):
     """
     Process a MIDI file using the smf backend.
     """
-    _setup.config(check=False,
+    _setup.config(_check=False,
         backend = 'smf',
     )
     _setup.config(

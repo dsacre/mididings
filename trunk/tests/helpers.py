@@ -78,7 +78,7 @@ class MididingsTestCase(unittest.TestCase):
         Run the given events through the given scenes, return the list of
         resulting events.
         """
-        setup.config(check=False,
+        setup.config(_check=False,
             backend='dummy'
         )
         e = engine.Engine(scenes, None, None, None)
