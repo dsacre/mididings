@@ -22,9 +22,12 @@ import sys
 
 
 def flatten(seq):
+    """
+    Flatten nested sequences into a single list.
+    """
     r = []
     for i in seq:
-        if isinstance(i, (tuple, list)):
+        if issequence(i):
             r.extend(flatten(i))
         else:
             r.append(i)
@@ -32,7 +35,11 @@ def flatten(seq):
 
 
 def issequence(seq, accept_string=False):
-    if not accept_string and isinstance(seq, str):
+    """
+    Return whether seq is of a sequence type. By default, strings are not
+    considered sequences.
+    """
+    if isinstance(seq, str) and not accept_string:
         return False
     try:
         iter(seq)
@@ -41,14 +48,10 @@ def issequence(seq, accept_string=False):
         return False
 
 def issequenceof(seq, t):
+    """
+    Return whether seq is a sequence with elements of type t.
+    """
     return issequence(seq) and all(isinstance(v, t) for v in seq)
-
-
-def seq_to_string(seq):
-    if issequence(seq):
-        return ''.join(map(chr, seq))
-    else:
-        return seq
 
 
 def _fill_vector(vec, seq):
@@ -68,8 +71,8 @@ def make_string_vector(seq):
 
 def call_overload(args, kwargs, funcs, name=None):
     """
-    searches funcs for a function with parameters such that args and kwargs
-    can be applied, and calls the first suitable function it finds.
+    Search funcs for a function with parameters such that args and kwargs can
+    be applied, and call the first suitable function that is found.
     """
     for f in funcs:
         n = len(args)
@@ -107,7 +110,7 @@ def call_overload(args, kwargs, funcs, name=None):
 
 class Overload(object):
     """
-    wrapper class for an arbitrary number of overloads.
+    Wrapper class for an arbitrary number of overloads.
     """
     registry = {}
     def __init__(self, name):
@@ -121,7 +124,7 @@ class Overload(object):
 
 def overload(f):
     """
-    decorator that marks a function as being overloaded.
+    Decorator that marks a function as being overloaded.
     """
     k = (f.__name__, f.__module__)
     if k not in Overload.registry:
@@ -137,7 +140,7 @@ def overload(f):
 
 class deprecated:
     """
-    marks a function as deprecated, optionally suggesting a replacement.
+    Mark a function as deprecated, optionally suggesting a replacement.
     """
     already_used = []
 
@@ -162,6 +165,9 @@ class deprecated:
 
 
 class NamedFlag(int):
+    """
+    An integer type where each value has a name attached to it.
+    """
     def __new__(cls, value, name):
         return int.__new__(cls, value)
     def __init__(self, value, name):
@@ -173,6 +179,10 @@ class NamedFlag(int):
 
 
 class NamedBitMask(NamedFlag):
+    """
+    Like NamedFlag, but bit operations | and ~ are also reflected in the
+    resulting value's string representation.
+    """
     def __or__(self, other):
         return NamedBitMask(self + other, '%s|%s' % (self.name, other.name))
     def __invert__(self):
@@ -192,6 +202,9 @@ def string_to_hex(s):
 
 
 def get_terminal_size():
+    """
+    Return the height and width of the terminal.
+    """
     try:
         s = struct.pack("HHHH", 0, 0, 0, 0)
         fd = sys.stdout.fileno()

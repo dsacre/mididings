@@ -72,10 +72,9 @@ def note_number(note, check=True):
     """
     Convert note name/number to MIDI note number.
     """
-    try:
-        # already a number?
-        r = int(note)
-    except Exception:
+    if isinstance(note, int):
+        r = note
+    elif isinstance(note, str):
         note = note.lower()
         # find first digit
         for i in range(len(note)):
@@ -87,6 +86,8 @@ def note_number(note, check=True):
             r = _NOTE_NUMBERS[name] + (octave + _get_config('octave_offset')) * 12
         except Exception:
             raise ValueError("invalid note name '%s'" % note)
+    else:
+        raise TypeError("note must be an integer or string")
 
     if check and (r < 0 or r > 127):
         raise ValueError("note number %d is out of range" % r)
@@ -102,24 +103,26 @@ def note_range(notes):
         n = note_number(notes)
         return (n, n + 1)
     except Exception:
-        if isinstance(notes, tuple):
-            # tuple of note numbers
-            return note_number(notes[0]), note_number(notes[1])
-        else:
-            try:
+        try:
+            if isinstance(notes, tuple):
+                # tuple of note numbers
+                return note_number(notes[0]), note_number(notes[1])
+            else:
                 # note range string
                 nn = notes.split(':', 1)
                 lower = note_number(nn[0]) if nn[0] else 0
                 upper = note_number(nn[1]) if nn[1] else 0
                 return lower, upper
-            except ValueError:
-                raise ValueError("invalid note range '%s'" % notes)
+        except (ValueError, IndexError):
+            raise ValueError("invalid note range '%s'" % notes)
 
 
 def note_name(note):
     """
     Get note name from MIDI note number.
     """
+    if not isinstance(note, int):
+        raise TypeError("note must be an integer")
     return _NOTE_NAMES[note % 12] + str((note / 12) - _get_config('octave_offset'))
 
 
@@ -154,7 +157,7 @@ def port_number(port):
         if port < _get_config('data_offset'):
             raise ValueError("invalid port number %d" % port)
         return actual(port)
-    else:
+    elif isinstance(port, str):
         # XXX workaround for circular absolute imports
         import mididings.engine as engine
 
@@ -171,6 +174,8 @@ def port_number(port):
             return out_ports.index(port)
         else:
             raise ValueError("invalid port name '%s'" % port)
+    else:
+        raise TypeError("port must be an integer or string")
 
 
 def channel_number(channel):
@@ -209,8 +214,15 @@ def scene_number(scene):
     return actual(scene)
 
 
+def _sysex_to_string(seq):
+    if _misc.issequence(seq):
+        return ''.join(map(chr, seq))
+    else:
+        return seq
+
+
 def sysex_data(sysex, allow_partial=False):
-    sysex = _misc.seq_to_string(sysex)
+    sysex = _sysex_to_string(sysex)
     if len(sysex) < 2:
         raise ValueError("sysex too short")
     elif sysex[0] != '\xf0':
@@ -225,7 +237,7 @@ def sysex_data(sysex, allow_partial=False):
 def sysex_manufacturer(manufacturer):
     if not _misc.issequence(manufacturer, True):
         manufacturer = [manufacturer]
-    manid = _misc.seq_to_string(manufacturer)
+    manid = _sysex_to_string(manufacturer)
     if len(manid) not in (1, 3):
         raise ValueError("manufacturer id must be either one or three bytes")
     elif len(manid) == 3 and manid[0] != '\x00':
