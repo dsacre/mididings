@@ -123,7 +123,7 @@ def note_name(note):
     """
     if not isinstance(note, int):
         raise TypeError("note must be an integer")
-    return _NOTE_NAMES[note % 12] + str((note / 12) - _get_config('octave_offset'))
+    return _NOTE_NAMES[note % 12] + str((note // 12) - _get_config('octave_offset'))
 
 
 def tonic_note_number(key):
