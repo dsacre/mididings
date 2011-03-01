@@ -128,6 +128,11 @@ inline bool operator==(MidiEvent const & lhs, MidiEvent const & rhs)
     );
 }
 
+inline bool operator!=(MidiEvent const & lhs, MidiEvent const & rhs)
+{
+    return !(lhs == rhs);
+}
+
 
 } // Mididings
 

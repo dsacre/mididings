@@ -29,3 +29,14 @@ class EventTestCase(tests.helpers.MididingsTestCase):
             return ev
 
         self.check_patch(Process(foo), {ev: [ev]})
+
+    def test_operator_equals(self):
+        a = self.make_event(channel=0)
+        b = self.make_event(channel=1)
+        c = self.make_event(type=a.type, port=a.port, channel=a.channel, data1=a.data1, data2=a.data2)
+
+        self.assertFalse(a == b)
+        self.assertTrue(a != b)
+
+        self.assertTrue(a == c)
+        self.assertFalse(a != c)

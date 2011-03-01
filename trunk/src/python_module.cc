@@ -146,6 +146,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .def_readwrite("data2", &MidiEvent::data2)
         .add_property("sysex", &MidiEvent::get_sysex_data, &MidiEvent::set_sysex_data)
         .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
         .enable_pickling()
     ;
 
