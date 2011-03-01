@@ -30,12 +30,10 @@ class Unit
   public:
     Unit()
     {
-        DEBUG_FN();
     }
 
     virtual ~Unit()
     {
-        DEBUG_FN();
     }
 
     virtual bool process(MidiEvent & ev) = 0;
@@ -47,12 +45,10 @@ class UnitEx
   public:
     UnitEx()
     {
-        DEBUG_FN();
     }
 
     virtual ~UnitEx()
     {
-        DEBUG_FN();
     }
 
     virtual Patch::EventRange process(Patch::Events & buf, Patch::EventIter it) = 0;

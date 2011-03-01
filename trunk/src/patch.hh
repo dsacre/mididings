@@ -51,12 +51,10 @@ class Patch
       public:
         Module()
         {
-            DEBUG_FN();
         }
 
         virtual ~Module()
         {
-            DEBUG_FN();
         }
 
         virtual void process(Events &, EventRange &) = 0;
@@ -137,12 +135,10 @@ class Patch
     Patch(ModulePtr m)
       : _module(m)
     {
-        DEBUG_FN();
     }
 
     ~Patch()
     {
-        DEBUG_FN();
     }
 
     void process(Events &, EventRange &);

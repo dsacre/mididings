@@ -54,8 +54,6 @@ Engine::Engine(PyObject * self,
   , _sustain_patches(Config::MAX_SUSTAIN_PEDALS)
   , _python_caller(new PythonCaller(boost::bind(&Engine::run_async, this)))
 {
-    DEBUG_FN();
-
     _backend = Backend::create(backend_name, client_name, in_ports, out_ports);
 
     // construct a patch with a single sanitize unit
@@ -67,8 +65,6 @@ Engine::Engine(PyObject * self,
 
 Engine::~Engine()
 {
-    DEBUG_FN();
-
     // this needs to be gone before the engine can safely be destroyed
     _python_caller.reset();
 
