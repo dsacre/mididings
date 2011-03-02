@@ -134,6 +134,14 @@ class MidiEvent(_mididings.MidiEvent):
     # for backward compatibility
     param     = property(*_make_get_set(_constants.CTRL, 'data1', 'ctrl'))
 
+    def get_sysex_data(self):
+        return _mididings.MidiEvent.get_sysex_data(self)
+
+    def set_sysex_data(self, sysex):
+        _mididings.MidiEvent.set_sysex_data(self, sysex)
+
+    sysex = property(get_sysex_data, set_sysex_data)
+
 
 def NoteOnEvent(port, channel, note, velocity):
     """
