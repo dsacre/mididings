@@ -30,10 +30,10 @@ class _FloatingKeySplitAnalyze(object):
         now = _engine.time()
 
         # remove old notes from the lists if hold_time has elapsed
-        for k, t in self.notes_lower.items():
+        for k, t in list(self.notes_lower.items()):
             if t and t < now - self.hold_time:
                 del self.notes_lower[k]
-        for k, t in self.notes_upper.items():
+        for k, t in list(self.notes_upper.items()):
             if t and t < now - self.hold_time:
                 del self.notes_upper[k]
 
