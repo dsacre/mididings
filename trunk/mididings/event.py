@@ -218,5 +218,5 @@ def SysExEvent(port, sysex):
     Create a new sysex event object.
     """
     ev = MidiEvent(_constants.SYSEX, port, 0, 0, 0)
-    ev.sysex = sysex
+    ev.sysex = _util.sysex_data(sysex)
     return ev
