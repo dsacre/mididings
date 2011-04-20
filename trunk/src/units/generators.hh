@@ -15,8 +15,6 @@
 #include "units/base.hh"
 #include "units/util.hh"
 
-#include <string>
-
 
 namespace Mididings {
 namespace Units {
@@ -64,7 +62,7 @@ class SysExGenerator
   : public Unit
 {
   public:
-    SysExGenerator(int port, std::string const & sysex)
+    SysExGenerator(int port, MidiEvent::SysExData const & sysex)
       : _port(port)
       , _sysex(sysex)
     {
@@ -84,7 +82,7 @@ class SysExGenerator
 
   private:
     int _port;
-    std::string _sysex;
+    MidiEvent::SysExData _sysex;
 };
 
 
