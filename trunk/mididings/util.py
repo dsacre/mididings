@@ -14,6 +14,8 @@ import mididings.misc as _misc
 import mididings.constants as _constants
 from mididings.setup import get_config as _get_config
 
+import sys as _sys
+
 
 _NOTE_NUMBERS = {
     'c':   0,
@@ -214,22 +216,33 @@ def scene_number(scene):
     return actual(scene)
 
 
-def _sysex_to_string(seq):
-    if _misc.issequence(seq):
-        return ''.join(map(chr, seq))
+def extract_sysex(sysex):
+    gen = (sysex.at(n) for n in range(sysex.size()))
+    if _sys.version_info < (3,):
+        return list(gen)
     else:
-        return seq
+        return bytes(gen)
+
+
+def _sysex_to_sequence(sysex):
+    if isinstance(sysex, str):
+        sysex = map(ord, sysex)
+
+    if _sys.version_info < (3,):
+        return list(sysex)
+    else:
+        return bytes(sysex)
 
 
 def sysex_data(sysex, allow_partial=False):
-    sysex = _sysex_to_string(sysex)
+    sysex = _sysex_to_sequence(sysex)
     if len(sysex) < 2:
         raise ValueError("sysex too short")
-    elif sysex[0] != '\xf0':
+    elif sysex[0] != 0xf0:
         raise ValueError("sysex doesn't start with F0")
-    elif sysex[-1] != '\xf7' and not allow_partial:
+    elif sysex[-1] != 0xf7 and not allow_partial:
         raise ValueError("sysex doesn't end with F7")
-    elif any(ord(c) > 127 for c in sysex[1:-1]):
+    elif any(c > 0x7f for c in sysex[1:-1]):
         raise ValueError("sysex data byte out of range")
     return sysex
 
@@ -237,12 +250,12 @@ def sysex_data(sysex, allow_partial=False):
 def sysex_manufacturer(manufacturer):
     if not _misc.issequence(manufacturer, True):
         manufacturer = [manufacturer]
-    manid = _sysex_to_string(manufacturer)
+    manid = _sysex_to_sequence(manufacturer)
     if len(manid) not in (1, 3):
         raise ValueError("manufacturer id must be either one or three bytes")
-    elif len(manid) == 3 and manid[0] != '\x00':
+    elif len(manid) == 3 and manid[0] != 0x00:
         raise ValueError("three-byte manufacturer id must start with null byte")
-    elif any(ord(c) > 127 for c in manid):
+    elif any(c > 0x7f for c in manid):
         raise ValueError("manufacturer id out of range")
     return manid
 

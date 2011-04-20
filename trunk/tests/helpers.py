@@ -17,6 +17,7 @@ except:
 
 import random
 import itertools
+import sys
 
 from mididings import *
 from mididings import setup, engine, misc, constants
@@ -131,3 +132,12 @@ class MididingsTestCase(unittest.TestCase):
         for k, v in kwargs.items():
             setattr(r, k, v)
         return r
+
+    def native_sysex(self, sysex):
+        if isinstance(sysex, str):
+            sysex = map(ord, sysex)
+
+        if sys.version_info < (3,):
+            return list(sysex)
+        else:
+            return bytes(sysex)

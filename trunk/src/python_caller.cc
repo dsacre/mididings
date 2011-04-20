@@ -99,7 +99,7 @@ PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::
         *it = bp::extract<MidiEvent>(ret);
         return keep_event(buf, it);
     }
-    catch (bp::error_already_set &)
+    catch (bp::error_already_set const &)
     {
         PyErr_Print();
         return delete_event(buf, it);

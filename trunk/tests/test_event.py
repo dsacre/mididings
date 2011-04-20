@@ -25,7 +25,7 @@ class EventTestCase(tests.helpers.MididingsTestCase):
         def foo(ev):
             self.assertEqual(ev.type, SYSEX)
             self.assertEqual(ev.port, 0)
-            self.assertEqual(ev.sysex, sysex)
+            self.assertEqual(ev.sysex, self.native_sysex(sysex))
             return ev
 
         self.check_patch(Process(foo), {ev: [ev]})

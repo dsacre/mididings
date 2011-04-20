@@ -94,9 +94,9 @@ class UtilTestCase(tests.helpers.MididingsTestCase):
             port_number(123.456)
 
     def test_sysex_data(self):
-        self.assertEqual(sysex_data('\xf0\x04\x08\x15\x16\x23\x42\xf7'), '\xf0\x04\x08\x15\x16\x23\x42\xf7')
-        self.assertEqual(sysex_data([0xf0, 0x04, 0x08, 0x15, 0x16, 0x23, 0x42, 0xf7]), '\xf0\x04\x08\x15\x16\x23\x42\xf7')
-        self.assertEqual(sysex_data('\xf0\x23\x42\x66', allow_partial=True), '\xf0\x23\x42\x66')
+        self.assertEqual(sysex_data('\xf0\x04\x08\x15\x16\x23\x42\xf7'), self.native_sysex('\xf0\x04\x08\x15\x16\x23\x42\xf7'))
+        self.assertEqual(sysex_data([0xf0, 0x04, 0x08, 0x15, 0x16, 0x23, 0x42, 0xf7]), self.native_sysex('\xf0\x04\x08\x15\x16\x23\x42\xf7'))
+        self.assertEqual(sysex_data('\xf0\x23\x42\x66', allow_partial=True), self.native_sysex('\xf0\x23\x42\x66'))
 
         with self.assertRaises(ValueError):
             sysex_data('\xf0')
@@ -108,10 +108,10 @@ class UtilTestCase(tests.helpers.MididingsTestCase):
             sysex_data('\xf0\xff\xff\xfa')
 
     def test_sysex_manufacturer(self):
-        self.assertEqual(sysex_manufacturer('\x42'), '\x42')
-        self.assertEqual(sysex_manufacturer(0x42), '\x42')
-        self.assertEqual(sysex_manufacturer('\x00\x42\x23'), '\x00\x42\x23')
-        self.assertEqual(sysex_manufacturer([0x00, 0x42, 0x23]), '\x00\x42\x23')
+        self.assertEqual(sysex_manufacturer('\x42'), self.native_sysex('\x42'))
+        self.assertEqual(sysex_manufacturer(0x42), self.native_sysex('\x42'))
+        self.assertEqual(sysex_manufacturer('\x00\x42\x23'), self.native_sysex('\x00\x42\x23'))
+        self.assertEqual(sysex_manufacturer([0x00, 0x42, 0x23]), self.native_sysex('\x00\x42\x23'))
 
         with self.assertRaises(ValueError):
             sysex_manufacturer('\x42\x23')

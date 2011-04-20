@@ -39,8 +39,9 @@ def issequence(seq, accept_string=False):
     Return whether seq is of a sequence type. By default, strings are not
     considered sequences.
     """
-    if isinstance(seq, str) and not accept_string:
+    if not accept_string and isinstance(seq, str):
         return False
+
     try:
         iter(seq)
         return True
@@ -61,6 +62,9 @@ def _fill_vector(vec, seq):
 
 def make_int_vector(seq):
     return _fill_vector(_mididings.int_vector(), seq)
+
+def make_unsigned_char_vector(seq):
+    return _fill_vector(_mididings.unsigned_char_vector(), seq)
 
 def make_float_vector(seq):
     return _fill_vector(_mididings.float_vector(), seq)

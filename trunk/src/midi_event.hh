@@ -14,7 +14,7 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
-#include <string>
+#include <vector>
 
 
 namespace Mididings {
@@ -50,7 +50,7 @@ typedef unsigned int MidiEventTypes;
 
 struct MidiEvent
 {
-    typedef std::string SysExData;
+    typedef std::vector<unsigned char> SysExData;
     typedef boost::shared_ptr<SysExData> SysExPtr;
 
     struct null_deleter {
@@ -80,7 +80,7 @@ struct MidiEvent
     {
     }
 
-    SysExData get_sysex_data() const {
+    SysExData const & get_sysex_data() const {
         return *sysex;
     }
 

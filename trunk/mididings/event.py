@@ -135,10 +135,10 @@ class MidiEvent(_mididings.MidiEvent):
     param     = property(*_make_get_set(_constants.CTRL, 'data1', 'ctrl'))
 
     def get_sysex_data(self):
-        return _mididings.MidiEvent.get_sysex_data(self)
+        return _util.extract_sysex(_mididings.MidiEvent.get_sysex_data(self))
 
     def set_sysex_data(self, sysex):
-        _mididings.MidiEvent.set_sysex_data(self, sysex)
+        _mididings.MidiEvent.set_sysex_data(self, _misc.make_unsigned_char_vector(_util.sysex_data(sysex)))
 
     sysex = property(get_sysex_data, set_sysex_data)
 
@@ -218,5 +218,5 @@ def SysExEvent(port, sysex):
     Create a new sysex event object.
     """
     ev = MidiEvent(_constants.SYSEX, port, 0, 0, 0)
-    ev.sysex = _util.sysex_data(sysex)
+    ev.sysex = sysex
     return ev

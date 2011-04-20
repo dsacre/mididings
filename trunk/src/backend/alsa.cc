@@ -219,12 +219,10 @@ void ALSABackend::alsa_to_midi_event_sysex(MidiEvent & ev, snd_seq_event_t const
     }
     else if (_sysex_buffer.find(ev.port) != _sysex_buffer.end()) {
         // previous sysex continued, append to buffer
-        _sysex_buffer[ev.port]->append(ptr, ptr + len);
+        _sysex_buffer[ev.port]->insert(_sysex_buffer[ev.port]->end(), ptr, ptr + len);
     }
 
-    MidiEvent::SysExData const & s = *_sysex_buffer[ev.port];
-
-    if (static_cast<unsigned char>(s[s.size() - 1]) == 0xf7) {
+    if (_sysex_buffer[ev.port]->back() == 0xf7) {
         // end of sysex, assign complete event
         ev.type = MIDI_EVENT_SYSEX;
         ev.channel = 0;
@@ -304,7 +302,7 @@ void ALSABackend::midi_event_to_alsa(snd_seq_event_t & alsa_ev, MidiEvent const 
 
 void ALSABackend::midi_event_to_alsa_sysex(snd_seq_event_t & alsa_ev, MidiEvent const & ev, std::size_t & count)
 {
-    char const * data = ev.sysex->c_str();
+    unsigned char const * data = &ev.sysex->front();
     std::size_t size = ev.sysex->size();
 
     // number of bytes that will be sent in this chunk

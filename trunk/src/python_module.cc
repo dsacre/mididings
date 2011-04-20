@@ -25,6 +25,11 @@
 #include <boost/python/scope.hpp>
 #include <boost/python/operators.hpp>
 
+#include <boost/python/return_value_policy.hpp>
+#include <boost/python/return_by_value.hpp>
+#include <boost/python/reference_existing_object.hpp>
+
+
 #ifdef ENABLE_TEST
     #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #endif // ENABLE_TEST
@@ -44,11 +49,15 @@ inline void midi_event_set_type(MidiEvent & ev, int t) {
     ev.type = static_cast<MidiEventType>(t);
 }
 
-// simple wrapper for vector types, with no methods other than push_back
+
+// simple wrapper for vector types, with no methods other than push_back(), size() and at()
 template <typename T>
 void vector_wrapper(char const *name) {
     boost::python::class_<std::vector<T>, boost::noncopyable>(name)
         .def("push_back", &std::vector<T>::push_back)
+        .def("size", &std::vector<T>::size)
+        .def("at", (T& (std::vector<T>::*)(typename std::vector<T>::size_type)) &std::vector<T>::at,
+             boost::python::return_value_policy<boost::python::return_by_value>())
     ;
 }
 
@@ -87,7 +96,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<CtrlFilter, bases<Filter>, noncopyable>("CtrlFilter", init<std::vector<int> const &>());
     class_<CtrlValueFilter, bases<Filter>, noncopyable>("CtrlValueFilter", init<int, int>());
     class_<ProgramFilter, bases<Filter>, noncopyable>("ProgramFilter", init<std::vector<int> const &>());
-    class_<SysExFilter, bases<Filter>, noncopyable>("SysExFilter", init<std::string const &, bool>());
+    class_<SysExFilter, bases<Filter>, noncopyable>("SysExFilter", init<MidiEvent::SysExData const &, bool>());
 
     // modifiers
     class_<Port, bases<Unit>, noncopyable>("Port", init<int>());
@@ -102,7 +111,7 @@ BOOST_PYTHON_MODULE(_mididings)
 
     // generators
     class_<Generator, bases<Unit>, noncopyable>("Generator", init<int, int, int, int, int>());
-    class_<SysExGenerator, bases<Unit>, noncopyable>("SysExGenerator", init<int, std::string const &>());
+    class_<SysExGenerator, bases<Unit>, noncopyable>("SysExGenerator", init<int, MidiEvent::SysExData const &>());
 
     // call
     class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
@@ -144,7 +153,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .def_readwrite("channel_", &MidiEvent::channel)
         .def_readwrite("data1", &MidiEvent::data1)
         .def_readwrite("data2", &MidiEvent::data2)
-        .def("get_sysex_data", &MidiEvent::get_sysex_data)
+        .def("get_sysex_data", &MidiEvent::get_sysex_data, bp::return_value_policy<bp::reference_existing_object>())
         .def("set_sysex_data", &MidiEvent::set_sysex_data)
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
@@ -152,6 +161,7 @@ BOOST_PYTHON_MODULE(_mididings)
     ;
 
     vector_wrapper<int>("int_vector");
+    vector_wrapper<unsigned char>("unsigned_char_vector");
     vector_wrapper<float>("float_vector");
     vector_wrapper<std::string>("string_vector");
 

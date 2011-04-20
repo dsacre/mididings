@@ -378,7 +378,7 @@ bool Engine::sanitize_event(MidiEvent & ev) const
             }
             return true;
         case MIDI_EVENT_SYSEX:
-            if (ev.sysex->size() < 2 || (*ev.sysex)[0] != (char)0xf0 || (*ev.sysex)[ev.sysex->size()-1] != (char)0xf7) {
+            if (ev.sysex->size() < 2 || (*ev.sysex)[0] != 0xf0 || (*ev.sysex)[ev.sysex->size()-1] != 0xf7) {
                 if (_verbose) std::cout << "invalid sysex, event discarded" << std::endl;
                 return false;
             }

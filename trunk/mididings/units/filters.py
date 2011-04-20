@@ -86,10 +86,10 @@ def ProgramFilter(*args):
 def SysExFilter(sysex):
     sysex = _util.sysex_data(sysex, allow_partial=True)
     partial = (sysex[-1] != '\xf7')
-    return _Filter(_mididings.SysExFilter(sysex, partial))
+    return _Filter(_mididings.SysExFilter(_misc.make_unsigned_char_vector(sysex), partial))
 
 @_unit_repr
 @_misc.overload
 def SysExFilter(manufacturer):
     sysex = '\xf0' + _util.sysex_manufacturer(manufacturer)
-    return _Filter(_mididings.SysExFilter(sysex, True))
+    return _Filter(_mididings.SysExFilter(_misc.make_unsigned_char_vector(sysex), True))
