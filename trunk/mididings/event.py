@@ -187,6 +187,7 @@ def PitchbendEvent(port, channel, value):
         _constants.PITCHBEND,
         port,
         channel,
+        0,
         value
     )
 
