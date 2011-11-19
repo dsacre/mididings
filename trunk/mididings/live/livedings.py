@@ -35,9 +35,13 @@ class LiveDings(object):
 
         # create the main window
         self.win = widget_factory.Tk(padx=8, pady=8)
-        self.win.title('livedings')
         self.win.minsize(480, 120)
         self.win.geometry('%dx%d' % (self.options.width, self.options.height))
+
+        if self.options.name:
+            self.win.title('livedings - %s' % self.options.name)
+        else:
+            self.win.title('livedings')
 
         # track window resizing
         self.win.bind('<Configure>', lambda event: self.win.after_idle(self.update, True))

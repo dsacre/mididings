@@ -37,6 +37,7 @@ if __name__ == '__main__':
     parser.add_option('-c', dest='color', default=None, help="text color (gray50)")
     parser.add_option('-C', dest='color_highlight', default=None, help="highlight text color (black)")
     parser.add_option('-b', dest='color_background', default=None, help="background color")
+    parser.add_option('-n', dest='name', default=None, help="name to be shown in window title")
 
     options, args = parser.parse_args(sys.argv[1:])
 
