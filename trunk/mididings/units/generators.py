@@ -50,7 +50,8 @@ def Program(*args, **kwargs):
     return Generator(
         _constants.PROGRAM,
         port, channel,
-        0, _util.program_number(program)
+        0,
+        _util.program_number(program) if program >= 0 else program
     )
 
 
@@ -88,7 +89,8 @@ def Pitchbend(*args, **kwargs):
     return Generator(
         _constants.PITCHBEND,
         port, channel,
-        0, value
+        0,
+        value
     )
 
 
@@ -100,7 +102,8 @@ def Aftertouch(*args, **kwargs):
     return Generator(
         _constants.AFTERTOUCH,
         port, channel,
-        0, value
+        0,
+        value
     )
 
 
