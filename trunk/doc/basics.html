@@ -84,7 +84,7 @@ F.invert()</h4>
 Inverts the filter F. Note that for filters which only affect certain kinds of events,
 other events will remain unaffected when the filter is inverted.
 For example, an inverted KeyFilter will match a different note range, but neither the original nor the inverted
-filter will have any effect on control or program changes.
+filter will have any effect on controllers or program changes.
 </p>
 <div class="example"><div class="header">
 Remove CC events with controller number 42:
@@ -241,26 +241,24 @@ This is a list of all operators relevant to mididings, in order of their precede
 
 <table>
     <tr>
-        <td><b>[A, B, ...]<br>
-            (...)</b></td>
-        <td>Connection in parallel, using a list<br>
-            Binding (parentheses)</td>
+        <td><b>(...)<br>
+            [A, B, ...]</b></td>
+        <td>Binding (parentheses)<br>
+            Connection in parallel (list)</td>
     </tr>
     <tr>
-        <td><b>~F</b></td>
-        <td>Filter inversion</td>
-    </tr>
-    <tr>
-        <td><b>-F<br>
+        <td><b>~F<br>
+            -F<br>
             +F</b></td>
-        <td>Filter negation<br>
+        <td>Filter inversion<br>
+            Filter negation<br>
             Apply to duplicate</td>
     </tr>
     <tr>
         <td><b>A // B<br>
             S % A</b></td>
         <td>Connection in parallel<br>
-            Selector</td>
+            Selector &quot;then&quot;</td>
     </tr>
     <tr>
         <td><b>A >> B</b></td>
@@ -268,11 +266,11 @@ This is a list of all operators relevant to mididings, in order of their precede
     </tr>
     <tr>
         <td><b>F & G</b></td>
-        <td>Selector AND</td>
+        <td>Selector &quot;and&quot;</td>
     </tr>
     <tr>
         <td><b>F | G</b></td>
-        <td>Selector OR</td>
+        <td>Selector &quot;or&quot;</td>
     </tr>
 </table>
 
