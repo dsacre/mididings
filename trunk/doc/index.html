@@ -10,12 +10,12 @@
 
 <body>
 
-<h1>mididings - Table of Contents</h1>
-
 <div class="nav">
-    <a href="index.html">mididings Documentation</a>
-    <a href="gettingstarted.html" class="navnext">Getting Started -&gt;</a>
+    <a href="index.html">Index</a>
+    <a href="gettingstarted.html" class="navnext">Getting Started</a>
 </div>
+
+<h1>mididings - Table of Contents</h1>
 
 
 <ul>
@@ -35,6 +35,7 @@
             <li><a href="gettingstarted.html#commandline">Command line usage</a></li>
         </ul>
     </li>
+
     <li class="toplevel"><a href="basics.html">Basics</a>
         <ul>
             <li><a href="basics.html#connect">Connections</a></li>
@@ -43,7 +44,8 @@
             <li><a href="basics.html#misc">Miscellaneous</a>
         </ul>
     </li>
-    <li class="toplevel"><a href="reference.html">Module Reference</a>
+
+    <li class="toplevel"><a href="reference.html">Core Module Reference</a> &ndash; <b>mididings</b>
         <p>
             Documentation of the core mididings module.
         </p>
@@ -61,15 +63,22 @@
                     <li><a href="reference.html#misc">Miscellaneous</a></li>
                 </ul>
             </li>
-            <li><a href="reference.html#submodules">Submodules</a>
-                <ul>
-                    <li><a href="reference.html#event">Event</a></li>
-                    <li><a href="reference.html#engine">Engine</a></li>
-                </ul>
-            </li>
         </ul>
     </li>
-    <li class="toplevel"><a href="extra.html">Extra Module Reference</a>
+
+    <li class="toplevel"><a href="submodules.html">Submodules Reference</a>
+        <p>
+            These modules contain functions and classes to be used in regular Python code, for example within
+            the Call() and Process() units.
+        </p>
+        <ul>
+            <li><a href="submodules.html#event">event</a> &ndash; <b>mididings.event</b></li>
+            <li><a href="submodules.html#engine">engine</a> &ndash; <b>mididings.engine</b></li>
+            <li><a href="submodules.html#util">util</a> &ndash; <b>mididings.util</b></li>
+        </ul>
+    </li>
+
+    <li class="toplevel"><a href="extra.html">Extra Module Reference</a> &ndash; <b>mididings.extra.*</b>
         <p>
             The mididings.extra package contains functions which require additional dependencies, or which just
             didn't fit anywhere else. Incidentally, this includes some of mididings' coolest features ;)
@@ -77,9 +86,16 @@
         <ul>
             <li><a href="extra.html#units">Units</a></li>
             <li><a href="extra.html#hooks">Hooks</a></li>
-            <li><a href="extra.html#misc">Miscellaneous</a></li>
         </ul>
     </li>
+
+    <li class="toplevel"><a href="misc.html">Miscellaneous</a>
+        <ul>
+            <li><a href="misc.html#livedings">livedings</a></li>
+            <li><a href="misc.html#gm">General MIDI definitions</a> &ndash; <b>mididings.extra.gm</b></li>
+        </ul>
+    </li>
+
     <li class="toplevel"><a href="examples">Examples</a>
         <ul>
             <li><a href="./examples/output.py">output.py</a> -
@@ -100,6 +116,12 @@
         </ul>
     </li>
 </ul>
+
+
+<div class="nav">
+    <a href="index.html">Index</a>
+    <a href="gettingstarted.html" class="navnext">Getting Started</a>
+</div>
 
 </body>
 

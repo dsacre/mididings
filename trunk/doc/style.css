@@ -81,8 +81,17 @@ li {
 }
 
 li.toplevel {
-    margin-bottom: 1em;
+    margin-bottom: 0.8em;
+    padding-bottom: 0.5em;
+    border-bottom-width: 4px;
+    border-bottom-style: solid;
+    border-bottom-color: #eee;
 }
+
+li.toplevel:last-child {
+    border-bottom: none;
+}
+
 
 div.example {
     background-color: #ffd;
@@ -102,6 +111,14 @@ div.example > div.header {
 div.nav {
     position: relative;
     text-align: center;
+    padding-top: 8px;
+    border-top-width: 4px;
+    border-top-style: solid;
+    border-top-color: #eee;
+}
+
+div.nav:last-child {
+    margin-top: 2em;
     padding-bottom: 8px;
     border-bottom-width: 4px;
     border-bottom-style: solid;
@@ -116,4 +133,12 @@ div.nav > .navprev {
 div.nav > .navnext {
     position: absolute;
     right: 12px;
+}
+
+div.nav > .navprev:before {
+    content: "\2190\00a0";
+}
+
+div.nav > .navnext:after {
+    content: "\00a0\2192";
 }
