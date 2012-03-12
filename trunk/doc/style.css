@@ -23,6 +23,8 @@ h3 {
     font-size: 100%;
     color: #333;
     background: #dddde5;
+    background: -moz-linear-gradient(left, #dddde5 0%, #dddde5 15%, #fff 50%);
+    background: -webkit-linear-gradient(left, #dddde5 0%, #dddde5 15%, #fff 50%);
     padding: 2px 0.7em;
     margin-top: 1.8em;
     margin-left: 0.6em;
@@ -88,6 +90,10 @@ li.toplevel {
     border-bottom-color: #eee;
 }
 
+li.toplevel > a {
+    font-size: 115%;
+}
+
 li.toplevel:last-child {
     border-bottom: none;
 }
@@ -95,7 +101,7 @@ li.toplevel:last-child {
 
 div.example {
     background-color: #ffd;
-    margin: 0em 1.2em 1em 2.2em;
+    margin: 0em 16em 1em 2.2em;
     padding: 3px;
     border: 1px dashed #edb;
     font-family: monospace;
