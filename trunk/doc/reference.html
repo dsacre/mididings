@@ -722,10 +722,16 @@ Unlike Python's time.time(), this clock is guaranteed to be monotonic.
 Returns True if the mididings engine is active (the run() function is running).
 </p>
 
-<h4>restart()<br>
-quit()</h4>
+<h4>restart()</h4>
 <p>
-Restarts or quits mididings.
+Restarts the mididings script by terminating the current process, and then running the same Python interpreter
+with the same arguments again. This will not work properly if run() is not the last call in your script, or if
+you're running mididings in an interactive Python interpreter.
+</p>
+
+<h4>quit()</h4>
+<p>
+Terminates mididings event processing (by making the run() function return).
 </p>
 
 
