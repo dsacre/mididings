@@ -1,0 +1,734 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+
+<head>
+    <title>mididings - Module Reference</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel=stylesheet type="text/css" href="style.css">
+</head>
+
+<body>
+
+<h1>mididings - Module Reference</h1>
+
+<div class="nav">
+    <a href="index.html">mididings Documentation</a>
+    <a href="basics.html" class="navprev">&lt;- Basics</a>
+    <a href="extra.html" class="navnext">Extra Module Reference -&gt;</a>
+</div>
+
+
+<h2><a name="functions"></a>Functions</h2>
+
+<h4>config(**kwargs)</h4>
+<p>
+Changes global mididings settings. This should be called only once, before constructing any processing units.
+<br>
+Possible keyword arguments are:
+</p>
+<ul>
+  <li><b>backend</b>: MIDI backend to be used:
+  <ul>
+    <li><b>'alsa'</b>: Use the ALSA sequencer (this is the default).</li>
+    <li><b>'jack'</b>: Use JACK MIDI. All MIDI events are buffered and processed outside the JACK process callback,
+    and will thus be delayed by (at least) one period.</li>
+    <li><b>'jack-rt'</b>: MIDI events are processed directly in the JACK process callback. It's not safe to run Python
+    code in a realtime context, so it's recommended to avoid Process(), which <i>might</i> cause xruns (or worse).
+    All other units should be safe to use.</li>
+  </ul>
+  </li>
+  <li><b>client_name</b>: MIDI client name to be used.</li>
+  <li><b>in_ports/out_ports</b>: Integers indicating the number of input/output ports to create (named in_<i>n</i>
+  or out_<i>n</i>), or lists of port names, in which case the list's length determines the number of ports.</li>
+  <li><b>data_offset</b>: 1 (default) or 0. Determines whether program, port and channel numbers will be
+  in the range 1-128 or 0-127.</li>
+  <li><b>octave_offset</b>: Offset in octaves from note number 0 to C0.
+  Default is 1, meaning that note number 12 is designated as C0, and "middle C" (note number 60) is C4.</li>
+  <li><b>initial_scene</b>: The number of the first scene to be activated.</li>
+  <li><b>start_delay</b>: The number of seconds before sending any MIDI events (i.e. switching to the first scene).
+  A small value like 0.5 can be used to give tools like qjackctl's patchbay time to connect the ports.
+  A value of 0 instructs mididings to wait for the user to press enter. Default is None.</li>
+</ul>
+
+
+<h4>hook(*args)</h4>
+<p>
+Registers "hook" objects, that can be used to extend the functionality of mididings.
+</p>
+
+
+<h4>run(patch)</h4>
+<p>
+Starts the MIDI processing. This is usually the last function called by a mididings script.
+</p>
+<ul>
+  <li><b>patch</b>: A single patch.</li>
+</ul>
+
+<h4>run(scenes=..., control=None, pre=None, post=None)</h4>
+<p>
+Starts the MIDI processing, using multiple scenes.
+The SceneSwitch() unit can be used to switch between these scenes.
+</p>
+<ul>
+  <li><b>scenes</b>: A dictionary with program numbers as keys, and Scene objects or plain patches as values.
+  Values can also be tuples with two items, the first being an init-patch that's executed once every time the
+  scenes is selected, and the second being the actual patch that processes incoming events.</li>
+  <li><b>control</b>: The "control" patch, which is always active, and runs in parallel to the current scene.</li>
+  <li><b>pre/post</b>: Allows processing to take place before/after every scene. Does not affect
+  the control patch.</li>
+</ul>
+
+
+<h4>process_file(infile, outfile, patch)</h4>
+<p>
+<i>Requires mididings to be compiled with support for <a href="http://sourceforge.net/projects/libsmf/">libsmf</a>.</i><br>
+Reads a standard MIDI file, processes it, then writes the result back to a file.
+</p>
+
+
+<h2><a name="classes"></a>Classes</h2>
+
+<h4>Scene(name, patch, init_patch=None)</h4>
+<p>
+Constructs a Scene object to be used with the run() function.
+</p>
+<ul>
+    <li><b>name</b>: A string describing the scene.</li>
+    <li><b>patch</b>: The patch defining the MIDI processing to take place for incoming events.</li>
+    <li><b>init_patch</b>: An optional patch that will be triggered when switching to this scene.</li>
+</ul>
+
+<h4>SceneGroup(name, [subscene, ...])</h4>
+<p>
+Constructs a SceneGroup object.
+This can be used to group multiple scenes under a common name and program number.
+Each of the subscenes should be a Scene object.
+</p>
+<div class="example"><div class="header">
+Define one scene (song) with 3 subscenes (parts):
+</div><pre>
+SceneGroup("Example Song", [
+    Scene("Intro", intro_patch),
+    Scene("Verse", verse_patch),
+    Scene("Chorus", chorus_patch),
+])
+</pre></div>
+
+
+<h2><a name="constants"></a>Constants</h2>
+
+<h4>Event Types</h4>
+<p>
+  Every event has one of these types:
+</p>
+<ul>
+  <li><b>NOTEON</b></li>
+  <li><b>NOTEOFF</b></li>
+  <li><b>CTRL</b></li>
+  <li><b>PROGRAM</b></li>
+  <li><b>PITCHBEND</b></li>
+  <li><b>AFTERTOUCH</b></li>
+  <li><b>POLY_AFTERTOUCH</b></li>
+  <li><b>SYSEX</b></li>
+  <li><b>SYSCM_QFRAME</b></li>
+  <li><b>SYSCM_SONGPOS</b></li>
+  <li><b>SYSCM_SONGSEL</b></li>
+  <li><b>SYSCM_TUNEREQ</b></li>
+  <li><b>SYSRT_CLOCK</b></li>
+  <li><b>SYSRT_START</b></li>
+  <li><b>SYSRT_CONTINUE</b></li>
+  <li><b>SYSRT_STOP</b></li>
+  <li><b>SYSRT_SENSING</b></li>
+  <li><b>SYSRT_RESET</b></li>
+</ul>
+<p>
+  For use in filters, the following constants are also defined:
+</p>
+<ul>
+  <li><b>NOTE</b> = NOTEON | NOTEOFF</li>
+  <li><b>SYSCM</b> = SYSCM_*</li>
+  <li><b>SYSRT</b> = SYSRT_*</li>
+  <li><b>NONE</b></li>
+  <li><b>ANY</b></li>
+</ul>
+<p>
+  Event types are bit masks, so when building filters, they can be combined using | (bitwise or) and ~ (bitwise negation).<br>
+</p>
+
+<h4>Event Attributes</h4>
+<p>
+  These constants are used to refer to an event's data attributes:
+</p>
+<ul>
+  <li><b>EVENT_PORT</b></li>
+  <li><b>EVENT_CHANNEL</b></li>
+  <li><b>EVENT_DATA1</b></li>
+  <li><b>EVENT_DATA2</b></li>
+  <li><b>EVENT_NOTE</b></li>
+  <li><b>EVENT_VELOCITY</b></li>
+  <li><b>EVENT_CTRL</b></li>
+  <li><b>EVENT_VALUE</b></li>
+  <li><b>EVENT_PROGRAM</b></li>
+</ul>
+
+
+<h2><a name="units"></a>Units</h2>
+
+<p>
+These are the basic building blocks from which you can build your patches.
+</p>
+<ul>
+  <li><b>Filters</b>: These units filter by some property of the MIDI event. If the event matches, it's passed
+  unmodified, otherwise it's discarded.</li>
+  <li><b>Splits</b>: Basically just combinations of multiple filters of the same kind.</li>
+  <li><b>Modifiers</b>: These units change some property of the MIDI event.</li>
+  <li><b>Generators</b>: Converters from one event type to another.</li>
+  <li><b>Function Calls</b>: These units allow calling back into Python code.</li>
+  <li><b>Miscellaneous</b>: Anything that doesn't fit into any of the other categories :)</li>
+</ul>
+
+
+<h3><a name="filters"></a>Filters</h3>
+
+<h4>Filter(type, ...)</h4>
+<p>
+Filters by one or more event types.
+</p>
+<div class="example"><div class="header">
+Discard all events except note-on, note-off and control changes:
+</div>
+Filter(NOTE|CTRL)
+</div>
+
+<h4>PortFilter(port, ...)</h4>
+<p>
+Filters by port(s).
+</p>
+
+<h4>ChannelFilter(channel, ...)</h4>
+<p>
+Filters by channel(s).
+</p>
+
+<h4>KeyFilter(note_range)<br>
+KeyFilter(lower, upper)<br>
+KeyFilter(lower=...)<br>
+KeyFilter(upper=...)<br>
+KeyFilter(notes=[...])</h4>
+<p>
+Filters by note or note-range.
+</p>
+
+<h4>VelocityFilter(value)<br>
+VelocityFilter(lower=...)<br>
+VelocityFilter(upper=...)<br>
+VelocityFilter(lower, upper)</h4>
+<p>
+Filters by note-on velocity.
+</p>
+
+<h4>CtrlFilter(ctrl, ...)</h4>
+<p>
+Filters by CC number(s).
+</p>
+
+<h4>CtrlValueFilter(value)<br>
+CtrlValueFilter(lower=...)<br>
+CtrlValueFilter(upper=...)<br>
+CtrlValueFilter(lower, upper)</h4>
+<p>
+Filters by CC value.
+</p>
+
+<h4>ProgramFilter(program, ...)</h4>
+<p>
+Filters by PC number(s).
+</p>
+
+<h4>SysExFilter(sysex)</h4>
+<p>
+Filters by sysex data, specified as a string or as a sequence of integers.
+If sysex doesn't end with F7, partial matches that start with the given data bytes are accepted.
+</p>
+<div class="example"><div class="header">
+Filter out SysEx events for Roland devices with device ID 0x10:
+</div>
+SysExFilter('\xf0\x41\x10')
+</div>
+
+<h4>SysExFilter(manufacturer=...)</h4>
+<p>
+Filters by sysex manufacturer id, which can be a string or a sequence of integers, with a length of one or three bytes.
+</p>
+<div class="example"><div class="header">
+Filter out SysEx events for Yamaha devices:
+</div>
+SysExFilter(manufacturer=0x43)
+</div>
+
+
+<h3><a name="splits"></a>Splits</h3>
+
+<h4>PortSplit({port: patch, ...})<br>
+PortSplit({(port, ...): patch, ...})</h4>
+<p>
+Splits by port.
+</p>
+
+<h4>ChannelSplit({channel: patch, ...})<br>
+ChannelSplit({(channel, ...): patch, ...})</h4>
+<p>
+Splits by channel.
+</p>
+
+<h4>KeySplit(note, patch_lower, patch_upper)<br>
+KeySplit({(lower, upper): patch, ...})<br>
+KeySplit({note_range: patch, ...})</h4>
+<p>
+Splits by note. Non-note events are sent to all patches.
+</p>
+
+<h4>VelocitySplit(threshold, patch_lower, patch_upper)<br>
+VelocitySplit({(lower, upper): patch, ...})</h4>
+<p>
+Splits by velocity. Non-note events are sent to all patches.
+</p>
+
+<h4>CtrlSplit({ctrl: patch, ...})<br>
+CtrlSplit({(ctrl, ...): patch, ...})</h4>
+<p>
+Splits by controller number.
+Non-controller events are left unchanged, but not sent to any of the patches.
+</p>
+
+<h4>CtrlValueSplit(threshold, patch_lower, patch_upper)<br>
+CtrlValueSplit({value: patch, ...})<br>
+CtrlValueSplit({(lower, upper): patch, ...})</h4>
+<p>
+Splits by controller value.
+Non-controller events are left unchanged, but not sent to any of the patches.
+</p>
+
+<h4>ProgramSplit({program: patch, ...})<br>
+ProgramSplit({(program, ...): patch, ...})</h4>
+<p>
+Splits by program number.
+Non-program-change events are left unchanged, but not sent to any of the patches.
+</p>
+
+<h4>SysExSplit({sysex: patch, ...})<br>
+SysExSplit(manufacturers={manufacturer: patch, ...})</h4>
+<p>
+Splits by sysex data or manufacturer id.
+</p>
+
+
+<h3><a name="modifiers"></a>Modifiers</h3>
+
+<h4>Port(port)</h4>
+<p>
+Changes port.
+</p>
+
+<h4>Channel(channel)</h4>
+<p>
+Changes channel.
+</p>
+
+<h4>Transpose(offset)</h4>
+<p>
+Transposes all note events by the given number of semitones.
+</p>
+
+<h4>Key(note)</h4>
+<p>
+Changes note-events to a fixed note number.
+</p>
+
+<h4>Velocity(offset)<br>
+Velocity(multiply=...)<br>
+Velocity(fixed=...)<br>
+Velocity(curve=...)<br>
+Velocity(gamma=...)<br>
+Velocity(multiply, offset)</h4>
+<p>
+Changes velocity by adding an offset, multiplying with a factor, setting it to a fixed value, or applying a velocity-curve.<br>
+gamma uses a simple power function, where values greater than 1 increase velocity, while values between 0 and 1 decrease it.
+curve uses a somewhat smoother exponential function, where positive values increase velocity, while negative values decrease it.<br>
+<img src="velocity.png" alt="Velocity() modes"><br>
+Within mididings, velocity values may be (temporarily) greater than 127 or less than 1.
+When sending events through a MIDI output port, or by using the Sanitize() unit, velocities greater than 127 will automatically
+be reduced to 127, and events with a velocity less than 1 will be removed.
+</p>
+<div class="example"><div class="header">
+Increase velocity of note-on events, making the keyboard feel softer:
+</div>
+Velocity(curve=1.0)
+</div>
+
+<h4>VelocitySlope(notes, offset)<br>
+VelocitySlope(notes, multiply=...)<br>
+VelocitySlope(notes, fixed=...)<br>
+VelocitySlope(notes, curve=...)<br>
+VelocitySlope(notes, gamma=...)<br>
+VelocitySlope(notes, multiply, offset)</h4>
+<p>
+Changes velocity, applying a linear slope between different notes.
+This can be thought of as a Velocity() unit with different parameters for different notes, and is useful for example
+to fade-in a sound over a region of the keyboard.<br>
+Both parameters must be sequences of the same length, where one velocity value corresponds to each note.<br>
+<img src="velocityslope.png" alt="VelocitySlope() example">
+</p>
+<div class="example"><div class="header">
+Apply a velocity slope as seen in the graphic above:
+</div>
+VelocitySlope(notes=('b1','g2','g#3','d4'), offset=(-64, 32, 32, 0))
+</div>
+
+
+<h4>VelocityLimit(min, max)<br>
+VelocityLimit(min)<br>
+VelocityLimit(max=...)</h4>
+<p>
+Confines velocity to values between min and max.
+</p>
+
+<h4>CtrlMap(ctrl_in, ctrl_out)</h4>
+<p>
+Maps one controller to another (i.e. changes the CC number).
+</p>
+<div class="example"><div class="header">
+Convert sustain pedal to sostenuto:
+</div>
+CtrlMap(64, 66)
+</div>
+
+<h4>CtrlRange(ctrl, min, max, in_min=0, in_max=127)</h4>
+<p>
+Maps controller values from one range of values (default is 0-127) to another.<br>
+Any input value less than or equal to in_min results in an output value of min.
+Likewise, any value of in_max or greater results in an output value of max.
+</p>
+<div class="example"><div class="header">
+Invert CC #11 (expression):
+</div>
+CtrlRange(11, 127, 0)
+</div>
+
+<h4>CtrlCurve(ctrl, gamma)<br>
+CtrlCurve(ctrl, curve=...)<br>
+CtrlCurve(ctrl, offset=...)<br>
+CtrlCurve(ctrl, multiply=...)<br>
+CtrlCurve(ctrl, multiply, offset)</h4>
+<p>
+Changes controller values by applying a curve, offset or multiplication. See Velocity() for a description of the parameters.
+</p>
+
+<h4>PitchbendRange(min, max, in_min=-8192, in_max=8191)</h4>
+<p>
+Changes the pitchbend range to values between min and max.
+</p>
+
+<h4>PitchbendRange(down, up, range=...)</h4>
+<p>
+Changes the pitchbend range to the specified number of semitones.
+</p>
+<div class="example"><div class="header">
+Bend a full octave down, but only one whole step up, assuming the tone generator is set to a (symmetric) range of 12 semitones.
+</div>
+PitchbendRange(-12, 2, range=12)
+</div>
+
+
+<h3><a name="generators"></a>Generators</h3>
+
+<h4>NoteOn(note, velocity)<br>
+NoteOn(port, channel, note, velocity)<br>
+NoteOff(note, velocity)<br>
+NoteOff(port, channel, note, velocity)<br>
+Ctrl(ctrl, value)<br>
+Ctrl(port, channel, ctrl, value)<br>
+Program(program)<br>
+Program(port, channel, program)<br>
+Pitchbend(value)<br>
+Pitchbend(port, channel, value)<br>
+Aftertouch(value)<br>
+Aftertouch(port, channel, value)<br>
+
+</h4>
+<p>
+Changes the type of the event.
+If port and channel are omitted, the values of the input event are used.<br>
+To "reuse" other values from the incoming event, one of the EVENT_* constants can be used in place of any parameter.
+</p>
+<div class="example"><div class="header">
+Convert aftertouch to CC #1 (modulation):
+</div>
+Filter(AFTERTOUCH) % Ctrl(1, EVENT_VALUE)
+</div>
+
+<h4>SysEx(sysex)<br>
+SysEx(port, sysex)</h4>
+<p>
+Creates a new system exclusive event. sysex can be a string or a sequence of integers, and must include the leading F0 and trailing F7 bytes.
+</p>
+<div class="example"><div class="header">
+Send a SysEx message read from a file:
+</div>
+SysEx(open('example.syx').read())
+</div>
+
+<h4>Generator(type, port, channel, data1=0, data2=0)</h4>
+<p>
+Generic generator. System common and system realtime events can only be generated this way.
+</p>
+
+
+<h3><a name="calls"></a>Function Calls</h3>
+
+<h4>Process(function)</h4>
+<p>
+Calls a Python function. This will stall any other MIDI processing until the function returns.
+</p>
+<ul>
+  <li><b>function</b>: A function (or any other callable object) that will be called with MidiEvent
+  objects as its only argument.<br>
+  Possible return values are:
+  <ul>
+    <li>A single MidiEvent object: output one event and continue processing it.</li>
+    <li>A list of MidiEvent objects: output multiple events.</li>
+    <li>An empty list or None: discard current event.</li>
+  </ul>
+  Alternatively, function can be a generator that yields MidiEvent objects.
+  </li>
+</ul>
+
+<h4>Call(function)</h4>
+<p>
+Schedules a Python function for execution, and continues MIDI processing immediately.
+</p>
+<ul>
+  <li><b>function</b>: The function to be called. Unlike Process(), this will run the function in another thread.
+  Its return value will be ignored.</li>
+</ul>
+
+<h4>Call(thread=...)</h4>
+<p>
+Like Call(), but runs the function in its own thread.
+</p>
+
+<h4>System(cmd)</h4>
+<p>
+Runs an arbitrary shell command, without waiting for the command to complete.
+</p>
+<ul>
+  <li><b>cmd</b>: The command as a string, or a Python function taking a single MidiEvent parameter and returning a string.</li>
+</ul>
+
+
+<h3><a name="misc"></a>Miscellaneous</h3>
+
+<h4>Pass()</h4>
+<p>
+Does nothing.
+</p>
+
+<h4>Discard()</h4>
+<p>
+Discards the current event.
+</p>
+
+<h4>SceneSwitch()<br>
+SceneSwitch(number)<br>
+SceneSwitch(offset=...)</h4>
+<p>
+Switches to another scene.
+number should be a scene number, or one of the EVENT_* constants.
+offset can be positive or negative and will be added to the current scene number.
+Without parameters, the program number of the incoming event (should be a program change) will be used.
+</p>
+
+<h4>SubSceneSwitch()<br>
+SubSceneSwitch(number)<br>
+SubSceneSwitch(offset=..., wrap=True)</h4>
+<p>
+Switches between subscenes within a scene group.
+</p>
+
+<h4>Init(patch)</h4>
+<p>
+Executes patch when switching to the scene containing this unit (essentially adding it to the init-patch,
+see run() for more information).
+</p>
+
+<h4>Output(port, channel, program=None, volume=None, pan=None, expression=None, ctrls={})</h4>
+<p>
+Routes incoming events to the specified port/channel.
+Optionally, when switching to the scene containing this unit, a program change and/or arbitrary control changes can be sent.
+To send a bank select in addition to the program change, program can be a tuple with two elements, where the first element
+is the bank number, and the second is the program number.
+</p>
+
+<div class="example"><div class="header">
+Route all events to output 'synth', channel 1, and set the volume to 100:
+</div>
+Output('synth', 1, volume=100)
+</div>
+
+<h4>OutputTemplate(*args, **kwargs)</h4>
+<p>
+Creates an object that when called will behave like Output(), with args and kwargs replacing some of its arguments.
+This works just like <kbd>functools.partial(Output, *args, **kwargs)</kbd>, but with the added benefit that an OutputTemplate
+object also supports operator &gt;&gt; like any unit.
+</p>
+
+<div class="example"><div class="header">
+Define an instrument by specifying its output port, channel, program number and transposition,
+then use the same instrument in two different patches at different volumes:
+</div><pre>
+synth = Transpose(12) &gt;&gt; OutputTemplate('synth', 1, 42)
+
+patch1 = synth(64)
+patch2 = synth(127)
+
+</pre><div class="header">
+This is equivalent to:
+</div><pre>
+patch1 = Transpose(12) &gt;&gt; Output('synth', 1, 42, 64)
+patch2 = Transpose(12) &gt;&gt; Output('synth', 1, 42, 127)
+</pre></div>
+
+<h4>Print(name=None, portnames=None)</h4>
+<p>
+Prints event data.
+</p>
+<ul>
+  <li><b>name</b>: A string to be printed before each event.</li>
+  <li><b>portnames</b>: Pass 'in' or 'out' to print input or output port names, rather than just numbers.</li>
+</ul>
+
+<div class="example"><div class="header">
+A simple MIDI event monitor:
+</div>
+$ mididings "Print()"
+</div>
+
+<h4>Print(string=...)</h4>
+<p>
+Prints a string.
+Instead of a fixed value, string can also be a Python function that takes a single MidiEvent parameter, and returns the string to be sent.
+</p>
+
+<div class="example"><div class="header">
+Print a graph of note-on velocities:
+</div>
+Filter(NOTEON) % Print(string=lambda ev: '#'*ev.velocity)
+</div>
+
+<h4>Sanitize()</h4>
+<p>
+Makes sure the event is a valid MIDI message. Events with invalid port, channel, controller, program or note number are
+discarded, note velocity and controller values are confined to the range 0-127.
+</p>
+
+
+<h2><a name="submodules"></a>Submodules</h2>
+
+<h3><a name="event"></a>mididings.event</h3>
+<p>
+This module defines classes and functions for dealing with MIDI events in Python code,
+e.g. using Process() or Call().
+</p>
+
+<h4>MidiEvent(type, port, channel, data1, data2)</h4>
+<p>
+The class used as the MIDI event data type inside the Process() and Call() units.
+</p>
+<p>
+  A MidiEvent object has the following attributes:
+</p>
+<ul>
+  <li><b>type</b>: The event type, one of the constants described below.</li>
+  <li><b>port</b>: The event port.</li>
+  <li><b>channel</b>: The event channel.</li>
+  <li><b>data1, data2</b>: Data bytes, meaning depends on event type.</li>
+</ul>
+<p>
+There are also aliases for these attributes, some of which are only valid for certain types of events:
+</p>
+<ul>
+  <li><b>note</b>: Note number, alias for data1.</li>
+  <li><b>velocity</b>: Note velocity, alias for data2.</li>
+  <li><b>ctrl</b>: Controller number, alias for data1.</li>
+  <li><b>value</b>: Controller parameter, alias for data2.</li>
+  <li><b>program</b>: Program number, alias for data2. Unlike data2, this value is affected by the data_offset setting.</li>
+</ul>
+
+<h4>NoteOnEvent(port, channel, note, velocity)<br>
+NoteOffEvent(port, channel, note, velocity=0)<br>
+CtrlEvent(port, channel, ctrl, value)<br>
+ProgramEvent(port, channel, program)<br>
+PitchbendEvent(port, channel, value)<br>
+AftertouchEvent(port, channel, value)<br>
+SysExEvent(port, sysex)</h4>
+<p>
+Auxiliary functions to create new MidiEvent objects of a certain type.
+</p>
+
+<h3><a name="engine"></a>mididings.engine</h3>
+<p>
+This module defines some basic functions that can be called from Python code, for example inside Call().
+</p>
+
+<h4>switch_scene(scene, subscene=None)<br>
+switch_subscene(subscene)</h4>
+<p>
+Switches the current scene and/or subscene.
+</p>
+
+<h4>current_scene()<br>
+current_subscene()</h4>
+<p>
+Returns the current scene or subscene number.
+</p>
+
+<h4>scenes()</h4>
+<p>
+Returns a dictionary of all scenes.
+Keys are scene numbers, values are tuples containing the scene name and a (possibly empty) list of subscene names.
+</p>
+
+<h4>output_event(ev)</h4>
+<p>
+Sends a MIDI event directly to an output port, completely bypassing any other event processing.
+</p>
+
+<h4>in_ports()<br>
+out_ports()</h4>
+<p>
+Returns a list of the configured input/output port names.
+</p>
+
+<h4>time()</h4>
+<p>
+Returns the time in seconds (floating point) since some unspecified starting point.
+Unlike Python's time.time(), this clock is guaranteed to be monotonic.
+</p>
+
+<h4>active()</h4>
+<p>
+Returns True if the mididings engine is active (the run() function is running).
+</p>
+
+<h4>restart()<br>
+quit()</h4>
+<p>
+Restarts or quits mididings.
+</p>
+
+
+</body>
+
+</html>

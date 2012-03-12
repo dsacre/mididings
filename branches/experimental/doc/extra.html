@@ -1,0 +1,418 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+
+<head>
+    <title>mididings - Extra Module Reference</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel=stylesheet type="text/css" href="style.css">
+</head>
+
+<body>
+
+<h1>mididings - Extra Module Reference</h1>
+
+<div class="nav">
+    <a href="index.html">mididings Documentation</a>
+    <a href="reference.html" class="navprev">&lt;- Module Reference</a>
+</div>
+
+
+<h2><a name="units"></a>Units</h2>
+
+<p>
+These units offer some more advanced/specific functionality than what's provided in the core mididings module.
+Unless otherwise noted, they are defined in the mididings.extra module.
+</p>
+<p>
+Note that some of these units are implemented in Python using Process(), and are thus not safe to use with the jack-rt backend.
+</p>
+
+
+<h4>Harmonize(tonic, scale, interval, non_harmonic='below')</h4>
+<p>
+A diatonic harmonizer.
+</p>
+<ul>
+  <li><b>tonic</b>: The tonic of the scale.</li>
+  <li><b>scale</b>: One of:<br>
+  'major', 'minor', 'minor_harmonic', 'ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'.</li>
+  <li><b>interval</b>: The number of steps to transpose the notes by, or one of these interval names:<br>
+  'unison', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'octave',
+  'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth'.<br>
+  It's also possible to pass a list of intervals, to create multiple harmonized voices.</li>
+  <li><b>non_harmonic</b>: What to do with out-of-scale notes:
+  <ul>
+    <li>'below'/'above': Transpose by the same interval as the next on-scale note below/above.</li>
+    <li>'skip': Ignore note.</li>
+    <li>'same': Output note as is, without transposing it.</li>
+  </ul>
+  </li>
+</ul>
+
+<div class="example"><div class="header">
+Add a third above each note, based on the C# harmonic minor scale:
+</div>
+Harmonize('c#', 'minor_harmonic', ['unison', 'third'])
+</div>
+
+<h4>FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper, hold_time=1.0, margin_lower=12, margin_upper=12)</h4>
+<p>
+Creates a floating split point that moves dynamically depending on what you are playing, allowing a region of the keyboard
+to be shared between two split zones.
+</p>
+<ul>
+  <li><b>threshold_lower, threshold_upper</b>: The lower and upper notes between which the split point is allowed to move.</li>
+  <li><b>patch_lower, patch_upper</b>: Patches to which notes below/above the split point will be sent.</li>
+  <li><b>hold_time</b>: Specifies how long released notes will still be taken into account when determining the split point.</li>
+  <li><b>margin_lower, margin_upper</b>: Numbers of semitones specifying how close you must get to the split point before it starts
+    getting pushed into the opposite direction.</li>
+</ul>
+
+<div class="example"><div class="header">
+Split the keyboard somewhere between C2 and C3:
+</div>
+FloatingKeySplit('c2', 'c3', Channel(1), Channel(2))
+</div>
+
+<h4>VoiceFilter(voice='highest', time=0.1, retrigger=False)</h4>
+<p>
+Filters individual voices from a chord.
+</p><p>
+voice must be 'highest', 'lowest', or an index (positive or negative, the same way Python lists are indexed,
+with 0 being the lowest voice).<br>
+When a key is already held, and then becomes active for this voice because another key was pressed/released, the note will
+only be played if retrigger is True, or if the time since the key-press is less than the number of seconds specified by the
+time parameter.
+</p>
+
+<h4>VoiceSplit([patch, ...], fallback='highest', time=0.1, retrigger=False)</h4>
+<p>
+Creates multiple VoiceFilter() units to route each voice to a different instrument.
+</p><p>
+Regardless of the number of voices specified, the lowest and highest note played will always be routed to the first
+and last patch in the list, respectively.
+When the number of notes played is less than the number of voices specified, &quot;surplus&quot; voices will fall back
+to the highest or lowest note played, as specified by the fallback parameter.
+</p>
+
+<div class="example"><div class="header">
+Route up to three voices to different channels:
+</div>
+VoiceSplit([Channel(1), Channel(2), Channel(3)])
+</div>
+
+<h4>LimitPolyphony(max_polyphony, remove_oldest=True)</h4>
+<p>
+Limits the "MIDI polyphony" to max_polyphony.
+</p><p>
+If remove_oldest is true, the oldest notes will be stopped when the maximum polyphony is exceeded.
+If remove_oldest is false, no new notes are accepted while max_polyphony notes are held.<br>
+Note that the actual polyphony of a connected synthesizer can still be higher than the limit set here,
+e.g. due to a long release phase.
+</p>
+
+<h4>MakeMonophonic()</h4>
+<p>
+Makes the MIDI signal "monophonic", i.e. only one note can be played at any given time.
+When one note is released while another is still held (but silent), the previous one will be retriggered.
+</p>
+
+<h4>SuppressPC()</h4>
+<p>
+Filters out program changes if the same program had previously been selected on the same port/channel.
+</p>
+
+<h4>PedalToNoteoff(ctrl=64, sostenuto=False)</h4>
+<p>
+Converts sustain pedal CCs to note-off events (delaying note-offs until the pedal is released).
+Acts either like a regular sustain pedal (the default) or like a sostenuto pedal.
+</p>
+
+<h4>LatchNotes(polyphonic=False, reset=None)</h4>
+<p>
+Makes notes latching, so they will keep playing when the key is released.
+</p><p>If polyphonic is False, pressing a key will automatically turn off any previous notes.
+If polyphonic is True, each note can be stopped individually by pressing the corresponding key again.
+reset can be a note name/number that when pressed stops all currently playing notes.
+</p>
+
+<h4>KeyColorFilter(color)</h4>
+<p>
+Filters notes by key color ('black' or 'white').
+</p>
+
+<h4>Panic(bypass=True)</h4>
+<p>
+Generates all-notes-off messages (CC #123) on all channels.
+If bypass is True, these messages will be sent directly on all output ports, without going through the
+rest of the patch.
+</p>
+
+<h4>SendOSC(target, path, ...)</h4>
+<p>
+<i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i>
+</p><p>
+Sends an OSC message. Parameters are the same as for liblo.send().
+Additionally, instead of a specific value, each data argument can also be a Python function that takes a
+single MidiEvent parameter, and returns the value to be sent.
+</p>
+
+<h4>SendDBUS(service, path, interface, method, ...)</h4>
+<p>
+<i>Defined in mididings.extra.dbus. Requires dbus-python.</i>
+</p><p>
+Sends a DBUS message.
+Instead of a specific value, each data argument can also be a Python function that takes a
+single MidiEvent parameter, and returns the value to be sent.
+</p>
+
+<div class="example"><div class="header">
+Change FFADO output volume using a MIDI controller:
+</div><pre>
+CtrlFilter(42) &gt;&gt; SendDBUS(
+    'org.ffado.Control',
+    '/org/ffado/Control/DeviceManager/%s/Mixer/OUT0Gain' % DEVICEID,
+    'org.ffado.Control.Element.Continuous',
+    'setValue',
+    lambda ev: ev.value * (2**17)
+)
+</pre></div>
+
+
+<h2><a name="hooks"></a>Hooks</h2>
+
+<h4>MemorizeScene(memo_file)</h4>
+<p>
+Saves the currently selected scene number to a file when terminating mididings, and restores it at the next startup.
+memo_file is the path of the file to be used to store the scene number.
+</p>
+
+<h4>OSCInterface(port=56418, notify_ports=[56419])</h4>
+<p>
+<i>Defined in mididings.extra.osc. Requires <a href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</i>
+</p><p>
+Allows controlling mididings via OSC. These messages are currently understood:
+</p>
+<ul>
+  <li><b>/mididings/switch_scene ,i</b>: switches to the given scene number.</li>
+  <li><b>/mididings/switch_subscene ,i</b>: switches to the given subscene number.</li>
+  <li><b>/mididings/prev_scene</b>: switches to the previous scene.</li>
+  <li><b>/mididings/next_scene</b>: switches to the next scene.</li>
+  <li><b>/mididings/prev_subscene</b>: switches to the previous subscene.</li>
+  <li><b>/mididings/next_subscene</b>: switches to the next subscene.</li>
+  <li><b>/mididings/panic</b>: sends all-notes-off on all channels and on all output ports.</li>
+  <li><b>/mididings/quit</b>: terminates mididings.</li>
+</ul>
+
+<h4>AutoRestart(modules=True, filenames=[])</h4>
+<p>
+<i>Defined in mididings.extra.inotify. Requires <a href="http://trac.dbzteam.org/pyinotify">pyinotify</a> &ge; 0.8.</i>
+</p><p>
+Automatically restarts mididings when the script changes.
+</p><p>
+If modules is True, all imported local Python modules are monitored for changes as well.
+The filenames parameter allows specifying additional files to be monitored.<br>
+This restarts the entire mididings script, so MIDI processing is interrupted, and mididings does not take care of
+reestablishing any ALSA/JACK connections.
+If the new script contains errors that prevent it from running, mididings exits and needs to be restarted manually
+once the errors are fixed.
+</p>
+
+
+<h2><a name="misc"></a>Miscellaneous</h2>
+
+<h4>livedings</h4>
+<p>
+livedings is a graphical frontend for mididings that allows you to monitor and trigger scene changes.
+It runs as a separate application that uses OSC to communicate with mididings.
+To use it, enable the OSCInterface hook in your mididings script:
+</p>
+
+<div class="example"><pre>
+from mididings.extra.osc import OSCInterface
+
+hook(OSCInterface())
+...
+</pre></div>
+
+<p>
+Then run livedings:
+</p>
+
+<div class="example">
+$ livedings
+</div>
+
+<p>
+By default, livedings uses the standard Tk theme. Specify the <kbd>-T</kbd> option to switch to a custom theme with higher
+contrast and larger fonts. See '<kbd>livedings --help</kbd>' for more options.
+</p>
+<p>
+The buttons at the bottom of the screen can be used to switch to the previous/next scene, previous/next subscene,
+and to send all-notes-off messages (panic) on all output ports.
+It's also possible to use the arrow keys to switch scenes (up/down) and subscenes (left/right).
+</p>
+
+<h4>gm</h4>
+<p>
+The <i>mididings.extra.gm</i> module contains constants for program and controller numbers defined in the General MIDI standard.
+</p>
+<p>
+<b>Programs:</b><br>
+ACOUSTIC_GRAND_PIANO<br>
+BRIGHT_ACOUSTIC_PIANO<br>
+ELECTRIC_GRAND_PIANO<br>
+HONKY_TONK_PIANO<br>
+ELECTRIC_PIANO_1<br>
+ELECTRIC_PIANO_2<br>
+HARPSICHORD<br>
+CLAVINET<br>
+CELESTA<br>
+GLOCKENSPIEL<br>
+MUSIC_BOX<br>
+VIBRAPHONE<br>
+MARIMBA<br>
+XYLOPHONE<br>
+TUBULAR_BELLS<br>
+DULCIMER<br>
+DRAWBAR_ORGAN<br>
+PERCUSSIVE_ORGAN<br>
+ROCK_ORGAN<br>
+CHURCH_ORGAN<br>
+REED_ORGAN<br>
+ACCORDION<br>
+HARMONICA<br>
+TANGO_ACCORDION<br>
+ACOUSTIC_GUITAR_NYLON<br>
+ACOUSTIC_GUITAR_STEEL<br>
+ELECTRIC_GUITAR_JAZZ<br>
+ELECTRIC_GUITAR_CLEAN<br>
+ELECTRIC_GUITAR_MUTED<br>
+OVERDRIVEN_GUITAR<br>
+DISTORTION_GUITAR<br>
+GUITAR_HARMONICS<br>
+ACOUSTIC_BASS<br>
+ELECTRIC_BASS_FINGER<br>
+ELECTRIC_BASS_PICK<br>
+FRETLESS_BASS<br>
+SLAP_BASS_1<br>
+SLAP_BASS_2<br>
+SYNTH_BASS_1<br>
+SYNTH_BASS_2<br>
+VIOLIN<br>
+VIOLA<br>
+CELLO<br>
+CONTRABASS<br>
+TREMOLO_STRINGS<br>
+PIZZICATO_STRINGS<br>
+ORCHESTRAL_HARP<br>
+TIMPANI<br>
+STRING_ENSEMBLE_1<br>
+STRING_ENSEMBLE_2<br>
+SYNTH_STRINGS_1<br>
+SYNTH_STRINGS_2<br>
+CHOIR_AAHS<br>
+VOICE_OOHS<br>
+SYNTH_VOICE<br>
+ORCHESTRA_HIT<br>
+TRUMPET<br>
+TROMBONE<br>
+TUBA<br>
+MUTED_TRUMPET<br>
+FRENCH_HORN<br>
+BRASS_SECTION<br>
+SYNTHBRASS_1<br>
+SYNTHBRASS_2<br>
+SOPRANO_SAX<br>
+ALTO_SAX<br>
+TENOR_SAX<br>
+BARITONE_SAX<br>
+OBOE<br>
+ENGLISH_HORN<br>
+BASSOON<br>
+CLARINET<br>
+PICCOLO<br>
+FLUTE<br>
+RECORDER<br>
+PAN_FLUTE<br>
+BLOWN_BOTTLE<br>
+SHAKUHACHI<br>
+WHISTLE<br>
+OCARINA<br>
+LEAD_1_SQUARE<br>
+LEAD_2_SAWTOOTH<br>
+LEAD_3_CALLIOPE<br>
+LEAD_4_CHIFF<br>
+LEAD_5_CHARANG<br>
+LEAD_6_VOICE<br>
+LEAD_7_FIFTHS<br>
+LEAD_8_BASS_LEAD<br>
+PAD_1_NEW_AGE<br>
+PAD_2_WARM<br>
+PAD_3_POLYSYNTH<br>
+PAD_4_CHOIR<br>
+PAD_5_BOWED<br>
+PAD_6_METALLIC<br>
+PAD_7_HALO<br>
+PAD_8_SWEEP<br>
+FX_1_RAIN<br>
+FX_2_SOUNDTRACK<br>
+FX_3_CRYSTAL<br>
+FX_4_ATMOSPHERE<br>
+FX_5_BRIGHTNESS<br>
+FX_6_GOBLINS<br>
+FX_7_ECHOES<br>
+FX_8_SCI_FI<br>
+SITAR<br>
+BANJO<br>
+SHAMISEN<br>
+KOTO<br>
+KALIMBA<br>
+BAGPIPE<br>
+FIDDLE<br>
+SHANAI<br>
+TINKLE_BELL<br>
+AGOGO<br>
+STEEL_DRUMS<br>
+WOODBLOCK<br>
+TAIKO_DRUM<br>
+MELODIC_TOM<br>
+SYNTH_DRUM<br>
+REVERSE_CYMBAL<br>
+GUITAR_FRET_NOISE<br>
+BREATH_NOISE<br>
+SEASHORE<br>
+BIRD_TWEET<br>
+TELEPHONE_RING<br>
+HELICOPTER<br>
+APPLAUSE<br>
+GUNSHOT
+</p>
+<p>
+<b>Controllers:</b><br>
+CTRL_BANK_SELECT_MSB<br>
+CTRL_MODULATION<br>
+CTRL_DATA_ENTRY_MSB<br>
+CTRL_VOLUME<br>
+CTRL_PAN<br>
+CTRL_EXPRESSION<br>
+CTRL_BANK_SELECT_LSB<br>
+CTRL_DATA_ENTRY_LSB<br>
+CTRL_SUSTAIN<br>
+CTRL_PORTAMENTO<br>
+CTRL_SOSTENUTO<br>
+CTRL_SOFT_PEDAL<br>
+CTRL_LEGATO_PEDAL<br>
+CTRL_NRPN_LSB<br>
+CTRL_NRPN_MSB<br>
+CTRL_RPN_LSB<br>
+CTRL_RPN_MSB<br>
+CTRL_RESET_ALL_CONTROLLERS<br>
+CTRL_ALL_NOTES_OFF
+</p>
+
+
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# mididings
+#
+# Copyright (C) 2008-2012  Dominic Sacré  <dominic.sacre@gmx.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+
+import optparse
+import sys
+
+from mididings.live.livedings import LiveDings
+
+
+def fill_options(options, new_options):
+    for k, v in new_options.items():
+        if getattr(options, k) == None:
+            setattr(options, k, v)
+
+
+if __name__ == '__main__':
+    usage = "Usage: livedings [options]"
+    parser = optparse.OptionParser(usage=usage)
+    parser.add_option('-p', dest='control_port', default=56418, help="OSC port mididings is listening on (56418)")
+    parser.add_option('-l', dest='listen_port', default=56419, help="OSC port for notifications from mididings (56419)")
+    parser.add_option('-T', dest='themed', default=False, action='store_true', help="enable custom theme and larger fonts")
+    parser.add_option('-x', dest='width', type=int, default=None, help="width of window in pixels (640)")
+    parser.add_option('-y', dest='height', type=int, default=None, help="height of window in pixels (400)")
+    parser.add_option('-w', dest='list_width', type=int, default=None, help="width of scene list in pixels (240)")
+    parser.add_option('-F', dest='font', default=None, help="display font (Sans 14 bold)")
+    parser.add_option('-f', dest='list_font', default=None, help="scene list font (Sans 10)")
+    parser.add_option('-c', dest='color', default=None, help="text color (gray50)")
+    parser.add_option('-C', dest='color_highlight', default=None, help="highlight text color (black)")
+    parser.add_option('-b', dest='color_background', default=None, help="background color")
+    parser.add_option('-n', dest='name', default=None, help="name to be shown in window title")
+
+    options, args = parser.parse_args(sys.argv[1:])
+
+    if not options.listen_port:
+        parser.error("no OSC listen port specified")
+    if not options.control_port:
+        parser.error("no OSC control port specified")
+
+    if options.themed:
+        fill_options(options, {
+            'width': 1024,
+            'height': 640,
+            'list_width': 320,
+            'font': 'Sans 32 bold',
+            'list_font': 'Sans 16',
+            'color': 'green',
+            'color_highlight': 'white',
+            'color_background': 'black',
+        })
+    else:
+        fill_options(options, {
+            'width': 640,
+            'height': 400,
+            'list_width': 240,
+            'font': 'Sans 14 bold',
+            'list_font': 'Sans 10',
+            'color': 'gray50',
+            'color_highlight': 'black',
+            'color_background': None,
+        })
+
+    app = LiveDings(options)
+    app.run()
