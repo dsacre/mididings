@@ -25,7 +25,7 @@ _DEFAULT_CONFIG = {
     'in_ports':         1,
     'out_ports':        1,
     'data_offset':      1,
-    'octave_offset':    1,
+    'octave_offset':    2,
     'initial_scene':    None,
     'start_delay':      None,
     'silent':           False,

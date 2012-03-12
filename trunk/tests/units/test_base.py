@@ -104,7 +104,8 @@ class BaseTestCase(tests.helpers.MididingsTestCase):
 
         p = (CtrlFilter(42) | CtrlValueFilter(123)) % Discard()
         self.check_patch(p, {
-            self.make_event(NOTEON): False,
+#            self.make_event(NOTEON): False,
+            self.make_event(NOTEON): True,
             self.make_event(CTRL, ctrl=23, value=42): True,
             self.make_event(CTRL, ctrl=42, value=123): False,
         })
@@ -118,7 +119,8 @@ class BaseTestCase(tests.helpers.MididingsTestCase):
 
         p = CtrlFilter(42) % (CtrlValueFilter(123) % Discard())
         self.check_patch(p, {
-            self.make_event(NOTEON): False,
+#            self.make_event(NOTEON): False,
+            self.make_event(NOTEON): True,
             self.make_event(CTRL, ctrl=23, value=42): True,
             self.make_event(CTRL, ctrl=42, value=123): False,
         })

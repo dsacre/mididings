@@ -45,7 +45,8 @@ class FiltersTestCase(tests.helpers.MididingsTestCase):
             ChannelFilter(16)
 
     def test_KeyFilter(self):
-        self.check_filter(KeyFilter('e3:a4'), {
+#        self.check_filter(KeyFilter('e3:a4'), {
+        self.check_filter(KeyFilter('e2:a3'), {
             self.make_event(NOTEON, note=23): (False, True),
             self.make_event(NOTEON, note=60): (True, False),
             self.make_event(NOTEOFF, note=23): (False, True),
@@ -66,20 +67,24 @@ class FiltersTestCase(tests.helpers.MididingsTestCase):
         self.check_filter(CtrlFilter(23), {
             self.make_event(CTRL, ctrl=23): (True, False),
             self.make_event(CTRL, ctrl=42): (False, True),
-            self.make_event(NOTEON): (True, True),
-            self.make_event(PROGRAM): (True, True),
+#            self.make_event(NOTEON): (True, True),
+#            self.make_event(PROGRAM): (True, True),
+            self.make_event(NOTEON): (False, False),
+            self.make_event(PROGRAM): (False, False),
         })
 
     def test_CtrlValueFilter(self):
         self.check_filter(CtrlValueFilter(23, 42), {
             self.make_event(CTRL, value=32): (True, False),
             self.make_event(CTRL, value=66): (False, True),
-            self.make_event(PROGRAM): (True, True),
+#            self.make_event(PROGRAM): (True, True),
+            self.make_event(PROGRAM): (False, False),
         })
 
     def test_ProgramFilter(self):
         self.check_filter(ProgramFilter(4, 8, 15, 16), {
             self.make_event(PROGRAM, value=8): (True, False),
             self.make_event(PROGRAM, value=13): (False, True),
-            self.make_event(CTRL): (True, True),
+#            self.make_event(CTRL): (True, True),
+            self.make_event(CTRL): (False, False),
         })

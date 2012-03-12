@@ -45,9 +45,12 @@ class UtilTestCase(tests.helpers.MididingsTestCase):
     def test_note_range(self):
         self.assertEqual(note_range(23), (23, 24))
         self.assertEqual(note_range((23, 42)), (23, 42))
-        self.assertEqual(note_range('c3:c5'), (48, 72))
-        self.assertEqual(note_range(':c4'), (0, 60))
-        self.assertEqual(note_range('c2:'), (36, 0))
+#        self.assertEqual(note_range('c3:c5'), (48, 72))
+#        self.assertEqual(note_range(':c4'), (0, 60))
+#        self.assertEqual(note_range('c2:'), (36, 0))
+        self.assertEqual(note_range('c3:c5'), (60, 84))
+        self.assertEqual(note_range(':c4'), (0, 72))
+        self.assertEqual(note_range('c2:'), (48, 0))
 
         with self.assertRaises(ValueError):
             note_range('blah')

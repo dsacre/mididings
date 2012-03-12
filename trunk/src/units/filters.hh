@@ -68,7 +68,7 @@ class KeyFilter
 {
   public:
     KeyFilter(int lower, int upper, std::vector<int> const & notes)
-      : Filter(MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF)
+      : Filter(MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF, true)
       , _lower(lower)
       , _upper(upper)
       , _notes(notes)
@@ -96,7 +96,7 @@ class VelocityFilter
 {
   public:
     VelocityFilter(int lower, int upper)
-      : Filter(MIDI_EVENT_NOTEON)
+      : Filter(MIDI_EVENT_NOTEON, true)
       , _lower(lower)
       , _upper(upper)
     {
@@ -118,7 +118,7 @@ class CtrlFilter
 {
   public:
     CtrlFilter(std::vector<int> const & ctrls)
-      : Filter(MIDI_EVENT_CTRL)
+      : Filter(MIDI_EVENT_CTRL, false)
       , _ctrls(ctrls)
     {
     }
@@ -138,7 +138,7 @@ class CtrlValueFilter
 {
   public:
     CtrlValueFilter(int lower, int upper)
-      : Filter(MIDI_EVENT_CTRL)
+      : Filter(MIDI_EVENT_CTRL, false)
       , _lower(lower)
       , _upper(upper)
     {
@@ -160,7 +160,7 @@ class ProgramFilter
 {
   public:
     ProgramFilter(std::vector<int> const & progs)
-      : Filter(MIDI_EVENT_PROGRAM)
+      : Filter(MIDI_EVENT_PROGRAM, false)
       , _progs(progs)
     {
     }
@@ -180,7 +180,7 @@ class SysExFilter
 {
   public:
     SysExFilter(MidiEvent::SysExData const & sysex, bool partial)
-      : Filter(MIDI_EVENT_SYSEX)
+      : Filter(MIDI_EVENT_SYSEX, false)
       , _sysex(sysex)
       , _partial(partial)
     {
