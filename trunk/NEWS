@@ -1,6 +1,5 @@
 2012-03-12
 
-  * Fix selector operators & and | for more than two filters.
   * Added methods apply(), invert() and negate() to filter objects, and
     made AndSelector and OrSelector public classes. Anything that can be
     done with funny overloaded operators is now also possible with regular
@@ -9,6 +8,7 @@
   * Added SysExEvent() function in mididings.event module.
   * Added Restart() and Quit() in mididings.extra module.
   * Fixed PitchbendEvent(), thanks to Димон.
+  * Fixed selector operators & and | for more than two filters.
   * Print correct note names when using Python 3.
   * Fixed operator != for comparing MidiEvent objects.
   * Fixed compilation on OS X, automatically disable ALSA backend on
