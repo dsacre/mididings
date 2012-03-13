@@ -3,6 +3,7 @@
 from distutils.core import setup, Extension
 from distutils import sysconfig
 import sys
+import platform
 import os.path
 
 if sys.version_info >= (3,):
@@ -12,7 +13,7 @@ else:
 
 
 config = {
-    'alsa-seq':     True,
+    'alsa-seq':     (platform.system() == 'Linux'),
     'jack-midi':    True,
     'smf':          False,
 }
@@ -120,7 +121,7 @@ sysconfig.customize_compiler = my_customize_compiler
 
 setup(
     name = 'mididings',
-    version = '20101119',
+    version = '20120312',
     author = 'Dominic Sacre',
     author_email = 'dominic.sacre@gmx.de',
     url = 'http://das.nasophon.de/mididings/',

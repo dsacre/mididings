@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+
+<head>
+    <title>mididings - Submodules Reference</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel=stylesheet type="text/css" href="style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="index.html">Index</a>
+    <a href="core.html" class="navprev">Core Module Reference</a>
+    <a href="extra.html" class="navnext">Extra Module Reference</a>
+</div>
+
+<h1>mididings - Submodules Reference</h1>
+
+
+<h2><a name="submodules"></a>Submodules</h2>
+
+<h3><a name="event"></a>mididings.event</h3>
+<p>
+This module defines classes and functions for dealing with MIDI events in Python code,
+e.g. using Process() or Call().
+</p>
+
+<h4>MidiEvent(type, port, channel, data1, data2)</h4>
+<p>
+The class used as the MIDI event data type inside the Process() and Call() units.
+</p>
+<p>
+  A MidiEvent object has the following attributes:
+</p>
+<ul>
+  <li><b>type</b>: The event type, one of the constants described below.</li>
+  <li><b>port</b>: The event port.</li>
+  <li><b>channel</b>: The event channel.</li>
+  <li><b>data1, data2</b>: Data bytes, meaning depends on event type.</li>
+</ul>
+<p>
+There are also aliases for these attributes, some of which are only valid for certain types of events:
+</p>
+<ul>
+  <li><b>note</b>: Note number, alias for data1.</li>
+  <li><b>velocity</b>: Note velocity, alias for data2.</li>
+  <li><b>ctrl</b>: Controller number, alias for data1.</li>
+  <li><b>value</b>: Controller parameter, alias for data2.</li>
+  <li><b>program</b>: Program number, alias for data2. Unlike data2, this value is affected by the data_offset setting.</li>
+</ul>
+
+<h4>NoteOnEvent(port, channel, note, velocity)<br>
+NoteOffEvent(port, channel, note, velocity=0)<br>
+CtrlEvent(port, channel, ctrl, value)<br>
+ProgramEvent(port, channel, program)<br>
+PitchbendEvent(port, channel, value)<br>
+AftertouchEvent(port, channel, value)<br>
+SysExEvent(port, sysex)</h4>
+<p>
+Auxiliary functions to create new MidiEvent objects of a certain type.
+</p>
+
+<h3><a name="engine"></a>mididings.engine</h3>
+<p>
+This module contains functions to query or control the state of the mididings event processing engine from Python code.
+</p>
+
+<h4>switch_scene(scene, subscene=None)<br>
+switch_subscene(subscene)</h4>
+<p>
+Switches the current scene and/or subscene.
+</p>
+
+<h4>current_scene()<br>
+current_subscene()</h4>
+<p>
+Returns the current scene or subscene number.
+</p>
+
+<h4>scenes()</h4>
+<p>
+Returns a dictionary of all scenes.
+Keys are scene numbers, values are tuples containing the scene name and a (possibly empty) list of subscene names.
+</p>
+
+<h4>output_event(ev)</h4>
+<p>
+Sends a MIDI event directly to an output port, completely bypassing any other event processing.
+</p>
+
+<h4>in_ports()<br>
+out_ports()</h4>
+<p>
+Returns a list of the configured input/output port names.
+</p>
+
+<h4>time()</h4>
+<p>
+Returns the time in seconds (floating point) since some unspecified starting point.
+Unlike Python's time.time(), this clock is guaranteed to be monotonic.
+</p>
+
+<h4>active()</h4>
+<p>
+Returns True if the mididings engine is active (the run() function is running).
+</p>
+
+<h4>restart()</h4>
+<p>
+Restarts the mididings script by terminating the current process, and then running the same Python interpreter
+with the same arguments again. This will not work properly if run() is not the last call in your script, or if
+you're running mididings in an interactive Python interpreter.
+</p>
+
+<h4>quit()</h4>
+<p>
+Terminates mididings event processing (by making the run() function return).
+</p>
+
+
+<h3><a name="util"></a>mididings.util</h3>
+<p>
+This module contains various utility functions.
+</p>
+
+<h4>note_number(note)</h4>
+<p>
+Converts a note name to a MIDI note number.
+</p>
+
+<h4>note_range(notes)</h4>
+<p>
+Converts a note range string to a tuple of MIDI note numbers.
+</p>
+
+<h4>note_name(note)</h4>
+<p>
+Returns the note name for the given MIDI note number.
+</p>
+
+<h4>controller_name(ctrl)</h4>
+<p>
+Returns the GM controller name for the given controller number.
+</p>
+
+<h4>port_number(port)</h4>
+<p>
+Returns the port number corresponding to the given port name. If input and output ports
+exist with the same name but different index, the number of the input port is returned.
+</p>
+
+
+<div class="nav">
+    <a href="index.html">Index</a>
+    <a href="core.html" class="navprev">Core Module Reference</a>
+    <a href="extra.html" class="navnext">Extra Module Reference</a>
+</div>
+
+</body>
+
+</html>

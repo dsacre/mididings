@@ -23,6 +23,8 @@ h3 {
     font-size: 100%;
     color: #333;
     background: #dddde5;
+    background: -moz-linear-gradient(left, #dddde5 0%, #dddde5 15%, #fff 50%);
+    background: -webkit-linear-gradient(left, #dddde5 0%, #dddde5 15%, #fff 50%);
     padding: 2px 0.7em;
     margin-top: 1.8em;
     margin-left: 0.6em;
@@ -81,12 +83,25 @@ li {
 }
 
 li.toplevel {
-    margin-bottom: 1em;
+    margin-bottom: 0.8em;
+    padding-bottom: 0.5em;
+    border-bottom-width: 4px;
+    border-bottom-style: solid;
+    border-bottom-color: #eee;
 }
+
+li.toplevel > a {
+    font-size: 115%;
+}
+
+li.toplevel:last-child {
+    border-bottom: none;
+}
+
 
 div.example {
     background-color: #ffd;
-    margin: 0em 1.2em 1em 2.2em;
+    margin: 0em 16em 1em 2.2em;
     padding: 3px;
     border: 1px dashed #edb;
     font-family: monospace;
@@ -102,6 +117,14 @@ div.example > div.header {
 div.nav {
     position: relative;
     text-align: center;
+    padding-top: 8px;
+    border-top-width: 4px;
+    border-top-style: solid;
+    border-top-color: #eee;
+}
+
+div.nav:last-child {
+    margin-top: 2em;
     padding-bottom: 8px;
     border-bottom-width: 4px;
     border-bottom-style: solid;
@@ -116,4 +139,12 @@ div.nav > .navprev {
 div.nav > .navnext {
     position: absolute;
     right: 12px;
+}
+
+div.nav > .navprev:before {
+    content: "\2190\00a0";
+}
+
+div.nav > .navnext:after {
+    content: "\00a0\2192";
 }

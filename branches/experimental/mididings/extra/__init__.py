@@ -21,6 +21,7 @@ from mididings.extra.latch import *
 from mididings.extra.panic import *
 from mididings.extra.floating_split import *
 from mididings.extra.voices import *
+from mididings.extra.engine import *
 
 
 import mididings.misc as _misc

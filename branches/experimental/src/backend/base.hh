@@ -36,6 +36,8 @@ struct Error
 };
 
 
+std::vector<std::string> const & available();
+
 boost::shared_ptr<class BackendBase> create(std::string const & backend_name,
                                             std::string const & client_name,
                                             std::vector<std::string> const & in_ports,

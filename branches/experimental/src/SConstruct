@@ -47,7 +47,7 @@ env.Append(
     CPPPATH = [sysconfig.get_python_inc(plat_specific=1)],
     LIBPATH = [sysconfig.get_python_lib(plat_specific=1)]
 #    CPPPATH = ['/opt/boost1.43/include', '/opt/python3.2/include/python3.2m'],
-#    LIBPATH = ['/opt/boost1.43/lib', '/opt/python3.1/lib'],
+#    LIBPATH = ['/opt/boost1.43/lib', '/opt/python3.2/lib'],
 )
 
 sources = [

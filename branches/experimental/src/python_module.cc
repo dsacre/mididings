@@ -68,6 +68,7 @@ BOOST_PYTHON_MODULE(_mididings)
     using bp::class_;
     using bp::bases;
     using bp::init;
+    using bp::def;
     using boost::noncopyable;
     using namespace Units;
 
@@ -115,6 +116,9 @@ BOOST_PYTHON_MODULE(_mididings)
 
     // call
     class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
+
+    // list of supported backends
+    def("available_backends", &Backend::available, bp::return_value_policy<bp::reference_existing_object>());
 
     // main engine class, derived from in python
     class_<Engine, Engine, noncopyable>("Engine", init<std::string const &, std::string const &,

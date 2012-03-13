@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+
+<head>
+    <title>mididings - livedings</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel=stylesheet type="text/css" href="style.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="index.html">Index</a>
+    <a href="gm.html" class="navprev">General MIDI Definitions</a>
+</div>
+
+<h1>mididings - livedings</h1>
+
+
+<h2><a name="livedings"></a>livedings</h2>
+<p>
+livedings is a graphical frontend for mididings that allows you to monitor and trigger scene changes.
+It runs as a separate application that uses OSC to communicate with mididings.
+To use it, enable the OSCInterface hook in your mididings script:
+</p>
+
+<div class="example"><pre>
+from mididings.extra.osc import OSCInterface
+
+hook(OSCInterface())
+...
+</pre></div>
+
+<p>
+Then run livedings:
+</p>
+
+<div class="example">
+$ livedings
+</div>
+
+<p>
+By default, livedings uses the standard Tk theme. Specify the <kbd>-T</kbd> option to switch to a custom theme with higher
+contrast and larger fonts. See '<kbd>livedings --help</kbd>' for more options.
+</p>
+<p>
+The buttons at the bottom of the screen can be used to switch to the previous/next scene, previous/next subscene,
+and to send all-notes-off messages (panic) on all output ports.
+It's also possible to use the arrow keys to switch scenes (up/down) and subscenes (left/right).
+</p>
+
+
+<div class="nav">
+    <a href="index.html">Index</a>
+    <a href="gm.html" class="navprev">General MIDI Definitions</a>
+</div>
+
+</body>
+
+</html>

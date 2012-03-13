@@ -20,11 +20,9 @@
 #include <boost/bind.hpp>
 
 #include <iostream>
+#include <unistd.h>
 #include <time.h>
-
-#ifdef ENABLE_BENCHMARK
-  #include <sys/time.h>
-#endif
+#include <sys/time.h>
 
 #include <boost/python/call_method.hpp>
 
@@ -414,10 +412,17 @@ void Engine::output_event(MidiEvent const & ev)
 
 double Engine::time()
 {
+#if _POSIX_TIMERS > 0
     ::timespec t;
     ::clock_gettime(CLOCK_MONOTONIC, &t);
 
     return t.tv_sec + 1e-9 * t.tv_nsec;
+#else
+    ::timeval t;
+    ::gettimeofday(&t, NULL);
+
+    return t.tv_sec + 1e-6 * t.tv_usec;
+#endif
 }
 
 
