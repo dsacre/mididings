@@ -1,3 +1,19 @@
+2012-03-12
+
+  * Fix selector operators & and | for more than two filters.
+  * Added methods apply(), invert() and negate() to filter objects, and
+    made AndSelector and OrSelector public classes. Anything that can be
+    done with funny overloaded operators is now also possible with regular
+    functions and objects.
+  * Added option -n to livedings, based on a patch by Aurélien.
+  * Added SysExEvent() function in mididings.event module.
+  * Added Restart() and Quit() in mididings.extra module.
+  * Fixed PitchbendEvent(), thanks to Димон.
+  * Print correct note names when using Python 3.
+  * Fixed operator != for comparing MidiEvent objects.
+  * Extended and reorganized unit tests.
+  * Some documentation cleanup.
+
 2010-11-19
 
   * Improved VoiceFilter() to make it much more usable for filtering
