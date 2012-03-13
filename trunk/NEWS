@@ -11,6 +11,9 @@
   * Fixed PitchbendEvent(), thanks to Димон.
   * Print correct note names when using Python 3.
   * Fixed operator != for comparing MidiEvent objects.
+  * Fixed compilation on OS X, automatically disable ALSA backend on
+    non-Linux platforms. Thanks to Sílvio Almeida for lots of valuable
+    feedback.
   * Extended and reorganized unit tests.
   * Some documentation cleanup.
 
