@@ -29,6 +29,30 @@ namespace Mididings {
 namespace Backend {
 
 
+namespace {
+    std::vector<std::string> AVAILABLE;
+
+    bool init_available() {
+#ifdef ENABLE_ALSA_SEQ
+        AVAILABLE.push_back("alsa");
+#endif
+#ifdef ENABLE_JACK_MIDI
+        AVAILABLE.push_back("jack");
+        AVAILABLE.push_back("jack-rt");
+#endif
+        return false;
+    }
+
+    bool throwaway = init_available();
+}
+
+
+std::vector<std::string> const & available()
+{
+    return AVAILABLE;
+}
+
+
 boost::shared_ptr<BackendBase> create(std::string const & backend_name,
                                       std::string const & client_name,
                                       std::vector<std::string> const & in_ports,

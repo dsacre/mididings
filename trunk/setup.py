@@ -3,6 +3,7 @@
 from distutils.core import setup, Extension
 from distutils import sysconfig
 import sys
+import platform
 import os.path
 
 if sys.version_info >= (3,):
@@ -12,7 +13,7 @@ else:
 
 
 config = {
-    'alsa-seq':     True,
+    'alsa-seq':     (platform.system() == 'Linux'),
     'jack-midi':    True,
     'smf':          False,
 }
