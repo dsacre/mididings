@@ -181,6 +181,9 @@ def port_number(port):
 
 
 def channel_number(channel):
+    if not isinstance(channel, int):
+        raise TypeError("channel must be an integer")
+
     r = actual(channel)
     if r < 0 or r > 15:
         raise ValueError("channel number %d is out of range" % channel)
@@ -188,6 +191,9 @@ def channel_number(channel):
 
 
 def program_number(program, check=True):
+    if not isinstance(program, int):
+        raise TypeError("program must be an integer")
+
     r = actual(program)
     if check and (r < 0 or r > 127):
         raise ValueError("program number %d is out of range" % program)
@@ -195,18 +201,27 @@ def program_number(program, check=True):
 
 
 def ctrl_number(ctrl):
+    if not isinstance(ctrl, int):
+        raise TypeError("controller must be an integer")
+
     if ctrl < 0 or ctrl > 127:
         raise ValueError("controller number %d is out of range" % ctrl)
     return ctrl
 
 
 def ctrl_value(value, check=True):
+    if not isinstance(value, int):
+        raise TypeError("controller value must be an integer")
+
     if check and (value < 0 or value > 127):
         raise ValueError("controller value %d is out of range" % value)
     return value
 
 
 def velocity_value(velocity, check=True):
+    if not isinstance(velocity, int):
+        raise TypeError("velocity must be an integer")
+
     if check and (velocity < 0 or velocity > 127):
         raise ValueError("velocity %d is out of range" % velocity)
     return velocity
