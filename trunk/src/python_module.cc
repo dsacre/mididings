@@ -35,14 +35,13 @@
 #include <vector>
 #include <string>
 
-namespace bp = boost::python;
-
 
 namespace Mididings {
 
 
 BOOST_PYTHON_MODULE(_mididings)
 {
+    namespace bp = boost::python;
     using bp::class_;
     using bp::bases;
     using bp::init;
@@ -98,8 +97,6 @@ BOOST_PYTHON_MODULE(_mididings)
         .def(bp::self != bp::self)
         .enable_pickling()
     ;
-
-    register_midi_event_type_converters();
 
 #ifdef ENABLE_TEST
     class_<std::vector<MidiEvent> >("MidiEventVector")
@@ -158,6 +155,8 @@ BOOST_PYTHON_MODULE(_mididings)
     register_vector_converters<float>();
     register_vector_converters<std::string>();
     register_vector_converters<Patch::ModulePtr>();
+
+    register_midi_event_type_converters();
 }
 
 

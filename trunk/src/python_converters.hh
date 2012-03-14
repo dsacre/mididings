@@ -25,9 +25,9 @@ namespace Converters {
 
 
 template <typename T>
-struct vector_from_seq
+struct vector_from_sequence
 {
-    vector_from_seq() {
+    vector_from_sequence() {
         boost::python::converter::registry::push_back(&convertible, &construct, boost::python::type_id<std::vector<T> >());
     }
 
@@ -55,9 +55,9 @@ struct vector_from_seq
 
 
 template <typename T>
-struct vector_from_iter
+struct vector_from_iterator
 {
-    vector_from_iter() {
+    vector_from_iterator() {
         boost::python::converter::registry::push_back(&convertible, &construct, boost::python::type_id<std::vector<T> >());
     }
 
@@ -109,14 +109,22 @@ struct midi_event_type_from_int
     }
 
     static void *convertible(PyObject *obj_ptr) {
+#if PY_MAJOR_VERSION < 3
         if (!PyInt_Check(obj_ptr)) return 0;
+#else
+        if (!PyLong_Check(obj_ptr)) return 0;
+#endif
         return obj_ptr;
     }
 
     static void construct(PyObject *obj_ptr, boost::python::converter::rvalue_from_python_stage1_data *data) {
         void *storage = ((boost::python::converter::rvalue_from_python_storage<MidiEventType>*)(data))->storage.bytes;
         MidiEventType & t = *(MidiEventType *) storage;
+#if PY_MAJOR_VERSION < 3
         t = static_cast<MidiEventType>(PyInt_AsLong(obj_ptr));
+#else
+        t = static_cast<MidiEventType>(PyLong_AsLong(obj_ptr));
+#endif
         data->convertible = storage;
     }
 };
@@ -135,13 +143,14 @@ struct midi_event_type_to_int
 template <typename T>
 void register_vector_converters()
 {
-    vector_from_seq<T>();
-    vector_from_iter<T>();
+    vector_from_sequence<T>();
+    vector_from_iterator<T>();
     boost::python::to_python_converter<std::vector<T>, vector_to_list<T> >();
 }
 
 
-void register_midi_event_type_converters() {
+void register_midi_event_type_converters()
+{
     midi_event_type_from_int();
     boost::python::to_python_converter<MidiEventType, midi_event_type_to_int>();
 }
