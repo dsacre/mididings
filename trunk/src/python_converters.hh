@@ -46,7 +46,9 @@ struct custom_vector_from_seq
         int l = PySequence_Size(obj_ptr);
         v->reserve(l);
         for (int i = 0; i != l; ++i) {
-            v->push_back(boost::python::extract<T>(PySequence_GetItem(obj_ptr, i)));
+            PyObject *item = PySequence_GetItem(obj_ptr, i);
+            v->push_back(boost::python::extract<T>(item));
+            boost::python::decref(item);
         }
         data->convertible = storage;
     }
