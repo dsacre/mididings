@@ -10,7 +10,6 @@
  */
 
 #include "config.hh"
-#include "python_converters.hh"
 #include "engine.hh"
 #include "patch.hh"
 #include "units/base.hh"
@@ -19,6 +18,8 @@
 #include "units/modifiers.hh"
 #include "units/generators.hh"
 #include "units/call.hh"
+
+#include "util/python_converters.hh"
 
 #include <boost/python/module.hpp>
 #include <boost/python/def.hpp>
@@ -44,7 +45,6 @@ BOOST_PYTHON_MODULE(_mididings)
     using bp::def;
     using boost::noncopyable;
     using namespace Units;
-    using namespace Converters;
 
     PyEval_InitThreads();
 
@@ -139,15 +139,15 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
 
 
-    // register to/from-python converters for various vector types
-    register_vector_converters<int>();
-    register_vector_converters<unsigned char>();
-    register_vector_converters<float>();
-    register_vector_converters<std::string>();
-    register_vector_converters<MidiEvent>();
-    register_vector_converters<Patch::ModulePtr>();
+    // register to/from-python converters for various types
+    das::register_vector_converters<int>();
+    das::register_vector_converters<unsigned char>();
+    das::register_vector_converters<float>();
+    das::register_vector_converters<std::string>();
+    das::register_vector_converters<MidiEvent>();
+    das::register_vector_converters<Patch::ModulePtr>();
 
-    register_midi_event_type_converters();
+    das::register_enum_converters<MidiEventType>();
 }
 
 
