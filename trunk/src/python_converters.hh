@@ -10,6 +10,7 @@
  */
 
 #include "config.hh"
+#include "midi_event.hh"
 
 #include <boost/python/converter/registry.hpp>
 #include <boost/python/to_python_converter.hpp>
@@ -20,34 +21,32 @@
 
 
 namespace Mididings {
-
-
-namespace {
+namespace Converters {
 
 
 template <typename T>
-struct custom_vector_from_seq
+struct vector_from_seq
 {
-    custom_vector_from_seq() {
+    vector_from_seq() {
         boost::python::converter::registry::push_back(&convertible, &construct, boost::python::type_id<std::vector<T> >());
     }
 
-    static void *convertible(PyObject* obj_ptr) {
+    static void *convertible(PyObject *obj_ptr) {
         if (!PySequence_Check(obj_ptr)) return 0;
         return obj_ptr;
     }
 
-    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data) {
+    static void construct(PyObject *obj_ptr, boost::python::converter::rvalue_from_python_stage1_data *data) {
         void *storage = ((boost::python::converter::rvalue_from_python_storage<std::vector<T> >*)(data))->storage.bytes;
         new (storage) std::vector<T>();
 
-        std::vector<T> *v = (std::vector<T>*) storage;
+        std::vector<T> & v = *(std::vector<T> *) storage;
 
         int l = PySequence_Size(obj_ptr);
-        v->reserve(l);
+        v.reserve(l);
         for (int i = 0; i != l; ++i) {
             PyObject *item = PySequence_GetItem(obj_ptr, i);
-            v->push_back(boost::python::extract<T>(item));
+            v.push_back(boost::python::extract<T>(item));
             boost::python::decref(item);
         }
         data->convertible = storage;
@@ -56,26 +55,26 @@ struct custom_vector_from_seq
 
 
 template <typename T>
-struct custom_vector_from_iter
+struct vector_from_iter
 {
-    custom_vector_from_iter() {
+    vector_from_iter() {
         boost::python::converter::registry::push_back(&convertible, &construct, boost::python::type_id<std::vector<T> >());
     }
 
-    static void *convertible(PyObject* obj_ptr) {
+    static void *convertible(PyObject *obj_ptr) {
         if (!PyIter_Check(obj_ptr) || PySequence_Check(obj_ptr)) return 0;
         return obj_ptr;
     }
 
-    static void construct(PyObject* obj_ptr, boost::python::converter::rvalue_from_python_stage1_data* data) {
+    static void construct(PyObject *obj_ptr, boost::python::converter::rvalue_from_python_stage1_data *data) {
         void *storage = ((boost::python::converter::rvalue_from_python_storage<std::vector<T> >*)(data))->storage.bytes;
         new (storage) std::vector<T>();
 
-        std::vector<T> *v = (std::vector<T>*) storage;
+        std::vector<T> & v = *(std::vector<T> *) storage;
 
         PyObject *item;
         while ((item = PyIter_Next(obj_ptr))) {
-            v->push_back(boost::python::extract<T>(item));
+            v.push_back(boost::python::extract<T>(item));
             boost::python::decref(item);
         }
 
@@ -90,9 +89,9 @@ struct custom_vector_from_iter
 
 
 template <typename T>
-struct custom_vector_to_list
+struct vector_to_list
 {
-    static PyObject* convert(std::vector<T> const & v) {
+    static PyObject *convert(std::vector<T> const & v) {
         boost::python::list ret;
         for (typename std::vector<T>::const_iterator it = v.begin(); it != v.end(); ++it) {
             ret.append(*it);
@@ -103,16 +102,50 @@ struct custom_vector_to_list
 };
 
 
-} //
+struct midi_event_type_from_int
+{
+    midi_event_type_from_int() {
+        boost::python::converter::registry::push_back(&convertible, &construct, boost::python::type_id<MidiEventType>());
+    }
+
+    static void *convertible(PyObject *obj_ptr) {
+        if (!PyInt_Check(obj_ptr)) return 0;
+        return obj_ptr;
+    }
+
+    static void construct(PyObject *obj_ptr, boost::python::converter::rvalue_from_python_stage1_data *data) {
+        void *storage = ((boost::python::converter::rvalue_from_python_storage<MidiEventType>*)(data))->storage.bytes;
+        MidiEventType & t = *(MidiEventType *) storage;
+        t = static_cast<MidiEventType>(PyInt_AsLong(obj_ptr));
+        data->convertible = storage;
+    }
+};
+
+
+struct midi_event_type_to_int
+{
+    static PyObject *convert(MidiEventType const & t) {
+        boost::python::object ret(static_cast<int>(t));
+        return boost::python::incref(ret.ptr());
+    }
+};
+
 
 
 template <typename T>
 void register_vector_converters()
 {
-    custom_vector_from_seq<T>();
-    custom_vector_from_iter<T>();
-    boost::python::to_python_converter<std::vector<T>, custom_vector_to_list<T> >();
+    vector_from_seq<T>();
+    vector_from_iter<T>();
+    boost::python::to_python_converter<std::vector<T>, vector_to_list<T> >();
 }
 
 
+void register_midi_event_type_converters() {
+    midi_event_type_from_int();
+    boost::python::to_python_converter<MidiEventType, midi_event_type_to_int>();
+}
+
+
+} // Converters
 } // Mididings

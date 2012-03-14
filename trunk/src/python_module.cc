@@ -41,20 +41,6 @@ namespace bp = boost::python;
 namespace Mididings {
 
 
-namespace {
-
-// getter/setter functions for MidiEvent.type, to allow MidiEventType <-> int conversion
-inline int midi_event_get_type(MidiEvent const & ev) {
-    return static_cast<int>(ev.type);
-}
-
-inline void midi_event_set_type(MidiEvent & ev, int t) {
-    ev.type = static_cast<MidiEventType>(t);
-}
-
-} //
-
-
 BOOST_PYTHON_MODULE(_mididings)
 {
     using bp::class_;
@@ -63,6 +49,7 @@ BOOST_PYTHON_MODULE(_mididings)
     using bp::def;
     using boost::noncopyable;
     using namespace Units;
+    using namespace Converters;
 
     PyEval_InitThreads();
 
@@ -100,7 +87,7 @@ BOOST_PYTHON_MODULE(_mididings)
 
     // midi event class, derived from in python
     class_<MidiEvent>("MidiEvent")
-        .add_property("type", &midi_event_get_type, &midi_event_set_type)
+        .def_readwrite("type", &MidiEvent::type)
         .def_readwrite("port_", &MidiEvent::port)
         .def_readwrite("channel_", &MidiEvent::channel)
         .def_readwrite("data1", &MidiEvent::data1)
@@ -111,6 +98,8 @@ BOOST_PYTHON_MODULE(_mididings)
         .def(bp::self != bp::self)
         .enable_pickling()
     ;
+
+    register_midi_event_type_converters();
 
 #ifdef ENABLE_TEST
     class_<std::vector<MidiEvent> >("MidiEventVector")
