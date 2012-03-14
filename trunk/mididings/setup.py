@@ -14,7 +14,7 @@ import _mididings
 
 import mididings.misc as _misc
 
-_VALID_BACKENDS = [_mididings.available_backends().at(i) for i in range(_mididings.available_backends().size())]
+_VALID_BACKENDS = _mididings.available_backends()
 
 _DEFAULT_CONFIG = {
     'backend':          'alsa' if 'alsa' in _VALID_BACKENDS else 'jack',

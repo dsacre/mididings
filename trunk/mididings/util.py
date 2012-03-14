@@ -217,11 +217,12 @@ def scene_number(scene):
 
 
 def extract_sysex(sysex):
-    gen = (sysex.at(n) for n in range(sysex.size()))
+    # FIXME
     if _sys.version_info < (3,):
-        return list(gen)
+        return list(sysex)
     else:
-        return bytes(gen)
+        return bytes(sysex)
+
 
 
 def _sysex_to_sequence(sysex):

@@ -112,5 +112,4 @@ def SysEx(*args, **kwargs):
         lambda sysex: (_constants.EVENT_PORT, sysex),
         lambda port, sysex: (port, sysex)
     ])
-    sysex = _util.sysex_data(sysex)
-    return _Unit(_mididings.SysExGenerator(port, _misc.make_unsigned_char_vector(sysex)))
+    return _Unit(_mididings.SysExGenerator(port, _util.sysex_data(sysex)))

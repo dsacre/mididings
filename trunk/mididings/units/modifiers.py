@@ -81,10 +81,7 @@ def VelocitySlope(*args, **kwargs):
     if mode == 6:
         return VelocitySlope(notes, multiply=params[0]) >> VelocitySlope(notes, offset=params[1])
     else:
-        return _Unit(_mididings.VelocitySlope(
-            _misc.make_int_vector(note_numbers),
-            _misc.make_float_vector(params), mode
-        ))
+        return _Unit(_mididings.VelocitySlope(note_numbers, params, mode))
 
 
 def VelocityLimit(*args, **kwargs):

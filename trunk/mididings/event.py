@@ -138,7 +138,7 @@ class MidiEvent(_mididings.MidiEvent):
         return _util.extract_sysex(_mididings.MidiEvent.get_sysex_data(self))
 
     def set_sysex_data(self, sysex):
-        _mididings.MidiEvent.set_sysex_data(self, _misc.make_unsigned_char_vector(_util.sysex_data(sysex)))
+        _mididings.MidiEvent.set_sysex_data(self, _util.sysex_data(sysex))
 
     sysex = property(get_sysex_data, set_sysex_data)
 

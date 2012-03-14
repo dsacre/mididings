@@ -53,8 +53,8 @@ class Engine(_mididings.Engine):
             self,
             _get_config('backend'),
             _get_config('client_name'),
-            _misc.make_string_vector(self.in_ports),
-            _misc.make_string_vector(self.out_ports),
+            self.in_ports,
+            self.out_ports,
             not _get_config('silent')
         )
 

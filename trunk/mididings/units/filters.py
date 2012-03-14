@@ -20,14 +20,14 @@ import mididings.misc as _misc
 
 @_unit_repr
 def PortFilter(*args):
-    v = _misc.make_int_vector((_util.port_number(p) for p in _misc.flatten(args)))
-    return _Filter(_mididings.PortFilter(v))
+    ports = (_util.port_number(p) for p in _misc.flatten(args))
+    return _Filter(_mididings.PortFilter(ports))
 
 
 @_unit_repr
 def ChannelFilter(*args):
-    v = _misc.make_int_vector((_util.channel_number(c) for c in _misc.flatten(args)))
-    return _Filter(_mididings.ChannelFilter(v))
+    channels = (_util.channel_number(c) for c in _misc.flatten(args))
+    return _Filter(_mididings.ChannelFilter(channels))
 
 
 @_unit_repr
@@ -40,11 +40,10 @@ def KeyFilter(*args, **kwargs):
         lambda notes: list(notes),
     ])
     if isinstance(note_range, list):
-        v = _misc.make_int_vector((_util.note_number(k) for k in note_range))
-        return _Filter(_mididings.KeyFilter(0, 0, v))
+        notes = (_util.note_number(k) for k in note_range)
+        return _Filter(_mididings.KeyFilter(0, 0, notes))
     else:
-        v = _misc.make_int_vector([])
-        return _Filter(_mididings.KeyFilter(note_range[0], note_range[1], v))
+        return _Filter(_mididings.KeyFilter(note_range[0], note_range[1], []))
 
 
 @_unit_repr
@@ -60,8 +59,8 @@ def VelocityFilter(*args, **kwargs):
 
 @_unit_repr
 def CtrlFilter(*args):
-    v = _misc.make_int_vector(_util.ctrl_number(c) for c in _misc.flatten(args))
-    return _Filter(_mididings.CtrlFilter(v))
+    ctrls = (_util.ctrl_number(c) for c in _misc.flatten(args))
+    return _Filter(_mididings.CtrlFilter(ctrls))
 
 
 @_unit_repr
@@ -77,8 +76,8 @@ def CtrlValueFilter(*args, **kwargs):
 
 @_unit_repr
 def ProgramFilter(*args):
-    v = _misc.make_int_vector(_util.program_number(p) for p in _misc.flatten(args))
-    return _Filter(_mididings.ProgramFilter(v))
+    progs = (_util.program_number(p) for p in _misc.flatten(args))
+    return _Filter(_mididings.ProgramFilter(progs))
 
 
 @_unit_repr
@@ -86,10 +85,10 @@ def ProgramFilter(*args):
 def SysExFilter(sysex):
     sysex = _util.sysex_data(sysex, allow_partial=True)
     partial = (sysex[-1] != '\xf7')
-    return _Filter(_mididings.SysExFilter(_misc.make_unsigned_char_vector(sysex), partial))
+    return _Filter(_mididings.SysExFilter(sysex, partial))
 
 @_unit_repr
 @_misc.overload
 def SysExFilter(manufacturer):
     sysex = '\xf0' + _util.sysex_manufacturer(manufacturer)
-    return _Filter(_mididings.SysExFilter(_misc.make_unsigned_char_vector(sysex), True))
+    return _Filter(_mididings.SysExFilter(sysex, True))

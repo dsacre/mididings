@@ -55,24 +55,6 @@ def issequenceof(seq, t):
     return issequence(seq) and all(isinstance(v, t) for v in seq)
 
 
-def _fill_vector(vec, seq):
-    for i in seq:
-        vec.push_back(i)
-    return vec
-
-def make_int_vector(seq):
-    return _fill_vector(_mididings.int_vector(), seq)
-
-def make_unsigned_char_vector(seq):
-    return _fill_vector(_mididings.unsigned_char_vector(), seq)
-
-def make_float_vector(seq):
-    return _fill_vector(_mididings.float_vector(), seq)
-
-def make_string_vector(seq):
-    return _fill_vector(_mididings.string_vector(), seq)
-
-
 def call_overload(args, kwargs, funcs, name=None):
     """
     Search funcs for a function with parameters such that args and kwargs can
