@@ -28,10 +28,6 @@
 #include <boost/python/return_value_policy.hpp>
 #include <boost/python/return_by_value.hpp>
 
-#ifdef ENABLE_TEST
-    #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-#endif // ENABLE_TEST
-
 #include <vector>
 #include <string>
 
@@ -98,12 +94,6 @@ BOOST_PYTHON_MODULE(_mididings)
         .enable_pickling()
     ;
 
-#ifdef ENABLE_TEST
-    class_<std::vector<MidiEvent> >("MidiEventVector")
-        .def(bp::vector_indexing_suite<std::vector<MidiEvent> >())
-    ;
-#endif // ENABLE_TEST
-
 
     // unit base classes
     class_<Unit, noncopyable>("Unit", bp::no_init);
@@ -154,6 +144,7 @@ BOOST_PYTHON_MODULE(_mididings)
     register_vector_converters<unsigned char>();
     register_vector_converters<float>();
     register_vector_converters<std::string>();
+    register_vector_converters<MidiEvent>();
     register_vector_converters<Patch::ModulePtr>();
 
     register_midi_event_type_converters();
