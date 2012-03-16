@@ -59,8 +59,6 @@ class Engine(_mididings.Engine):
             not _get_config('silent')
         )
 
-        self.connect_ports({'in_1': ['firewire_pcm:C6.*']}, {'out_1': ['.*']})
-
         self._scenes = {}
 
         for i, s in scenes.items():
