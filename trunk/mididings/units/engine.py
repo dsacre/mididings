@@ -16,7 +16,7 @@ from mididings.units.base import _Unit, _unit_repr
 
 import mididings.constants as _constants
 import mididings.util as _util
-import mididings.misc as _misc
+import mididings.overload as _overload
 
 
 @_unit_repr
@@ -25,21 +25,21 @@ def Sanitize():
 
 
 @_unit_repr
-@_misc.overload
+@_overload.mark
 def SceneSwitch(number=_constants.EVENT_PROGRAM):
     return _Unit(_mididings.SceneSwitch(_util.scene_number(number) if number >= 0 else number, 0))
 
 @_unit_repr
-@_misc.overload
+@_overload.mark
 def SceneSwitch(offset):
     return _Unit(_mididings.SceneSwitch(0, offset))
 
 @_unit_repr
-@_misc.overload
+@_overload.mark
 def SubSceneSwitch(number=_constants.EVENT_PROGRAM):
     return _Unit(_mididings.SubSceneSwitch(_util.scene_number(number) if number >= 0 else number, 0, False))
 
 @_unit_repr
-@_misc.overload
+@_overload.mark
 def SubSceneSwitch(offset, wrap=True):
     return _Unit(_mididings.SubSceneSwitch(0, offset, wrap))

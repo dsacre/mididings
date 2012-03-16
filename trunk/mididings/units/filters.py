@@ -16,6 +16,7 @@ from mididings.units.base import _Filter, _unit_repr
 
 import mididings.util as _util
 import mididings.misc as _misc
+import mididings.overload as _overload
 
 
 @_unit_repr
@@ -32,7 +33,7 @@ def ChannelFilter(*args):
 
 @_unit_repr
 def KeyFilter(*args, **kwargs):
-    note_range = _misc.call_overload(args, kwargs, [
+    note_range = _overload.call(args, kwargs, [
         lambda note_range: _util.note_range(note_range),
         lambda lower, upper: _util.note_range((lower, upper)),
         lambda lower: _util.note_range((lower, 0)),
@@ -48,7 +49,7 @@ def KeyFilter(*args, **kwargs):
 
 @_unit_repr
 def VelocityFilter(*args, **kwargs):
-    lower, upper = _misc.call_overload(args, kwargs, [
+    lower, upper = _overload.call(args, kwargs, [
         lambda value: (value, value+1),
         lambda lower: (lower, 0),
         lambda upper: (0, upper),
@@ -65,7 +66,7 @@ def CtrlFilter(*args):
 
 @_unit_repr
 def CtrlValueFilter(*args, **kwargs):
-    lower, upper = _misc.call_overload(args, kwargs, [
+    lower, upper = _overload.call(args, kwargs, [
         lambda value: (value, value+1),
         lambda lower: (lower, 0),
         lambda upper: (0, upper),
@@ -81,14 +82,14 @@ def ProgramFilter(*args):
 
 
 @_unit_repr
-@_misc.overload
+@_overload.mark
 def SysExFilter(sysex):
     sysex = _util.sysex_data(sysex, allow_partial=True)
     partial = (sysex[-1] != '\xf7')
     return _Filter(_mididings.SysExFilter(sysex, partial))
 
 @_unit_repr
-@_misc.overload
+@_overload.mark
 def SysExFilter(manufacturer):
     sysex = '\xf0' + _util.sysex_manufacturer(manufacturer)
     return _Filter(_mididings.SysExFilter(sysex, True))

@@ -15,7 +15,7 @@ import _mididings
 from mididings.units.base import _Unit, _unit_repr
 
 import mididings.event as _event
-import mididings.misc as _misc
+import mididings.overload as _overload
 from mididings.setup import get_config as _get_config
 
 import sys as _sys
@@ -73,7 +73,7 @@ def Process(function):
 
 
 @_unit_repr
-@_misc.overload
+@_overload.mark
 def Call(function):
     def wrapper(function, ev):
         if function(ev) != None:
@@ -81,7 +81,7 @@ def Call(function):
     return _CallBase(_functools.partial(wrapper, function), True, True)
 
 @_unit_repr
-@_misc.overload
+@_overload.mark
 def Call(thread):
     return _CallThread(thread)
 

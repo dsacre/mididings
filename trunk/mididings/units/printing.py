@@ -14,6 +14,7 @@ from mididings.units.call import _CallBase
 from mididings.units.base import _unit_repr
 
 import mididings.constants as _constants
+import mididings.overload as _overload
 import mididings.misc as _misc
 
 
@@ -84,11 +85,11 @@ class _PrintString(_CallBase):
 
 
 @_unit_repr
-@_misc.overload
+@_overload.mark
 def Print(name=None, portnames=None):
     return _Print(name, portnames)
 
 @_unit_repr
-@_misc.overload
+@_overload.mark
 def Print(string):
     return _PrintString(string)

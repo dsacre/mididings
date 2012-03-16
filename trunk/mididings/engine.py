@@ -17,6 +17,7 @@ import mididings.scene as _scene
 import mididings.util as _util
 import mididings.misc as _misc
 import mididings.setup as _setup
+import mididings.overload as _overload
 from mididings.setup import get_config as _get_config
 from mididings.setup import get_hooks as _get_hooks
 
@@ -57,6 +58,8 @@ class Engine(_mididings.Engine):
             self.out_ports,
             not _get_config('silent')
         )
+
+        self.connect_ports({'in_1': ['firewire_pcm:C6.*']}, {'out_1': ['.*']})
 
         self._scenes = {}
 
@@ -228,7 +231,7 @@ class Engine(_mididings.Engine):
 
 
 
-@_misc.overload
+@_overload.mark
 def run(patch):
     """
     Create the engine and start event processing. This function does not
@@ -237,7 +240,7 @@ def run(patch):
     e = Engine({ _util.offset(0): patch }, None, None, None)
     e.run()
 
-@_misc.overload
+@_overload.mark
 def run(scenes, control=None, pre=None, post=None):
     """
     Create the engine and start event processing. This function does not
