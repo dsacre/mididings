@@ -13,6 +13,7 @@
 import tests.helpers
 
 from mididings import *
+from mididings.event import *
 
 
 class FiltersTestCase(tests.helpers.MididingsTestCase):
@@ -87,4 +88,24 @@ class FiltersTestCase(tests.helpers.MididingsTestCase):
             self.make_event(PROGRAM, value=13): (False, True),
 #            self.make_event(CTRL): (True, True),
             self.make_event(CTRL): (False, False),
+        })
+
+    def test_SysExFilter(self):
+        self.check_filter(SysExFilter([0xf0, 4, 8, 15, 16, 23, 42, 0xf7]), {
+            SysExEvent(0, [0xf0, 4, 8, 15, 16, 23, 42, 0xf7]): (True, False),
+            SysExEvent(0, [0xf0, 4, 8, 15, 16, 23, 43, 0xf7]): (False, True),
+            self.make_event(NOTEON): (False, False),
+            self.make_event(CTRL): (False, False),
+        })
+        self.check_filter(SysExFilter('\xf0\x04\x08'), {
+            SysExEvent(0, [0xf0, 4, 8, 15, 16, 23, 42, 0xf7]): (True, False),
+            SysExEvent(0, [0xf0, 4, 9, 15, 16, 23, 42, 0xf7]): (False, True),
+        })
+        self.check_filter(SysExFilter(manufacturer=0x42), {
+            SysExEvent(0, [0xf0, 0x42, 8, 15, 16, 23, 42, 0xf7]): (True, False),
+            SysExEvent(0, [0xf0, 0x43, 8, 15, 16, 23, 42, 0xf7]): (False, True),
+        })
+        self.check_filter(SysExFilter(manufacturer='\x00\x23\x42'), {
+            SysExEvent(0, [0xf0, 0x00, 0x23, 0x42, 16, 23, 42, 0xf7]): (True, False),
+            SysExEvent(0, [0xf0, 4, 8, 15, 16, 23, 42, 0xf7]): (False, True),
         })

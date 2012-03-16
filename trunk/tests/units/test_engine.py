@@ -13,7 +13,6 @@
 import tests.helpers
 
 from mididings import *
-from mididings.event import *
 
 
 class EngineTestCase(tests.helpers.MididingsTestCase):
