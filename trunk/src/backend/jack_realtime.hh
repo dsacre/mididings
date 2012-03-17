@@ -30,8 +30,8 @@ class JACKRealtimeBackend
 {
   public:
     JACKRealtimeBackend(std::string const & client_name,
-                        PortNameVector const & in_portnames,
-                        PortNameVector const & out_portnames);
+                        PortNameVector const & in_port_names,
+                        PortNameVector const & out_port_names);
 
     virtual void start(InitFunction init, CycleFunction cycle);
     virtual void stop() { }
