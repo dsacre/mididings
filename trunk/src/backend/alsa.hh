@@ -32,8 +32,8 @@ class ALSABackend
 {
   public:
     ALSABackend(std::string const & client_name,
-                std::vector<std::string> const & in_ports,
-                std::vector<std::string> const & out_ports);
+                PortNameVector const & in_port_names,
+                PortNameVector const & out_port_names);
     virtual ~ALSABackend();
 
     virtual void start(InitFunction init, CycleFunction cycle);
@@ -42,9 +42,36 @@ class ALSABackend
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
 
-    virtual std::size_t num_out_ports() const { return _portid_out.size(); }
+    virtual std::size_t num_out_ports() const { return _out_ports.size(); }
+
+    virtual void connect_ports(PortConnectionMap const & in_port_connections,
+                               PortConnectionMap const & out_port_connections);
 
   private:
+    struct ClientPortInfo {
+        ClientPortInfo(int client_id_, int port_id_, std::string const & client_name_, std::string const & port_name_)
+          : client_id(client_id_),
+            port_id(port_id_),
+            client_name(client_name_),
+            port_name(port_name_)
+        { }
+
+        int client_id;
+        int port_id;
+        std::string client_name;
+        std::string port_name;
+    };
+
+    typedef std::vector<ClientPortInfo> ClientPortInfoVector;
+
+    typedef std::vector<int> PortIdVector;
+    typedef std::map<int, int> RevPortIdMap;
+
+    void connect_ports_impl(PortConnectionMap const & port_connections, PortIdVector const & ports, bool out);
+    int connect_matching_ports(int port, std::string const & port_name, std::string const & pattern,
+                               ClientPortInfoVector const & external_ports, bool out);
+    ClientPortInfoVector get_external_ports(bool out);
+
     void alsa_to_midi_event(MidiEvent & ev, snd_seq_event_t const & alsa_ev);
     void alsa_to_midi_event_sysex(MidiEvent & ev, snd_seq_event_t const & alsa_ev);
     void alsa_to_midi_event_generic(MidiEvent & ev, snd_seq_event_t const & alsa_ev);
@@ -55,16 +82,16 @@ class ALSABackend
 
     snd_seq_t *_seq;
 
-    std::vector<int> _portid_in;        // alsa input port ids
-    std::map<int, int> _portid_in_rev;  // reverse mapping (port id -> port #)
-    std::vector<int> _portid_out;       // alsa output port ids
+    PortIdVector _in_ports;         // alsa input port IDs
+    RevPortIdMap _in_ports_rev;     // reverse mapping (input port ID -> port #)
+    PortIdVector _out_ports;        // alsa output port IDs
 
     snd_midi_event_t *_parser;
 
-    // per-port buffers for incoming sysex data
+    // per-port buffers of incoming sysex data
     std::map<int, MidiEvent::SysExPtr> _sysex_buffer;
 
-    boost::scoped_ptr<boost::thread> _thrd;
+    boost::scoped_ptr<boost::thread> _thread;
 };
 
 

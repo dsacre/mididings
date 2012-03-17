@@ -38,8 +38,8 @@ Engine * TheEngine = NULL;
 Engine::Engine(PyObject * self,
                std::string const & backend_name,
                std::string const & client_name,
-               std::vector<std::string> const & in_ports,
-               std::vector<std::string> const & out_ports,
+               Backend::PortNameVector const & in_ports,
+               Backend::PortNameVector const & out_ports,
                bool verbose)
   : _self(self)
   , _verbose(verbose)
@@ -68,6 +68,15 @@ Engine::~Engine()
 
     if (_backend) {
         _backend->stop();
+    }
+}
+
+
+void Engine::connect_ports(Backend::PortConnectionMap const & in_port_connections,
+                           Backend::PortConnectionMap const & out_port_connections)
+{
+    if (_backend) {
+        _backend->connect_ports(in_port_connections, out_port_connections);
     }
 }
 

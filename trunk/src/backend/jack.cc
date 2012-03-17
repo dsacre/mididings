@@ -15,6 +15,11 @@
 #include <jack/jack.h>
 #include <jack/midiport.h>
 
+#include <iostream>
+
+#include <boost/foreach.hpp>
+
+#include "util/string.hh"
 #include "util/debug.hh"
 
 
@@ -23,15 +28,13 @@ namespace Backend {
 
 
 JACKBackend::JACKBackend(std::string const & client_name,
-                         std::vector<std::string> const & in_portnames,
-                         std::vector<std::string> const & out_portnames)
-  : _in_ports(in_portnames.size())
-  , _out_ports(out_portnames.size())
-  , _current_frame(0)
+                         PortNameVector const & in_port_names,
+                         PortNameVector const & out_port_names)
+  : _current_frame(0)
 {
     ASSERT(!client_name.empty());
-    ASSERT(!in_portnames.empty());
-    ASSERT(!out_portnames.empty());
+    ASSERT(!in_port_names.empty());
+    ASSERT(!out_port_names.empty());
 
     // create JACK client
     if ((_client = jack_client_open(client_name.c_str(), JackNullOption, NULL)) == 0) {
@@ -41,19 +44,21 @@ JACKBackend::JACKBackend(std::string const & client_name,
     jack_set_process_callback(_client, &process_, static_cast<void*>(this));
 
     // create input ports
-    for (int n = 0; n < static_cast<int>(in_portnames.size()); n++) {
-        _in_ports[n] = jack_port_register(_client, in_portnames[n].c_str(), JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
-        if (_in_ports[n] == NULL) {
+    BOOST_FOREACH (std::string const & port_name, in_port_names) {
+        jack_port_t *p = jack_port_register(_client, port_name.c_str(), JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
+        if (p == NULL) {
             throw Error("error creating input port");
         }
+        _in_ports.push_back(p);
     }
 
     // create output ports
-    for (int n = 0; n < static_cast<int>(out_portnames.size()); n++) {
-        _out_ports[n] = jack_port_register(_client, out_portnames[n].c_str(), JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
-        if (_out_ports[n] == NULL) {
+    BOOST_FOREACH (std::string const & port_name, out_port_names) {
+        jack_port_t *p = jack_port_register(_client, port_name.c_str(), JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+        if (p == NULL) {
             throw Error("error creating output port");
         }
+        _out_ports.push_back(p);
     }
 
     if (jack_activate(_client)) {
@@ -66,6 +71,84 @@ JACKBackend::~JACKBackend()
 {
     jack_deactivate(_client);
     jack_client_close(_client);
+}
+
+
+void JACKBackend::connect_ports(PortConnectionMap const & in_port_connections,
+                                PortConnectionMap const & out_port_connections)
+{
+    connect_ports_impl(in_port_connections, _in_ports, false);
+    connect_ports_impl(out_port_connections, _out_ports, true);
+}
+
+
+void JACKBackend::connect_ports_impl(PortConnectionMap const & port_connections, std::vector<jack_port_t *> const & ports, bool out)
+{
+    if (port_connections.empty()) return;
+
+    // get all JACK MIDI ports we could connect to
+    char const **external_ports_array = jack_get_ports(_client, NULL, JACK_DEFAULT_MIDI_TYPE, out ? JackPortIsInput : JackPortIsOutput);
+    if (!external_ports_array) return;
+
+    // find end of array
+    char const **end = external_ports_array;
+    while (*end != NULL) ++end;
+
+    // convert char* array to vector of strings
+    PortNameVector external_ports(external_ports_array, end);
+
+    jack_free(external_ports_array);
+
+    // for each of our ports...
+    BOOST_FOREACH (jack_port_t * port, ports) {
+        std::string short_name = jack_port_short_name(port);
+        std::string port_name = jack_port_name(port);
+
+        PortConnectionMap::const_iterator element = port_connections.find(short_name);
+
+        // break if no connections are defined for this port
+        if (element == port_connections.end()) break;
+
+        // for each regex pattern defined for this port...
+        BOOST_FOREACH (std::string const & pattern, element->second) {
+            // connect to all ports that match the pattern
+            if (connect_matching_ports(port_name, pattern, external_ports, out) == 0) {
+                std::cerr << "regular expression '" << pattern << "' didn't match any ports" << std::endl;
+            }
+        }
+    }
+}
+
+
+int JACKBackend::connect_matching_ports(std::string const & port_name, std::string const & pattern, PortNameVector const & external_ports, bool out)
+{
+    try {
+        // compile pattern into regex object
+        das::regex regex(pattern, true);
+        int count = 0;
+
+        // for each external JACK MIDI port we might connect to...
+        BOOST_FOREACH (std::string const & external_port, external_ports) {
+            // check if port name matches regex
+            if (regex.match(external_port)) {
+                // connect output to input port
+                std::string const & output_port = out ? port_name : external_port;
+                std::string const & input_port = out ? external_port : port_name;
+
+                int error = jack_connect(_client, output_port.c_str(), input_port.c_str());
+
+                if (error && error != EEXIST) {
+                    std::cerr << "could not connect " << output_port << " to " << input_port << std::endl;
+                }
+
+                ++count;
+            }
+        }
+        return count;
+    }
+    catch (das::regex::compile_error & ex) {
+        throw std::runtime_error(das::make_string() << "failed to parse regular expression '" << pattern << "': " << ex.what());
+    }
 }
 
 

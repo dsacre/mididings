@@ -33,11 +33,14 @@ class JACKBackend
 {
   public:
     JACKBackend(std::string const & client_name,
-                std::vector<std::string> const & in_portnames,
-                std::vector<std::string> const & out_portnames);
+                PortNameVector const & in_port_names,
+                PortNameVector const & out_port_names);
     virtual ~JACKBackend();
 
     virtual std::size_t num_out_ports() const { return _out_ports.size(); }
+
+    virtual void connect_ports(PortConnectionMap const & in_port_connections,
+                               PortConnectionMap const & out_port_connections);
 
   protected:
     // XXX this should be pure virtual.
@@ -56,6 +59,9 @@ class JACKBackend
 
   private:
     static int process_(jack_nframes_t, void *);
+
+    void connect_ports_impl(PortConnectionMap const & port_connections, std::vector<jack_port_t *> const & ports, bool out);
+    int connect_matching_ports(std::string const & port_name, std::string const & pattern, PortNameVector const & external_ports, bool out);
 
     // loop counters used by read_event()
     int _input_port;

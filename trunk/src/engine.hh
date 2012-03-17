@@ -66,11 +66,14 @@ class Engine
     Engine(PyObject * self,
            std::string const & backend_name,
            std::string const & client_name,
-           std::vector<std::string> const & in_ports,
-           std::vector<std::string> const & out_ports,
+           Backend::PortNameVector const & in_ports,
+           Backend::PortNameVector const & out_ports,
            bool verbose);
 
     ~Engine();
+
+    void connect_ports(Backend::PortConnectionMap const & in_port_connections,
+                       Backend::PortConnectionMap const & out_port_connections);
 
     void add_scene(int i, PatchPtr patch, PatchPtr init_patch);
     void set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch);

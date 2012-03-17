@@ -17,6 +17,7 @@
 #include <boost/python/list.hpp>
 
 #include <vector>
+#include <map>
 
 
 namespace das {
@@ -50,7 +51,7 @@ struct vector_from_iterator_converter
   : from_python_converter<std::vector<T>, vector_from_iterator_converter<T> >
 {
     static bool convertible(PyObject *obj_ptr) {
-        return PyIter_Check(obj_ptr) && !PySequence_Check(obj_ptr);
+        return PyIter_Check(obj_ptr);
     }
 
     static void construct(std::vector<T> & vec, PyObject *obj_ptr) {
@@ -83,6 +84,29 @@ struct vector_to_list_converter
 
     static PyTypeObject const *get_pytype() {
         return &PyList_Type;
+    }
+};
+
+
+
+template <typename K, typename V>
+struct map_from_dict_converter
+  : from_python_converter<std::map<K, V>, map_from_dict_converter<K, V> >
+{
+    static bool convertible(PyObject *obj_ptr) {
+        return PyDict_Check(obj_ptr);
+    }
+
+    static void construct(std::map<K, V> & map, PyObject *obj_ptr) {
+        PyObject *key_ptr, *value_ptr;
+        Py_ssize_t pos = 0;
+
+        while (PyDict_Next(obj_ptr, &pos, &key_ptr, &value_ptr)) {
+            K key = boost::python::extract<K>(key_ptr);
+            V value = boost::python::extract<V>(value_ptr);
+
+            map[key] = value;
+        }
     }
 };
 
@@ -137,6 +161,13 @@ void register_vector_converters()
     python_converters::vector_from_sequence_converter<T>();
     python_converters::vector_from_iterator_converter<T>();
     python_converters::vector_to_list_converter<T>();
+}
+
+
+template <typename K, typename V>
+void register_map_converters()
+{
+    python_converters::map_from_dict_converter<K, V>();
 }
 
 

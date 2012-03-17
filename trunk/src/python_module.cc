@@ -55,6 +55,7 @@ BOOST_PYTHON_MODULE(_mididings)
     // main engine class, derived from in python
     class_<Engine, Engine, noncopyable>("Engine", init<std::string const &, std::string const &,
                                                        std::vector<std::string> const &, std::vector<std::string> const &, bool>())
+        .def("connect_ports", &Engine::connect_ports)
         .def("add_scene", &Engine::add_scene)
         .def("set_processing", &Engine::set_processing)
         .def("start", &Engine::start)
@@ -146,6 +147,8 @@ BOOST_PYTHON_MODULE(_mididings)
     das::register_vector_converters<std::string>();
     das::register_vector_converters<MidiEvent>();
     das::register_vector_converters<Patch::ModulePtr>();
+
+    das::register_map_converters<std::string, std::vector<std::string> >();
 
     das::register_enum_converters<MidiEventType>();
 }
