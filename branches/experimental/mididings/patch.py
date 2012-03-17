@@ -21,20 +21,16 @@ class Patch(_mididings.Patch):
 
     def build(self, p):
         if isinstance(p, _units.base.Chain):
-            v = Patch.ModuleVector()
-            for i in p:
-                v.push_back(self.build(i))
-            return Patch.Chain(v)
+            return Patch.Chain(self.build(i) for i in p)
 
         elif isinstance(p, list):
-            v = Patch.ModuleVector()
-            for i in p:
-                v.push_back(self.build(i))
+            gen = (self.build(i) for i in p)
 
+            remove_duplicates = True
             if hasattr(p, 'remove_duplicates'):
-                return Patch.Fork(v, p.remove_duplicates != False)
-            else:
-                return Patch.Fork(v, True)
+                remove_duplicates = (p.remove_duplicates != False)
+
+            return Patch.Fork(gen, remove_duplicates)
 
         elif isinstance(p, dict):
             return self.build(
@@ -50,8 +46,7 @@ class Patch(_mididings.Patch):
             elif isinstance(p.unit, _mididings.UnitEx):
                 return Patch.Extended(p.unit)
 
-        raise TypeError("type '%s' not allowed in patch:\n"
-                        "offending object is: %r" % (type(p).__name__, p))
+        raise TypeError("type '%s' not allowed in patch. offending object is: %r" % (type(p).__name__, p))
 
 
 def get_init_patches(patch):

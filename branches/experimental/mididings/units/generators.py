@@ -16,7 +16,7 @@ from mididings.units.base import _Unit, _unit_repr
 
 import mididings.constants as _constants
 import mididings.util as _util
-import mididings.misc as _misc
+import mididings.overload as _overload
 
 
 @_unit_repr
@@ -30,7 +30,7 @@ def Generator(type, port, channel, data1=0, data2=0):
 
 
 def Ctrl(*args, **kwargs):
-    port, channel, ctrl, value = _misc.call_overload(args, kwargs, [
+    port, channel, ctrl, value = _overload.call(args, kwargs, [
         lambda ctrl, value: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, ctrl, value),
         lambda port, channel, ctrl, value: (port, channel, ctrl, value)
     ])
@@ -43,7 +43,7 @@ def Ctrl(*args, **kwargs):
 
 
 def Program(*args, **kwargs):
-    port, channel, program = _misc.call_overload(args, kwargs, [
+    port, channel, program = _overload.call(args, kwargs, [
         lambda program: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, program),
         lambda port, channel, program: (port, channel, program)
     ])
@@ -56,7 +56,7 @@ def Program(*args, **kwargs):
 
 
 def NoteOn(*args, **kwargs):
-    port, channel, note, velocity = _misc.call_overload(args, kwargs, [
+    port, channel, note, velocity = _overload.call(args, kwargs, [
         lambda note, velocity: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity),
         lambda port, channel, note, velocity: (port, channel, note, velocity)
     ])
@@ -69,7 +69,7 @@ def NoteOn(*args, **kwargs):
 
 
 def NoteOff(*args, **kwargs):
-    port, channel, note, velocity = _misc.call_overload(args, kwargs, [
+    port, channel, note, velocity = _overload.call(args, kwargs, [
         lambda note, velocity: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity),
         lambda port, channel, note, velocity: (port, channel, note, velocity)
     ])
@@ -82,7 +82,7 @@ def NoteOff(*args, **kwargs):
 
 
 def Pitchbend(*args, **kwargs):
-    port, channel, value = _misc.call_overload(args, kwargs, [
+    port, channel, value = _overload.call(args, kwargs, [
         lambda value: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, value),
         lambda port, channel, value: (port, channel, value)
     ])
@@ -95,7 +95,7 @@ def Pitchbend(*args, **kwargs):
 
 
 def Aftertouch(*args, **kwargs):
-    port, channel, value = _misc.call_overload(args, kwargs, [
+    port, channel, value = _overload.call(args, kwargs, [
         lambda value: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, value),
         lambda port, channel, value: (port, channel, value)
     ])
@@ -108,9 +108,8 @@ def Aftertouch(*args, **kwargs):
 
 
 def SysEx(*args, **kwargs):
-    port, sysex = _misc.call_overload(args, kwargs, [
+    port, sysex = _overload.call(args, kwargs, [
         lambda sysex: (_constants.EVENT_PORT, sysex),
         lambda port, sysex: (port, sysex)
     ])
-    sysex = _util.sysex_data(sysex)
-    return _Unit(_mididings.SysExGenerator(port, _misc.make_unsigned_char_vector(sysex)))
+    return _Unit(_mididings.SysExGenerator(port, _util.sysex_data(sysex)))

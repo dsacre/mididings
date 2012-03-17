@@ -14,7 +14,7 @@ from mididings.units.base import Chain, Fork
 from mididings.units.filters import PortFilter, ChannelFilter, KeyFilter, VelocityFilter
 from mididings.units.filters import CtrlFilter, CtrlValueFilter, ProgramFilter, SysExFilter
 
-import mididings.misc as _misc
+import mididings.overload as _overload
 
 
 def _make_split(t, d, unpack=False):
@@ -51,20 +51,20 @@ def ChannelSplit(d):
     return _make_split(ChannelFilter, d)
 
 
-@_misc.overload
+@_overload.mark
 def KeySplit(d):
     return _make_split(KeyFilter, d, unpack=True)
 
-@_misc.overload
+@_overload.mark
 def KeySplit(note, patch_lower, patch_upper):
     return _make_threshold(KeyFilter(0, note), patch_lower, patch_upper)
 
 
-@_misc.overload
+@_overload.mark
 def VelocitySplit(d):
     return _make_split(VelocityFilter, d, unpack=True)
 
-@_misc.overload
+@_overload.mark
 def VelocitySplit(threshold, patch_lower, patch_upper):
     return _make_threshold(VelocityFilter(0, threshold), patch_lower, patch_upper)
 
@@ -73,11 +73,11 @@ def CtrlSplit(d):
     return _make_split(CtrlFilter, d)
 
 
-@_misc.overload
+@_overload.mark
 def CtrlValueSplit(d):
     return _make_split(CtrlValueFilter, d, unpack=True)
 
-@_misc.overload
+@_overload.mark
 def CtrlValueSplit(threshold, patch_lower, patch_upper):
     return _make_threshold(CtrlValueFilter(0, threshold), patch_lower, patch_upper)
 
@@ -86,10 +86,10 @@ def ProgramSplit(d):
     return _make_split(ProgramFilter, d)
 
 
-@_misc.overload
+@_overload.mark
 def SysExSplit(d):
     return _make_split(SysExFilter, d)
 
-@_misc.overload
+@_overload.mark
 def SysExSplit(manufacturers):
     return _make_split(lambda m: SysExFilter(manufacturer=m), manufacturers)

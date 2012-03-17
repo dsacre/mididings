@@ -36,8 +36,8 @@ class JACKBufferedBackend
 {
   public:
     JACKBufferedBackend(std::string const & client_name,
-                        std::vector<std::string> const & in_portnames,
-                        std::vector<std::string> const & out_portnames);
+                        PortNameVector const & in_port_names,
+                        PortNameVector const & out_port_names);
 
     virtual void start(InitFunction init, CycleFunction cycle);
     virtual void stop();

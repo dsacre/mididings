@@ -18,6 +18,7 @@ from mididings.units.generators import NoteOn, NoteOff
 
 import mididings.util as _util
 import mididings.misc as _misc
+import mididings.overload as _overload
 import mididings.constants as _constants
 
 
@@ -45,7 +46,7 @@ def Key(note):
 
 @_unit_repr
 def Velocity(*args, **kwargs):
-    param, mode = _misc.call_overload(args, kwargs, [
+    param, mode = _overload.call(args, kwargs, [
         lambda offset: (offset, 1),
         lambda multiply: (multiply, 2),
         lambda fixed: (fixed, 3),
@@ -61,7 +62,7 @@ def Velocity(*args, **kwargs):
 
 @_unit_repr
 def VelocitySlope(*args, **kwargs):
-    notes, params, mode = _misc.call_overload(args, kwargs, [
+    notes, params, mode = _overload.call(args, kwargs, [
         lambda notes, offset: (notes, offset, 1),
         lambda notes, multiply: (notes, multiply, 2),
         lambda notes, fixed: (notes, fixed, 3),
@@ -81,14 +82,11 @@ def VelocitySlope(*args, **kwargs):
     if mode == 6:
         return VelocitySlope(notes, multiply=params[0]) >> VelocitySlope(notes, offset=params[1])
     else:
-        return _Unit(_mididings.VelocitySlope(
-            _misc.make_int_vector(note_numbers),
-            _misc.make_float_vector(params), mode
-        ))
+        return _Unit(_mididings.VelocitySlope(note_numbers, params, mode))
 
 
 def VelocityLimit(*args, **kwargs):
-    min, max = _misc.call_overload(args, kwargs, [
+    min, max = _overload.call(args, kwargs, [
         lambda min, max: (min, max),
         lambda max: (0, max),
         lambda min: (min, 0),
@@ -125,7 +123,7 @@ def CtrlRange(ctrl, min, max, in_min=0, in_max=127):
 
 @_unit_repr
 def CtrlCurve(*args, **kwargs):
-    ctrl, param, mode = _misc.call_overload(args, kwargs, [
+    ctrl, param, mode = _overload.call(args, kwargs, [
         lambda ctrl, gamma: (ctrl, gamma, 4),
         lambda ctrl, curve: (ctrl, curve, 5),
         lambda ctrl, offset: (ctrl, offset, 1),
@@ -139,10 +137,11 @@ def CtrlCurve(*args, **kwargs):
 
 
 @_unit_repr
-@_misc.overload
+@_overload.mark
 def PitchbendRange(min, max, in_min=-8192, in_max=8191):
     return _Unit(_mididings.PitchbendRange(min, max, in_min, in_max))
 
-@_misc.overload
+@_unit_repr
+@_overload.mark
 def PitchbendRange(down, up, range):
     return PitchbendRange(int(float(down)/range*8192), int(float(up)/range*8191))

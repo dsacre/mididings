@@ -13,6 +13,7 @@
 import _mididings
 
 import mididings.misc as _misc
+import mididings.overload as _overload
 
 import functools as _functools
 import sys as _sys
@@ -102,7 +103,7 @@ def _unit_repr(f):
     @_functools.wraps(f)
     def unit_wrapper(*args, **kwargs):
         u = f(*args, **kwargs)
-        u._name = f.name if isinstance(f, _misc.Overload) else f.__name__
+        u._name = f.name if isinstance(f, _overload.Overload) else f.__name__
         u._args = args
         u._kwargs = kwargs
         return u

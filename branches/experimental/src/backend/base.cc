@@ -55,8 +55,8 @@ std::vector<std::string> const & available()
 
 boost::shared_ptr<BackendBase> create(std::string const & backend_name,
                                       std::string const & client_name,
-                                      std::vector<std::string> const & in_ports,
-                                      std::vector<std::string> const & out_ports)
+                                      PortNameVector const & in_ports,
+                                      PortNameVector const & out_ports)
 {
     if (backend_name == "dummy") {
         // return empty shared pointer

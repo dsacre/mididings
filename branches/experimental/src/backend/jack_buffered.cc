@@ -26,9 +26,9 @@ namespace Backend {
 
 
 JACKBufferedBackend::JACKBufferedBackend(std::string const & client_name,
-                                         std::vector<std::string> const & in_portnames,
-                                         std::vector<std::string> const & out_portnames)
-  : JACKBackend(client_name, in_portnames, out_portnames)
+                                         PortNameVector const & in_port_names,
+                                         PortNameVector const & out_port_names)
+  : JACKBackend(client_name, in_port_names, out_port_names)
   , _in_rb(Config::MAX_JACK_EVENTS)
   , _out_rb(Config::MAX_JACK_EVENTS)
   , _quit(false)

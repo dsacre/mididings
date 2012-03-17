@@ -14,6 +14,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
@@ -36,12 +37,16 @@ struct Error
 };
 
 
+typedef std::vector<std::string> PortNameVector;
+typedef std::map<std::string, std::vector<std::string> > PortConnectionMap;
+
+
 std::vector<std::string> const & available();
 
 boost::shared_ptr<class BackendBase> create(std::string const & backend_name,
                                             std::string const & client_name,
-                                            std::vector<std::string> const & in_ports,
-                                            std::vector<std::string> const & out_ports);
+                                            PortNameVector const & in_ports,
+                                            PortNameVector const & out_ports);
 
 
 class BackendBase
@@ -53,6 +58,8 @@ class BackendBase
 
     BackendBase() { }
     virtual ~BackendBase() { }
+
+    virtual void connect_ports(PortConnectionMap const &, PortConnectionMap const &) { }
 
     // start MIDI processing, run init function.
     // depending on the backend, cycle may be called once (and not return) or periodically.

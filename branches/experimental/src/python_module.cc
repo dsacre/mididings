@@ -19,47 +19,21 @@
 #include "units/generators.hh"
 #include "units/call.hh"
 
+#include "util/python_converters.hh"
+
 #include <boost/python/module.hpp>
 #include <boost/python/def.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/scope.hpp>
 #include <boost/python/operators.hpp>
-
 #include <boost/python/return_value_policy.hpp>
 #include <boost/python/return_by_value.hpp>
-#include <boost/python/reference_existing_object.hpp>
-
-
-#ifdef ENABLE_TEST
-    #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-#endif // ENABLE_TEST
 
 #include <vector>
 #include <string>
 
 
 namespace Mididings {
-
-
-// getter/setter functions for MidiEvent.type, to allow MidiEventType <-> int conversion
-inline int midi_event_get_type(MidiEvent const & ev) {
-    return static_cast<int>(ev.type);
-}
-inline void midi_event_set_type(MidiEvent & ev, int t) {
-    ev.type = static_cast<MidiEventType>(t);
-}
-
-
-// simple wrapper for vector types, with no methods other than push_back(), size() and at()
-template <typename T>
-void vector_wrapper(char const *name) {
-    boost::python::class_<std::vector<T>, boost::noncopyable>(name)
-        .def("push_back", &std::vector<T>::push_back)
-        .def("size", &std::vector<T>::size)
-        .def("at", (T& (std::vector<T>::*)(typename std::vector<T>::size_type)) &std::vector<T>::at,
-             boost::python::return_value_policy<boost::python::return_by_value>())
-    ;
-}
 
 
 BOOST_PYTHON_MODULE(_mididings)
@@ -73,6 +47,54 @@ BOOST_PYTHON_MODULE(_mididings)
     using namespace Units;
 
     PyEval_InitThreads();
+
+
+    // list of supported backends
+    def("available_backends", &Backend::available, bp::return_value_policy<bp::return_by_value>());
+
+    // main engine class, derived from in python
+    class_<Engine, Engine, noncopyable>("Engine", init<std::string const &, std::string const &,
+                                                       std::vector<std::string> const &, std::vector<std::string> const &, bool>())
+        .def("connect_ports", &Engine::connect_ports)
+        .def("add_scene", &Engine::add_scene)
+        .def("set_processing", &Engine::set_processing)
+        .def("start", &Engine::start)
+        .def("switch_scene", &Engine::switch_scene)
+        .def("current_scene", &Engine::current_scene)
+        .def("current_subscene", &Engine::current_subscene)
+        .def("output_event", &Engine::output_event)
+        .def("time", &Engine::time)
+#ifdef ENABLE_TEST
+        .def("process", &Engine::process_test)
+#endif // ENABLE_TEST
+    ;
+
+    // patch class, derived from in python
+    {
+    bp::scope patch_scope = class_<Patch, noncopyable>("Patch", init<Patch::ModulePtr>());
+
+    class_<Patch::Module, noncopyable>("Module", bp::no_init);
+
+    class_<Patch::Chain, bases<Patch::Module>, noncopyable>("Chain", init<Patch::ModuleVector>());
+    class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector, bool>());
+    class_<Patch::Single, bases<Patch::Module>, noncopyable>("Single", init<boost::shared_ptr<Unit> >());
+    class_<Patch::Extended, bases<Patch::Module>, noncopyable>("Extended", init<boost::shared_ptr<UnitEx> >());
+    }
+
+    // midi event class, derived from in python
+    class_<MidiEvent>("MidiEvent")
+        .def_readwrite("type", &MidiEvent::type)
+        .def_readwrite("port_", &MidiEvent::port)
+        .def_readwrite("channel_", &MidiEvent::channel)
+        .def_readwrite("data1", &MidiEvent::data1)
+        .def_readwrite("data2", &MidiEvent::data2)
+        .def("get_sysex_data", &MidiEvent::get_sysex_data, bp::return_value_policy<bp::return_by_value>())
+        .def("set_sysex_data", &MidiEvent::set_sysex_data)
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
+        .enable_pickling()
+    ;
+
 
     // unit base classes
     class_<Unit, noncopyable>("Unit", bp::no_init);
@@ -117,63 +139,18 @@ BOOST_PYTHON_MODULE(_mididings)
     // call
     class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
 
-    // list of supported backends
-    def("available_backends", &Backend::available, bp::return_value_policy<bp::reference_existing_object>());
 
-    // main engine class, derived from in python
-    class_<Engine, Engine, noncopyable>("Engine", init<std::string const &, std::string const &,
-                                                       std::vector<std::string> const &, std::vector<std::string> const &, bool>())
-        .def("add_scene", &Engine::add_scene)
-        .def("set_processing", &Engine::set_processing)
-        .def("start", &Engine::start)
-        .def("switch_scene", &Engine::switch_scene)
-        .def("current_scene", &Engine::current_scene)
-        .def("current_subscene", &Engine::current_subscene)
-        .def("output_event", &Engine::output_event)
-        .def("time", &Engine::time)
-#ifdef ENABLE_TEST
-        .def("process", &Engine::process_test)
-#endif // ENABLE_TEST
-    ;
+    // register to/from-python converters for various types
+    das::register_vector_converters<int>();
+    das::register_vector_converters<unsigned char>();
+    das::register_vector_converters<float>();
+    das::register_vector_converters<std::string>();
+    das::register_vector_converters<MidiEvent>();
+    das::register_vector_converters<Patch::ModulePtr>();
 
-    // patch class, derived from in python
-    {
-    bp::scope patch_scope = class_<Patch, noncopyable>("Patch", init<Patch::ModulePtr>());
+    das::register_map_converters<std::string, std::vector<std::string> >();
 
-    class_<Patch::Module, noncopyable>("Module", bp::no_init);
-
-    vector_wrapper<Patch::ModulePtr>("ModuleVector");
-
-    class_<Patch::Chain, bases<Patch::Module>, noncopyable>("Chain", init<Patch::ModuleVector>());
-    class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector, bool>());
-    class_<Patch::Single, bases<Patch::Module>, noncopyable>("Single", init<boost::shared_ptr<Unit> >());
-    class_<Patch::Extended, bases<Patch::Module>, noncopyable>("Extended", init<boost::shared_ptr<UnitEx> >());
-    }
-
-    // midi event class, derived from in python
-    class_<MidiEvent>("MidiEvent")
-        .add_property("type", &midi_event_get_type, &midi_event_set_type)
-        .def_readwrite("port_", &MidiEvent::port)
-        .def_readwrite("channel_", &MidiEvent::channel)
-        .def_readwrite("data1", &MidiEvent::data1)
-        .def_readwrite("data2", &MidiEvent::data2)
-        .def("get_sysex_data", &MidiEvent::get_sysex_data, bp::return_value_policy<bp::reference_existing_object>())
-        .def("set_sysex_data", &MidiEvent::set_sysex_data)
-        .def(bp::self == bp::self)
-        .def(bp::self != bp::self)
-        .enable_pickling()
-    ;
-
-    vector_wrapper<int>("int_vector");
-    vector_wrapper<unsigned char>("unsigned_char_vector");
-    vector_wrapper<float>("float_vector");
-    vector_wrapper<std::string>("string_vector");
-
-#ifdef ENABLE_TEST
-    class_<std::vector<MidiEvent> >("MidiEventVector")
-        .def(bp::vector_indexing_suite<std::vector<MidiEvent> >())
-    ;
-#endif // ENABLE_TEST
+    das::register_enum_converters<MidiEventType>();
 }
 
 
