@@ -185,7 +185,7 @@ void Engine::run_async()
 std::vector<MidiEvent> Engine::process_test(MidiEvent const & ev)
 {
     std::vector<MidiEvent> v;
-    Events buffer;
+    Patch::EventBuffer buffer;
 
     if (!_current_patch) {
         _current_patch = &*_scenes.find(0)->second[0]->patch;
@@ -201,7 +201,8 @@ std::vector<MidiEvent> Engine::process_test(MidiEvent const & ev)
 #endif
 
 
-void Engine::process(Events & buffer, MidiEvent const & ev)
+template <typename B>
+void Engine::process(B & buffer, MidiEvent const & ev)
 {
     ASSERT(buffer.empty());
 
@@ -212,8 +213,8 @@ void Engine::process(Events & buffer, MidiEvent const & ev)
         _ctrl_patch->process(buffer);
     }
 
-    EventIter it = buffer.insert(buffer.end(), ev);
-    EventRange r = EventRange(it, buffer.end());
+    typename B::Iterator it = buffer.insert(buffer.end(), ev);
+    typename B::Range r(it, buffer.end());
 
     if (_pre_patch) {
         _pre_patch->process(buffer, r);
@@ -277,7 +278,8 @@ void Engine::switch_scene(int scene, int subscene)
 }
 
 
-void Engine::process_scene_switch(Events & buffer)
+template <typename B>
+void Engine::process_scene_switch(B & buffer)
 {
     if (_new_scene == -1 && _new_subscene == -1) {
         // nothing to do
@@ -310,8 +312,8 @@ void Engine::process_scene_switch(Events & buffer)
             // create dummy event to trigger init patch
             MidiEvent ev(MIDI_EVENT_DUMMY, 0, 0, 0, 0);
 
-            EventIter it = buffer.insert(buffer.end(), ev);
-            EventRange r(EventRange(it, buffer.end()));
+            typename B::Iterator it = buffer.insert(buffer.end(), ev);
+            typename B::Range r(typename B::Range(it, buffer.end()));
 
             // run event through init patch
             s->init_patch->process(buffer, r);

@@ -23,62 +23,77 @@
 namespace Mididings {
 
 
-void Patch::Chain::process(Events & buf, EventRange & r)
+template <typename B>
+void Patch::Chain::process(B & buf, typename B::Range & range) const
 {
-    DEBUG_PRINT(Patch::debug_range("Chain in", buf, r));
+    DEBUG_PRINT(Patch::debug_range("Chain in", buf, range));
 
-    for (ModuleVector::iterator m = _modules.begin(); m != _modules.end(); ++m)
+    // iterate over all modules in this chain
+    for (ModuleVector::const_iterator module = _modules.begin(); module != _modules.end(); ++module)
     {
-        if (r.empty()) {
-            // nothing to do
+        // run all events through the next module in the chain
+        (*module)->process(buf, range);
+
+        if (range.empty()) {
+            // the event range became empty, there's nothing left for us to do
             break;
         }
-
-        (*m)->process(buf, r);
     }
 
-    DEBUG_PRINT(Patch::debug_range("Chain out", buf, r));
+    DEBUG_PRINT(Patch::debug_range("Chain out", buf, range));
 }
 
 
-void Patch::Fork::process(Events & buf, EventRange & r)
+template <typename B>
+void Patch::Fork::process(B & buffer, typename B::Range & range) const
 {
-    DEBUG_PRINT(Patch::debug_range("Fork in", buf, r));
+    DEBUG_PRINT(Patch::debug_range("Fork in", buffer, range));
 
-    // make a copy of all incoming events
-    MidiEvent in[std::distance(r.begin(), r.end())];
-    std::copy(r.begin(), r.end(), in);
+    // make a copy of all incoming events, allocated on the stack
+    std::size_t num_events = std::distance(range.begin(), range.end());
+    MidiEvent in_events[num_events];
+    std::copy(range.begin(), range.end(), in_events);
 
-    // remove all incoming events
-    buf.erase(r.begin(), r.end());
-    // events to be returned: none so far
-    r = EventRange(r.end(), r.end());
+    // remove all incoming events from the buffer
+    buffer.erase(range.begin(), range.end());
 
-    for (MidiEvent * ev = in; ev != in + sizeof(in)/sizeof(*in); ++ev)
+    // clear range, no events to return so far
+    range = typename B::Range(range.end(), range.end());
+
+    // iterate over all input events
+    for (MidiEvent *ev = in_events; ev != in_events + num_events; ++ev)
     {
-        EventRange q(r.end(), r.end());
+        // the range of events returned for the current input event, empty
+        // so far
+        typename B::Range ev_range(range.end(), range.end());
 
-        for (ModuleVector::iterator m = _modules.begin(); m != _modules.end(); ++m)
+        // iterate over all modules in this fork
+        for (ModuleVector::const_iterator module = _modules.begin(); module != _modules.end(); ++module)
         {
-            // insert one event, process it
-            EventIter it = buf.insert(q.end(), *ev);
-            EventRange p(it, q.end());
-            (*m)->process(buf, p);
+            // insert one event
+            typename B::Iterator it = buffer.insert(ev_range.end(), *ev);
+            // the single-event range to be processed in this iteration
+            typename B::Range proc_range(it, ev_range.end());
+            // process event
+            (*module)->process(buffer, proc_range);
 
-            if (!p.empty() && q.empty()) {
-                // set start of r and q if they're still empty
-                if (r.empty()) {
-                    r = p;
+            if (!proc_range.empty() && ev_range.empty()) {
+                // at least one event was returned, we can now set the
+                // beginning of range and ev_range if they were empty so far
+                if (range.empty()) {
+                    range = proc_range;
                 }
-                q = p;
+                ev_range = proc_range;
             }
 
             if (_remove_duplicates) {
-                // for all events in p, look for previous occurrences in q \ p
-                for (EventIter it = p.begin(); it != p.end(); ) {
-                    if (std::find(q.begin(), p.begin(), *it) != p.begin()) {
+                // for all events returned in this iteration...
+                for (typename B::Iterator it = proc_range.begin(); it != proc_range.end(); ) {
+                    // look for previous occurrences that were returned for the
+                    // same input event, but from a different module
+                    if (std::find(ev_range.begin(), proc_range.begin(), *it) != proc_range.begin()) {
                         DEBUG_PRINT("Removing duplicate");
-                        it = buf.erase(it);
+                        it = buffer.erase(it);
                     } else {
                         ++it;
                     }
@@ -87,77 +102,105 @@ void Patch::Fork::process(Events & buf, EventRange & r)
         }
     }
 
-    DEBUG_PRINT(Patch::debug_range("Fork out", buf, r));
+    DEBUG_PRINT(Patch::debug_range("Fork out", buffer, range));
 }
 
 
-void Patch::Single::process(Events & buf, EventRange & r)
+template <typename B>
+void Patch::Single::process(B & buffer, typename B::Range & range) const
 {
-    DEBUG_PRINT(Patch::debug_range("Single in", buf, r));
+    DEBUG_PRINT(Patch::debug_range("Single in", buffer, range));
 
-    for (EventIter it = r.begin(); it != r.end(); )
+    // iterate over all events in the input range
+    for (typename B::Iterator it = range.begin(); it != range.end(); )
     {
+        // process event
         if (_unit->process(*it)) {
-            // keep event
+            // keep this event, continue with next one
             ++it;
         } else {
-            // remove event
-            if (it == r.begin()) {
-                // adjust the range to keep it valid
-                r.advance_begin(1);
+            if (it == range.begin()) {
+                // we're going to erase at the beginning of the event range,
+                // so we need to adjust the range to keep it valid
+                range.advance_begin(1);
             }
-            it = buf.erase(it);
+            // remove this event
+            it = buffer.erase(it);
         }
     }
 
-    DEBUG_PRINT(Patch::debug_range("Single out", buf, r));
+    DEBUG_PRINT(Patch::debug_range("Single out", buffer, range));
 }
 
 
-void Patch::Extended::process(Events & buf, EventRange & r)
+template <typename B>
+void Patch::Extended::process(B & buffer, typename B::Range & range) const
 {
-    DEBUG_PRINT(Patch::debug_range("Extended in", buf, r));
+    DEBUG_PRINT(Patch::debug_range("Extended in", buffer, range));
 
-    EventRange p(r);
-    r = EventRange(r.end(), r.end());
+    // make a copy of the input range
+    typename B::Range in_range(range);
+    // clear range, no events to return so far
+    range = typename B::Range(range.end(), range.end());
 
-    for (EventIter it = p.begin(); it != p.end(); )
+    // iterate over all events in the input range
+    for (typename B::Iterator it = in_range.begin(); it != in_range.end(); )
     {
-        EventRange q = _unit->process(buf, it);
+        // process event
+        typename B::Range ret_range = _unit->process(buffer, it);
 
-        if (r.empty() && !q.empty()) {
-            r = EventRange(q.begin(), r.end());
+        if (range.empty() && !ret_range.empty()) {
+            // the first event returned marks the beginning of our output range
+            range = typename B::Range(ret_range.begin(), range.end());
         }
 
-        it = q.end();
+        // the next event to be processed is adjacent to those we just got back
+        it = ret_range.end();
     }
 
-    DEBUG_PRINT(Patch::debug_range("Extended out", buf, r));
+    DEBUG_PRINT(Patch::debug_range("Extended out", buffer, range));
 }
 
 
 
-void Patch::process(Events & buf, EventRange & r)
+template <typename B>
+void Patch::process(B & buffer, typename B::Range & range) const
 {
-    DEBUG_PRINT(debug_range("Patch in", buf, r));
+    DEBUG_PRINT(debug_range("Patch in", buffer, range));
 
-    _module->process(buf, r);
+    _module->process(buffer, range);
 
-    DEBUG_PRINT(debug_range("Patch out", buf, r));
+    DEBUG_PRINT(debug_range("Patch out", buffer, range));
 }
 
 
-std::string Patch::debug_range(std::string const & str, Events & buf, EventRange const & r)
+template <typename B>
+std::string Patch::debug_range(std::string const & str, B const & buffer, typename B::Range const & range) const
 {
     std::ostringstream os;
     os << str << ": "
-       << std::distance(buf.begin(), r.begin()) << " "
-       << std::distance(r.begin(), r.end());
-    for (EventIter it = r.begin(); it != r.end(); ++it) {
+       << std::distance(buffer.begin(), range.begin()) << " "
+       << std::distance(range.begin(), range.end());
+    for (typename B::Iterator it = range.begin(); it != range.end(); ++it) {
         os << " [" << it->type << " " << it->port << " " << it->channel << " " << it->data1 << " " << it->data2 << "]";
     }
     return os.str();
 }
+
+
+
+// force template instantiations
+template void Patch::Chain::process<Patch::EventBufferRT>(EventBufferRT &, EventBufferRT::Range &) const;
+template void Patch::Chain::process<Patch::EventBuffer>(EventBuffer &, EventBuffer::Range &) const;
+template void Patch::Fork::process<Patch::EventBufferRT>(EventBufferRT &, EventBufferRT::Range &) const;
+template void Patch::Fork::process<Patch::EventBuffer>(EventBuffer &, EventBuffer::Range &) const;
+template void Patch::Single::process<Patch::EventBufferRT>(EventBufferRT &, EventBufferRT::Range &) const;
+template void Patch::Single::process<Patch::EventBuffer>(EventBuffer &, EventBuffer::Range &) const;
+template void Patch::Extended::process<Patch::EventBufferRT>(EventBufferRT &, EventBufferRT::Range &) const;
+template void Patch::Extended::process<Patch::EventBuffer>(EventBuffer &, EventBuffer::Range &) const;
+
+template void Patch::process(EventBufferRT &, EventBufferRT::Range &) const;
+template void Patch::process(EventBuffer &, EventBuffer::Range &) const;
 
 
 } // Mididings

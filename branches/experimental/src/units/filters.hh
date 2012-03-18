@@ -30,16 +30,15 @@ class PortFilter
     PortFilter(std::vector<int> const & ports)
       : Filter()
       , _ports(ports)
-    {
-    }
+    { }
 
-    virtual bool process_filter(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev) const
     {
         return (std::find(_ports.begin(), _ports.end(), ev.port) != _ports.end());
     }
 
   private:
-    std::vector<int> _ports;
+    std::vector<int> const _ports;
 };
 
 
@@ -50,16 +49,15 @@ class ChannelFilter
     ChannelFilter(std::vector<int> const & channels)
       : Filter()
       , _channels(channels)
-    {
-    }
+    { }
 
-    virtual bool process_filter(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev) const
     {
         return (std::find(_channels.begin(), _channels.end(), ev.channel) != _channels.end());
     }
 
   private:
-    std::vector<int> _channels;
+    std::vector<int> const _channels;
 };
 
 
@@ -72,10 +70,9 @@ class KeyFilter
       , _lower(lower)
       , _upper(upper)
       , _notes(notes)
-    {
-    }
+    { }
 
-    virtual bool process_filter(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev) const
     {
         if (_lower || _upper) {
             return ((ev.note.note >= _lower || _lower == 0) &&
@@ -86,8 +83,9 @@ class KeyFilter
     }
 
   private:
-    int _lower, _upper;
-    std::vector<int> _notes;
+    int const _lower;
+    int const _upper;
+    std::vector<int> const _notes;
 };
 
 
@@ -99,17 +97,17 @@ class VelocityFilter
       : Filter(MIDI_EVENT_NOTEON, true)
       , _lower(lower)
       , _upper(upper)
-    {
-    }
+    { }
 
-    virtual bool process_filter(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev) const
     {
         return ((ev.note.velocity >= _lower || _lower == 0) &&
                 (ev.note.velocity < _upper  || _upper == 0));
     }
 
   private:
-    int _lower, _upper;
+    int const _lower;
+    int const _upper;
 };
 
 
@@ -120,16 +118,15 @@ class CtrlFilter
     CtrlFilter(std::vector<int> const & ctrls)
       : Filter(MIDI_EVENT_CTRL, false)
       , _ctrls(ctrls)
-    {
-    }
+    { }
 
-    virtual bool process_filter(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev) const
     {
         return (std::find(_ctrls.begin(), _ctrls.end(), ev.ctrl.param) != _ctrls.end());
     }
 
   private:
-    std::vector<int> _ctrls;
+    std::vector<int> const _ctrls;
 };
 
 
@@ -141,17 +138,17 @@ class CtrlValueFilter
       : Filter(MIDI_EVENT_CTRL, false)
       , _lower(lower)
       , _upper(upper)
-    {
-    }
+    { }
 
-    virtual bool process_filter(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev) const
     {
         return ((ev.ctrl.value >= _lower || _lower == 0) &&
                 (ev.ctrl.value < _upper  || _upper == 0));
     }
 
   private:
-    int _lower, _upper;
+    int const _lower;
+    int const _upper;
 };
 
 
@@ -162,16 +159,15 @@ class ProgramFilter
     ProgramFilter(std::vector<int> const & progs)
       : Filter(MIDI_EVENT_PROGRAM, false)
       , _progs(progs)
-    {
-    }
+    { }
 
-    virtual bool process_filter(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev) const
     {
         return (std::find(_progs.begin(), _progs.end(), ev.ctrl.value) != _progs.end());
     }
 
   private:
-    std::vector<int> _progs;
+    std::vector<int> const _progs;
 };
 
 
@@ -183,10 +179,9 @@ class SysExFilter
       : Filter(MIDI_EVENT_SYSEX, false)
       , _sysex(sysex)
       , _partial(partial)
-    {
-    }
+    { }
 
-    virtual bool process_filter(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev) const
     {
         if (_partial) {
             return std::search(ev.sysex->begin(), ev.sysex->end(),
@@ -196,8 +191,8 @@ class SysExFilter
         }
     }
 
-    MidiEvent::SysExData _sysex;
-    bool _partial;
+    MidiEvent::SysExData const _sysex;
+    bool const _partial;
 };
 
 

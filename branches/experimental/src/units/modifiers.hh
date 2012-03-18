@@ -28,17 +28,16 @@ class Port
   public:
     Port(int port)
       : _port(port)
-    {
-    }
+    { }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         ev.port = _port;
         return true;
     }
 
   private:
-    int _port;
+    int const _port;
 };
 
 
@@ -48,17 +47,16 @@ class Channel
   public:
     Channel(int channel)
       : _channel(channel)
-    {
-    }
+    { }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         ev.channel = _channel;
         return true;
     }
 
   private:
-    int _channel;
+    int const _channel;
 };
 
 
@@ -68,10 +66,9 @@ class Transpose
   public:
     Transpose(int offset)
       : _offset(offset)
-    {
-    }
+    { }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         if (ev.type & (MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF))
             ev.note.note += _offset;
@@ -79,7 +76,7 @@ class Transpose
     }
 
   private:
-    int _offset;
+    int const _offset;
 };
 
 
@@ -91,10 +88,9 @@ class Velocity
     Velocity(float param, int mode)
       : _param(param)
       , _mode(mode)
-    {
-    }
+    { }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         if (ev.type == MIDI_EVENT_NOTEON && ev.note.velocity > 0) {
             ev.note.velocity = apply_transform(ev.note.velocity, _param, (TransformMode)_mode);
@@ -103,8 +99,8 @@ class Velocity
     }
 
   private:
-    float _param;
-    int _mode;
+    float const _param;
+    int const _mode;
 };
 
 
@@ -124,7 +120,7 @@ class VelocitySlope
         }
     }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         if (ev.type == MIDI_EVENT_NOTEON && ev.note.velocity > 0) {
             unsigned int n = 0;
@@ -140,9 +136,9 @@ class VelocitySlope
     }
 
   private:
-    std::vector<int> _notes;
-    std::vector<float> _params;
-    int _mode;
+    std::vector<int> const _notes;
+    std::vector<float> const _params;
+    int const _mode;
 };
 
 
@@ -153,10 +149,9 @@ class CtrlMap
     CtrlMap(int ctrl_in, int ctrl_out)
       : _ctrl_in(ctrl_in)
       , _ctrl_out(ctrl_out)
-    {
-    }
+    { }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _ctrl_in) {
             ev.ctrl.param = _ctrl_out;
@@ -165,8 +160,8 @@ class CtrlMap
     }
 
   private:
-    int _ctrl_in;
-    int _ctrl_out;
+    int const _ctrl_in;
+    int const _ctrl_out;
 };
 
 
@@ -184,7 +179,7 @@ class CtrlRange
         ASSERT(in_min < in_max);
     }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _ctrl) {
             ev.ctrl.value = map_range(ev.ctrl.value, _in_min, _in_max, _min, _max);
@@ -193,11 +188,11 @@ class CtrlRange
     }
 
   private:
-    int _ctrl;
-    int _min;
-    int _max;
-    int _in_min;
-    int _in_max;
+    int const _ctrl;
+    int const _min;
+    int const _max;
+    int const _in_min;
+    int const _in_max;
 };
 
 
@@ -209,10 +204,9 @@ class CtrlCurve
       : _ctrl(ctrl)
       , _param(param)
       , _mode(mode)
-    {
-    }
+    { }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _ctrl) {
             ev.ctrl.value = apply_transform(ev.ctrl.value, _param, (TransformMode)_mode);
@@ -221,9 +215,9 @@ class CtrlCurve
     }
 
   private:
-    int _ctrl;
-    float _param;
-    int _mode;
+    int const _ctrl;
+    float const _param;
+    int const _mode;
 };
 
 
@@ -236,10 +230,9 @@ class PitchbendRange
       , _max(max)
       , _in_min(in_min)
       , _in_max(in_max)
-    {
-    }
+    { }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         if (ev.type == MIDI_EVENT_PITCHBEND) {
             if (ev.ctrl.value >= 0) {
@@ -252,10 +245,10 @@ class PitchbendRange
     }
 
   private:
-    int _min;
-    int _max;
-    int _in_min;
-    int _in_max;
+    int const _min;
+    int const _max;
+    int const _in_min;
+    int const _in_max;
 };
 
 

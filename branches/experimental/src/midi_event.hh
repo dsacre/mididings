@@ -52,6 +52,7 @@ struct MidiEvent
 {
     typedef std::vector<unsigned char> SysExData;
     typedef boost::shared_ptr<SysExData> SysExPtr;
+    typedef boost::shared_ptr<SysExData const> SysExConstPtr;
 
     struct null_deleter {
         void operator()(void const *) const { }
@@ -66,8 +67,7 @@ struct MidiEvent
       , data2(0)
       , sysex()
       , frame(0)
-    {
-    }
+    { }
 
     MidiEvent(MidiEventType type_, int port_, int channel_, int data1_, int data2_)
       : type(type_)
@@ -77,8 +77,7 @@ struct MidiEvent
       , data2(data2_)
       , sysex()
       , frame(0)
-    {
-    }
+    { }
 
     SysExData const & get_sysex_data() const {
         return *sysex;
@@ -109,7 +108,7 @@ struct MidiEvent
         };
     };
 
-    SysExPtr sysex;
+    SysExConstPtr sysex;
 
     uint64_t frame;
 };

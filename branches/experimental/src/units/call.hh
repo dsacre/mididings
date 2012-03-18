@@ -22,31 +22,31 @@ namespace Units {
 
 
 class Call
-  : public UnitEx
+  : public UnitExImpl<Call>
 {
   public:
     Call(boost::python::object fun, bool async, bool cont)
       : _fun(fun)
       , _async(async)
       , _cont(cont)
-    {
-    }
+    { }
 
-    virtual Patch::EventRange process(Patch::Events & buf, Patch::EventIter it)
+    template <typename B>
+    typename B::Range process(B & buffer, typename B::Iterator it) const
     {
         PythonCaller & c = TheEngine->python_caller();
 
         if (_async) {
-            return c.call_deferred(buf, it, _fun, _cont);
+            return c.call_deferred(buffer, it, _fun, _cont);
         } else {
-            return c.call_now(buf, it, _fun);
+            return c.call_now(buffer, it, _fun);
         }
     }
 
   private:
-    boost::python::object _fun;
-    bool _async;
-    bool _cont;
+    boost::python::object const _fun;
+    bool const _async;
+    bool const _cont;
 };
 
 

@@ -25,11 +25,9 @@ class Sanitize
   : public Unit
 {
   public:
-    Sanitize()
-    {
-    }
+    Sanitize() { }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         return TheEngine->sanitize_event(ev);
     }
@@ -43,10 +41,9 @@ class SceneSwitch
     SceneSwitch(int num, int offset)
       : _num(num)
       , _offset(offset)
-    {
-    }
+    { }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         if (_offset == 0) {
             TheEngine->switch_scene(get_parameter(_num, ev));
@@ -61,8 +58,8 @@ class SceneSwitch
     }
 
   private:
-    int _num;
-    int _offset;
+    int const _num;
+    int const _offset;
 };
 
 
@@ -74,10 +71,9 @@ class SubSceneSwitch
       : _num(num)
       , _offset(offset)
       , _wrap(wrap)
-    {
-    }
+    { }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         if (_offset == 0) {
             TheEngine->switch_scene(-1, get_parameter(_num, ev));
@@ -94,9 +90,9 @@ class SubSceneSwitch
     }
 
   private:
-    int _num;
-    int _offset;
-    bool _wrap;
+    int const _num;
+    int const _offset;
+    bool const _wrap;
 };
 
 

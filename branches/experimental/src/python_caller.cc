@@ -58,7 +58,8 @@ PythonCaller::~PythonCaller()
 }
 
 
-PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::object const & fun)
+template <typename B>
+typename B::Range PythonCaller::call_now(B & buffer, typename B::Iterator it, bp::object const & fun)
 {
     das::scoped_gil_lock gil;
 
@@ -69,7 +70,7 @@ PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::
 
         if (ret.ptr() == Py_None) {
             // returned None
-            return delete_event(buf, it);
+            return delete_event(buffer, it);
         }
 
         bp::extract<bp::list> e(ret);
@@ -78,9 +79,9 @@ PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::
             // returned python list
             if (bp::len(e())) {
                 bp::stl_input_iterator<MidiEvent> begin(ret), end;
-                return replace_event(buf, it, begin, end);
+                return replace_event(buffer, it, begin, end);
             } else {
-                return delete_event(buf, it);
+                return delete_event(buffer, it);
             }
         }
 
@@ -89,25 +90,26 @@ PythonCaller::EventRange PythonCaller::call_now(Events & buf, EventIter it, bp::
         if (b.check()) {
             // returned bool
             if (b) {
-                return keep_event(buf, it);
+                return keep_event(buffer, it);
             } else {
-                return delete_event(buf, it);
+                return delete_event(buffer, it);
             }
         }
 
         // returned single event
         *it = bp::extract<MidiEvent>(ret);
-        return keep_event(buf, it);
+        return keep_event(buffer, it);
     }
     catch (bp::error_already_set const &)
     {
         PyErr_Print();
-        return delete_event(buf, it);
+        return delete_event(buffer, it);
     }
 }
 
 
-PythonCaller::EventRange PythonCaller::call_deferred(Events & buf, EventIter it, bp::object const & fun, bool keep)
+template <typename B>
+typename B::Range PythonCaller::call_deferred(B & buffer, typename B::Iterator it, bp::object const & fun, bool keep)
 {
     AsyncCallInfo c = { &fun, *it };
 
@@ -116,37 +118,39 @@ PythonCaller::EventRange PythonCaller::call_deferred(Events & buf, EventIter it,
     _cond.notify_one();
 
     if (keep) {
-        return keep_event(buf, it);
+        return keep_event(buffer, it);
     } else {
-        return delete_event(buf, it);
+        return delete_event(buffer, it);
     }
 }
 
 
-template <typename IterT>
-inline PythonCaller::EventRange PythonCaller::replace_event(Events & buf, EventIter it, IterT begin, IterT end)
+template <typename B, typename IterT>
+inline typename B::Range PythonCaller::replace_event(B & buffer, typename B::Iterator it, IterT begin, IterT end)
 {
-    it = buf.erase(it);
+    it = buffer.erase(it);
 
-    EventIter first = buf.insert(it, *begin);
-    buf.insert(it, ++begin, end);
+    typename B::Iterator first = buffer.insert(it, *begin);
+    buffer.insert(it, ++begin, end);
 
-    return EventRange(first, it);
+    return typename B::Range(first, it);
 }
 
 
-inline PythonCaller::EventRange PythonCaller::keep_event(Events & /*buf*/, EventIter it)
+template <typename B>
+inline typename B::Range PythonCaller::keep_event(B & /*buffer*/, typename B::Iterator it)
 {
-    EventRange r(it, it);
+    typename B::Range r(it, it);
     r.advance_end(1);
     return r;
 }
 
 
-inline PythonCaller::EventRange PythonCaller::delete_event(Events & buf, EventIter it)
+template <typename B>
+inline typename B::Range PythonCaller::delete_event(B & buffer, typename B::Iterator it)
 {
-    it = buf.erase(it);
-    return EventRange(it, it);
+    it = buffer.erase(it);
+    return typename B::Range(it, it);
 }
 
 
@@ -193,6 +197,18 @@ void PythonCaller::async_thread()
         _engine_callback();
     }
 }
+
+
+
+// force template instantiations
+template Patch::EventBufferRT::Range PythonCaller::call_now
+            (Patch::EventBufferRT &, Patch::EventBufferRT::Iterator, boost::python::object const &);
+template Patch::EventBuffer::Range PythonCaller::call_now
+            (Patch::EventBuffer &, Patch::EventBuffer::Iterator, boost::python::object const &);
+template Patch::EventBufferRT::Range PythonCaller::call_deferred
+            (Patch::EventBufferRT &, Patch::EventBufferRT::Iterator, boost::python::object const &, bool);
+template Patch::EventBuffer::Range PythonCaller::call_deferred
+            (Patch::EventBuffer &, Patch::EventBuffer::Iterator, boost::python::object const &, bool);
 
 
 } // Mididings

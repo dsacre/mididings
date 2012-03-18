@@ -30,10 +30,9 @@ class Generator
       , _channel(channel)
       , _data1(data1)
       , _data2(data2)
-    {
-    }
+    { }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         MidiEvent ev_new;
 
@@ -50,11 +49,11 @@ class Generator
     }
 
   private:
-    MidiEventType _type;
-    int _port;
-    int _channel;
-    int _data1;
-    int _data2;
+    MidiEventType const _type;
+    int const _port;
+    int const _channel;
+    int const _data1;
+    int const _data2;
 };
 
 
@@ -65,10 +64,9 @@ class SysExGenerator
     SysExGenerator(int port, MidiEvent::SysExData const & sysex)
       : _port(port)
       , _sysex(sysex)
-    {
-    }
+    { }
 
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         ev.type = MIDI_EVENT_SYSEX;
         ev.port = get_parameter(_port, ev);
@@ -81,8 +79,8 @@ class SysExGenerator
     }
 
   private:
-    int _port;
-    MidiEvent::SysExData _sysex;
+    int const _port;
+    MidiEvent::SysExData const _sysex;
 };
 
 
