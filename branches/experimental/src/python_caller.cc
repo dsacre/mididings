@@ -40,7 +40,7 @@ PythonCaller::PythonCaller(EngineCallback engine_callback)
   , _quit(false)
 {
     // start async thread
-    _thrd.reset(new boost::thread(boost::bind(&PythonCaller::async_thread, this)));
+    _thread.reset(new boost::thread(boost::bind(&PythonCaller::async_thread, this)));
 }
 
 
@@ -50,10 +50,10 @@ PythonCaller::~PythonCaller()
     _cond.notify_one();
 
 #if BOOST_VERSION >= 103500
-    _thrd->timed_join(boost::posix_time::milliseconds(Config::ASYNC_JOIN_TIMEOUT));
+    _thread->timed_join(boost::posix_time::milliseconds(Config::ASYNC_JOIN_TIMEOUT));
 #else
     // what if the thread doesn't terminate, due to a long-running python function?
-    _thrd->join();
+    _thread->join();
 #endif
 }
 
@@ -140,9 +140,8 @@ inline typename B::Range PythonCaller::replace_event(B & buffer, typename B::Ite
 template <typename B>
 inline typename B::Range PythonCaller::keep_event(B & /*buffer*/, typename B::Iterator it)
 {
-    typename B::Range r(it, it);
-    r.advance_end(1);
-    return r;
+    typename B::Range ret(it, 1);
+    return ret;
 }
 
 
@@ -150,7 +149,7 @@ template <typename B>
 inline typename B::Range PythonCaller::delete_event(B & buffer, typename B::Iterator it)
 {
     it = buffer.erase(it);
-    return typename B::Range(it, it);
+    return typename B::Range(it);
 }
 
 

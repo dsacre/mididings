@@ -21,8 +21,8 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/range/iterator_range.hpp>
 
+#include "util/iterator_range.hh"
 #include "util/debug.hh"
 
 
@@ -46,8 +46,7 @@ class Patch
       : public T
     {
         typedef typename T::iterator Iterator;
-        typedef boost::iterator_range<typename T::iterator> Range;
-
+        typedef das::iterator_range<typename T::iterator> Range;
     };
 
 
@@ -218,7 +217,7 @@ class Patch
      */
     template <typename B>
     void process(B & buffer) const {
-        typename B::Range range(buffer);
+        typename B::Range range(buffer.begin(), buffer.end());
         process(buffer, range);
     }
 

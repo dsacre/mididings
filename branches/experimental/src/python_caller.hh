@@ -71,7 +71,7 @@ class PythonCaller
 
     boost::scoped_ptr<das::ringbuffer<AsyncCallInfo> > _rb;
 
-    boost::scoped_ptr<boost::thread> _thrd;
+    boost::scoped_ptr<boost::thread> _thread;
 
     EngineCallback _engine_callback;
 
