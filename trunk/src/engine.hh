@@ -45,7 +45,9 @@ class Engine
 
     struct Scene {
         Scene(PatchPtr patch_, PatchPtr init_patch_)
-          : patch(patch_), init_patch(init_patch_) { }
+          : patch(patch_),
+            init_patch(init_patch_)
+        { }
 
         PatchPtr patch;
         PatchPtr init_patch;
@@ -57,10 +59,6 @@ class Engine
     typedef unsigned int EventKey;
     typedef std::tr1::unordered_map<EventKey, Patch *> NotePatchMap;
     typedef std::tr1::unordered_map<EventKey, Patch *> SustainPatchMap;
-
-    typedef Patch::Events Events;
-    typedef Patch::EventIter EventIter;
-    typedef Patch::EventRange EventRange;
 
 
     Engine(PyObject * self,
@@ -117,8 +115,11 @@ class Engine
     void run_cycle();
     void run_async();
 
-    void process(Events & buffer, MidiEvent const & ev);
-    void process_scene_switch(Events & buffer);
+    template <typename B>
+    void process(B & buffer, MidiEvent const & ev);
+
+    template <typename B>
+    void process_scene_switch(B & buffer);
 
 
     Patch * get_matching_patch(MidiEvent const & ev);
@@ -154,7 +155,7 @@ class Engine
     NotePatchMap _noteon_patches;
     SustainPatchMap _sustain_patches;
 
-    Events _buffer;
+    Patch::EventBufferRT _buffer;
 
     boost::mutex _process_mutex;
 

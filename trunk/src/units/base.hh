@@ -28,30 +28,38 @@ namespace Units {
 class Unit
 {
   public:
-    Unit()
-    {
-    }
+    Unit() { }
+    virtual ~Unit() { }
 
-    virtual ~Unit()
-    {
-    }
-
-    virtual bool process(MidiEvent & ev) = 0;
+    virtual bool process(MidiEvent & ev) const = 0;
 };
 
 
 class UnitEx
 {
   public:
-    UnitEx()
-    {
+    UnitEx() { }
+    virtual ~UnitEx() { }
+
+    virtual Patch::EventBufferRT::Range process(Patch::EventBufferRT & buffer, Patch::EventBufferRT::Iterator it) const = 0;
+    virtual Patch::EventBuffer::Range process(Patch::EventBuffer & buffer, Patch::EventBuffer::Iterator it) const = 0;
+};
+
+
+template <typename Derived>
+class UnitExImpl
+  : public UnitEx
+{
+  public:
+    virtual Patch::EventBufferRT::Range process(Patch::EventBufferRT & buffer, Patch::EventBufferRT::Iterator it) const {
+        Derived const & d = *static_cast<Derived const*>(this);
+        return d.template process<Patch::EventBufferRT>(buffer, it);
     }
 
-    virtual ~UnitEx()
-    {
+    virtual Patch::EventBuffer::Range process(Patch::EventBuffer & buffer, Patch::EventBuffer::Iterator it) const {
+        Derived const & d = *static_cast<Derived const*>(this);
+        return d.template process<Patch::EventBuffer>(buffer, it);
     }
-
-    virtual Patch::EventRange process(Patch::Events & buf, Patch::EventIter it) = 0;
 };
 
 
@@ -64,17 +72,15 @@ class Filter
     Filter()
       : _types(MIDI_EVENT_ANY)
       , _pass_other(false)
-    {
-    }
+    { }
 
     Filter(MidiEventTypes types, bool pass_other)
       : _types(types)
       , _pass_other(pass_other)
-    {
-    }
+    { }
 
   protected:
-    virtual bool process(MidiEvent & ev)
+    virtual bool process(MidiEvent & ev) const
     {
         if (ev.type & types()) {
             return process_filter(ev);
@@ -83,7 +89,7 @@ class Filter
         }
     }
 
-    virtual bool process_filter(MidiEvent & ev) = 0;
+    virtual bool process_filter(MidiEvent & ev) const = 0;
 
     MidiEventTypes types() const
     {
@@ -96,8 +102,8 @@ class Filter
     }
 
   private:
-    MidiEventTypes _types;
-    bool _pass_other;
+    MidiEventTypes const _types;
+    bool const _pass_other;
 };
 
 
@@ -109,10 +115,9 @@ class InvertedFilter
       : Filter()
       , _filter(filter)
       , _negate(negate)
-    {
-    }
+    { }
 
-    virtual bool process_filter(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev) const
     {
         if (_negate) {
             return !_filter->process(ev);
@@ -126,8 +131,8 @@ class InvertedFilter
     }
 
   private:
-    boost::shared_ptr<Filter> _filter;
-    bool _negate;
+    boost::shared_ptr<Filter> const _filter;
+    bool const _negate;
 };
 
 
@@ -138,15 +143,14 @@ class TypeFilter
     TypeFilter(MidiEventTypes types)
       : Filter()
       , _types(types)
-    {
-    }
+    { }
 
-    virtual bool process_filter(MidiEvent & ev)
+    virtual bool process_filter(MidiEvent & ev) const
     {
         return (ev.type & _types);
     }
 
-    MidiEventTypes _types;
+    MidiEventTypes const _types;
 };
 
 
@@ -156,16 +160,15 @@ class Pass
   public:
     Pass(bool pass)
       : _pass(pass)
-    {
-    }
+    { }
 
-    virtual bool process(MidiEvent & /*ev*/)
+    virtual bool process(MidiEvent & /*ev*/) const
     {
         return _pass;
     }
 
   private:
-    bool _pass;
+    bool const _pass;
 };
 
 

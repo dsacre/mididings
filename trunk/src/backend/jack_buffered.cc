@@ -38,11 +38,11 @@ JACKBufferedBackend::JACKBufferedBackend(std::string const & client_name,
 
 void JACKBufferedBackend::stop()
 {
-    if (_thrd) {
+    if (_thread) {
         _quit = true;
         _cond.notify_one();
 
-        _thrd->join();
+        _thread->join();
     }
 }
 
@@ -53,7 +53,7 @@ void JACKBufferedBackend::start(InitFunction init, CycleFunction cycle)
     _in_rb.reset();
 
     // start processing thread
-    _thrd.reset(new boost::thread((
+    _thread.reset(new boost::thread((
         boost::lambda::bind(init),
         boost::lambda::bind(cycle)
     )));
@@ -65,7 +65,7 @@ void JACKBufferedBackend::start(InitFunction init, CycleFunction cycle)
 
     if (jack_rtprio != -1) {
         int rtprio = jack_rtprio - Config::JACK_BUFFERED_RTPRIO_OFFSET;
-        jack_acquire_real_time_scheduling(_thrd->native_handle(), rtprio);
+        jack_acquire_real_time_scheduling(_thread->native_handle(), rtprio);
     }
 #endif
 }

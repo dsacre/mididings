@@ -74,7 +74,6 @@ BOOST_PYTHON_MODULE(_mididings)
     bp::scope patch_scope = class_<Patch, noncopyable>("Patch", init<Patch::ModulePtr>());
 
     class_<Patch::Module, noncopyable>("Module", bp::no_init);
-
     class_<Patch::Chain, bases<Patch::Module>, noncopyable>("Chain", init<Patch::ModuleVector>());
     class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector, bool>());
     class_<Patch::Single, bases<Patch::Module>, noncopyable>("Single", init<boost::shared_ptr<Unit> >());

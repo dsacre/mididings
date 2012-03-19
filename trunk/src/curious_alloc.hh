@@ -87,7 +87,7 @@ class curious_alloc
     }
 
     size_type max_size() const throw() {
-        return N;
+        return 1;
     }
 
     void construct(pointer p, T const & val) {

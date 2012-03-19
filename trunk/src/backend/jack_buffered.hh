@@ -51,7 +51,7 @@ class JACKBufferedBackend
     das::ringbuffer<MidiEvent> _in_rb;
     das::ringbuffer<MidiEvent> _out_rb;
 
-    boost::scoped_ptr<boost::thread> _thrd;
+    boost::scoped_ptr<boost::thread> _thread;
 
     boost::condition _cond;
     boost::mutex _mutex;
