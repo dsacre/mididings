@@ -17,8 +17,6 @@ import mididings.overload as _overload
 
 import functools as _functools
 import sys as _sys
-if _sys.version_info < (2,6):
-    _functools.reduce = reduce
 
 
 class _Unit(object):
