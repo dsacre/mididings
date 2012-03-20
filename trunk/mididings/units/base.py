@@ -14,9 +14,12 @@ import _mididings
 
 import mididings.misc as _misc
 import mididings.overload as _overload
+import mididings.arguments as _arguments
 
 import functools as _functools
 import sys as _sys
+if _sys.version_info < (2,6):
+    _functools.reduce = reduce
 
 
 class _Unit(object):
@@ -112,6 +115,7 @@ class Chain(_Unit, list):
     """
     Units connected in series.
     """
+    @_arguments.accepts(_arguments.sequenceof(_UNIT_TYPES))
     def __init__(self, units):
         list.__init__(self, units)
 
