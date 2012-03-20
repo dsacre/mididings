@@ -50,14 +50,14 @@ class Engine(_mididings.Engine):
         self.out_ports = _make_portnames(_get_config('out_ports'), 'out_')
 
         # initialize C++ base class
-        _mididings.Engine.__init__(
-            self,
+        engine_args = [
             _get_config('backend'),
             _get_config('client_name'),
             self.in_ports,
             self.out_ports,
             not _get_config('silent')
-        )
+        ]
+        _mididings.Engine.__init__(self, *engine_args)
 
         self._scenes = {}
 
