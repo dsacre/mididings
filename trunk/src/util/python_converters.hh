@@ -71,7 +71,11 @@ struct vector_from_iterator_converter
 
 template <typename T>
 struct vector_to_list_converter
-  : boost::python::to_python_converter<std::vector<T>, vector_to_list_converter<T>, true>
+  : boost::python::to_python_converter<std::vector<T>, vector_to_list_converter<T>
+#ifdef BOOST_PYTHON_SUPPORTS_PY_SIGNATURES
+        , true
+#endif
+    >
 {
     static PyObject *convert(std::vector<T> const & vec) {
         boost::python::list ret;
@@ -136,7 +140,11 @@ struct enum_from_int_converter
 
 template <typename T>
 struct enum_to_int_converter
-  : boost::python::to_python_converter<T, enum_to_int_converter<T>, true>
+  : boost::python::to_python_converter<T, enum_to_int_converter<T>
+#ifdef BOOST_PYTHON_SUPPORTS_PY_SIGNATURES
+        , true
+#endif
+    >
 {
     static PyObject *convert(T const & enumval) {
 #if PY_MAJOR_VERSION < 3
