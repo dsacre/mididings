@@ -56,11 +56,14 @@ def call(args, kwargs, funcs, name=None):
     raise TypeError("no suitable overload found for %s(), candidates are:\n%s" % (name, '\n'.join(candidates)))
 
 
+# mapping of all overloaded function names to the corresponding Overload object
+_registry = {}
+
+
 class Overload(object):
     """
     Wrapper class for an arbitrary number of overloads.
     """
-    registry = {}
     def __init__(self, name):
         self.name = name
         self.funcs = []
@@ -74,13 +77,15 @@ def mark(f):
     """
     Decorator that marks a function as being overloaded.
     """
-    k = (f.__name__, f.__module__)
-    if k not in Overload.registry:
-        Overload.registry[k] = Overload(f.__name__)
-    assert f.__name__ == Overload.registry[k].name
-    Overload.registry[k].add(f)
+    k = (f.__module__, f.__name__)
+    # create a new Overload object if necessary, add function f to it
+    if k not in _registry:
+        _registry[k] = Overload(f.__name__)
+    _registry[k].add(f)
 
+    # return a function that, instead of calling f, calls the Overload object
     @functools.wraps(f)
     def overload_wrapper(*args, **kwargs):
-        return Overload.registry[k](*args, **kwargs)
+        return _registry[k](*args, **kwargs)
+
     return overload_wrapper
