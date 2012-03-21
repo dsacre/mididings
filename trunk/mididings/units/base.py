@@ -14,12 +14,13 @@ import _mididings
 
 import mididings.misc as _misc
 import mididings.overload as _overload
-import mididings.arguments as _arguments
 
 import functools as _functools
 import sys as _sys
 if _sys.version_info < (2,6):
     _functools.reduce = reduce
+
+from decorator import decorator as _decorator
 
 
 class _Unit(object):
@@ -96,26 +97,23 @@ def _join_units(t, a, b):
     return t(a + b)
 
 
-def _unit_repr(f):
+@_decorator
+def _unit_repr(f, *args, **kwargs):
     """
-    Decorator that modifies the target function f to store its arguments in the
-    returned unit.
+    Decorator that modifies the function f to store its own arguments in the
+    unit it returns.
     """
-    @_functools.wraps(f)
-    def unit_wrapper(*args, **kwargs):
-        u = f(*args, **kwargs)
-        u._name = f.name if isinstance(f, _overload.Overload) else f.__name__
-        u._args = args
-        u._kwargs = kwargs
-        return u
-    return unit_wrapper
+    unit = f(*args, **kwargs)
+    unit._name = f.name if isinstance(f, _overload.Overload) else f.__name__
+    unit._args = args
+    unit._kwargs = kwargs
+    return unit
 
 
 class Chain(_Unit, list):
     """
     Units connected in series.
     """
-    @_arguments.accepts(_arguments.sequenceof(_UNIT_TYPES))
     def __init__(self, units):
         list.__init__(self, units)
 

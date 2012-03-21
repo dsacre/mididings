@@ -18,6 +18,7 @@ import termios
 import fcntl
 import struct
 import sys
+from decorator import decorator
 
 
 def flatten(seq):
@@ -54,30 +55,41 @@ def issequenceof(seq, t):
     return issequence(seq) and all(isinstance(v, t) for v in seq)
 
 
-class deprecated:
+def deprecated(replacement=None):
     """
     Mark a function as deprecated, optionally suggesting a replacement.
     """
-    already_used = []
+    # XXX: avoid circular import
+    from mididings.setup import get_config
 
-    def __init__(self, replacement=None):
-        self.replacement = replacement
+    def deprecated_wrapper(f, *args, **kwargs):
+        if f not in deprecated._already_used and not get_config('silent'):
+            if replacement:
+                print("%s() is deprecated, please use %s() instead" % (f.__name__, replacement))
+            else:
+                print("%s() is deprecated" % f.__name__)
+            deprecated._already_used.append(f)
+        return f(*args, **kwargs)
+    deprecated_wrapper._deprecated = True
+    return decorator(deprecated_wrapper)
 
-    def __call__(self, f):
-        # XXX: avoid circular import
-        from mididings.setup import get_config
+deprecated._already_used = []
 
-        @functools.wraps(f)
-        def deprecated_wrapper(*args, **kwargs):
-            if f not in deprecated.already_used and not get_config('silent'):
-                if self.replacement:
-                    print("%s() is deprecated, please use %s() instead" % (f.__name__, self.replacement))
-                else:
-                    print("%s() is deprecated" % f.__name__)
-                deprecated.already_used.append(f)
-            return f(*args, **kwargs)
-        deprecated_wrapper._deprecated = True
-        return deprecated_wrapper
+
+
+#def rename_ctor(f):
+#    assert f.__name__ == '__init__'
+#
+#    @functools.wraps(f)
+#    def wrapper(self, *args, **kwargs):
+#        try:
+#            f(self, *args, **kwargs)
+#        except TypeError:
+#            _, ex, _ = sys.exc_info()
+#            ex.args = (ex.args[0].replace('__init__', type(self).__name__),)
+#            raise
+#
+#    return wrapper
 
 
 class NamedFlag(int):

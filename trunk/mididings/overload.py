@@ -85,7 +85,7 @@ def mark(f):
 
     # return a function that, instead of calling f, calls the Overload object
     @functools.wraps(f)
-    def overload_wrapper(*args, **kwargs):
+    def overload_function(*args, **kwargs):
         return _registry[k](*args, **kwargs)
 
-    return overload_wrapper
+    return overload_function
