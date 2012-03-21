@@ -14,6 +14,7 @@ import _mididings
 
 import mididings.misc as _misc
 import mididings.overload as _overload
+import mididings.arguments as _arguments
 
 import functools as _functools
 import sys as _sys
@@ -36,7 +37,7 @@ class _Unit(object):
         """
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
-        return _join_units(Chain, self, other)
+        return _join_units(_Chain, self, other)
 
     def __rrshift__(self, other):
         """
@@ -44,7 +45,7 @@ class _Unit(object):
         """
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
-        return _join_units(Chain, other, self)
+        return _join_units(_Chain, other, self)
 
     def __floordiv__(self, other):
         """
@@ -52,7 +53,7 @@ class _Unit(object):
         """
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
-        return _join_units(Fork, self, other)
+        return _join_units(_Fork, self, other)
 
     def __rfloordiv__(self, other):
         """
@@ -60,7 +61,7 @@ class _Unit(object):
         """
         if not isinstance(other, _UNIT_TYPES):
             return NotImplemented
-        return _join_units(Fork, other, self)
+        return _join_units(_Fork, other, self)
 
     def __pos__(self):
         """
@@ -110,10 +111,13 @@ def _unit_repr(f, *args, **kwargs):
     return unit
 
 
-class Chain(_Unit, list):
+def Chain(units):
     """
     Units connected in series.
     """
+    return _Chain(units)
+
+class _Chain(_Unit, list):
     def __init__(self, units):
         list.__init__(self, units)
 
@@ -121,10 +125,13 @@ class Chain(_Unit, list):
         return ' >> '.join(repr(u) for u in self)
 
 
-class Fork(_Unit, list):
+def Fork(units, remove_duplicates=None):
     """
     Units connected in parallel.
     """
+    return _Fork(units, remove_duplicates)
+
+class _Fork(_Unit, list):
     def __init__(self, units, remove_duplicates=None):
         list.__init__(self, units)
         self.remove_duplicates = remove_duplicates
@@ -137,10 +144,13 @@ class Fork(_Unit, list):
             return r
 
 
-class Split(_Unit, dict):
+def Split(d):
     """
     Split events by type.
     """
+    return _Split(d)
+
+class _Split(_Unit, dict):
     def __init__(self, d):
         dict.__init__(self, d)
 
@@ -159,7 +169,7 @@ class _Selector(object):
         """
         if not isinstance(other, _Selector):
             return NotImplemented
-        return _join_selectors(AndSelector, self, other)
+        return _join_selectors(_AndSelector, self, other)
 
     def __or__(self, other):
         """
@@ -167,7 +177,7 @@ class _Selector(object):
         """
         if not isinstance(other, _Selector):
             return NotImplemented
-        return _join_selectors(OrSelector, self, other)
+        return _join_selectors(_OrSelector, self, other)
 
     def __mod__(self, other):
         """
@@ -182,10 +192,13 @@ class _Selector(object):
         ])
 
 
-class AndSelector(_Selector):
+def AndSelector(conditions):
     """
     Conjunction of multiple filters.
     """
+    return _AndSelector(conditions)
+
+class _AndSelector(_Selector):
     def __init__(self, conditions):
         self.conditions = conditions
 
@@ -196,10 +209,13 @@ class AndSelector(_Selector):
         return Fork(p.build_negated() for p in self.conditions)
 
 
-class OrSelector(_Selector):
+def OrSelector(conditions):
     """
     Disjunction of multiple filters.
     """
+    return _OrSelector(conditions)
+
+class _OrSelector(_Selector):
     def __init__(self, conditions):
         self.conditions = conditions
 

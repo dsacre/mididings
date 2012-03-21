@@ -76,22 +76,6 @@ def deprecated(replacement=None):
 deprecated._already_used = []
 
 
-
-#def rename_ctor(f):
-#    assert f.__name__ == '__init__'
-#
-#    @functools.wraps(f)
-#    def wrapper(self, *args, **kwargs):
-#        try:
-#            f(self, *args, **kwargs)
-#        except TypeError:
-#            _, ex, _ = sys.exc_info()
-#            ex.args = (ex.args[0].replace('__init__', type(self).__name__),)
-#            raise
-#
-#    return wrapper
-
-
 class NamedFlag(int):
     """
     An integer type where each value has a name attached to it.

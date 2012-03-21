@@ -20,7 +20,7 @@ class Patch(_mididings.Patch):
         _mididings.Patch.__init__(self, self.build(p))
 
     def build(self, p):
-        if isinstance(p, _units.base.Chain):
+        if isinstance(p, _units.base._Chain):
             return Patch.Chain(self.build(i) for i in p)
 
         elif isinstance(p, list):
@@ -50,7 +50,7 @@ class Patch(_mididings.Patch):
 
 
 def get_init_patches(patch):
-    if isinstance(patch, _units.base.Chain):
+    if isinstance(patch, _units.base._Chain):
         return flatten([get_init_patches(p) for p in patch])
 
     elif isinstance(patch, list):
@@ -69,7 +69,7 @@ def get_init_patches(patch):
 def flatten(patch):
     r = []
     for i in patch:
-        if isinstance(i, list) and not isinstance(i, _units.base.Chain):
+        if isinstance(i, list) and not isinstance(i, _units.base._Chain):
             r.extend(i)
         else:
             r.append(i)
