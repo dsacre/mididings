@@ -14,35 +14,42 @@ from mididings.misc import NamedFlag as _NamedFlag
 from mididings.misc import NamedBitMask as _NamedBitMask
 
 
-NONE            = _NamedBitMask(0, 'NONE')
+class _EventType(_NamedBitMask):
+    pass
 
-NOTEON          = _NamedBitMask(1 << 0, 'NOTEON')
-NOTEOFF         = _NamedBitMask(1 << 1, 'NOTEOFF')
-NOTE            = _NamedBitMask(NOTEON | NOTEOFF, 'NOTE')
-CTRL            = _NamedBitMask(1 << 2, 'CTRL')
-PITCHBEND       = _NamedBitMask(1 << 3, 'PITCHBEND')
-AFTERTOUCH      = _NamedBitMask(1 << 4, 'AFTERTOUCH')
-POLY_AFTERTOUCH = _NamedBitMask(1 << 5, 'POLY_AFTERTOUCH')
-PROGRAM         = _NamedBitMask(1 << 6, 'PROGRAM')
+class _EventAttribute(_NamedFlag):
+    pass
 
-SYSEX           = _NamedBitMask(1 << 7, 'SYSEX')
 
-SYSCM_QFRAME    = _NamedBitMask(1 << 8, 'SYSCM_QFRAME')
-SYSCM_SONGPOS   = _NamedBitMask(1 << 9, 'SYSCM_SONGPOS')
-SYSCM_SONGSEL   = _NamedBitMask(1 << 10, 'SYSCM_SONGSEL')
-SYSCM_TUNEREQ   = _NamedBitMask(1 << 11, 'SYSCM_TUNEREQ')
-SYSCM           = _NamedBitMask(SYSCM_QFRAME | SYSCM_SONGPOS | SYSCM_SONGSEL | SYSCM_TUNEREQ, 'SYSCM')
+NONE            = _EventType(0, 'NONE')
 
-SYSRT_CLOCK     = _NamedBitMask(1 << 12, 'SYSRT_CLOCK')
-SYSRT_START     = _NamedBitMask(1 << 13, 'SYSRT_START')
-SYSRT_CONTINUE  = _NamedBitMask(1 << 14, 'SYSRT_CONTINUE')
-SYSRT_STOP      = _NamedBitMask(1 << 15, 'SYSRT_STOP')
-SYSRT_SENSING   = _NamedBitMask(1 << 16, 'SYSRT_SENSING')
-SYSRT_RESET     = _NamedBitMask(1 << 17, 'SYSRT_RESET')
-SYSRT           = _NamedBitMask(SYSRT_CLOCK | SYSRT_START | SYSRT_CONTINUE | SYSRT_STOP | SYSRT_SENSING | SYSRT_RESET, 'SYSRT')
+NOTEON          = _EventType(1 << 0, 'NOTEON')
+NOTEOFF         = _EventType(1 << 1, 'NOTEOFF')
+NOTE            = _EventType(NOTEON | NOTEOFF, 'NOTE')
+CTRL            = _EventType(1 << 2, 'CTRL')
+PITCHBEND       = _EventType(1 << 3, 'PITCHBEND')
+AFTERTOUCH      = _EventType(1 << 4, 'AFTERTOUCH')
+POLY_AFTERTOUCH = _EventType(1 << 5, 'POLY_AFTERTOUCH')
+PROGRAM         = _EventType(1 << 6, 'PROGRAM')
 
-DUMMY           = _NamedBitMask(1 << 30, 'DUMMY')
-ANY             = _NamedBitMask(~0, 'ANY')
+SYSEX           = _EventType(1 << 7, 'SYSEX')
+
+SYSCM_QFRAME    = _EventType(1 << 8, 'SYSCM_QFRAME')
+SYSCM_SONGPOS   = _EventType(1 << 9, 'SYSCM_SONGPOS')
+SYSCM_SONGSEL   = _EventType(1 << 10, 'SYSCM_SONGSEL')
+SYSCM_TUNEREQ   = _EventType(1 << 11, 'SYSCM_TUNEREQ')
+SYSCM           = _EventType(SYSCM_QFRAME | SYSCM_SONGPOS | SYSCM_SONGSEL | SYSCM_TUNEREQ, 'SYSCM')
+
+SYSRT_CLOCK     = _EventType(1 << 12, 'SYSRT_CLOCK')
+SYSRT_START     = _EventType(1 << 13, 'SYSRT_START')
+SYSRT_CONTINUE  = _EventType(1 << 14, 'SYSRT_CONTINUE')
+SYSRT_STOP      = _EventType(1 << 15, 'SYSRT_STOP')
+SYSRT_SENSING   = _EventType(1 << 16, 'SYSRT_SENSING')
+SYSRT_RESET     = _EventType(1 << 17, 'SYSRT_RESET')
+SYSRT           = _EventType(SYSRT_CLOCK | SYSRT_START | SYSRT_CONTINUE | SYSRT_STOP | SYSRT_SENSING | SYSRT_RESET, 'SYSRT')
+
+DUMMY           = _EventType(1 << 30, 'DUMMY')
+ANY             = _EventType(~0, 'ANY')
 
 _NUM_EVENT_TYPES = 18
 
@@ -69,19 +76,19 @@ _EVENT_TYPE_NAMES = {
 }
 
 
-EVENT_PORT      = _NamedFlag(-1, 'EVENT_PORT')
-EVENT_CHANNEL   = _NamedFlag(-2, 'EVENT_CHANNEL')
+EVENT_PORT      = _EventAttribute(-1, 'EVENT_PORT')
+EVENT_CHANNEL   = _EventAttribute(-2, 'EVENT_CHANNEL')
 # generic
-EVENT_DATA1     = _NamedFlag(-3, 'EVENT_DATA1')
-EVENT_DATA2     = _NamedFlag(-4, 'EVENT_DATA2')
+EVENT_DATA1     = _EventAttribute(-3, 'EVENT_DATA1')
+EVENT_DATA2     = _EventAttribute(-4, 'EVENT_DATA2')
 # note
-EVENT_NOTE      = _NamedFlag(-3, 'EVENT_NOTE')
-EVENT_VELOCITY  = _NamedFlag(-4, 'EVENT_VELOCITY')
+EVENT_NOTE      = _EventAttribute(-3, 'EVENT_NOTE')
+EVENT_VELOCITY  = _EventAttribute(-4, 'EVENT_VELOCITY')
 # controller
-EVENT_CTRL      = _NamedFlag(-3, 'EVENT_CTRL')
+EVENT_CTRL      = _EventAttribute(-3, 'EVENT_CTRL')
 # for backward compatibility
-EVENT_PARAM     = _NamedFlag(-3, 'EVENT_CTRL')
+EVENT_PARAM     = _EventAttribute(-3, 'EVENT_CTRL')
 EVENT_PARAM._deprecated = True
-EVENT_VALUE     = _NamedFlag(-4, 'EVENT_VALUE')
+EVENT_VALUE     = _EventAttribute(-4, 'EVENT_VALUE')
 # program change
-EVENT_PROGRAM   = _NamedFlag(-4, 'EVENT_PROGRAM')
+EVENT_PROGRAM   = _EventAttribute(-4, 'EVENT_PROGRAM')
