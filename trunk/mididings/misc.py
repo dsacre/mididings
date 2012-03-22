@@ -10,28 +10,25 @@
 # (at your option) any later version.
 #
 
-import _mididings
-
 import inspect
 import functools
+import itertools
 import termios
 import fcntl
 import struct
 import sys
-from decorator import decorator
+
+import decorator
 
 
-def flatten(seq):
+def flatten(arg):
     """
     Flatten nested sequences into a single list.
     """
-    r = []
-    for i in seq:
-        if issequence(i):
-            r.extend(flatten(i))
-        else:
-            r.append(i)
-    return r
+    if issequence(arg):
+        return list(itertools.chain(*(flatten(i) for i in arg)))
+    else:
+        return [arg]
 
 
 def issequence(seq, accept_string=False):
@@ -48,6 +45,7 @@ def issequence(seq, accept_string=False):
     except TypeError:
         return False
 
+
 def issequenceof(seq, t):
     """
     Return whether seq is a sequence with elements of type t.
@@ -55,25 +53,25 @@ def issequenceof(seq, t):
     return issequence(seq) and all(isinstance(v, t) for v in seq)
 
 
-def deprecated(replacement=None):
-    """
-    Mark a function as deprecated, optionally suggesting a replacement.
-    """
-    # XXX: avoid circular import
-    from mididings.setup import get_config
+class deprecated(object):
+    def __init__(self, replacement=None):
+        self.replacement = None
 
-    def deprecated_wrapper(f, *args, **kwargs):
-        if f not in deprecated._already_used and not get_config('silent'):
-            if replacement:
-                print("%s() is deprecated, please use %s() instead" % (f.__name__, replacement))
+    def wrapper(self, f, *args, **kwargs):
+        # XXX: avoid circular import
+        from mididings.setup import get_config
+
+        if not (hasattr(f, '_already_used') and f._already_used) and not get_config('silent'):
+            if self.replacement:
+                print("%s() is deprecated, please use %s() instead" % (f.__name__, self.replacement))
             else:
                 print("%s() is deprecated" % f.__name__)
-            deprecated._already_used.append(f)
+            f._already_used = True
         return f(*args, **kwargs)
-    deprecated_wrapper._deprecated = True
-    return decorator(deprecated_wrapper)
 
-deprecated._already_used = []
+    def __call__(self, f):
+        f._deprecated = True
+        return decorator.decorator(self.wrapper, f)
 
 
 class NamedFlag(int):
@@ -96,9 +94,11 @@ class NamedBitMask(NamedFlag):
     resulting value's string representation.
     """
     def __or__(self, other):
-        return NamedBitMask(self + other, '%s|%s' % (self.name, other.name))
+        if type(other) is not type(self):
+            return NotImplemented
+        return type(self)(self + other, '%s|%s' % (self.name, other.name))
     def __invert__(self):
-        return NamedBitMask(~int(self), ('~%s' if '|' not in self.name else '~(%s)') % self.name)
+        return type(self)(~int(self), ('~%s' if '|' not in self.name else '~(%s)') % self.name)
 
 
 def prune_globals(g):
