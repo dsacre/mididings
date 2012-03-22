@@ -13,7 +13,6 @@
 import _mididings
 
 import inspect
-import itertools
 import functools
 
 
@@ -27,40 +26,34 @@ def call(args, kwargs, funcs, name=None):
         # get argument names and the number of default arguments of f
         argspec = inspect.getargspec(f)
         names = argspec[0]
+        varargs = argspec[1]
         ndef = len(argspec[3]) if argspec[3] else 0
 
         # names of the default arguments not overridden by positional arguments
         defargs = names[max(len(names)-ndef, n):]
 
         # check if the number of positional arguments fits, and if the remaining
-        # parameters can be filled with keyword and default arguments
-        if n <= len(names) and set(kwargs)|set(defargs) == set(names[n:]):
+        # parameters can be filled with keyword and default arguments.
+        # alternatively, a suitable function with varargs is also accepted.
+        if ((n <= len(names) and set(kwargs)|set(defargs) == set(names[n:])) or
+            (n >= len(names) and varargs is not None)):
             # call f with all original arguments
             return f(*args, **kwargs)
 
     # no overload found, generate a comprehensible error message
-    if not name:
+    if name is None:
         name = inspect.stack()[1][3]
-    candidates = []
-    for f in funcs:
-        argspec = inspect.getargspec(f)
-        names = argspec[0]
-        defvals = argspec[3] if argspec[3] else ()
+    candidates = ((name + inspect.formatargspec(*inspect.getargspec(f))) for f in funcs)
 
-        argstr = ', '.join(itertools.chain(
-            names[:len(names)-len(defvals)],
-            ('%s=%s' % a for a in zip(names[-len(defvals):], defvals)),
-        ))
-        candidates.append('%s(%s)' % (name, argstr))
-
-    raise TypeError("no suitable overload found for %s(), candidates are:\n%s" % (name, '\n'.join(candidates)))
+    message = "no suitable overload found for %s(), candidates are:\n%s" % (name, '\n'.join(candidates))
+    raise TypeError(message)
 
 
-# mapping of all overloaded function names to the corresponding Overload object
+# mapping of all overloaded function names to the corresponding _Overload object
 _registry = {}
 
 
-class Overload(object):
+class _Overload(object):
     """
     Wrapper class for an arbitrary number of overloads.
     """
@@ -78,12 +71,12 @@ def mark(f):
     Decorator that marks a function as being overloaded.
     """
     k = (f.__module__, f.__name__)
-    # create a new Overload object if necessary, add function f to it
+    # create a new _Overload object if necessary, add function f to it
     if k not in _registry:
-        _registry[k] = Overload(f.__name__)
+        _registry[k] = _Overload(f.__name__)
     _registry[k].add(f)
 
-    # return a function that, instead of calling f, calls the Overload object
+    # return a function that, instead of calling f, calls the _Overload object
     @functools.wraps(f)
     def overload_function(*args, **kwargs):
         return _registry[k](*args, **kwargs)

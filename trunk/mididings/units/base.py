@@ -14,7 +14,6 @@ import _mididings
 
 import mididings.misc as _misc
 import mididings.overload as _overload
-import mididings.arguments as _arguments
 
 import functools as _functools
 import sys as _sys
@@ -105,7 +104,7 @@ def _unit_repr(f, *args, **kwargs):
     unit it returns.
     """
     unit = f(*args, **kwargs)
-    unit._name = f.name if isinstance(f, _overload.Overload) else f.__name__
+    unit._name = f.name if isinstance(f, _overload._Overload) else f.__name__
     unit._args = args
     unit._kwargs = kwargs
     return unit
