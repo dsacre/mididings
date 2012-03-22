@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <alloca.h>
 
 #include "util/debug.hh"
 
@@ -50,8 +51,11 @@ void Patch::Fork::process(B & buffer, typename B::Range & range) const
 
     // make a copy of all incoming events, allocated on the stack
     std::size_t num_events = range.size();
-    MidiEvent in_events[num_events];
-    std::copy(range.begin(), range.end(), in_events);
+    MidiEvent *in_events = static_cast<MidiEvent*>(::alloca(num_events * sizeof(MidiEvent)));
+    MidiEvent *p = in_events;
+    for (typename B::iterator it = range.begin(); it != range.end(); ++it, ++p) {
+        new (p) MidiEvent(*it);
+    }
 
     // remove all incoming events from the buffer
     buffer.erase(range.begin(), range.end());
@@ -99,6 +103,10 @@ void Patch::Fork::process(B & buffer, typename B::Range & range) const
                 }
             }
         }
+
+        // destroy the event that was previously placement-constructed
+        // on the stack
+        ev->~MidiEvent();
     }
 
     DEBUG_PRINT(Patch::debug_range("Fork out", buffer, range));

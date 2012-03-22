@@ -41,6 +41,7 @@ class Patch
     typedef std::list<MidiEvent, curious_alloc<MidiEvent, Config::MAX_EVENTS> > EventListRT;
     typedef std::list<MidiEvent> EventList;
 
+    // derive from a container just to add two typedefs. get over it.
     template <typename T>
     struct EventBufferType
       : public T
