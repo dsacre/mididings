@@ -231,16 +231,7 @@ def scene_number(scene):
     return actual(scene)
 
 
-def extract_sysex(sysex):
-    # FIXME
-    if _sys.version_info < (3,):
-        return list(sysex)
-    else:
-        return bytes(sysex)
-
-
-
-def _sysex_to_sequence(sysex):
+def sysex_to_sequence(sysex):
     if isinstance(sysex, str):
         sysex = map(ord, sysex)
 
@@ -251,7 +242,7 @@ def _sysex_to_sequence(sysex):
 
 
 def sysex_data(sysex, allow_partial=False):
-    sysex = _sysex_to_sequence(sysex)
+    sysex = sysex_to_sequence(sysex)
     if len(sysex) < 2:
         raise ValueError("sysex too short")
     elif sysex[0] != 0xf0:
@@ -266,7 +257,7 @@ def sysex_data(sysex, allow_partial=False):
 def sysex_manufacturer(manufacturer):
     if not _misc.issequence(manufacturer, True):
         manufacturer = [manufacturer]
-    manid = _sysex_to_sequence(manufacturer)
+    manid = sysex_to_sequence(manufacturer)
     if len(manid) not in (1, 3):
         raise ValueError("manufacturer id must be either one or three bytes")
     elif len(manid) == 3 and manid[0] != 0x00:

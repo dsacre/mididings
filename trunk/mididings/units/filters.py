@@ -91,5 +91,5 @@ def SysExFilter(sysex):
 @_unit_repr
 @_overload.mark
 def SysExFilter(manufacturer):
-    sysex = [0xf0] + _util.sysex_manufacturer(manufacturer)
+    sysex = _util.sysex_to_sequence([0xf0]) + _util.sysex_manufacturer(manufacturer)
     return _Filter(_mididings.SysExFilter(sysex, True))
