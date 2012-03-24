@@ -10,8 +10,6 @@
 # (at your option) any later version.
 #
 
-import _mididings
-
 import inspect
 import functools
 
