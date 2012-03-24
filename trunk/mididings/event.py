@@ -215,6 +215,6 @@ def SysExEvent(port, sysex):
     """
     Create a new sysex event object.
     """
-    ev = MidiEvent(_constants.SYSEX, port, 0, 0, 0)
+    ev = MidiEvent(_constants.SYSEX, port)
     ev.sysex = sysex
     return ev
