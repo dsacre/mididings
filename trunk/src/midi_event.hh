@@ -12,9 +12,11 @@
 #ifndef MIDIDINGS_MIDI_EVENT_HH
 #define MIDIDINGS_MIDI_EVENT_HH
 
+#include <vector>
+#include <stdexcept>
+
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
-#include <vector>
 
 
 namespace Mididings {
@@ -80,6 +82,9 @@ struct MidiEvent
     { }
 
     SysExData const & get_sysex_data() const {
+        if (!sysex) {
+            throw std::runtime_error("no sysex data");
+        }
         return *sysex;
     }
 

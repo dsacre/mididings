@@ -15,21 +15,27 @@ import _mididings
 import mididings.constants as _constants
 import mididings.util as _util
 import mididings.misc as _misc
-from mididings.setup import get_config as _get_config
 
 
-def _make_get_set(type, data, name=None, offset=lambda: 0):
-    def getter(self):
-        if not self.type & type and not type == _constants.ANY:
-            raise AttributeError("event type '%s' has no attribute '%s'" % (self.type_to_string(), name))
-        return getattr(self, data) + offset()
 
-    def setter(self, value):
-        if not self.type & type and not type == _constants.ANY:
-            raise AttributeError("event type '%s' has no attribute '%s'" % (self.type_to_string(), name))
-        setattr(self, data, value - offset())
+def _make_property(type, data, name=None, offset=False):
+    if isinstance(data, str) and not offset:
+        def getter(self):
+            self._check_type_attribute(type, name)
+            return getattr(self, data)
+        def setter(self, value):
+            self._check_type_attribute(type, name)
+            setattr(self, data, value)
 
-    return (getter, setter)
+    elif isinstance(data, str) and offset:
+        def getter(self):
+            self._check_type_attribute(type, name)
+            return _util.offset(getattr(self, data))
+        def setter(self, value):
+            self._check_type_attribute(type, name)
+            setattr(self, data, _util.actual(value))
+
+    return property(getter, setter)
 
 
 class MidiEvent(_mididings.MidiEvent):
@@ -48,7 +54,11 @@ class MidiEvent(_mididings.MidiEvent):
     def __getinitargs__(self):
         return (self.type, self.port, self.channel, self.data1, self.data2)
 
-    def type_to_string(self):
+    def _check_type_attribute(self, type, name):
+        if not self.type & type:
+            raise AttributeError("MidiEvent type '%s' has no attribute '%s'" % (self._type_to_string(), name))
+
+    def _type_to_string(self):
         try:
             return _constants._EVENT_TYPE_NAMES[self.type]
         except KeyError:
@@ -117,27 +127,50 @@ class MidiEvent(_mididings.MidiEvent):
         return '%s %s' % (h, s)
 
     def __repr__(self):
-        return 'MidiEvent(%s, %d, %d, %d, %d)' % (self.type_to_string(), self.port, self.channel, self.data1, self.data2)
+        return 'MidiEvent(%s, %d, %d, %d, %d)' % (self._type_to_string(), self.port, self.channel, self.data1, self.data2)
+
 
     # port/channel attributes with data offset
-    port      = property(*_make_get_set(_constants.ANY, 'port_', offset=lambda: _get_config('data_offset')))
-    channel   = property(*_make_get_set(_constants.ANY, 'channel_', offset=lambda: _get_config('data_offset')))
+    port      = _make_property(
+                    _constants.ANY,
+                   'port_',
+                    offset=True)
+    channel   = _make_property(
+                    _constants.ANY,
+                    'channel_',
+                    offset=True)
 
     # event-type specific attributes
-    note      = property(*_make_get_set(_constants.NOTE | _constants.POLY_AFTERTOUCH, 'data1', 'note'))
-    velocity  = property(*_make_get_set(_constants.NOTE, 'data2', 'velocity'))
-    ctrl      = property(*_make_get_set(_constants.CTRL, 'data1', 'ctrl'))
-    value     = property(*_make_get_set(_constants.CTRL | _constants.PITCHBEND |
-                                        _constants.AFTERTOUCH | _constants.POLY_AFTERTOUCH, 'data2', 'value'))
-    program   = property(*_make_get_set(_constants.PROGRAM, 'data2', 'program', offset=lambda: _get_config('data_offset')))
+    note      = _make_property(
+                    _constants.NOTE | _constants.POLY_AFTERTOUCH,
+                   'data1', 'note')
+    velocity  = _make_property(
+                    _constants.NOTE,
+                    'data2', 'velocity')
+    ctrl      = _make_property(
+                    _constants.CTRL,
+                    'data1', 'ctrl')
+    value     = _make_property(
+                    _constants.CTRL | _constants.PITCHBEND | _constants.AFTERTOUCH | _constants.POLY_AFTERTOUCH,
+                    'data2', 'value')
+    program   = _make_property(
+                    _constants.PROGRAM,
+                    'data2', 'program',
+                    offset=True)
 
     # for backward compatibility
-    param     = property(*_make_get_set(_constants.CTRL, 'data1', 'ctrl'))
+    param     = ctrl
 
-    sysex = property(
-        lambda self: _util.sysex_to_sequence(self._get_sysex_data()),
-        lambda self, sysex: self._set_sysex_data(_util.sysex_data(sysex))
-    )
+
+    def _sysex_getter(self):
+        self._check_type_attribute(_constants.SYSEX, 'sysex')
+        return _util.sysex_to_sequence(self._get_sysex_data())
+
+    def _sysex_setter(self, sysex):
+        self._check_type_attribute(_constants.SYSEX, 'sysex')
+        self._set_sysex_data(_util.sysex_data(sysex))
+
+    sysex = property(_sysex_getter, _sysex_setter)
 
 
 def NoteOnEvent(port, channel, note, velocity):
