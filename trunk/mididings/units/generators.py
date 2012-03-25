@@ -113,4 +113,7 @@ def SysEx(*args, **kwargs):
         lambda sysex: (_constants.EVENT_PORT, sysex),
         lambda port, sysex: (port, sysex)
     ])
-    return _Unit(_mididings.SysExGenerator(port, _util.sysex_data(sysex)))
+    return _Unit(_mididings.SysExGenerator(
+        _util.port_number(port) if isinstance(port, str) or port >= 0 else port,
+        _util.sysex_data(sysex))
+    )
