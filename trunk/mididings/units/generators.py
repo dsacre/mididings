@@ -107,6 +107,7 @@ def Aftertouch(*args, **kwargs):
     )
 
 
+@_unit_repr
 def SysEx(*args, **kwargs):
     port, sysex = _overload.call(args, kwargs, [
         lambda sysex: (_constants.EVENT_PORT, sysex),
