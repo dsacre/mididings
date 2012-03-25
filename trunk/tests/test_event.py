@@ -10,25 +10,179 @@
 # (at your option) any later version.
 #
 
-import tests.helpers
+from tests.helpers import *
 
 from mididings import *
 from mididings.event import *
 
 
-class EventTestCase(tests.helpers.MididingsTestCase):
+class EventTestCase(MididingsTestCase):
 
-    def test_SysExEvent(self):
-        sysex = '\xf0\x04\x08\x15\x16\x23\x42\xf7'
-        ev = SysExEvent(0, sysex)
+    @data_offsets
+    def test_NoteOnEvent(self, off):
+        ev = NoteOnEvent(off(1), off(7), 60, 127)
+
+        def foo(ev):
+            self.assertEqual(ev.type, NOTEON)
+            self.assertEqual(ev.port, off(1))
+            self.assertEqual(ev.port_, 1)
+            self.assertEqual(ev.channel, off(7))
+            self.assertEqual(ev.channel_, 7)
+            self.assertEqual(ev.note, 60)
+            self.assertEqual(ev.data1, 60)
+            self.assertEqual(ev.velocity, 127)
+            self.assertEqual(ev.data2, 127)
+            ev.port = off(3)
+            ev.channel = off(5)
+            ev.note = 69
+            ev.velocity = 42
+            return ev
+
+        (r,) = self.run_patch(Process(foo), ev)
+
+        self.assertEqual(r.type, NOTEON)
+        self.assertEqual(r.port, off(3))
+        self.assertEqual(r.port_, 3)
+        self.assertEqual(r.channel, off(5))
+        self.assertEqual(r.channel_, 5)
+        self.assertEqual(r.note, 69)
+        self.assertEqual(r.data1, 69)
+        self.assertEqual(r.velocity, 42)
+        self.assertEqual(r.data2, 42)
+        with self.assertRaises(AttributeError): r.ctrl
+        with self.assertRaises(AttributeError): r.value
+        with self.assertRaises(AttributeError): r.program
+        with self.assertRaises(AttributeError): r.sysex
+
+    @data_offsets
+    def test_NoteOffEvent(self, off):
+        ev = NoteOffEvent(off(1), off(7), 60, 127)
+
+        def foo(ev):
+            self.assertEqual(ev.type, NOTEOFF)
+            self.assertEqual(ev.port, off(1))
+            self.assertEqual(ev.port_, 1)
+            self.assertEqual(ev.channel, off(7))
+            self.assertEqual(ev.channel_, 7)
+            self.assertEqual(ev.note, 60)
+            self.assertEqual(ev.data1, 60)
+            self.assertEqual(ev.velocity, 127)
+            self.assertEqual(ev.data2, 127)
+            ev.port = off(3)
+            ev.channel = off(5)
+            ev.note = 69
+            ev.velocity = 42
+            return ev
+
+        (r,) = self.run_patch(Process(foo), ev)
+
+        self.assertEqual(r.type, NOTEOFF)
+        self.assertEqual(r.port, off(3))
+        self.assertEqual(r.port_, 3)
+        self.assertEqual(r.channel, off(5))
+        self.assertEqual(r.channel_, 5)
+        self.assertEqual(r.note, 69)
+        self.assertEqual(r.data1, 69)
+        self.assertEqual(r.velocity, 42)
+        self.assertEqual(r.data2, 42)
+        with self.assertRaises(AttributeError): r.ctrl
+        with self.assertRaises(AttributeError): r.value
+        with self.assertRaises(AttributeError): r.program
+        with self.assertRaises(AttributeError): r.sysex
+
+    @data_offsets
+    def test_CtrlEvent(self, off):
+        ev = CtrlEvent(off(1), off(7), 60, 127)
+
+        def foo(ev):
+            self.assertEqual(ev.type, CTRL)
+            self.assertEqual(ev.port, off(1))
+            self.assertEqual(ev.port_, 1)
+            self.assertEqual(ev.channel, off(7))
+            self.assertEqual(ev.channel_, 7)
+            self.assertEqual(ev.ctrl, 60)
+            self.assertEqual(ev.data1, 60)
+            self.assertEqual(ev.value, 127)
+            self.assertEqual(ev.data2, 127)
+            ev.port = off(3)
+            ev.channel = off(5)
+            ev.ctrl = 69
+            ev.value = 42
+            return ev
+
+        (r,) = self.run_patch(Process(foo), ev)
+
+        self.assertEqual(r.type, CTRL)
+        self.assertEqual(r.port, off(3))
+        self.assertEqual(r.port_, 3)
+        self.assertEqual(r.channel, off(5))
+        self.assertEqual(r.channel_, 5)
+        self.assertEqual(r.ctrl, 69)
+        self.assertEqual(r.data1, 69)
+        self.assertEqual(r.value, 42)
+        self.assertEqual(r.data2, 42)
+        with self.assertRaises(AttributeError): r.note
+        with self.assertRaises(AttributeError): r.velocity
+        with self.assertRaises(AttributeError): r.program
+        with self.assertRaises(AttributeError): r.sysex
+
+    @data_offsets
+    def test_ProgramEvent(self, off):
+        ev = ProgramEvent(off(1), off(7), off(42))
+
+        def foo(ev):
+            self.assertEqual(ev.type, PROGRAM)
+            self.assertEqual(ev.port, off(1))
+            self.assertEqual(ev.port_, 1)
+            self.assertEqual(ev.channel, off(7))
+            self.assertEqual(ev.channel_, 7)
+            self.assertEqual(ev.program, off(42))
+            self.assertEqual(ev.data2, 42)
+            ev.port = off(3)
+            ev.channel = off(5)
+            ev.program = off(66)
+            return ev
+
+        (r,) = self.run_patch(Process(foo), ev)
+
+        self.assertEqual(r.type, PROGRAM)
+        self.assertEqual(r.port, off(3))
+        self.assertEqual(r.port_, 3)
+        self.assertEqual(r.channel, off(5))
+        self.assertEqual(r.channel_, 5)
+        self.assertEqual(r.program, off(66))
+        self.assertEqual(r.data2, 66)
+        with self.assertRaises(AttributeError): r.note
+        with self.assertRaises(AttributeError): r.velocity
+        with self.assertRaises(AttributeError): r.ctrl
+        with self.assertRaises(AttributeError): r.value
+        with self.assertRaises(AttributeError): r.sysex
+
+    @data_offsets
+    def test_SysExEvent(self, off):
+        sysex1 = '\xf0\x04\x08\x15\x16\x23\x42\xf7'
+        sysex2 = '\xf0\x09\x11\x02\x74\x5b\x41\x56\x63\x56\xf7'
+        ev = SysExEvent(off(1), sysex1)
 
         def foo(ev):
             self.assertEqual(ev.type, SYSEX)
-            self.assertEqual(ev.port, 0)
-            self.assertEqual(ev.sysex, self.native_sysex(sysex))
+            self.assertEqual(ev.port, off(1))
+            self.assertEqual(ev.sysex, self.native_sysex(sysex1))
+            ev.port = off(3)
+            ev.sysex = sysex2
             return ev
 
-        self.check_patch(Process(foo), {ev: [ev]})
+        (r,) = self.run_patch(Process(foo), ev)
+
+        self.assertEqual(r.type, SYSEX)
+        self.assertEqual(r.port, off(3))
+        self.assertEqual(r.port_, 3)
+        self.assertEqual(r.sysex, self.native_sysex(sysex2))
+        with self.assertRaises(AttributeError): ev.note
+        with self.assertRaises(AttributeError): ev.velocity
+        with self.assertRaises(AttributeError): ev.ctrl
+        with self.assertRaises(AttributeError): ev.value
+        with self.assertRaises(AttributeError): ev.program
 
     def test_operator_equals(self):
         a = self.make_event(channel=0)

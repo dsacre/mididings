@@ -10,13 +10,13 @@
 # (at your option) any later version.
 #
 
-import tests.helpers
+from tests.helpers import *
 
 from mididings import *
 from mididings import engine
 
 
-class EngineTestCase(tests.helpers.MididingsTestCase):
+class EngineTestCase(MididingsTestCase):
 
     def test_in_ports(self):
         ports = ['foo', 'bar', 'baz']

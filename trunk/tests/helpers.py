@@ -24,6 +24,19 @@ from mididings import setup, engine, misc, constants
 from mididings.event import *
 
 
+def data_offsets(f):
+    """
+    Runs the test f twice, with data offsets 0 and 1
+    """
+    def data_offset_wrapper(self):
+        for offset in (0, 1):
+            def off(n):
+                return n + offset
+            config(data_offset = offset)
+            f(self, off)
+    return data_offset_wrapper
+
+
 class MididingsTestCase(unittest.TestCase):
     def setUp(self):
         setup.reset()
@@ -43,8 +56,6 @@ class MididingsTestCase(unittest.TestCase):
         """
         for ev, expected in d.items():
             r = self.run_scenes(scenes, ev)
-            for x in r:
-                x.__class__ = MidiEvent
             if isinstance(expected, bool):
                 # boolean value: ensure that at most one event was returned
                 self.assertLessEqual(len(r), 1)
@@ -92,6 +103,8 @@ class MididingsTestCase(unittest.TestCase):
             events = [events]
         for ev in events:
             r += e.process(ev)[:]
+        for ev in r:
+            ev.__class__ = MidiEvent
         return r
 
     def make_event(self, *args, **kwargs):
@@ -106,14 +119,15 @@ class MididingsTestCase(unittest.TestCase):
             if k == 'port': port = v
             elif k == 'channel': channel = v
             elif k in ('data1', 'note', 'ctrl'): data1 = v
-            elif k in ('data2', 'velocity', 'value', 'program'): data2 = v
+            elif k in ('data2', 'velocity', 'value'): data2 = v
+            elif k == 'program': data2 = v - setup.get_config('data_offset')
 
         if type == None:
             type = random.choice(list(set(constants._EVENT_TYPE_NAMES.keys()) - set([SYSEX, DUMMY])))
         if port == None:
-            port = random.randrange(0, 42)
+            port = random.randrange(0, 42) + setup.get_config('data_offset')
         if channel == None:
-            channel = random.randrange(0, 16)
+            channel = random.randrange(0, 16) + setup.get_config('data_offset')
         if data1 == None:
             data1 = random.randrange(0, 128)
         if data2 == None:

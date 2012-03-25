@@ -10,22 +10,74 @@
 # (at your option) any later version.
 #
 
-import tests.helpers
+from tests.helpers import *
 
 from mididings import *
-from mididings.event import *
 
 
-class GeneratorsTestCase(tests.helpers.MididingsTestCase):
+class GeneratorsTestCase(MididingsTestCase):
 
-    def test_Ctrl(self):
+    @data_offsets
+    def test_NoteOn(self, off):
+        ev = self.make_event(CTRL)
+
+        p = NoteOn(60, 127)
+        self.check_patch(p, {
+            ev: [self.make_event(NOTEON, ev.port, ev.channel, 60, 127)],
+        })
+        p = NoteOn(port=off(2), channel=off(3), note=EVENT_CTRL, velocity=42)
+        self.check_patch(p, {
+            ev: [self.make_event(NOTEON, off(2), off(3), ev.ctrl, 42)],
+        })
+
+    @data_offsets
+    def test_NoteOff(self, off):
+        ev = self.make_event(CTRL)
+
+        p = NoteOff(60, 127)
+        self.check_patch(p, {
+            ev: [self.make_event(NOTEOFF, ev.port, ev.channel, 60, 127)],
+        })
+        p = NoteOff(port=off(2), channel=off(3), note=EVENT_CTRL, velocity=42)
+        self.check_patch(p, {
+            ev: [self.make_event(NOTEOFF, off(2), off(3), ev.ctrl, 42)],
+        })
+
+    @data_offsets
+    def test_Ctrl(self, off):
         ev = self.make_event(NOTEON)
 
         p = Ctrl(23, 42)
         self.check_patch(p, {
             ev: [self.make_event(CTRL, ev.port, ev.channel, 23, 42)],
         })
-        p = Ctrl(23, EVENT_NOTE)
+        p = Ctrl(port=off(2), channel=off(3), ctrl=23, value=EVENT_NOTE)
         self.check_patch(p, {
-            ev: [self.make_event(CTRL, ev.port, ev.channel, 23, ev.note)],
+            ev: [self.make_event(CTRL, off(2), off(3), 23, ev.note)],
+        })
+
+    @data_offsets
+    def test_Program(self, off):
+        ev = self.make_event(NOTEON)
+
+        p = Program(off(42))
+        self.check_patch(p, {
+            ev: [self.make_event(PROGRAM, ev.port, ev.channel, 0, 42)],
+        })
+        p = Program(port=off(2), channel=off(3), program=EVENT_NOTE)
+        self.check_patch(p, {
+            ev: [self.make_event(PROGRAM, off(2), off(3), 0, ev.note)],
+        })
+
+    @data_offsets
+    def test_SysEx(self, off):
+        ev = self.make_event(NOTEON)
+
+        p = SysEx([0xf0, 4, 8, 15, 16, 23, 42, 0xf7])
+        self.check_patch(p, {
+            ev: [SysExEvent(ev.port, [0xf0, 4, 8, 15, 16, 23, 42, 0xf7])],
+        })
+        p = SysEx(port=off(2), sysex=[0xf0, 4, 8, 15, 16, 23, 42, 0xf7])
+        self.check_patch(p, {
+            ev: [SysExEvent(off(2), [0xf0, 4, 8, 15, 16, 23, 42, 0xf7])],
         })

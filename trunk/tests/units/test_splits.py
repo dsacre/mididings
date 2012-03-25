@@ -10,33 +10,35 @@
 # (at your option) any later version.
 #
 
-import tests.helpers
+from tests.helpers import *
 
 from mididings import *
 
 
-class SplitsTestCase(tests.helpers.MididingsTestCase):
+class SplitsTestCase(MididingsTestCase):
 
-    def test_ChannelSplit(self):
-        p = ChannelSplit({ 0: Discard(), (1, 2): Pass() })
+    @data_offsets
+    def test_ChannelSplit(self, off):
+        p = ChannelSplit({ off(0): Discard(), (off(1), off(2)): Pass() })
         self.check_patch(p, {
-            self.make_event(channel=0): False,
-            self.make_event(channel=1): True,
+            self.make_event(channel=off(0)): False,
+            self.make_event(channel=off(1)): True,
         })
-        p = ChannelSplit({ 0: Discard(), (2, 3): Discard(), None: Pass() })
+        p = ChannelSplit({ off(0): Discard(), (off(2), off(3)): Discard(), None: Pass() })
         self.check_patch(p, {
-            self.make_event(channel=0): False,
-            self.make_event(channel=1): True,
+            self.make_event(channel=off(0)): False,
+            self.make_event(channel=off(1)): True,
         })
 
-    def test_KeySplit(self):
+    @data_offsets
+    def test_KeySplit(self, off):
         ev1 = self.make_event(NOTEON, note=66)
         ev2 = self.make_event(NOTEON, note=42)
         ev3 = self.make_event(PROGRAM)
 
-        p = KeySplit(55, Channel(3), Channel(7))
+        p = KeySplit(55, Channel(off(3)), Channel(off(7)))
         self.check_patch(p, {
-            ev1: [self.modify_event(ev1, channel=7)],
-            ev2: [self.modify_event(ev2, channel=3)],
-            ev3: [self.modify_event(ev3, channel=3), self.modify_event(ev3, channel=7)],
+            ev1: [self.modify_event(ev1, channel=off(7))],
+            ev2: [self.modify_event(ev2, channel=off(3))],
+            ev3: [self.modify_event(ev3, channel=off(3)), self.modify_event(ev3, channel=off(7))],
         })

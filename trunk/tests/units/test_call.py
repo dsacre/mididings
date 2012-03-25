@@ -10,29 +10,30 @@
 # (at your option) any later version.
 #
 
-import tests.helpers
+from tests.helpers import *
 
 from mididings import *
 
 
-class CallTestCase(tests.helpers.MididingsTestCase):
+class CallTestCase(MididingsTestCase):
 
-    def test_Process(self):
+    @data_offsets
+    def test_Process(self, off):
         def foo(ev):
             self.assertEqual(ev.type, NOTEON)
-            self.assertEqual(ev.port, 0)
-            self.assertEqual(ev.channel, 0)
+            self.assertEqual(ev.port, off(0))
+            self.assertEqual(ev.channel, off(0))
             self.assertEqual(ev.note, 66)
             self.assertEqual(ev.velocity, 23)
             ev.type = CTRL
-            ev.port = 4
-            ev.channel = 5
+            ev.port = off(4)
+            ev.channel = off(5)
             ev.ctrl = 23
             ev.value = 42
             return ev
 
         self.check_patch(Process(foo), {
-            self.make_event(NOTEON, 0, 0, 66, 23): [self.make_event(CTRL, 4, 5, 23, 42)],
+            self.make_event(NOTEON, off(0), off(0), 66, 23): [self.make_event(CTRL, off(4), off(5), 23, 42)],
         })
 
         ev = self.make_event()

@@ -10,13 +10,13 @@
 # (at your option) any later version.
 #
 
-import tests.helpers
+from tests.helpers import *
 
 from mididings import *
 from mididings.util import *
 
 
-class UtilTestCase(tests.helpers.MididingsTestCase):
+class UtilTestCase(MididingsTestCase):
 
     def test_note_number(self):
         config(octave_offset=1)
@@ -81,13 +81,14 @@ class UtilTestCase(tests.helpers.MididingsTestCase):
         with self.assertRaises(ValueError):
             event_type(123)
 
-    def test_port_number(self):
+    @data_offsets
+    def test_port_number(self, off):
         config(
             in_ports=['foo', 'bar'],
             out_ports=['foo', 'blah', 'bar']
         )
 
-        self.assertEqual(port_number(1), 1)
+        self.assertEqual(port_number(off(1)), 1)
         self.assertEqual(port_number('foo'), 0)
         self.assertEqual(port_number('blah'), 1)
 

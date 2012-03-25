@@ -10,45 +10,47 @@
 # (at your option) any later version.
 #
 
-import tests.helpers
+from tests.helpers import *
 
 from mididings import *
 
 
-class EngineTestCase(tests.helpers.MididingsTestCase):
+class EngineTestCase(MididingsTestCase):
 
-    def testSanitize(self):
+    @data_offsets
+    def testSanitize(self, off):
         def foo(ev):
-            ev.port = 42
+            ev.port = off(42)
         def bar(ev):
             self.fail()
         p = Process(foo) >> Sanitize() >> Process(bar)
-        self.run_patch(p, self.make_event(port=42))
+        self.run_patch(p, self.make_event(port=off(42)))
 
         p = Velocity(+666) >> Sanitize()
         r = self.run_patch(p, self.make_event(NOTEON, velocity=42))
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0].data2, 127)
 
-    def testSceneSwitch(self):
+    @data_offsets
+    def testSceneSwitch(self, off):
         config(silent=True)
         p = {
-            0:  Split({
-                    PROGRAM:  SceneSwitch(),
-                    ~PROGRAM: Channel(7),
-                }),
-            1: Channel(13),
+            off(0): Split({
+                        PROGRAM:  SceneSwitch(),
+                        ~PROGRAM: Channel(off(7)),
+                    }),
+            off(1): Channel(off(13)),
         }
         events = (
-            self.make_event(NOTEON, 0, 0, 69, 123),
-            self.make_event(PROGRAM, 0, 0, 0, 1),
-            self.make_event(NOTEON, 0, 0, 23, 42),
-            self.make_event(NOTEOFF, 0, 0, 69, 0),
+            self.make_event(NOTEON, off(0), off(0), 69, 123),
+            self.make_event(PROGRAM, off(0), off(0), 0, 1),   # no data offset!
+            self.make_event(NOTEON, off(0), off(0), 23, 42),
+            self.make_event(NOTEOFF, off(0), off(0), 69, 0),
         )
         results = [
-            self.make_event(NOTEON, 0, 7, 69, 123),
-            self.make_event(NOTEON, 0, 13, 23, 42),
-            self.make_event(NOTEOFF, 0, 7, 69, 0),
+            self.make_event(NOTEON, off(0), off(7), 69, 123),
+            self.make_event(NOTEON, off(0), off(13), 23, 42),
+            self.make_event(NOTEOFF, off(0), off(7), 69, 0),
         ]
         self.check_scenes(p, {
             events: results,

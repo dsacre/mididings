@@ -10,20 +10,21 @@
 # (at your option) any later version.
 #
 
-import tests.helpers
+from tests.helpers import *
 
 from mididings import *
 from mididings.event import *
 
 
-class FiltersTestCase(tests.helpers.MididingsTestCase):
+class FiltersTestCase(MididingsTestCase):
 
-    def test_PortFilter(self):
-        self.check_filter(PortFilter(0), {
-            self.make_event(port=0): (True, False),
+    @data_offsets
+    def test_PortFilter(self, off):
+        self.check_filter(PortFilter(off(0)), {
+            self.make_event(port=off(0)): (True, False),
         })
-        self.check_filter(PortFilter(1), {
-            self.make_event(port=0): (False, True),
+        self.check_filter(PortFilter(off(1)), {
+            self.make_event(port=off(0)): (False, True),
         })
 
         with self.assertRaises(ValueError):
@@ -32,20 +33,22 @@ class FiltersTestCase(tests.helpers.MididingsTestCase):
         with self.assertRaises(ValueError):
             PortFilter(-1)
 
-    def test_ChannelFilter(self):
-        self.check_filter(ChannelFilter(2), {
-            self.make_event(channel=2): (True, False),
+    @data_offsets
+    def test_ChannelFilter(self, off):
+        self.check_filter(ChannelFilter(off(2)), {
+            self.make_event(channel=off(2)): (True, False),
         })
-        self.check_filter(ChannelFilter(3), {
-            self.make_event(channel=2): (False, True),
+        self.check_filter(ChannelFilter(off(3)), {
+            self.make_event(channel=off(2)): (False, True),
         })
 
         with self.assertRaises(ValueError):
             ChannelFilter(-1)
         with self.assertRaises(ValueError):
-            ChannelFilter(16)
+            ChannelFilter(off(16))
 
-    def test_KeyFilter(self):
+    @data_offsets
+    def test_KeyFilter(self, off):
 #        self.check_filter(KeyFilter('e3:a4'), {
         self.check_filter(KeyFilter('e2:a3'), {
             self.make_event(NOTEON, note=23): (False, True),
@@ -55,7 +58,8 @@ class FiltersTestCase(tests.helpers.MididingsTestCase):
             self.make_event(PROGRAM): (True, True),
         })
 
-    def test_VelocityFilter(self):
+    @data_offsets
+    def test_VelocityFilter(self, off):
         self.check_filter(VelocityFilter(64, 128), {
             self.make_event(NOTEON, velocity=23): (False, True),
             self.make_event(NOTEON, velocity=127): (True, False),
@@ -64,7 +68,8 @@ class FiltersTestCase(tests.helpers.MididingsTestCase):
             self.make_event(PROGRAM): (True, True),
         })
 
-    def test_CtrlFilter(self):
+    @data_offsets
+    def test_CtrlFilter(self, off):
         self.check_filter(CtrlFilter(23), {
             self.make_event(CTRL, ctrl=23): (True, False),
             self.make_event(CTRL, ctrl=42): (False, True),
@@ -74,7 +79,8 @@ class FiltersTestCase(tests.helpers.MididingsTestCase):
             self.make_event(PROGRAM): (False, False),
         })
 
-    def test_CtrlValueFilter(self):
+    @data_offsets
+    def test_CtrlValueFilter(self, off):
         self.check_filter(CtrlValueFilter(23, 42), {
             self.make_event(CTRL, value=32): (True, False),
             self.make_event(CTRL, value=66): (False, True),
@@ -82,30 +88,32 @@ class FiltersTestCase(tests.helpers.MididingsTestCase):
             self.make_event(PROGRAM): (False, False),
         })
 
-    def test_ProgramFilter(self):
-        self.check_filter(ProgramFilter(4, 8, 15, 16), {
-            self.make_event(PROGRAM, value=8): (True, False),
-            self.make_event(PROGRAM, value=13): (False, True),
+    @data_offsets
+    def test_ProgramFilter(self, off):
+        self.check_filter(ProgramFilter(off(4), off(8), off(15), off(16)), {
+            self.make_event(PROGRAM, program=off(8)): (True, False),
+            self.make_event(PROGRAM, program=off(13)): (False, True),
 #            self.make_event(CTRL): (True, True),
             self.make_event(CTRL): (False, False),
         })
 
-    def test_SysExFilter(self):
+    @data_offsets
+    def test_SysExFilter(self, off):
         self.check_filter(SysExFilter([0xf0, 4, 8, 15, 16, 23, 42, 0xf7]), {
-            SysExEvent(0, [0xf0, 4, 8, 15, 16, 23, 42, 0xf7]): (True, False),
-            SysExEvent(0, [0xf0, 4, 8, 15, 16, 23, 43, 0xf7]): (False, True),
+            SysExEvent(off(0), [0xf0, 4, 8, 15, 16, 23, 42, 0xf7]): (True, False),
+            SysExEvent(off(0), [0xf0, 4, 8, 15, 16, 23, 43, 0xf7]): (False, True),
             self.make_event(NOTEON): (False, False),
             self.make_event(CTRL): (False, False),
         })
         self.check_filter(SysExFilter('\xf0\x04\x08'), {
-            SysExEvent(0, [0xf0, 4, 8, 15, 16, 23, 42, 0xf7]): (True, False),
-            SysExEvent(0, [0xf0, 4, 9, 15, 16, 23, 42, 0xf7]): (False, True),
+            SysExEvent(off(0), [0xf0, 4, 8, 15, 16, 23, 42, 0xf7]): (True, False),
+            SysExEvent(off(0), [0xf0, 4, 9, 15, 16, 23, 42, 0xf7]): (False, True),
         })
         self.check_filter(SysExFilter(manufacturer=0x42), {
-            SysExEvent(0, [0xf0, 0x42, 8, 15, 16, 23, 42, 0xf7]): (True, False),
-            SysExEvent(0, [0xf0, 0x43, 8, 15, 16, 23, 42, 0xf7]): (False, True),
+            SysExEvent(off(0), [0xf0, 0x42, 8, 15, 16, 23, 42, 0xf7]): (True, False),
+            SysExEvent(off(0), [0xf0, 0x43, 8, 15, 16, 23, 42, 0xf7]): (False, True),
         })
         self.check_filter(SysExFilter(manufacturer='\x00\x23\x42'), {
-            SysExEvent(0, [0xf0, 0x00, 0x23, 0x42, 16, 23, 42, 0xf7]): (True, False),
-            SysExEvent(0, [0xf0, 4, 8, 15, 16, 23, 42, 0xf7]): (False, True),
+            SysExEvent(off(0), [0xf0, 0x00, 0x23, 0x42, 16, 23, 42, 0xf7]): (True, False),
+            SysExEvent(off(0), [0xf0, 4, 8, 15, 16, 23, 42, 0xf7]): (False, True),
         })
