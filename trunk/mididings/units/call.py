@@ -31,38 +31,39 @@ import copy as _copy
 
 class _CallBase(_Unit):
     def __init__(self, function, async, cont):
-        self.fun = function
-        _Unit.__init__(self, _mididings.Call(self.do_call, async, cont))
-    def do_call(self, ev):
-        # add additional properties that don't exist on the C++ side
-        ev.__class__ = _event.MidiEvent
-        # call the function
-        r = self.fun(ev)
-        # if the function returned a generator, it needs to be made into a list before returning to C++
-        if isinstance(r, _types.GeneratorType):
-            return list(r)
-        else:
-            return r
+        def do_call(ev):
+            # add additional properties that don't exist on the C++ side
+            ev.__class__ = _event.MidiEvent
+            # call the function
+            r = function(ev)
+            # if the function returned a generator, it needs to be made into a list
+            # before returning to C++
+            if isinstance(r, _types.GeneratorType):
+                return list(r)
+            else:
+                return r
+
+        _Unit.__init__(self, _mididings.Call(do_call, async, cont))
 
 
 class _CallThread(_CallBase):
     def __init__(self, function):
-        self.fun_thread = function
-        _CallBase.__init__(self, self.do_thread, True, True)
-    def do_thread(self, ev):
-        # need to make a copy of the event.
-        # the underlying C++ object will become invalid when this function returns
-        ev_copy = _copy.copy(ev)
-        _thread.start_new_thread(self.fun_thread, (ev_copy,))
+        def do_thread(ev):
+            # need to make a copy of the event.
+            # the underlying C++ object will become invalid when this function returns
+            ev_copy = _copy.copy(ev)
+            _thread.start_new_thread(function, (ev_copy,))
+
+        _CallBase.__init__(self, do_thread, True, True)
 
 
 class _System(_CallBase):
-    def __init__(self, cmd):
-        self.cmd = cmd
-        _CallBase.__init__(self, self.do_system, True, True)
-    def do_system(self, ev):
-        cmd = self.cmd(ev) if hasattr(self.cmd, '__call__') else self.cmd
-        _subprocess.Popen(cmd, shell=True)
+    def __init__(self, command):
+        def do_system(ev):
+            args = command(ev) if hasattr(command, '__call__') else command
+            _subprocess.Popen(args, shell=True)
+
+        _CallBase.__init__(self, do_system, True, True)
 
 
 @_unit_repr
@@ -87,5 +88,5 @@ def Call(thread):
 
 
 @_unit_repr
-def System(cmd):
-    return _System(cmd)
+def System(command):
+    return _System(command)
