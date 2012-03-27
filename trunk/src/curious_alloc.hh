@@ -13,18 +13,43 @@
 #define MIDIDINGS_CURIOUS_ALLOC_HH
 
 #include <new>
+#include <memory>
+#include <functional>
 
 #include "util/debug.hh"
 
 
 namespace Mididings {
 
+
+template <typename R>
+class curious_alloc_base
+{
+  public:
+    static std::size_t max_utilization() {
+        return max_utilization_;
+    }
+    static std::size_t fallback_count() {
+        return fallback_count_;
+    }
+
+  protected:
+    static std::size_t max_utilization_;
+    static std::size_t fallback_count_;
+};
+
+
 /*
- * constant-time allocation/deallocation from a fixed size pool of N elements.
+ * Constant-time allocation/deallocation from a fixed-size pool of N elements.
  * deleted elements are not reclaimed until all (!) elements are deallocated.
+ *
+ * \tparam T    the type to be allocated
+ * \tparam N    the size of the data pool
+ * \tparam R    the original data type before rebind
  */
-template <typename T, std::size_t N>
+template <typename T, std::size_t N, typename R=T>
 class curious_alloc
+  : public curious_alloc_base<R>
 {
   public:
     typedef std::size_t size_type;
@@ -37,44 +62,53 @@ class curious_alloc
 
     template <class U>
     struct rebind {
-        typedef curious_alloc<U, N> other;
+        typedef curious_alloc<U, N, R> other;
     };
 
     curious_alloc() { }
-    curious_alloc(curious_alloc<T, N> const &) { }
+    curious_alloc(curious_alloc<T, N, R> const &) { }
     template <class U>
-    curious_alloc(curious_alloc<U, N> const &) { }
+    curious_alloc(curious_alloc<U, N, R> const &) { }
 
     ~curious_alloc() { }
 
-    bool operator==(curious_alloc<T, N> const &) {
+    bool operator==(curious_alloc<T, N, R> const &) {
         return true;
     }
-    bool operator!=(curious_alloc<T, N> const &) {
+    bool operator!=(curious_alloc<T, N, R> const &) {
         return false;
     }
 
     pointer address(reference x) const { return &x; }
     const_pointer address(const_reference x) const { return &x; }
 
-    pointer allocate(size_type n, void const * /*hint*/ = 0) {
+    pointer allocate(size_type n, void const * hint = 0) {
         (void)n;
         ASSERT(n == 1);
-        ASSERT(index_ < N);
 
         if (index_ >= N) {
-            throw std::bad_alloc();
+            // can't allocate from pool, use fallback allocator
+            ++this->fallback_count_;
+            return fallback_.allocate(n, hint);
         }
         ++count_;
+
+        if (index_ >= this->max_utilization_) {
+            this->max_utilization_ = index_ + 1;
+        }
         return pool_ + (index_++);
     }
 
     void deallocate(pointer p, size_type n) {
-        deallocate(static_cast<void *>(p), n);
-    }
-    void deallocate(void * p, size_type n) {
         (void)n;
         ASSERT(n == 1);
+
+        if (std::less<T*>()(p, pool_) || std::greater_equal<T*>()(p, pool_ + N)) {
+            // address is not within pool address range, must have been
+            // allocated using fallback allocator
+            fallback_.deallocate(p, n);
+            return;
+        }
 
         if (p == pool_ + index_ - 1) {
             // removing last element, can be reused
@@ -101,15 +135,25 @@ class curious_alloc
     }
 
 private:
-    static T pool_[N];
+    static unsigned char pool_array_[N * sizeof(T)];
+    static T* pool_;
     static std::size_t count_;
     static std::size_t index_;
+
+    // fallback allocator in case this one runs out of space
+    static std::allocator<T> fallback_;
 };
 
 
-template <typename T, std::size_t N> T curious_alloc<T, N>::pool_[N];
-template <typename T, std::size_t N> std::size_t curious_alloc<T, N>::count_ = 0;
-template <typename T, std::size_t N> std::size_t curious_alloc<T, N>::index_ = 0;
+template <typename R> std::size_t curious_alloc_base<R>::max_utilization_ = 0;
+template <typename R> std::size_t curious_alloc_base<R>::fallback_count_ = 0;
+
+template <typename T, std::size_t N, typename R> unsigned char curious_alloc<T, N, R>::pool_array_[N * sizeof(T)];
+template <typename T, std::size_t N, typename R> T* curious_alloc<T, N, R>::pool_ = reinterpret_cast<T*>(&curious_alloc<T, N, R>::pool_array_);
+template <typename T, std::size_t N, typename R> std::size_t curious_alloc<T, N, R>::count_ = 0;
+template <typename T, std::size_t N, typename R> std::size_t curious_alloc<T, N, R>::index_ = 0;
+
+template <typename T, std::size_t N, typename R> std::allocator<T> curious_alloc<T, N, R>::fallback_ = std::allocator<T>();
 
 
 } // Mididings
