@@ -12,14 +12,17 @@
 #include "config.hh"
 #include "engine.hh"
 #include "patch.hh"
+#include "midi_event.hh"
 #include "units/base.hh"
 #include "units/engine.hh"
 #include "units/filters.hh"
 #include "units/modifiers.hh"
 #include "units/generators.hh"
 #include "units/call.hh"
+#include "curious_alloc.hh"
 
 #include "util/python_converters.hh"
+#include "util/counted_objects.hh"
 
 #include <boost/python/module.hpp>
 #include <boost/python/def.hpp>
@@ -31,9 +34,31 @@
 
 #include <vector>
 #include <string>
+#include <cstdlib>
+
+#ifdef ENABLE_DEBUG_STATS
+#include <iostream>
+#endif
 
 
 namespace Mididings {
+
+
+#ifdef ENABLE_DEBUG_STATS
+
+void unload() {
+    std::cout << "MidiEvent alloc: " << curious_alloc_base<MidiEvent>::max_utilization() << " " << curious_alloc_base<MidiEvent>::fallback_count() << std::endl;
+
+    std::cout << "Engine: " << das::counted_objects<Engine>::allocated() << " " << das::counted_objects<Engine>::deallocated() << std::endl;
+    std::cout << "Patch: " << das::counted_objects<Patch>::allocated() << " " << das::counted_objects<Patch>::deallocated() << std::endl;
+    std::cout << "Patch::Module: " << das::counted_objects<Patch::Module>::allocated() << " " << das::counted_objects<Patch::Module>::deallocated() << std::endl;
+    std::cout << "Units::Unit: " << das::counted_objects<Units::Unit>::allocated() << " " << das::counted_objects<Units::Unit>::deallocated() << std::endl;
+    std::cout << "Units::UnitEx: " << das::counted_objects<Units::UnitEx>::allocated() << " " << das::counted_objects<Units::UnitEx>::deallocated() << std::endl;
+    std::cout << "MidiEvent: " << das::counted_objects<MidiEvent>::allocated() << " " << das::counted_objects<MidiEvent>::deallocated() << std::endl;
+}
+
+#endif // ENABLE_DEBUG_STATS
+
 
 
 BOOST_PYTHON_MODULE(_mididings)
@@ -150,6 +175,11 @@ BOOST_PYTHON_MODULE(_mididings)
     das::register_map_converters<std::string, std::vector<std::string> >();
 
     das::register_enum_converters<MidiEventType>();
+
+
+#ifdef ENABLE_DEBUG_STATS
+    std::atexit(unload);
+#endif
 }
 
 

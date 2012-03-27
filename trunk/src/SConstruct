@@ -12,12 +12,14 @@ def boost_lib_name(lib):
     return lib + '-mt'
 
 env = Environment(
+#    CXX = 'clang++',
 #    CCFLAGS = ['-O2', '-W', '-Wall', '-finline-functions', '-fvisibility=hidden'],
     CCFLAGS = ['-g', '-W', '-Wall'],
     CPPDEFINES = [
 #        'NDEBUG',
 #        'ENABLE_DEBUG_FN',
 #        'ENABLE_DEBUG_PRINT',
+#        'ENABLE_DEBUG_STATS',
         'ENABLE_TEST',
 #        'ENABLE_BENCHMARK',
         'ENABLE_ALSA_SEQ',
