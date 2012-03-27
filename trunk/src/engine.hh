@@ -28,6 +28,7 @@
 #include <boost/python/object.hpp>
 
 #include "util/global_object.hh"
+#include "util/counted_objects.hh"
 
 
 namespace Mididings {
@@ -38,6 +39,7 @@ extern class Engine * TheEngine;
 
 class Engine
   : public das::global_object<Engine, TheEngine>
+  , das::counted_objects<Engine>
 {
   public:
 

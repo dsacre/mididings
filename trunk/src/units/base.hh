@@ -18,6 +18,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "util/counted_objects.hh"
 #include "util/debug.hh"
 
 
@@ -26,6 +27,7 @@ namespace Units {
 
 
 class Unit
+  : das::counted_objects<Unit>
 {
   public:
     Unit() { }
@@ -36,6 +38,7 @@ class Unit
 
 
 class UnitEx
+  : das::counted_objects<UnitEx>
 {
   public:
     UnitEx() { }

@@ -23,6 +23,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "util/iterator_range.hh"
+#include "util/counted_objects.hh"
 #include "util/debug.hh"
 
 
@@ -35,6 +36,7 @@ class UnitEx;
 
 
 class Patch
+  : das::counted_objects<Patch>
 {
   private:
 
@@ -73,6 +75,7 @@ class Patch
      * The module base class.
      */
     class Module
+      : das::counted_objects<Module>
     {
       public:
         Module() { }

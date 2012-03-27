@@ -18,6 +18,8 @@
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "util/counted_objects.hh"
+
 
 namespace Mididings {
 
@@ -51,6 +53,7 @@ typedef unsigned int MidiEventTypes;
 
 
 struct MidiEvent
+  : das::counted_objects<MidiEvent>
 {
     typedef std::vector<unsigned char> SysExData;
     typedef boost::shared_ptr<SysExData> SysExPtr;
@@ -80,6 +83,30 @@ struct MidiEvent
       , sysex()
       , frame(0)
     { }
+
+    MidiEvent(MidiEvent const & other)
+      : type(other.type)
+      , port(other.port)
+      , channel(other.channel)
+      , data1(other.data1)
+      , data2(other.data2)
+      , sysex(other.sysex)
+      , frame(other.frame)
+    { }
+
+    ~MidiEvent() { }
+
+    MidiEvent & operator=(MidiEvent const & other) {
+        type = other.type;
+        port = other.port;
+        channel = other.channel;
+        data1 = other.data1;
+        data2 = other.data2;
+        sysex = other.sysex;
+        frame = other.frame;
+        return *this;
+    }
+
 
     SysExData const & get_sysex_data() const {
         if (!sysex) {
