@@ -36,20 +36,32 @@ class CallTestCase(MididingsTestCase):
             self.make_event(NOTEON, off(0), off(0), 66, 23): [self.make_event(CTRL, off(4), off(5), 23, 42)],
         })
 
+    def test_Process_single(self):
         ev = self.make_event()
-
         self.check_patch(Process(lambda ev: ev), {
             ev: [ev]
         })
 
+    def test_Process_None(self):
+        ev = self.make_event()
         self.check_patch(Process(lambda ev: None), {
             ev: []
         })
 
+    def test_Process_empty(self):
+        ev = self.make_event()
         self.check_patch(Process(lambda ev: []), {
             ev: []
         })
 
+    def test_Process_list(self):
+        ev = self.make_event()
         self.check_patch(Process(lambda ev: [ev, ev, ev]), {
             ev: [ev, ev, ev]
+        })
+
+    def test_Process_generator(self):
+        ev = self.make_event()
+        self.check_patch(Process(lambda ev: (ev for ev in [ev, ev])), {
+            ev: [ev, ev]
         })
