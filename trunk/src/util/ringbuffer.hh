@@ -24,25 +24,26 @@ template <typename T>
 class ringbuffer : boost::noncopyable
 {
   public:
-    ringbuffer(size_t size)
+    ringbuffer(std::size_t size)
       : _size(size)
-      , _buf(new T[size])
+      , _buf_array(new unsigned char[size * sizeof(T)])
+      , _buf(reinterpret_cast<T*>(_buf_array))
     {
         reset();
     }
 
-    virtual ~ringbuffer() {
-        delete[] _buf;
+    ~ringbuffer() {
+        delete[] _buf_array;
     }
 
     void reset() {
-        g_atomic_int_set(&_write_ptr, 0);
-        g_atomic_int_set(&_read_ptr, 0);
+        g_atomic_int_set(&_write_idx, 0);
+        g_atomic_int_set(&_read_idx, 0);
     }
 
-    size_t write_space() const {
-        const size_t w = g_atomic_int_get(&_write_ptr);
-        const size_t r = g_atomic_int_get(&_read_ptr);
+    std::size_t write_space() const {
+        std::size_t const w = g_atomic_int_get(&_write_idx);
+        std::size_t const r = g_atomic_int_get(&_read_idx);
 
         if (w > r) {
             return ((r - w + _size) % _size) - 1;
@@ -53,9 +54,9 @@ class ringbuffer : boost::noncopyable
         }
     }
 
-    size_t read_space() const {
-        const size_t w = g_atomic_int_get(&_write_ptr);
-        const size_t r = g_atomic_int_get(&_read_ptr);
+    std::size_t read_space() const {
+        std::size_t const w = g_atomic_int_get(&_write_idx);
+        std::size_t const r = g_atomic_int_get(&_read_idx);
 
         if (w > r) {
             return w - r;
@@ -64,26 +65,29 @@ class ringbuffer : boost::noncopyable
         }
     }
 
-    size_t capacity() const {
+    std::size_t capacity() const {
         return _size;
     }
 
-    bool read(T & dst) {
-        if (read_space()) {
-            const size_t priv_read_ptr = g_atomic_int_get(&_read_ptr);
-            dst = _buf[priv_read_ptr];
-            g_atomic_int_set(&_read_ptr, (priv_read_ptr + 1) % _size);
+    bool write(T const & src) {
+        if (write_space()) {
+            std::size_t const priv_write_idx = g_atomic_int_get(&_write_idx);
+            void *p = static_cast<void*>(_buf + priv_write_idx);
+            new (p) T(src);
+            g_atomic_int_set(&_write_idx, (priv_write_idx + 1) % _size);
             return true;
         } else {
             return false;
         }
     }
 
-    bool write(const T & src) {
-        if (write_space()) {
-            const size_t priv_write_ptr = g_atomic_int_get(&_write_ptr);
-            _buf[priv_write_ptr] = src;
-            g_atomic_int_set(&_write_ptr, (priv_write_ptr + 1) % _size);
+    bool read(T & dst) {
+        if (read_space()) {
+            std::size_t const priv_read_idx = g_atomic_int_get(&_read_idx);
+            T *p = _buf + priv_read_idx;
+            dst = *p;
+            p->~T();
+            g_atomic_int_set(&_read_idx, (priv_read_idx + 1) % _size);
             return true;
         } else {
             return false;
@@ -91,11 +95,12 @@ class ringbuffer : boost::noncopyable
     }
 
 protected:
-    mutable int _write_ptr;
-    mutable int _read_ptr;
+    int _write_idx;
+    int _read_idx;
 
-    size_t _size;
-    T*     _buf;
+    std::size_t _size;
+    unsigned char *_buf_array;
+    T *_buf;
 };
 
 
