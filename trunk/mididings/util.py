@@ -274,9 +274,9 @@ class NoDataOffset(int):
     def __new__(cls, value):
         return int.__new__(cls, value)
     def __repr__(self):
-        return 'NoDataOffset(%d)' % self
+        return 'NoDataOffset(%d)' % int(self)
     def __str__(self):
-        return 'NoDataOffset(%d)' % self
+        return 'NoDataOffset(%d)' % int(self)
 
 
 def offset(n):
