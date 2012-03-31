@@ -263,7 +263,7 @@ def OrSelector(conditions):
     return _OrSelector(conditions)
 
 
-@_arguments.accept(_arguments.reduce_bitmask(_arguments.flattened(_arguments.sequenceof(_constants._EventType))), with_rest=True)
+@_arguments.accept(_arguments.reduce_bitmask(_arguments.sequenceof(_constants._EventType)), with_rest=True)
 @_unitrepr.store
 def Filter(types, *rest):
     """
