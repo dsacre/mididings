@@ -57,6 +57,32 @@ class GeneratorsTestCase(MididingsTestCase):
         })
 
     @data_offsets
+    def test_Pitchbend(self, off):
+        ev = self.make_event(CTRL)
+
+        p = Pitchbend(8191)
+        self.check_patch(p, {
+            ev: [self.make_event(PITCHBEND, ev.port, ev.channel, 0, 8191)],
+        })
+        p = Pitchbend(port=off(2), channel=off(3), value=EVENT_VALUE)
+        self.check_patch(p, {
+            ev: [self.make_event(PITCHBEND, off(2), off(3), 0, ev.value)],
+        })
+
+    @data_offsets
+    def test_Aftertouch(self, off):
+        ev = self.make_event(CTRL)
+
+        p = Aftertouch(42)
+        self.check_patch(p, {
+            ev: [self.make_event(AFTERTOUCH, ev.port, ev.channel, 0, 42)],
+        })
+        p = Aftertouch(port=off(2), channel=off(3), value=EVENT_VALUE)
+        self.check_patch(p, {
+            ev: [self.make_event(AFTERTOUCH, off(2), off(3), 0, ev.value)],
+        })
+
+    @data_offsets
     def test_Program(self, off):
         ev = self.make_event(NOTEON)
 

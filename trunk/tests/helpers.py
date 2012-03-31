@@ -23,6 +23,8 @@ from mididings import *
 from mididings import setup, engine, misc, constants
 from mididings.event import *
 
+import mididings
+
 
 def data_offsets(f):
     """
@@ -94,6 +96,32 @@ class MididingsTestCase(unittest.TestCase):
         Run the given events through the given scenes, return the list of
         resulting events.
         """
+        # run scenes
+        r1 = self._run_scenes(scenes, events)
+
+        rebuilt = self._rebuild_repr(scenes)
+        if rebuilt is not None:
+            # run scenes rebuilt from their repr(), result should be identical
+            r2 = self._run_scenes(rebuilt, events)
+            self.assertEqual(r2, r1)
+
+        return r1
+
+    def _rebuild_repr(self, scenes):
+        r = {}
+        for k, v in scenes.items():
+            rep = repr(v)
+            if 'Process' in rep:
+                # patches with Process() units are too tricky for now
+                return None
+            w = eval(rep, mididings.__dict__)
+            # the repr() of the rebuilt patch should be identical to the repr()
+            # string it was built from
+            self.assertEqual(repr(w), rep)
+            r[k] = w
+        return r
+
+    def _run_scenes(self, scenes, events):
         setup.config(_check=False,
             backend='dummy'
         )
@@ -124,6 +152,8 @@ class MididingsTestCase(unittest.TestCase):
 
         if type == None:
             type = random.choice(list(set(constants._EVENT_TYPE_NAMES.keys()) - set([SYSEX, DUMMY])))
+        if type == NOTE:
+            type = random.choice([NOTEON, NOTEOFF])
         if port == None:
             port = random.randrange(0, 42) + setup.get_config('data_offset')
         if channel == None:

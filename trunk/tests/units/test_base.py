@@ -47,14 +47,14 @@ class BaseTestCase(MididingsTestCase):
         self.check_patch(p, {ev: [ev, ev]})
 
     def test_Filter(self):
-        self.check_filter(Filter(PROGRAM), {
+        self.check_filter(Filter([PROGRAM]), {
             self.make_event(NOTEON): (False, True),
             self.make_event(NOTEOFF): (False, True),
             self.make_event(CTRL): (False, True),
             self.make_event(PROGRAM): (True, False),
         })
 
-        self.check_filter(Filter(NOTE), {
+        self.check_filter(Filter(types=NOTE), {
             self.make_event(NOTEON): (True, False),
             self.make_event(NOTEOFF): (True, False),
             self.make_event(CTRL): (False, True),
@@ -66,6 +66,14 @@ class BaseTestCase(MididingsTestCase):
             self.make_event(NOTEOFF): (True, False),
             self.make_event(CTRL): (True, False),
             self.make_event(PROGRAM): (False, True),
+        })
+
+        self.check_filter(Filter(types=[CTRL, [PROGRAM], AFTERTOUCH|PITCHBEND]), {
+            self.make_event(NOTEON): (False, True),
+            self.make_event(CTRL): (True, False),
+            self.make_event(PROGRAM): (True, False),
+            self.make_event(AFTERTOUCH): (True, False),
+            self.make_event(PITCHBEND): (True, False),
         })
 
     def test_Split(self):
@@ -104,7 +112,6 @@ class BaseTestCase(MididingsTestCase):
 
         p = (CtrlFilter(42) | CtrlValueFilter(123)) % Discard()
         self.check_patch(p, {
-#            self.make_event(NOTEON): False,
             self.make_event(NOTEON): True,
             self.make_event(CTRL, ctrl=23, value=42): True,
             self.make_event(CTRL, ctrl=42, value=123): False,
@@ -119,7 +126,6 @@ class BaseTestCase(MididingsTestCase):
 
         p = CtrlFilter(42) % (CtrlValueFilter(123) % Discard())
         self.check_patch(p, {
-#            self.make_event(NOTEON): False,
             self.make_event(NOTEON): True,
             self.make_event(CTRL, ctrl=23, value=42): True,
             self.make_event(CTRL, ctrl=42, value=123): False,

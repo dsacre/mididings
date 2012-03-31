@@ -18,13 +18,42 @@ from mididings import *
 class SplitsTestCase(MididingsTestCase):
 
     @data_offsets
+    def test_PortSplit(self, off):
+        p = PortSplit({
+            off(0): Discard(),
+            (off(1), off(2)): Pass()
+        })
+        self.check_patch(p, {
+            self.make_event(port=off(0)): False,
+            self.make_event(port=off(1)): True,
+        })
+
+        p = PortSplit({
+            off(0): Discard(),
+            (off(2), off(3)): Discard(),
+            None: Pass()
+        })
+        self.check_patch(p, {
+            self.make_event(port=off(0)): False,
+            self.make_event(port=off(1)): True,
+        })
+
+    @data_offsets
     def test_ChannelSplit(self, off):
-        p = ChannelSplit({ off(0): Discard(), (off(1), off(2)): Pass() })
+        p = ChannelSplit({
+            off(0): Discard(),
+            (off(1), off(2)): Pass()
+        })
         self.check_patch(p, {
             self.make_event(channel=off(0)): False,
             self.make_event(channel=off(1)): True,
         })
-        p = ChannelSplit({ off(0): Discard(), (off(2), off(3)): Discard(), None: Pass() })
+
+        p = ChannelSplit({
+            off(0): Discard(),
+            (off(2), off(3)): Discard(),
+            None: Pass()
+        })
         self.check_patch(p, {
             self.make_event(channel=off(0)): False,
             self.make_event(channel=off(1)): True,
@@ -41,4 +70,15 @@ class SplitsTestCase(MididingsTestCase):
             ev1: [self.modify_event(ev1, channel=off(7))],
             ev2: [self.modify_event(ev2, channel=off(3))],
             ev3: [self.modify_event(ev3, channel=off(3)), self.modify_event(ev3, channel=off(7))],
+        })
+
+        p = KeySplit({
+            (23, 52): Pass(),
+            (52, 69): Discard(),
+            (69, 88): Pass(),
+        })
+        self.check_patch(p, {
+            ev1: False,
+            ev2: True,
+            ev3: True,
         })

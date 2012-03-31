@@ -88,9 +88,9 @@ class UtilTestCase(MididingsTestCase):
             out_ports=['foo', 'blah', 'bar']
         )
 
-        self.assertEqual(port_number(off(1)), 1)
-        self.assertEqual(port_number('foo'), 0)
-        self.assertEqual(port_number('blah'), 1)
+        self.assertEqual(port_number(1), 1)
+        self.assertEqual(port_number('foo'), off(0))
+        self.assertEqual(port_number('blah'), off(1))
 
         with self.assertRaises(ValueError):
             port_number('bar')
