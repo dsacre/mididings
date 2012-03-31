@@ -55,8 +55,9 @@ class _Overload(object):
     """
     Wrapper class for an arbitrary number of overloads.
     """
-    def __init__(self, name):
+    def __init__(self, name, docstring):
         self.name = name
+        self.docstring = docstring
         self.funcs = []
     def add(self, f):
         self.funcs.append(f)
@@ -64,19 +65,28 @@ class _Overload(object):
         return call(args, kwargs, self.funcs, self.name)
 
 
-def mark(f):
+def mark(f, docstring=None):
     """
     Decorator that marks a function as being overloaded.
     """
+    if isinstance(f, str):
+        # called with docstring argument. return this function to be used as
+        # the actual decorator
+        return functools.partial(mark, docstring=f)
+
     k = (f.__module__, f.__name__)
     # create a new _Overload object if necessary, add function f to it
     if k not in _registry:
-        _registry[k] = _Overload(f.__name__)
+        _registry[k] = _Overload(f.__name__, docstring)
     _registry[k].add(f)
 
-    # return a function that, instead of calling f, calls the _Overload object
     @functools.wraps(f)
-    def overload_function(*args, **kwargs):
+    def call_overload(*args, **kwargs):
         return _registry[k](*args, **kwargs)
 
-    return overload_function
+    # use the overload's docstring if there is one
+    if _registry[k].docstring is not None:
+        call_overload.__doc__ = _registry[k].docstring
+
+    # return a function that, instead of calling f, calls the _Overload object
+    return call_overload
