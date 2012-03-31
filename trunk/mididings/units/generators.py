@@ -21,7 +21,7 @@ import mididings.unitrepr as _unitrepr
 
 
 @_unitrepr.accept(_util.event_type, _util.port_number_ref, _util.channel_number_ref, int, int)
-def Generator(type, port, channel, data1=0, data2=0):
+def Generator(type, port=_constants.EVENT_PORT, channel=_constants.EVENT_CHANNEL, data1=0, data2=0):
     """
     Generic generator.
     """
