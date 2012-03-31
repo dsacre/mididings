@@ -11,11 +11,13 @@
 #
 
 from mididings.units.call import _CallBase
-from mididings.units.base import _unit_repr
 
-import mididings.constants as _constants
 import mididings.overload as _overload
+import mididings.unitrepr as _unitrepr
+import mididings.constants as _constants
 import mididings.misc as _misc
+
+import collections as _collections
 
 
 class _Print(_CallBase):
@@ -84,12 +86,12 @@ class _PrintString(_CallBase):
         print(string)
 
 
-@_unit_repr
 @_overload.mark
+@_unitrepr.accept((str, type(None)), ('in', 'out', None))
 def Print(name=None, portnames=None):
     return _Print(name, portnames)
 
-@_unit_repr
 @_overload.mark
+@_unitrepr.accept((str, _collections.Callable))
 def Print(string):
     return _PrintString(string)

@@ -67,13 +67,13 @@ class Engine(_mididings.Engine):
 
                 for v in s.scenes:
                     name, proc, init = self._parse_scene(v)
-                    self.add_scene(_util.scene_number(i), _patch.Patch(proc), _patch.Patch(init))
+                    self.add_scene(_util.actual(i), _patch.Patch(proc), _patch.Patch(init))
                     self._scenes[i][1].append(name)
             else:
                 name, proc, init = self._parse_scene(s)
 
                 self._scenes[i] = (name, [])
-                self.add_scene(_util.scene_number(i), _patch.Patch(proc), _patch.Patch(init))
+                self.add_scene(_util.actual(i), _patch.Patch(proc), _patch.Patch(init))
 
         control_patch = _patch.Patch(control) if control else None
         pre_patch = _patch.Patch(pre) if pre else None
@@ -102,14 +102,14 @@ class Engine(_mididings.Engine):
         n = _get_config('initial_scene')
         if n in self._scenes:
             # scene number
-            initial_scene = _util.scene_number(n)
+            initial_scene = _util.actual(n)
             initial_subscene = -1
         elif _misc.issequence(n) and len(n) > 1 and n[0] in self._scenes:
             # scene number as tuple...
-            initial_scene = _util.scene_number(n[0])
+            initial_scene = _util.actual(n[0])
             if _util.actual(n[1]) < len(self._scenes[n[0]][1]):
                 # ...and valid subscene
-                initial_subscene = _util.scene_number(n[1])
+                initial_subscene = _util.actual(n[1])
             else:
                 initial_subscene = -1
         else:
@@ -199,12 +199,12 @@ class Engine(_mididings.Engine):
 
     def switch_scene(self, scene, subscene=None):
         _mididings.Engine.switch_scene(self,
-            _util.scene_number(scene),
-            _util.scene_number(subscene) if subscene != None else -1
+            _util.actual(scene),
+            _util.actual(subscene) if subscene != None else -1
          )
 
     def switch_subscene(self, subscene):
-        _mididings.Engine.switch_scene(self, -1, _util.scene_number(subscene))
+        _mididings.Engine.switch_scene(self, -1, _util.actual(subscene))
 
     def current_scene(self):
         return _util.offset(_mididings.Engine.current_scene(self))

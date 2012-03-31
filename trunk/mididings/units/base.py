@@ -12,15 +12,9 @@
 
 import _mididings
 
-import mididings.misc as _misc
-import mididings.overload as _overload
-
-import functools as _functools
-import sys as _sys
-if _sys.version_info < (2,6):
-    _functools.reduce = reduce
-
-from decorator import decorator as _decorator
+import mididings.constants as _constants
+import mididings.arguments as _arguments
+import mididings.unitrepr as _unitrepr
 
 
 class _Unit(object):
@@ -69,21 +63,7 @@ class _Unit(object):
         return Fork([ Pass(), self ])
 
     def __repr__(self):
-        if hasattr(self, '_name'):
-            # anything that went through @_unit_repr will have _name, _args
-            # and _kwargs attributes
-            name = self._name
-            args = ', '.join(repr(a) for a in self._args)
-            kwargs = ', '.join('%s=%r' % (k, self._kwargs[k]) for k in self._kwargs)
-            sep = ', ' if args and kwargs else ''
-            return '%s(%s%s%s)' % (name, args, sep, kwargs)
-        else:
-            # is this the best we can do?
-            return self.__class__.__name__
-
-
-# the types we accept as part of a patch
-_UNIT_TYPES = (_Unit, list, dict)
+        return _unitrepr.unit_to_string(self)
 
 
 def _join_units(t, a, b):
@@ -97,38 +77,13 @@ def _join_units(t, a, b):
     return t(a + b)
 
 
-@_decorator
-def _unit_repr(f, *args, **kwargs):
-    """
-    Decorator that modifies the function f to store its own arguments in the
-    unit it returns.
-    """
-    unit = f(*args, **kwargs)
-    unit._name = f.name if isinstance(f, _overload._Overload) else f.__name__
-    unit._args = args
-    unit._kwargs = kwargs
-    return unit
-
-
-def Chain(units):
-    """
-    Units connected in series.
-    """
-    return _Chain(units)
-
 class _Chain(_Unit, list):
     def __init__(self, units):
         list.__init__(self, units)
 
     def __repr__(self):
-        return ' >> '.join(repr(u) for u in self)
+        return _unitrepr.chain_to_string(self)
 
-
-def Fork(units, remove_duplicates=None):
-    """
-    Units connected in parallel.
-    """
-    return _Fork(units, remove_duplicates)
 
 class _Fork(_Unit, list):
     def __init__(self, units, remove_duplicates=None):
@@ -136,25 +91,15 @@ class _Fork(_Unit, list):
         self.remove_duplicates = remove_duplicates
 
     def __repr__(self):
-        r = '[' + ', '.join(repr(u) for u in self) + ']'
-        if self.remove_duplicates != None:
-            return 'Fork(%s, remove_duplicates=%r)' % (r, self.remove_duplicates)
-        else:
-            return r
+        return _unitrepr.fork_to_string(self)
 
-
-def Split(d):
-    """
-    Split events by type.
-    """
-    return _Split(d)
 
 class _Split(_Unit, dict):
     def __init__(self, d):
         dict.__init__(self, d)
 
     def __repr__(self):
-        return '{' + ', '.join('%r: %r' % (t, self[t]) for t in self.keys()) + '}'
+        return _unitrepr.split_to_string(self)
 
 
 class _Selector(object):
@@ -191,12 +136,6 @@ class _Selector(object):
         ])
 
 
-def AndSelector(conditions):
-    """
-    Conjunction of multiple filters.
-    """
-    return _AndSelector(conditions)
-
 class _AndSelector(_Selector):
     def __init__(self, conditions):
         self.conditions = conditions
@@ -207,12 +146,6 @@ class _AndSelector(_Selector):
     def build_negated(self):
         return Fork(p.build_negated() for p in self.conditions)
 
-
-def OrSelector(conditions):
-    """
-    Disjunction of multiple filters.
-    """
-    return _OrSelector(conditions)
 
 class _OrSelector(_Selector):
     def __init__(self, conditions):
@@ -283,32 +216,71 @@ class _InvertedFilter(_Filter):
         _Filter.__init__(self, _mididings.InvertedFilter(filt.unit, negate))
 
     def __repr__(self):
-        prefix = '-' if self.negate else '~'
-        return '%s%r' % (prefix, self.filt)
+        return _unitrepr.inverted_filter_to_string(self)
 
 
-@_unit_repr
-def Filter(*args):
+# the types we accept as part of a patch
+_UNIT_TYPES = (_Unit, list, dict)
+_SELECTOR_TYPES = (_Filter, _Selector)
+
+
+@_arguments.accept(_arguments.sequenceof(_UNIT_TYPES))
+def Chain(units):
+    """
+    Units connected in series.
+    """
+    return _Chain(units)
+
+
+@_arguments.accept(_arguments.sequenceof(_UNIT_TYPES), (bool, type(None)))
+def Fork(units, remove_duplicates=None):
+    """
+    Units connected in parallel.
+    """
+    return _Fork(units, remove_duplicates)
+
+
+def Split(d):
+    """
+    Split events by type.
+    """
+    return _Split(d)
+
+
+@_arguments.accept(_arguments.sequenceof(_SELECTOR_TYPES))
+def AndSelector(conditions):
+    """
+    Conjunction of multiple filters.
+    """
+    return _AndSelector(conditions)
+
+
+@_arguments.accept(_arguments.sequenceof(_SELECTOR_TYPES))
+def OrSelector(conditions):
+    """
+    Disjunction of multiple filters.
+    """
+    return _OrSelector(conditions)
+
+
+@_arguments.accept(_arguments.reduce_bitmask(_arguments.flattened(_arguments.sequenceof(_constants._EventType))), with_rest=True)
+@_unitrepr.store
+def Filter(types, *rest):
     """
     Filter by event type.
     """
-    if len(args) > 1:
-        # reduce all arguments to a single bitmask
-        types = _functools.reduce(lambda x,y: x|y, args)
-    else:
-        types = args[0]
     return _Filter(_mididings.TypeFilter(types))
 
 
-@_unit_repr
-def Pass(p=True):
+@_unitrepr.store
+def Pass():
     """
     Pass all events.
     """
-    return _Unit(_mididings.Pass(p))
+    return _Unit(_mididings.Pass(True))
 
 
-@_unit_repr
+@_unitrepr.store
 def Discard():
     """
     Discard all events.

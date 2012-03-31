@@ -46,8 +46,8 @@ class MidiEvent(_mididings.MidiEvent):
     def __init__(self, type=_constants.NONE, port=_util.NoDataOffset(0), channel=_util.NoDataOffset(0), data1=0, data2=0):
         _mididings.MidiEvent.__init__(self)
         self.type = type
-        self.port_ = _util.port_number(port)
-        self.channel_ = _util.channel_number(channel)
+        self.port = _util.port_number(port)
+        self.channel = _util.channel_number(channel)
         self.data1 = data1
         self.data2 = data2
 
@@ -173,6 +173,7 @@ class MidiEvent(_mididings.MidiEvent):
     sysex = property(_sysex_getter, _sysex_setter)
 
 
+
 def NoteOnEvent(port, channel, note, velocity):
     """
     Create a new note-on event object.
@@ -241,7 +242,7 @@ def ProgramEvent(port, channel, program):
         port,
         channel,
         0,
-        _util.program_number(program, False)
+        _util.actual(_util.program_number(program, False))
     )
 
 def SysExEvent(port, sysex):

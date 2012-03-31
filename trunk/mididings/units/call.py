@@ -12,10 +12,11 @@
 
 import _mididings
 
-from mididings.units.base import _Unit, _unit_repr
+from mididings.units.base import _Unit
 
 import mididings.event as _event
 import mididings.overload as _overload
+import mididings.unitrepr as _unitrepr
 from mididings.setup import get_config as _get_config
 
 import sys as _sys
@@ -27,6 +28,7 @@ import subprocess as _subprocess
 import functools as _functools
 import types as _types
 import copy as _copy
+import collections as _collections
 
 
 class _CallBase(_Unit):
@@ -66,27 +68,27 @@ class _System(_CallBase):
         _CallBase.__init__(self, do_system, True, True)
 
 
-@_unit_repr
+@_unitrepr.accept(_collections.Callable)
 def Process(function):
     if _get_config('backend') == 'jack-rt' and not _get_config('silent'):
         print("WARNING: using Process() with the 'jack-rt' backend is probably a bad idea")
     return _CallBase(function, False, False)
 
 
-@_unit_repr
 @_overload.mark
+@_unitrepr.accept(_collections.Callable)
 def Call(function):
     def wrapper(function, ev):
         if function(ev) != None:
             print("return value from Call() ignored. please use Process() instead")
     return _CallBase(_functools.partial(wrapper, function), True, True)
 
-@_unit_repr
 @_overload.mark
+@_unitrepr.accept(_collections.Callable)
 def Call(thread):
     return _CallThread(thread)
 
 
-@_unit_repr
+@_unitrepr.accept((str, _collections.Callable))
 def System(command):
     return _System(command)

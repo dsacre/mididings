@@ -10,11 +10,13 @@
 # (at your option) any later version.
 #
 
-from mididings.units.base import Chain, Fork
+from mididings.units.base import Chain, Fork, _UNIT_TYPES
 from mididings.units.filters import PortFilter, ChannelFilter, KeyFilter, VelocityFilter
 from mididings.units.filters import CtrlFilter, CtrlValueFilter, ProgramFilter, SysExFilter
 
 import mididings.overload as _overload
+import mididings.arguments as _arguments
+import mididings.util as _util
 
 
 def _make_split(t, d, unpack=False):
@@ -43,53 +45,66 @@ def _make_threshold(f, patch_lower, patch_upper):
     ])
 
 
+
+@_arguments.accept(dict)
 def PortSplit(d):
     return _make_split(PortFilter, d)
 
 
+@_arguments.accept(dict)
 def ChannelSplit(d):
     return _make_split(ChannelFilter, d)
 
 
 @_overload.mark
+@_arguments.accept(dict)
 def KeySplit(d):
     return _make_split(KeyFilter, d, unpack=True)
 
 @_overload.mark
+@_arguments.accept(_util.note_limit, _UNIT_TYPES, _UNIT_TYPES)
 def KeySplit(note, patch_lower, patch_upper):
     return _make_threshold(KeyFilter(0, note), patch_lower, patch_upper)
 
 
 @_overload.mark
+@_arguments.accept(dict)
 def VelocitySplit(d):
     return _make_split(VelocityFilter, d, unpack=True)
 
 @_overload.mark
+@_arguments.accept(_util.velocity_limit, _UNIT_TYPES, _UNIT_TYPES)
 def VelocitySplit(threshold, patch_lower, patch_upper):
     return _make_threshold(VelocityFilter(0, threshold), patch_lower, patch_upper)
 
 
+@_arguments.accept(dict)
 def CtrlSplit(d):
     return _make_split(CtrlFilter, d)
 
 
 @_overload.mark
+@_arguments.accept(dict)
 def CtrlValueSplit(d):
     return _make_split(CtrlValueFilter, d, unpack=True)
 
 @_overload.mark
+@_arguments.accept(_util.ctrl_limit, _UNIT_TYPES, _UNIT_TYPES)
 def CtrlValueSplit(threshold, patch_lower, patch_upper):
     return _make_threshold(CtrlValueFilter(0, threshold), patch_lower, patch_upper)
 
 
+@_arguments.accept(dict)
 def ProgramSplit(d):
     return _make_split(ProgramFilter, d)
 
 
 @_overload.mark
+@_arguments.accept(dict)
 def SysExSplit(d):
     return _make_split(SysExFilter, d)
 
 @_overload.mark
+@_arguments.accept(dict)
 def SysExSplit(manufacturers):
     return _make_split(lambda m: SysExFilter(manufacturer=m), manufacturers)

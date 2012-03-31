@@ -10,11 +10,11 @@
 # (at your option) any later version.
 #
 
-from mididings.units.base import _Unit, Fork, Chain, _unit_repr, _UNIT_TYPES
+from mididings.units.base import _Unit, Fork, Chain, _UNIT_TYPES
 from mididings.units.generators import Program, Ctrl
 from mididings.units.modifiers import Port, Channel
 
-import mididings.misc as _misc
+import mididings.unitrepr as _unitrepr
 
 import functools as _functools
 import copy as _copy
@@ -25,7 +25,7 @@ class _Init(_Unit):
         self.init_patch = patch
 
 
-@_unit_repr
+@_unitrepr.accept(_UNIT_TYPES)
 def Init(patch):
     return _Init(patch)
 

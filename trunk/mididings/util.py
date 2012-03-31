@@ -70,7 +70,7 @@ _CONTROLLER_NAMES = {
 }
 
 
-def note_number(note, check=True):
+def note_number(note, check=True, allow_end=False):
     """
     Convert note name/number to MIDI note number.
     """
@@ -91,9 +91,14 @@ def note_number(note, check=True):
     else:
         raise TypeError("note must be an integer or string")
 
-    if check and (r < 0 or r > 127):
+    end = 128 if not allow_end else 129
+    if check and not (0 <= r < end):
         raise ValueError("note number %d is out of range" % r)
     return r
+
+
+def note_limit(note):
+    return note_number(note, allow_end=True)
 
 
 def note_range(notes):
@@ -108,13 +113,15 @@ def note_range(notes):
         try:
             if isinstance(notes, tuple):
                 # tuple of note numbers
-                return note_number(notes[0]), note_number(notes[1])
-            else:
+                return note_limit(notes[0]), note_limit(notes[1])
+            elif isinstance(notes, str):
                 # note range string
                 nn = notes.split(':', 1)
-                lower = note_number(nn[0]) if nn[0] else 0
-                upper = note_number(nn[1]) if nn[1] else 0
+                lower = note_limit(nn[0]) if nn[0] else 0
+                upper = note_limit(nn[1]) if nn[1] else 0
                 return lower, upper
+            else:
+                raise TypeError("note range must be a tuple of integers or a string")
         except (ValueError, IndexError):
             raise ValueError("invalid note range '%s'" % notes)
 
@@ -158,7 +165,7 @@ def port_number(port):
     if isinstance(port, int):
         if port < _get_config('data_offset'):
             raise ValueError("invalid port number %d" % port)
-        return actual(port)
+        return port
     elif isinstance(port, str):
         # XXX workaround for circular absolute imports
         import mididings.engine as engine
@@ -171,9 +178,9 @@ def port_number(port):
         if is_in and is_out and in_ports.index(port) != out_ports.index(port):
             raise ValueError("port name '%s' is ambiguous" % port)
         elif is_in:
-            return in_ports.index(port)
+            return offset(in_ports.index(port))
         elif is_out:
-            return out_ports.index(port)
+            return offset(out_ports.index(port))
         else:
             raise ValueError("invalid port name '%s'" % port)
     else:
@@ -183,52 +190,57 @@ def port_number(port):
 def channel_number(channel):
     if not isinstance(channel, int):
         raise TypeError("channel must be an integer")
-
-    r = actual(channel)
-    if r < 0 or r > 15:
+    if not (0 <= actual(channel) < 16):
         raise ValueError("channel number %d is out of range" % channel)
-    return r
+    return channel
 
 
 def program_number(program, check=True):
     if not isinstance(program, int):
         raise TypeError("program must be an integer")
-
-    r = actual(program)
-    if check and (r < 0 or r > 127):
+    if check and not (0 <= actual(program) < 127):
         raise ValueError("program number %d is out of range" % program)
-    return r
+    return program
 
 
 def ctrl_number(ctrl):
     if not isinstance(ctrl, int):
         raise TypeError("controller must be an integer")
-
-    if ctrl < 0 or ctrl > 127:
+    if not (0 <= ctrl < 128):
         raise ValueError("controller number %d is out of range" % ctrl)
     return ctrl
 
 
-def ctrl_value(value, check=True):
+def ctrl_value(value, check=True, allow_end=False):
     if not isinstance(value, int):
         raise TypeError("controller value must be an integer")
-
-    if check and (value < 0 or value > 127):
+    end = 128 if not allow_end else 129
+    if check and not (0 <= value < end):
         raise ValueError("controller value %d is out of range" % value)
     return value
 
+def ctrl_limit(value):
+    return ctrl_value(value, allow_end=True)
 
-def velocity_value(velocity, check=True):
+
+def velocity_value(velocity, check=True, allow_end=False):
     if not isinstance(velocity, int):
         raise TypeError("velocity must be an integer")
-
-    if check and (velocity < 0 or velocity > 127):
+    end = 128 if not allow_end else 129
+    if check and not (0 <= velocity < end):
         raise ValueError("velocity %d is out of range" % velocity)
     return velocity
 
+def velocity_limit(velocity):
+    return velocity_value(velocity, allow_end=True)
+
 
 def scene_number(scene):
-    return actual(scene)
+    return scene
+
+
+def subscene_number(subscene):
+    return subscene
 
 
 def sysex_to_sequence(sysex):
@@ -267,6 +279,7 @@ def sysex_manufacturer(manufacturer):
     return manid
 
 
+
 class NoDataOffset(int):
     """
     An integer type that's unaffected by data offset conversions.
@@ -294,3 +307,26 @@ def actual(n):
         return int(n)
     else:
         return n - _get_config('data_offset')
+
+
+
+# define wrappers around parameter check functions that will also accept
+# event attribute references
+def _allow_event_attribute(f):
+    def func(first, *args, **kwargs):
+        if isinstance(first, _constants._EventAttribute):
+            return first
+        else:
+            return f(first, *args, **kwargs)
+    return func
+
+port_number_ref     = _allow_event_attribute(port_number)
+channel_number_ref  = _allow_event_attribute(channel_number)
+note_number_ref     = _allow_event_attribute(note_number)
+velocity_value_ref  = _allow_event_attribute(velocity_value)
+ctrl_number_ref     = _allow_event_attribute(ctrl_number)
+ctrl_value_ref      = _allow_event_attribute(ctrl_value)
+program_number_ref  = _allow_event_attribute(program_number)
+scene_number_ref    = _allow_event_attribute(scene_number)
+subscene_number_ref = _allow_event_attribute(subscene_number)
+actual_ref          = _allow_event_attribute(actual)

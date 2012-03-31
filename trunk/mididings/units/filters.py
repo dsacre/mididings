@@ -12,84 +12,140 @@
 
 import _mididings
 
-from mididings.units.base import _Filter, _unit_repr
+from mididings.units.base import _Filter
 
 import mididings.util as _util
-import mididings.misc as _misc
 import mididings.overload as _overload
+import mididings.arguments as _arguments
+import mididings.unitrepr as _unitrepr
+
+import functools as _functools
 
 
-@_unit_repr
-def PortFilter(*args):
-    ports = (_util.port_number(p) for p in _misc.flatten(args))
-    return _Filter(_mididings.PortFilter(ports))
+@_unitrepr.accept(_arguments.flatten(_util.port_number), with_rest=True)
+def PortFilter(ports, *rest):
+    """
+    Filter by port.
+    """
+    return _Filter(_mididings.PortFilter(map(_util.actual, ports)))
 
 
-@_unit_repr
-def ChannelFilter(*args):
-    channels = (_util.channel_number(c) for c in _misc.flatten(args))
-    return _Filter(_mididings.ChannelFilter(channels))
+@_unitrepr.accept(_arguments.flatten(_util.channel_number), with_rest=True)
+def ChannelFilter(channels, *rest):
+    """
+    Filter by channel.
+    """
+    return _Filter(_mididings.ChannelFilter(map(_util.actual, channels)))
 
 
-@_unit_repr
-def KeyFilter(*args, **kwargs):
-    note_range = _overload.call(args, kwargs, [
-        lambda note_range: _util.note_range(note_range),
-        lambda lower, upper: _util.note_range((lower, upper)),
-        lambda lower: _util.note_range((lower, 0)),
-        lambda upper: _util.note_range((0, upper)),
-        lambda notes: list(notes),
-    ])
-    if isinstance(note_range, list):
-        notes = (_util.note_number(k) for k in note_range)
-        return _Filter(_mididings.KeyFilter(0, 0, notes))
-    else:
-        return _Filter(_mididings.KeyFilter(note_range[0], note_range[1], []))
+@_overload.mark(
+    """
+    Filter by key.
+    """
+)
+@_unitrepr.accept(_util.note_range)
+def KeyFilter(note_range):
+    return _Filter(_mididings.KeyFilter(note_range[0], note_range[1], []))
+
+@_overload.mark
+@_unitrepr.accept(_util.note_limit, _util.note_limit)
+def KeyFilter(lower, upper):
+    return _Filter(_mididings.KeyFilter(lower, upper, []))
+
+@_overload.mark
+@_unitrepr.accept(_util.note_limit)
+def KeyFilter(lower):
+    return _Filter(_mididings.KeyFilter(lower, 0, []))
+
+@_overload.mark
+@_unitrepr.accept(_util.note_limit)
+def KeyFilter(upper):
+    return _Filter(_mididings.KeyFilter(0, upper, []))
+
+@_overload.mark
+@_unitrepr.accept(_arguments.sequenceof(_util.note_limit))
+def KeyFilter(notes):
+    return _Filter(_mididings.KeyFilter(0, 0, notes))
 
 
-@_unit_repr
-def VelocityFilter(*args, **kwargs):
-    lower, upper = _overload.call(args, kwargs, [
-        lambda value: (value, value+1),
-        lambda lower: (lower, 0),
-        lambda upper: (0, upper),
-        lambda lower, upper: (lower, upper),
-    ])
+@_overload.mark(
+    """
+    Filter by note-on velocity.
+    """
+)
+@_unitrepr.accept(_util.velocity_value)
+def VelocityFilter(value):
+    return _Filter(_mididings.VelocityFilter(value, value + 1))
+
+@_overload.mark
+@_unitrepr.accept(_util.velocity_limit)
+def VelocityFilter(lower):
+    return _Filter(_mididings.VelocityFilter(lower, 0))
+
+@_overload.mark
+@_unitrepr.accept(_util.velocity_limit)
+def VelocityFilter(upper):
+    return _Filter(_mididings.VelocityFilter(0, upper))
+
+@_overload.mark
+@_unitrepr.accept(_util.velocity_limit, _util.velocity_limit)
+def VelocityFilter(lower, upper):
     return _Filter(_mididings.VelocityFilter(lower, upper))
 
 
-@_unit_repr
-def CtrlFilter(*args):
-    ctrls = (_util.ctrl_number(c) for c in _misc.flatten(args))
+@_unitrepr.accept(_arguments.flatten(_util.ctrl_number), with_rest=True)
+def CtrlFilter(ctrls, *rest):
+    """
+    Filter by controller number.
+    """
     return _Filter(_mididings.CtrlFilter(ctrls))
 
 
-@_unit_repr
-def CtrlValueFilter(*args, **kwargs):
-    lower, upper = _overload.call(args, kwargs, [
-        lambda value: (value, value+1),
-        lambda lower: (lower, 0),
-        lambda upper: (0, upper),
-        lambda lower, upper: (lower, upper),
-    ])
+@_overload.mark(
+    """
+    Filter by controller value.
+    """
+)
+@_unitrepr.accept(_util.ctrl_value)
+def CtrlValueFilter(value):
+    return _Filter(_mididings.CtrlValueFilter(value, value + 1))
+
+@_overload.mark
+@_unitrepr.accept(_util.ctrl_limit)
+def CtrlValueFilter(lower):
+    return _Filter(_mididings.CtrlValueFilter(lower, 0))
+
+@_overload.mark
+@_unitrepr.accept(_util.ctrl_limit)
+def CtrlValueFilter(upper):
+    return _Filter(_mididings.CtrlValueFilter(0, upper))
+
+@_overload.mark
+@_unitrepr.accept(_util.ctrl_limit, _util.ctrl_limit)
+def CtrlValueFilter(lower, upper):
     return _Filter(_mididings.CtrlValueFilter(lower, upper))
 
 
-@_unit_repr
-def ProgramFilter(*args):
-    progs = (_util.program_number(p) for p in _misc.flatten(args))
-    return _Filter(_mididings.ProgramFilter(progs))
+@_unitrepr.accept(_arguments.flatten(_util.program_number), with_rest=True)
+def ProgramFilter(programs, *rest):
+    """
+    Filter by program number.
+    """
+    return _Filter(_mididings.ProgramFilter(map(_util.actual, programs)))
 
 
-@_unit_repr
-@_overload.mark
+@_overload.mark(
+    """
+    Filter by sysex data.
+    """
+)
+@_unitrepr.accept(_functools.partial(_util.sysex_data, allow_partial=True))
 def SysExFilter(sysex):
-    sysex = _util.sysex_data(sysex, allow_partial=True)
     partial = (sysex[-1] != '\xf7')
     return _Filter(_mididings.SysExFilter(sysex, partial))
 
-@_unit_repr
 @_overload.mark
+@_unitrepr.accept(_util.sysex_manufacturer)
 def SysExFilter(manufacturer):
-    sysex = _util.sysex_to_sequence([0xf0]) + _util.sysex_manufacturer(manufacturer)
+    sysex = _util.sysex_to_sequence([0xf0]) + manufacturer
     return _Filter(_mididings.SysExFilter(sysex, True))

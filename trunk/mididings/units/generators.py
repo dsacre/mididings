@@ -12,108 +12,161 @@
 
 import _mididings
 
-from mididings.units.base import _Unit, _unit_repr
+from mididings.units.base import _Unit
 
 import mididings.constants as _constants
 import mididings.util as _util
 import mididings.overload as _overload
+import mididings.unitrepr as _unitrepr
 
 
-@_unit_repr
+@_unitrepr.accept(_util.event_type, _util.port_number_ref, _util.channel_number_ref, int, int)
 def Generator(type, port, channel, data1=0, data2=0):
+    """
+    Generic generator.
+    """
     return _Unit(_mididings.Generator(
-        _util.event_type(type),
-        _util.port_number(port) if isinstance(port, str) or port >= 0 else port,
-        _util.channel_number(channel) if channel >= 0 else channel,
-        data1, data2
+        type,
+        _util.actual_ref(port),
+        _util.actual_ref(channel),
+        data1,
+        data2
     ))
 
 
-def Ctrl(*args, **kwargs):
-    port, channel, ctrl, value = _overload.call(args, kwargs, [
-        lambda ctrl, value: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, ctrl, value),
-        lambda port, channel, ctrl, value: (port, channel, ctrl, value)
-    ])
-    return Generator(
-        _constants.CTRL,
-        port, channel,
-        _util.ctrl_number(ctrl) if ctrl >= 0 else ctrl,
-        _util.ctrl_value(value) if value >= 0 else value
-    )
-
-
-def Program(*args, **kwargs):
-    port, channel, program = _overload.call(args, kwargs, [
-        lambda program: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, program),
-        lambda port, channel, program: (port, channel, program)
-    ])
-    return Generator(
-        _constants.PROGRAM,
-        port, channel,
-        0,
-        _util.program_number(program) if program >= 0 else program
-    )
-
-
-def NoteOn(*args, **kwargs):
-    port, channel, note, velocity = _overload.call(args, kwargs, [
-        lambda note, velocity: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity),
-        lambda port, channel, note, velocity: (port, channel, note, velocity)
-    ])
-    return Generator(
+@_overload.mark(
+    """
+    Generate note-on event.
+    """
+)
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.note_number_ref, _util.velocity_value_ref)
+def NoteOn(port, channel, note, velocity):
+    return _Unit(_mididings.Generator(
         _constants.NOTEON,
-        port, channel,
-        _util.note_number(note) if note >= 0 else note,
-        _util.velocity_value(velocity) if velocity >= 0 else velocity
-    )
+        _util.actual_ref(port),
+        _util.actual_ref(channel),
+        note,
+        velocity
+    ))
+
+@_overload.mark
+def NoteOn(note, velocity):
+    return NoteOn(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity)
 
 
-def NoteOff(*args, **kwargs):
-    port, channel, note, velocity = _overload.call(args, kwargs, [
-        lambda note, velocity: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity),
-        lambda port, channel, note, velocity: (port, channel, note, velocity)
-    ])
-    return Generator(
+@_overload.mark(
+    """
+    Generate note-off event.
+    """
+)
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.note_number_ref, _util.velocity_value_ref)
+def NoteOff(port, channel, note, velocity):
+    return _Unit(_mididings.Generator(
         _constants.NOTEOFF,
-        port, channel,
-        _util.note_number(note) if note >= 0 else note,
-        _util.velocity_value(velocity) if velocity >= 0 else velocity
-    )
+        _util.actual_ref(port),
+        _util.actual_ref(channel),
+        note,
+        velocity
+    ))
+
+@_overload.mark
+def NoteOff(note, velocity):
+    return NoteOff(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity)
 
 
-def Pitchbend(*args, **kwargs):
-    port, channel, value = _overload.call(args, kwargs, [
-        lambda value: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, value),
-        lambda port, channel, value: (port, channel, value)
-    ])
-    return Generator(
+@_overload.mark(
+    """
+    Generate control change event.
+    """
+)
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.ctrl_number_ref, _util.ctrl_value_ref)
+def Ctrl(port, channel, ctrl, value):
+    return _Unit(_mididings.Generator(
+        _constants.CTRL,
+        _util.actual_ref(port),
+        _util.actual_ref(channel),
+        ctrl,
+        value
+    ))
+
+@_overload.mark
+def Ctrl(ctrl, value):
+   return Ctrl(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, ctrl, value)
+
+
+@_overload.mark(
+    """
+    Generate pitch-bend event.
+    """
+)
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, int)
+def Pitchbend(port, channel, value):
+    return _Unit(_mididings.Generator(
         _constants.PITCHBEND,
-        port, channel,
+        _util.actual_ref(port),
+        _util.actual_ref(channel),
         0,
         value
-    )
+    ))
+
+@_overload.mark
+def Pitchbend(value):
+    return Pitchbend(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, value)
 
 
-def Aftertouch(*args, **kwargs):
-    port, channel, value = _overload.call(args, kwargs, [
-        lambda value: (_constants.EVENT_PORT, _constants.EVENT_CHANNEL, value),
-        lambda port, channel, value: (port, channel, value)
-    ])
-    return Generator(
+@_overload.mark(
+    """
+    Generate aftertouch event.
+    """
+)
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, int)
+def Aftertouch(port, channel, value):
+    return _Unit(_mididings.Generator(
         _constants.AFTERTOUCH,
-        port, channel,
+        _util.actual_ref(port),
+        _util.actual_ref(channel),
         0,
         value
-    )
+    ))
+
+@_overload.mark
+def Aftertouch(value):
+    return Aftertouch(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, value)
 
 
-@_unit_repr
-def SysEx(*args, **kwargs):
-    port, sysex = _overload.call(args, kwargs, [
-        lambda sysex: (_constants.EVENT_PORT, sysex),
-        lambda port, sysex: (port, sysex)
-    ])
+@_overload.mark(
+    """
+    Generate program change event.
+    """
+)
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.program_number_ref)
+def Program(port, channel, program):
+    return _Unit(_mididings.Generator(
+        _constants.PROGRAM,
+        _util.actual_ref(port),
+        _util.actual_ref(channel),
+        0,
+        _util.actual_ref(program)
+    ))
+
+@_overload.mark
+def Program(program):
+    return Program(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, program)
+
+
+
+@_overload.mark(
+    """
+    Generate sysex event.
+    """
+)
+@_unitrepr.accept(_util.port_number_ref, _util.sysex_data)
+def SysEx(port, sysex):
     return _Unit(_mididings.SysExGenerator(
-        _util.port_number(port) if isinstance(port, str) or port >= 0 else port,
-        _util.sysex_data(sysex))
-    )
+        _util.actual_ref(port),
+        sysex,
+    ))
+
+@_overload.mark
+def SysEx(sysex):
+    return SysEx(_constants.EVENT_PORT, sysex)

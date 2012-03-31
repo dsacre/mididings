@@ -12,34 +12,36 @@
 
 import _mididings
 
-from mididings.units.base import _Unit, _unit_repr
+from mididings.units.base import _Unit
 
 import mididings.constants as _constants
 import mididings.util as _util
 import mididings.overload as _overload
+import mididings.unitrepr as _unitrepr
 
 
-@_unit_repr
+@_unitrepr.accept()
 def Sanitize():
     return _Unit(_mididings.Sanitize())
 
 
-@_unit_repr
 @_overload.mark
+@_unitrepr.accept(_util.scene_number_ref)
 def SceneSwitch(number=_constants.EVENT_PROGRAM):
-    return _Unit(_mididings.SceneSwitch(_util.scene_number(number) if number >= 0 else number, 0))
+    return _Unit(_mididings.SceneSwitch(_util.actual_ref(number), 0))
 
-@_unit_repr
 @_overload.mark
+@_unitrepr.accept(int)
 def SceneSwitch(offset):
     return _Unit(_mididings.SceneSwitch(0, offset))
 
-@_unit_repr
-@_overload.mark
-def SubSceneSwitch(number=_constants.EVENT_PROGRAM):
-    return _Unit(_mididings.SubSceneSwitch(_util.scene_number(number) if number >= 0 else number, 0, False))
 
-@_unit_repr
 @_overload.mark
+@_unitrepr.accept(_util.subscene_number_ref)
+def SubSceneSwitch(number=_constants.EVENT_PROGRAM):
+    return _Unit(_mididings.SubSceneSwitch(_util.actual_ref(number), 0, False))
+
+@_overload.mark
+@_unitrepr.accept(int, bool)
 def SubSceneSwitch(offset, wrap=True):
     return _Unit(_mididings.SubSceneSwitch(0, offset, wrap))
