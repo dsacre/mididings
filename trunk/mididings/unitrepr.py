@@ -24,11 +24,12 @@ def store(f, *args, **kwargs):
     unit it returns.
     """
     unit = f(*args, **kwargs)
+
+    # store the unit's name, and the name/value of each argument
     unit._name = f.name if isinstance(f, overload._Overload) else f.__name__
-#    unit._args = args
-    arg_names = inspect.getargspec(f)[0]
-    unit._args = zip(arg_names, args)
-    unit._kwargs = kwargs
+    unit._argnames = inspect.getargspec(f)[0]
+    unit._args = args
+
     return unit
 
 
@@ -44,18 +45,12 @@ def accept(*constraints, **kwargs):
 
 
 def unit_to_string(unit):
-    if hasattr(unit, '_name'):
-        # anything that went through @store (or @accept) will have _name, _args
-        # and _kwargs attributes
-        name = unit._name
-#        args = ', '.join(repr(a) for a in unit._args)
-        args = ', '.join('%s=%r' % a for a in unit._args)
-        kwargs = ', '.join('%s=%r' % (k, unit._kwargs[k]) for k in unit._kwargs)
-        sep = ', ' if args and kwargs else ''
-        return '%s(%s%s%s)' % (name, args, sep, kwargs)
-    else:
-        # is this the best we can do?
-        return unit.__class__.__name__
+    # can't do anything for units that didn't go through @store (or @accept)
+    assert hasattr(unit, '_name')
+
+    # (ab)use inspect module to format the arguments used
+    formatted = inspect.formatargspec(args=unit._argnames, defaults=unit._args)
+    return unit._name + formatted
 
 
 def chain_to_string(chain):
@@ -63,15 +58,16 @@ def chain_to_string(chain):
 
 
 def fork_to_string(fork):
-    r = '[' + ', '.join(repr(u) for u in fork) + ']'
-    if fork.remove_duplicates != None:
-        return 'Fork(%s, remove_duplicates=%r)' % (r, fork.remove_duplicates)
+    if fork.remove_duplicates is not None:
+        formatted = inspect.formatargspec(args=('units', 'remove_duplicates'),
+                                          defaults=(list(fork), fork.remove_duplicates))
+        return 'Fork' + formatted
     else:
-        return r
+        return list.__repr__(fork)
 
 
 def split_to_string(split):
-    return '{' + ', '.join('%r: %r' % (t, split[t]) for t in split.keys()) + '}'
+    return dict.__repr__(split)
 
 
 def inverted_filter_to_string(invfilt):
