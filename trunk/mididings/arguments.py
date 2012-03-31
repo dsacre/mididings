@@ -84,13 +84,10 @@ def _constraint(f):
 def sequenceof(constraint, seq):
     if not misc.issequence(seq):
         raise TypeError("not a sequence")
-    r = []
-    for value in seq:
-        try:
-            r.append(_apply_constraint(constraint, value))
-        except (TypeError, ValueError) as ex:
-            raise type(ex)("invalid item in sequence: %s" % str(ex))
-    return r
+    try:
+        return [_apply_constraint(constraint, value) for value in seq]
+    except (TypeError, ValueError) as ex:
+        raise type(ex)("invalid item in sequence: %s" % str(ex))
 
 
 @_constraint
