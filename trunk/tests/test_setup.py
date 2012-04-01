@@ -36,7 +36,8 @@ class SetupTestCase(MididingsTestCase):
         config(in_ports=['foo', 'bar'])
         with self.assertRaises(TypeError):
             config(in_ports=[23, 42])
-        with self.assertRaises(ValueError):
+#        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             config(in_ports=-1)
 
     def test_config_out_ports(self):
@@ -44,7 +45,8 @@ class SetupTestCase(MididingsTestCase):
         config(out_ports=['foo', 'bar'])
         with self.assertRaises(TypeError):
             config(out_ports=[23, 42])
-        with self.assertRaises(ValueError):
+#        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             config(out_ports=-1)
 
     def test_config_data_offset(self):

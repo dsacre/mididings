@@ -122,7 +122,7 @@ class MididingsTestCase(unittest.TestCase):
         return r
 
     def _run_scenes(self, scenes, events):
-        setup.config(_check=False,
+        setup._config_impl(
             backend='dummy'
         )
         e = engine.Engine(scenes, None, None, None)
