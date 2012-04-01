@@ -71,17 +71,19 @@ def accept(*constraints, **kwargs):
         if have_varargs:
             index = len(arg_names)
             constraint = constraints[index]
-            try:
-                a = _apply_constraint(constraint, args[index:])
-                mod_args.extend(a)
-            except TypeError:
-                ex = sys.exc_info()[1]
-                message = "invalid type in varargs of %s(): %s" % (f.__name__, str(ex))
-                raise TypeError(message)
-            except ValueError:
-                ex = sys.exc_info()[1]
-                message = "invalid value in varargs of %s(): %s" % (f.__name__, str(ex))
-                raise ValueError(message)
+
+            for arg in args[index:]:
+                try:
+                    a = _apply_constraint(constraint, arg)
+                    mod_args.append(a)
+                except TypeError:
+                    ex = sys.exc_info()[1]
+                    message = "invalid type in varargs of %s(): %s" % (f.__name__, str(ex))
+                    raise TypeError(message)
+                except ValueError:
+                    ex = sys.exc_info()[1]
+                    message = "invalid value in varargs of %s(): %s" % (f.__name__, str(ex))
+                    raise ValueError(message)
 
         return f(*mod_args)
 
@@ -116,40 +118,68 @@ def _apply_constraint(constraint, value):
         assert False
 
 
-def _constraint(f):
-    def apply(constraint):
-        return functools.partial(f, constraint)
-    return apply
-
-
-@_constraint
-def sequenceof(constraint, seq):
+class sequenceof(object):
     """
-    Checks that the argument is a sequence, and applies a constraint to all
-    elements of that sequence.
+    Checks that the argument is a sequence, and applies a constraint to each
+    element in that sequence.
     """
-    if not misc.issequence(seq):
-        raise TypeError("not a sequence")
-    try:
-        return [_apply_constraint(constraint, value) for value in seq]
-    except (TypeError, ValueError):
-        ex = sys.exc_info()[1]
-        message = "invalid item in sequence: %s" % str(ex)
-        raise type(ex)(message)
+    def __init__(self, what):
+        self.what = what
+
+    def __call__(self, arg):
+        if not misc.issequence(arg):
+            raise TypeError("not a sequence")
+        try:
+            return [_apply_constraint(self.what, value) for value in arg]
+        except (TypeError, ValueError):
+            ex = sys.exc_info()[1]
+            message = "illegal item in sequence: %s" % str(ex)
+            raise type(ex)(message)
 
 
-@_constraint
-def flatten(constraint, arg):
+class flatten_sequenceof(object):
     """
-    Flattens all arguments into a single list.
+    Flattens all arguments into a single list, and applies a constraint to
+    each element in that list.
     """
-    return [_apply_constraint(constraint, a) for a in misc.flatten(arg)]
+    def __init__(self, what):
+        self.what = what
+
+    def __call__(self, arg):
+        try:
+            return [_apply_constraint(self.what, value) for value in misc.flatten(arg)]
+        except (TypeError, ValueError):
+            ex = sys.exc_info()[1]
+            message = "illegal item in sequence: %s" % str(ex)
+            raise type(ex)(message)
 
 
-@_constraint
-def reduce_bitmask(constraint, arg):
+class either(object):
+    """
+    Accepts the argument if any of the given constraints can be applied.
+    """
+    def __init__(self, *alternatives):
+        self.alternatives = alternatives
+
+    def __call__(self, arg):
+        errors = []
+        for n, child in enumerate(self.alternatives):
+            try:
+                return _apply_constraint(child, arg)
+            except (TypeError, ValueError):
+                ex = sys.exc_info()[1]
+                errors.append("error %d: %s: %s" % (n + 1, type(ex).__name__, str(ex)))
+        message = "none of the alternatives matched:\n" + '\n'.join(errors)
+        raise TypeError(message)
+
+
+class reduce_bitmask(object):
     """
     Flattens all arguments and reduces them to a single bitmask.
     """
-    seq = _apply_constraint(constraint, misc.flatten(arg))
-    return functools.reduce(lambda x, y: x | y, seq)
+    def __init__(self, what):
+        self.what = what
+
+    def __call__(self, arg):
+        seq = _apply_constraint(self.what, misc.flatten(arg))
+        return functools.reduce(lambda x, y: x | y, seq)
