@@ -17,16 +17,17 @@ import optparse
 
 import mididings
 import mididings.extra
+import mididings.setup
 
 
 class Dings(object):
     def __init__(self, backend, client_name, start_delay):
         if backend:
-            mididings.config(_override=True, backend=backend)
+            mididings.setup._config_impl(_override=True, backend=backend)
         if client_name:
-            mididings.config(_override=True, client_name=client_name)
+            mididings.setup._config_impl(_override=True, client_name=client_name)
         if start_delay:
-            mididings.config(_override=True, start_delay=start_delay)
+            mididings.setup._config_impl(_override=True, start_delay=start_delay)
 
         self.dings_dict = mididings.__dict__.copy()
         self.dings_dict.update(mididings.extra.__dict__)

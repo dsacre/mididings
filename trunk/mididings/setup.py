@@ -12,7 +12,7 @@
 
 import _mididings
 
-import mididings.misc as _misc
+import mididings.arguments as _arguments
 
 _VALID_BACKENDS = _mididings.available_backends()
 
@@ -33,54 +33,35 @@ _config_override = []
 _hooks = []
 
 
-def config(_override=False, _check=True, **kwargs):
+@_arguments.accept(kwargs = {
+    'backend':          _VALID_BACKENDS,
+    'client_name':      str,
+    'in_ports':         _arguments.either(
+                            _arguments.each(int, _arguments.greater_equal(1)),
+                            _arguments.sequenceof(str)
+                        ),
+    'out_ports':        _arguments.either(
+                            _arguments.each(int, _arguments.greater_equal(1)),
+                            _arguments.sequenceof(str)
+                        ),
+    'data_offset':      (0, 1),
+    'octave_offset':    int,
+    'initial_scene':    _arguments.either(int, _arguments.sequenceof(int)),
+    'start_delay':      (int, float, type(None)),
+    'silent':           bool,
+})
+def config(**kwargs):
+    _config_impl(**kwargs)
+
+
+def _config_impl(_override=False, **kwargs):
     for k, v in kwargs.items():
-        # check if the name of the config variable is known
-        if k not in _config:
-            raise ValueError("unknown config variable '%s'" % k)
-
-        # check if the value and/or type is valid for the given config variable
-        if _check:
-            if k == 'backend' and v not in _VALID_BACKENDS:
-                raise ValueError("backend must be one of %s" % ', '.join("'%s'" % x for x in _VALID_BACKENDS))
-
-            if k == 'client_name' and not isinstance(v, str):
-                raise TypeError("client_name must be a string")
-
-            if k in ('in_ports', 'out_ports'):
-                if isinstance(v, int):
-                    if v < 1:
-                        raise ValueError("%s can't be less than one" % k)
-                elif _misc.issequence(v):
-                    if not _misc.issequenceof(v, str):
-                        raise TypeError("all values in %s must be strings" % k)
-                else:
-                    raise TypeError("%s must be an integer or a sequence" % k)
-
-            if k == 'data_offset' and v not in (0, 1):
-                raise ValueError("data_offset must be 0 or 1")
-
-            if k == 'octave_offset' and not isinstance(v, int):
-                raise TypeError("octave_offset must be an integer")
-
-            if k == 'initial_scene':
-                if not isinstance(v, int) and not _misc.issequenceof(v, int):
-                    raise TypeError("initial_scene must be an integer or a tuple of two integers")
-
-            if k == 'start_delay':
-                if not isinstance(v, (int, float, type(None))):
-                    raise TypeError("start_delay must be a number or None")
-                if v != None and v < 0:
-                    raise ValueError("start_delay must be a positive number")
-
-            if k == 'silent' and not isinstance(v, bool):
-                raise TypeError("silent must be a boolean")
-
         # everything seems ok, go ahead and change the config
         if _override or k not in _config_override:
             _config[k] = v
         if _override:
             _config_override.append(k)
+
 
 def get_config(var):
     return _config[var]

@@ -36,8 +36,13 @@ def accept(*constraints, **kwargs):
     are instead combined with the last regular positional argument into a
     single list. This list is then passed to the original function as a single
     argument.
+
+    Keyword arguments are accepted if their name is in the kwargs_constraints
+    dictionary, and the value from that dictionnary is used as the constraint
+    to be applied.
     """
     with_rest = kwargs['with_rest'] if 'with_rest' in kwargs else False
+    kwargs_constraints = kwargs['kwargs'] if 'kwargs' in kwargs else {}
 
     @decorator.decorator
     def constrain_arguments(f, *args, **kwargs):
@@ -46,69 +51,71 @@ def accept(*constraints, **kwargs):
         have_varargs = (argspec[1] is not None) and not with_rest
 
         mod_args = []
+        mod_kwargs = {}
 
         assert ((len(constraints) == len(arg_names) and not have_varargs)
              or (len(constraints) == len(arg_names) + 1 and have_varargs))
-        assert len(kwargs) == 0
 
         for constraint, arg_name, arg in zip(constraints, arg_names, args):
             if with_rest and arg_name == arg_names[-1]:
                 # with_rest is True and this is the last argument: combine with varargs
                 index = len(arg_names)
                 arg = (arg,) + args[index:]
-            try:
-                a = _apply_constraint(constraint, arg)
-                mod_args.append(a)
-            except TypeError:
-                ex = sys.exc_info()[1]
-                message = "invalid type for parameter '%s' of %s(): %s" % (arg_name, f.__name__, str(ex))
-                raise TypeError(message)
-            except ValueError:
-                ex = sys.exc_info()[1]
-                message = "invalid value for parameter '%s' of %s(): %s" % (arg_name, f.__name__, str(ex))
-                raise ValueError(message)
+
+            a = _try_apply_constraint(constraint, arg, f.__name__, arg_name)
+            mod_args.append(a)
 
         if have_varargs:
             index = len(arg_names)
             constraint = constraints[index]
 
             for arg in args[index:]:
-                try:
-                    a = _apply_constraint(constraint, arg)
-                    mod_args.append(a)
-                except TypeError:
-                    ex = sys.exc_info()[1]
-                    message = "invalid type in varargs of %s(): %s" % (f.__name__, str(ex))
-                    raise TypeError(message)
-                except ValueError:
-                    ex = sys.exc_info()[1]
-                    message = "invalid value in varargs of %s(): %s" % (f.__name__, str(ex))
-                    raise ValueError(message)
+                a = _try_apply_constraint(constraint, arg, f.__name__, None)
+                mod_args.append(a)
 
-        return f(*mod_args)
+        for k, v in kwargs.items():
+            if k not in kwargs_constraints:
+                message = "%s() got an unexpected keyword argument '%s'" % (f.__name__, k)
+                raise TypeError(message)
+            a = _try_apply_constraint(kwargs_constraints[k], v, f.__name__, k)
+            mod_kwargs[k] = a
+
+        return f(*mod_args, **mod_kwargs)
 
     return constrain_arguments
+
+
+def _try_apply_constraint(constraint, arg, func_name, arg_name):
+    try:
+        return _apply_constraint(constraint, arg)
+    except (TypeError, ValueError):
+        ex = sys.exc_info()[1]
+        typestr = "type" if isinstance(ex, TypeError) else "value"
+        argstr = ("for parameter '%s'" % arg_name) if arg_name else "in varargs"
+
+        message = "invalid %s %s of %s(): %s" % (typestr, argstr, func_name, str(ex))
+        raise type(ex)(message)
 
 
 def _apply_constraint(constraint, value):
     if inspect.isclass(constraint):
         # single type, check if instance
         if not isinstance(value, constraint):
-            message = "should be %s, got %s" % (constraint.__name__, type(value).__name__)
+            message = "expected %s, got %s" % (constraint.__name__, type(value).__name__)
             raise TypeError(message)
         return value
     elif misc.issequence(constraint) and all(inspect.isclass(c) for c in constraint):
         # multiple types, check if instance
         if not isinstance(value, constraint):
             types = ", ".join(c.__name__ for c in constraint)
-            message = "should be one of (%s), got %s" % (types, type(value).__name__)
+            message = "expected one of (%s), got %s" % (types, type(value).__name__)
             raise TypeError(message)
         return value
     elif misc.issequence(constraint):
         # multiple values, check if value is in sequence
         if value not in constraint:
             values = ", ".join(repr(c) for c in constraint)
-            message = "should be one of (%s), got %r" % (values, value)
+            message = "expected one of (%s), got %r" % (values, value)
             raise ValueError(message)
         return value
     elif isinstance(constraint, collections.Callable):
@@ -154,6 +161,19 @@ class flatten_sequenceof(object):
             raise type(ex)(message)
 
 
+class each(object):
+    """
+    Applies each of the given constraints.
+    """
+    def __init__(self, *requirements):
+        self.requirements = requirements
+
+    def __call__(self, arg):
+        for what in self.requirements:
+            arg = _apply_constraint(what, arg)
+        return arg
+
+
 class either(object):
     """
     Accepts the argument if any of the given constraints can be applied.
@@ -163,9 +183,9 @@ class either(object):
 
     def __call__(self, arg):
         errors = []
-        for n, child in enumerate(self.alternatives):
+        for n, what in enumerate(self.alternatives):
             try:
-                return _apply_constraint(child, arg)
+                return _apply_constraint(what, arg)
             except (TypeError, ValueError):
                 ex = sys.exc_info()[1]
                 errors.append("error %d: %s: %s" % (n + 1, type(ex).__name__, str(ex)))
@@ -183,3 +203,18 @@ class reduce_bitmask(object):
     def __call__(self, arg):
         seq = _apply_constraint(self.what, misc.flatten(arg))
         return functools.reduce(lambda x, y: x | y, seq)
+
+
+class greater_equal(object):
+    """
+    Raises an exception if the argument is not greater or equal to the
+    given value.
+    """
+    def __init__(self, than_what):
+        self.than_what = than_what
+
+    def __call__(self, arg):
+        if arg < self.than_what:
+            message = "must be greater or equal to %r" % self.than_what
+            raise ValueError(message)
+        return arg
