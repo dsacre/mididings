@@ -28,12 +28,13 @@ def call(args, kwargs, funcs, name=None):
         ndef = len(argspec[3]) if argspec[3] else 0
 
         # names of the default arguments not overridden by positional arguments
-        defargs = names[max(len(names)-ndef, n):]
+        npos = max(len(names) - ndef, n)
+        defargs = names[npos:]
 
         # check if the number of positional arguments fits, and if the remaining
         # parameters can be filled with keyword and default arguments.
         # alternatively, a suitable function with varargs is also accepted.
-        if ((n <= len(names) and set(kwargs)|set(defargs) == set(names[n:])) or
+        if ((n <= len(names) and set(kwargs) | set(defargs) == set(names[n:])) or
             (n >= len(names) and varargs is not None)):
             # call f with all original arguments
             return f(*args, **kwargs)
@@ -59,8 +60,10 @@ class _Overload(object):
         self.name = name
         self.docstring = docstring
         self.funcs = []
+
     def add(self, f):
         self.funcs.append(f)
+
     def __call__(self, *args, **kwargs):
         return call(args, kwargs, self.funcs, self.name)
 

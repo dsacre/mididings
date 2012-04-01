@@ -235,7 +235,7 @@ def run(patch):
     Create the engine and start event processing. This function does not
     usually return until mididings exits.
     """
-    e = Engine({ _util.offset(0): patch }, None, None, None)
+    e = Engine({_util.offset(0): patch}, None, None, None)
     e.run()
 
 @_overload.mark
@@ -253,13 +253,13 @@ def process_file(infile, outfile, patch):
     Process a MIDI file using the smf backend.
     """
     _setup.config(_check=False,
-        backend = 'smf',
+        backend='smf',
     )
     _setup.config(
-        in_ports = [infile],
-        out_ports = [outfile],
+        in_ports=[infile],
+        out_ports=[outfile],
     )
-    e = Engine({ 0: patch }, None, None, None)
+    e = Engine({0: patch}, None, None, None)
     e.process_file()
 
 

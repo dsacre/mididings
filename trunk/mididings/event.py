@@ -79,7 +79,8 @@ class MidiEvent(_mididings.MidiEvent):
         elif self.type == _constants.CTRL:
             s = 'Ctrl:     %3d %3d' % (self.ctrl, self.value)
             n = _util.controller_name(self.ctrl)
-            if n: s += '  (%s)' % n
+            if n:
+                s += '  (%s)' % n
         elif self.type == _constants.PITCHBEND:
             s = 'Pitchbend:  %5d' % self.value
         elif self.type == _constants.AFTERTOUCH:

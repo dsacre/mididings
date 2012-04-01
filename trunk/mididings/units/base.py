@@ -232,7 +232,7 @@ def Chain(units):
     return _Chain(units)
 
 
-@_arguments.accept(_arguments.sequenceof(_UNIT_TYPES), (bool, type(None)))
+@_arguments.accept(_arguments.sequenceof(_UNIT_TYPES), (True, False, None))
 def Fork(units, remove_duplicates=None):
     """
     Units connected in parallel.

@@ -59,8 +59,9 @@ def chain_to_string(chain):
 
 def fork_to_string(fork):
     if fork.remove_duplicates is not None:
-        formatted = inspect.formatargspec(args=('units', 'remove_duplicates'),
-                                          defaults=(list(fork), fork.remove_duplicates))
+        args = ('units', 'remove_duplicates')
+        defaults = (list(fork), fork.remove_duplicates)
+        formatted = inspect.formatargspec(args, defaults=defaults)
         return 'Fork' + formatted
     else:
         return list.__repr__(fork)

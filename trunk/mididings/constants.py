@@ -17,6 +17,7 @@ from mididings.misc import NamedBitMask as _NamedBitMask
 class _EventType(_NamedBitMask):
     pass
 
+
 class _EventAttribute(_NamedFlag):
     pass
 
@@ -54,25 +55,25 @@ ANY             = _EventType(~0, 'ANY')
 _NUM_EVENT_TYPES = 18
 
 _EVENT_TYPE_NAMES = {
-    NOTEON:         'NOTEON',
-    NOTEOFF:        'NOTEOFF',
-    CTRL:           'CTRL',
-    PITCHBEND:      'PITCHBEND',
-    AFTERTOUCH:     'AFTERTOUCH',
-    POLY_AFTERTOUCH:'POLY_AFTERTOUCH',
-    PROGRAM:        'PROGRAM',
-    SYSEX:          'SYSEX',
-    SYSCM_QFRAME:   'SYSCM_QFRAME',
-    SYSCM_SONGPOS:  'SYSCM_SONGPOS',
-    SYSCM_SONGSEL:  'SYSCM_SONGSEL',
-    SYSCM_TUNEREQ:  'SYSCM_TUNEREQ',
-    SYSRT_CLOCK:    'SYSRT_CLOCK',
-    SYSRT_START:    'SYSRT_START',
-    SYSRT_CONTINUE: 'SYSRT_CONTINUE',
-    SYSRT_STOP:     'SYSRT_STOP',
-    SYSRT_SENSING:  'SYSRT_SENSING',
-    SYSRT_RESET:    'SYSRT_RESET',
-    DUMMY:          'DUMMY',
+    NOTEON:           'NOTEON',
+    NOTEOFF:          'NOTEOFF',
+    CTRL:             'CTRL',
+    PITCHBEND:        'PITCHBEND',
+    AFTERTOUCH:       'AFTERTOUCH',
+    POLY_AFTERTOUCH:  'POLY_AFTERTOUCH',
+    PROGRAM:          'PROGRAM',
+    SYSEX:            'SYSEX',
+    SYSCM_QFRAME:     'SYSCM_QFRAME',
+    SYSCM_SONGPOS:    'SYSCM_SONGPOS',
+    SYSCM_SONGSEL:    'SYSCM_SONGSEL',
+    SYSCM_TUNEREQ:    'SYSCM_TUNEREQ',
+    SYSRT_CLOCK:      'SYSRT_CLOCK',
+    SYSRT_START:      'SYSRT_START',
+    SYSRT_CONTINUE:   'SYSRT_CONTINUE',
+    SYSRT_STOP:       'SYSRT_STOP',
+    SYSRT_SENSING:    'SYSRT_SENSING',
+    SYSRT_RESET:      'SYSRT_RESET',
+    DUMMY:            'DUMMY',
 }
 
 

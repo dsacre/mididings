@@ -16,7 +16,7 @@ import inspect
 import sys
 import collections
 import functools
-if sys.version_info < (2,6):
+if sys.version_info < (2, 6):
     functools.reduce = reduce
 
 import decorator
@@ -33,8 +33,9 @@ def accept(*constraints, **kwargs):
     to each of those arguments.
 
     If the optional keyword argument with_rest is True, all variable arguments
-    are instead combined with the last regular positional argument into a single
-    list. This list is then passed to the original function as a single argument.
+    are instead combined with the last regular positional argument into a
+    single list. This list is then passed to the original function as a single
+    argument.
     """
     with_rest = kwargs['with_rest'] if 'with_rest' in kwargs else False
 
@@ -151,4 +152,4 @@ def reduce_bitmask(constraint, arg):
     Flattens all arguments and reduces them to a single bitmask.
     """
     seq = _apply_constraint(constraint, misc.flatten(arg))
-    return functools.reduce(lambda x,y: x|y, seq)
+    return functools.reduce(lambda x, y: x | y, seq)

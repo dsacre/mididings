@@ -91,7 +91,7 @@ def Ctrl(port, channel, ctrl, value):
 
 @_overload.mark
 def Ctrl(ctrl, value):
-   return Ctrl(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, ctrl, value)
+    return Ctrl(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, ctrl, value)
 
 
 @_overload.mark(
