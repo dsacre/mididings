@@ -56,7 +56,8 @@ class MidiEvent(_mididings.MidiEvent):
 
     def _check_type_attribute(self, type, name):
         if not self.type & type:
-            raise AttributeError("MidiEvent type '%s' has no attribute '%s'" % (self._type_to_string(), name))
+            message = "MidiEvent type '%s' has no attribute '%s'" % (self._type_to_string(), name)
+            raise AttributeError(message)
 
     def _type_to_string(self):
         try:
