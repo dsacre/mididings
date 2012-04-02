@@ -24,22 +24,18 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include <boost/python/call_method.hpp>
-
 #include "util/debug.hh"
 
 
 namespace Mididings {
 
 
-Engine::Engine(PyObject * self,
-               std::string const & backend_name,
+Engine::Engine(std::string const & backend_name,
                std::string const & client_name,
                Backend::PortNameVector const & in_ports,
                Backend::PortNameVector const & out_ports,
                bool verbose)
-  : _self(self)
-  , _verbose(verbose)
+  : _verbose(verbose)
   , _current_patch(NULL)
   , _current_scene(-1)
   , _current_subscene(-1)
@@ -286,12 +282,7 @@ void Engine::process_scene_switch(B & buffer)
 
     // call python scene switch handler if we have more than one scene
     if (_scenes.size() > 1) {
-        das::scoped_gil_lock gil;
-        try {
-            boost::python::call_method<void>(_self, "_scene_switch_handler", _new_scene, _new_subscene);
-        } catch (boost::python::error_already_set &) {
-            PyErr_Print();
-        }
+        scene_switch_callback(_new_scene, _new_subscene);
     }
 
     // determine the actual scene and subscene number we're switching to

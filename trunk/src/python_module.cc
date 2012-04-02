@@ -21,6 +21,7 @@
 #include "units/call.hh"
 #include "curious_alloc.hh"
 
+#include "util/python.hh"
 #include "util/python_converters.hh"
 #include "util/counted_objects.hh"
 
@@ -29,6 +30,7 @@
 #include <boost/python/class.hpp>
 #include <boost/python/scope.hpp>
 #include <boost/python/operators.hpp>
+#include <boost/python/call_method.hpp>
 #include <boost/python/return_value_policy.hpp>
 #include <boost/python/return_by_value.hpp>
 
@@ -60,6 +62,34 @@ void unload() {
 #endif // ENABLE_DEBUG_STATS
 
 
+class EngineWrap
+  : public Engine
+{
+  public:
+    EngineWrap(PyObject *self,
+               std::string const & backend_name,
+               std::string const & client_name,
+               Backend::PortNameVector const & in_ports,
+               Backend::PortNameVector const & out_ports,
+               bool verbose)
+      : Engine(backend_name, client_name, in_ports, out_ports, verbose)
+      , _self(self)
+    { }
+
+    void scene_switch_callback(int scene, int subscene) {
+        das::scoped_gil_lock gil;
+        try {
+            boost::python::call_method<void>(_self, "scene_switch_callback", scene, subscene);
+        } catch (boost::python::error_already_set &) {
+            PyErr_Print();
+        }
+    }
+
+  private:
+    PyObject *_self;
+};
+
+
 
 BOOST_PYTHON_MODULE(_mididings)
 {
@@ -78,7 +108,7 @@ BOOST_PYTHON_MODULE(_mididings)
     def("available_backends", &Backend::available, bp::return_value_policy<bp::return_by_value>());
 
     // main engine class, derived from in python
-    class_<Engine, Engine, noncopyable>("Engine", init<std::string const &, std::string const &,
+    class_<Engine, EngineWrap, noncopyable>("Engine", init<std::string const &, std::string const &,
                                                        std::vector<std::string> const &, std::vector<std::string> const &, bool>())
         .def("connect_ports", &Engine::connect_ports)
         .def("add_scene", &Engine::add_scene)
@@ -130,11 +160,6 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<TypeFilter, bases<Filter>, noncopyable>("TypeFilter", init<int>());
     class_<InvertedFilter, bases<Filter>, noncopyable>("InvertedFilter", init<boost::shared_ptr<Filter>, bool>());
 
-    // engine
-    class_<Sanitize, bases<UnitEx>, noncopyable>("Sanitize", init<>());
-    class_<SceneSwitch, bases<UnitEx>, noncopyable>("SceneSwitch", init<int, int>());
-    class_<SubSceneSwitch, bases<UnitEx>, noncopyable>("SubSceneSwitch", init<int, int, bool>());
-
     // filters
     class_<PortFilter, bases<Filter>, noncopyable>("PortFilter", init<std::vector<int> const &>());
     class_<ChannelFilter, bases<Filter>, noncopyable>("ChannelFilter", init<std::vector<int> const &>());
@@ -159,6 +184,11 @@ BOOST_PYTHON_MODULE(_mididings)
     // generators
     class_<Generator, bases<Unit>, noncopyable>("Generator", init<int, int, int, int, int>());
     class_<SysExGenerator, bases<Unit>, noncopyable>("SysExGenerator", init<int, MidiEvent::SysExData const &>());
+
+    // engine
+    class_<Sanitize, bases<UnitEx>, noncopyable>("Sanitize", init<>());
+    class_<SceneSwitch, bases<UnitEx>, noncopyable>("SceneSwitch", init<int, int>());
+    class_<SubSceneSwitch, bases<UnitEx>, noncopyable>("SubSceneSwitch", init<int, int, bool>());
 
     // call
     class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());

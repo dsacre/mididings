@@ -21,6 +21,7 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/noncopyable.hpp>
 
 #include "util/iterator_range.hh"
 #include "util/counted_objects.hh"
@@ -38,7 +39,8 @@ class UnitEx;
 
 
 class Patch
-  : das::counted_objects<Patch>
+  : boost::noncopyable
+  , das::counted_objects<Patch>
 {
   private:
 
@@ -49,6 +51,7 @@ class Patch
     template <typename T>
     class EventBufferType
       : public T
+      , boost::noncopyable
     {
       public:
         typedef typename T::iterator Iterator;
@@ -70,7 +73,7 @@ class Patch
   public:
 
     /**
-     * The buffer type for RT-safe event processing, using a std::list with a
+     * The buffer type for RT-safe event processing, using a std::list with
      * custom allocator.
      */
     typedef EventBufferType<EventListRT> EventBufferRT;
@@ -89,7 +92,8 @@ class Patch
      * The module base class.
      */
     class Module
-      : das::counted_objects<Module>
+      : boost::noncopyable
+      , das::counted_objects<Module>
     {
       public:
         Module() { }

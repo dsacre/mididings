@@ -23,9 +23,8 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
-
+#include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/python/object.hpp>
 
 #include "util/counted_objects.hh"
 
@@ -34,7 +33,8 @@ namespace Mididings {
 
 
 class Engine
-  : das::counted_objects<Engine>
+  : boost::noncopyable
+  , das::counted_objects<Engine>
 {
   public:
 
@@ -58,14 +58,13 @@ class Engine
     typedef std::tr1::unordered_map<EventKey, Patch *> SustainPatchMap;
 
 
-    Engine(PyObject * self,
-           std::string const & backend_name,
+    Engine(std::string const & backend_name,
            std::string const & client_name,
            Backend::PortNameVector const & in_ports,
            Backend::PortNameVector const & out_ports,
            bool verbose);
 
-    ~Engine();
+    virtual ~Engine();
 
     void connect_ports(Backend::PortConnectionMap const & in_port_connections,
                        Backend::PortConnectionMap const & out_port_connections);
@@ -106,6 +105,9 @@ class Engine
     std::vector<MidiEvent> process_test(MidiEvent const & ev);
 #endif
 
+  protected:
+    virtual void scene_switch_callback(int scene, int subscene) = 0;
+
   private:
 
     void run_init(int initial_scene, int initial_subscene);
@@ -129,7 +131,6 @@ class Engine
         return ev.port | ev.channel << 16;
     }
 
-    PyObject * _self;
     bool _verbose;
 
     boost::shared_ptr<Backend::BackendBase> _backend;

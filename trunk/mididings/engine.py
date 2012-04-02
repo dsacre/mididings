@@ -149,7 +149,7 @@ class Engine(_mididings.Engine):
         init += _patch.get_init_patches(proc)
         return name, proc, init
 
-    def _scene_switch_handler(self, scene, subscene):
+    def scene_switch_callback(self, scene, subscene):
         # the scene and subscene parameters are the actual numbers without offset!
         if scene == -1:
             # no scene specified, use current

@@ -16,6 +16,8 @@
 #include <stdexcept>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/noncopyable.hpp>
+
 #include <regex.h>
 
 
@@ -46,6 +48,7 @@ class make_string
 
 
 class regex
+  : boost::noncopyable
 {
   public:
     struct compile_error
