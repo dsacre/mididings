@@ -53,6 +53,11 @@ def issequenceof(seq, t):
     return issequence(seq) and all(isinstance(v, t) for v in seq)
 
 
+def islambda(f):
+    lam = lambda: None
+    return isinstance(f, type(lam)) and f.__name__ == lam.__name__
+
+
 class deprecated(object):
     def __init__(self, replacement=None):
         self.replacement = None

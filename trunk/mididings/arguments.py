@@ -98,37 +98,71 @@ def _try_apply_constraint(constraint, arg, func_name, arg_name):
 
 
 def _apply_constraint(constraint, value):
-    if inspect.isclass(constraint):
-        # single type, check if instance
-        if not isinstance(value, constraint):
-            message = "expected %s, got %s" % (constraint.__name__, type(value).__name__)
-            raise TypeError(message)
-        return value
-    elif misc.issequence(constraint) and all(inspect.isclass(c) for c in constraint):
-        # multiple types, check if instance
-        if not isinstance(value, constraint):
-            types = ", ".join(c.__name__ for c in constraint)
-            message = "expected one of (%s), got %s" % (types, type(value).__name__)
-            raise TypeError(message)
-        return value
-    elif misc.issequence(constraint):
-        # multiple values, check if value is in sequence
-        if value not in constraint:
-            values = ", ".join(repr(c) for c in constraint)
-            message = "expected one of (%s), got %r" % (values, value)
-            raise ValueError(message)
-        return value
-    elif isinstance(constraint, collections.Callable):
-        # callable
-        return constraint(value)
+    return _get_constraint(constraint)(value)
+
+
+def _get_constraint(c):
+    if inspect.isclass(c) or isinstance(c, tuple):
+        # type or tuple: type or value constraint
+        return _type_value_constraint(c)
+    elif isinstance(c, list):
+        if len(c) == 1:
+            # single-item list: sequenceof() constraint
+            return sequenceof(c[0])
+        else:
+            # list: tupleof() constraint
+            return tupleof(*c)
+    elif isinstance(c, _constraint):
+        # contraint object
+        return c
+    elif isinstance(c, collections.Callable):
+        # function or other callable object
+        return transform(c)
     else:
         assert False
 
 
-class sequenceof(object):
+class _constraint(object):
+    pass
+
+
+class _type_value_constraint(_constraint):
+    def __init__(self, constraint):
+        self.constraint = constraint
+
+    def __call__(self, arg):
+        if inspect.isclass(self.constraint):
+            # single type, check if instance
+            if not isinstance(arg, self.constraint):
+                message = "expected %s, got %s" % (self.constraint.__name__, type(arg).__name__)
+                raise TypeError(message)
+            return arg
+        elif all(inspect.isclass(c) for c in self.constraint):
+            # multiple types, check if instance
+            if not isinstance(arg, self.constraint):
+                types = ", ".join(c.__name__ for c in self.constraint)
+                message = "expected one of (%s), got %s" % (types, type(arg).__name__)
+                raise TypeError(message)
+            return arg
+        else:
+            # multiple values, check if value is in sequence
+            if arg not in self.constraint:
+                args = ", ".join(repr(c) for c in self.constraint)
+                message = "expected one of (%s), got %r" % (args, arg)
+                raise ValueError(message)
+            return arg
+
+    def __repr__(self):
+        if inspect.isclass(self.constraint):
+            return self.constraint.__name__
+        else:
+            return repr(tuple(map(_type_value_constraint, self.constraint)))
+
+
+class sequenceof(_constraint):
     """
-    Checks that the argument is a sequence, and applies a constraint to each
-    element in that sequence.
+    Checks that the argument is a sequence, and applies the same constraint to
+    each element in that sequence.
     """
     def __init__(self, what):
         self.what = what
@@ -143,8 +177,36 @@ class sequenceof(object):
             message = "illegal item in sequence: %s" % str(ex)
             raise type(ex)(message)
 
+    def __repr__(self):
+        return repr([_get_constraint(self.what)])
 
-class flatten_sequenceof(object):
+
+class tupleof(_constraint):
+    """
+    Checks that the argument is a sequence of a fixed length, and applies
+    different constraints to each element in that sequence.
+    """
+    def __init__(self, *what):
+        self.what = what
+
+    def __call__(self, arg):
+        if not misc.issequence(arg):
+            raise TypeError("not a sequence")
+        if len(arg) != len(self.what):
+            message = "expected sequence of %d items, got %d" % (len(self.what), len(arg))
+            raise ValueError(message)
+        try:
+            return [_apply_constraint(what, value) for what, value in zip(self.what, arg)]
+        except (TypeError, ValueError):
+            ex = sys.exc_info()[1]
+            message = "illegal item in sequence: %s" % str(ex)
+            raise type(ex)(message)
+
+    def __repr__(self):
+        return repr(list(map(_get_constraint, self.what)))
+
+
+class flatten(_constraint):
     """
     Flattens all arguments into a single list, and applies a constraint to
     each element in that list.
@@ -160,8 +222,11 @@ class flatten_sequenceof(object):
             message = "illegal item in sequence: %s" % str(ex)
             raise type(ex)(message)
 
+    def __repr__(self):
+        return 'flatten(%r)' % _get_constraint(self.what)
 
-class each(object):
+
+class each(_constraint):
     """
     Applies each of the given constraints.
     """
@@ -173,8 +238,11 @@ class each(object):
             arg = _apply_constraint(what, arg)
         return arg
 
+    def __repr__(self):
+        return 'each(%s)' % (', '.join(repr(_get_constraint(r)) for r in self.requirements))
 
-class either(object):
+
+class either(_constraint):
     """
     Accepts the argument if any of the given constraints can be applied.
     """
@@ -188,12 +256,48 @@ class either(object):
                 return _apply_constraint(what, arg)
             except (TypeError, ValueError):
                 ex = sys.exc_info()[1]
-                errors.append("error %d: %s: %s" % (n + 1, type(ex).__name__, str(ex)))
+                # 
+                exstr = str(ex).replace('\n', '\n    ')
+                errors.append("    #%d '%s': %s: %s" % (n + 1, _get_constraint(what), type(ex).__name__, exstr))
         message = "none of the alternatives matched:\n" + '\n'.join(errors)
         raise TypeError(message)
 
+    def __repr__(self):
+        return 'either(%s)' % (', '.join(repr(_get_constraint(a)) for a in self.alternatives))
 
-class reduce_bitmask(object):
+
+class transform(_constraint):
+    """
+    Applies a function to its argument.
+    """
+    def __init__(self, function):
+        self.function = function
+
+    def __call__(self, arg):
+        return self.function(arg)
+
+    def __repr__(self):
+        return _function_repr(self.function)
+
+
+class condition(_constraint):
+    """
+    Accepts the argument if the given function returns True.
+    """
+    def __init__(self, function):
+        self.function = function
+
+    def __call__(self, arg):
+        if not self.function(arg):
+            message = "condition not met: %s" % _function_repr(self.function)
+            raise ValueError(message)
+        return arg
+
+    def __repr__(self):
+        return 'condition(%s)' % _function_repr(self.function)
+
+
+class reduce_bitmask(_constraint):
     """
     Flattens all arguments and reduces them to a single bitmask.
     """
@@ -205,16 +309,25 @@ class reduce_bitmask(object):
         return functools.reduce(lambda x, y: x | y, seq)
 
 
-class greater_equal(object):
-    """
-    Raises an exception if the argument is not greater or equal to the
-    given value.
-    """
-    def __init__(self, than_what):
-        self.than_what = than_what
+def _function_repr(f):
+    if misc.islambda(f):
+        s = inspect.getsource(f).strip()
 
-    def __call__(self, arg):
-        if arg < self.than_what:
-            message = "must be greater or equal to %r" % self.than_what
-            raise ValueError(message)
-        return arg
+        # inspect.getsource() returns the entire line of code.
+        # try to extract only the actual definition of the lambda function.
+        # this will fail if more than one lambda function is defined on
+        # the same line (and possibly for several other reasons...)
+        start = s.index('lambda')
+        end = len(s)
+        parens = 0
+        for n, c in enumerate(s[start:]):
+            if parens == 0 and c in ',)]}':
+                end = start + n
+                break
+            elif c in '([{':
+                parens += 1
+            elif c in ')]}':
+                parens -= 1
+        return s[start:end]
+    else:
+        return f.__name__

@@ -19,7 +19,7 @@ import mididings.arguments as arguments
 import mididings.misc as misc
 
 
-class SetupTestCase(unittest.TestCase):
+class ArgumentsTestCase(unittest.TestCase):
 
     def test_simple(self):
         @arguments.accept(int)
@@ -43,6 +43,34 @@ class SetupTestCase(unittest.TestCase):
             bar('blah')
         with self.assertRaises(TypeError):
             bar('blah', 123)
+
+    def test_isinstance(self):
+        @arguments.accept((int, str))
+        def foo(a): pass
+
+        foo(123)
+        foo('blah')
+
+        with self.assertRaises(TypeError):
+            foo()
+        with self.assertRaises(TypeError):
+            foo(123.456)
+
+    def test_value(self):
+        @arguments.accept((True, 42))
+        def foo(a): pass
+
+        foo(True)
+        foo(42)
+
+        with self.assertRaises(TypeError):
+            foo()
+        with self.assertRaises(ValueError):
+            foo(False)
+        with self.assertRaises(ValueError):
+            foo(23)
+        with self.assertRaises(ValueError):
+            foo('blah')
 
     def test_varargs(self):
         @arguments.accept(int, int)
@@ -74,7 +102,7 @@ class SetupTestCase(unittest.TestCase):
 
         @arguments.accept(int, kwargs={'b': str, 'c': float})
         def bar(a, **kwargs):
-            self.assertEquals(a, 123)
+            self.assertEqual(a, 123)
             self.assertDictEqual(kwargs, {'b': 'blah', 'c': 123.456})
 
         bar(123, b='blah', c=123.456)
@@ -100,6 +128,51 @@ class SetupTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             foo([123, 456, 'blah'])
 
+        @arguments.accept([str])
+        def bar(a):
+            self.assertTrue(misc.issequenceof(a, str))
+
+        bar([])
+        bar(['doo', 'bee', 'doo'])
+
+        with self.assertRaises(TypeError):
+            bar()
+        with self.assertRaises(TypeError):
+            bar('doo', 'bee', 'doo')
+        with self.assertRaises(TypeError):
+            bar('doo', 'bee', 123)
+
+    def test_tupleof(self):
+        @arguments.accept(arguments.tupleof(int, str))
+        def foo(a): pass
+
+        foo((123, 'blah'))
+        foo([123, 'blah'])
+
+        with self.assertRaises(TypeError):
+            foo()
+        with self.assertRaises(TypeError):
+            foo(123, 'blah')
+        with self.assertRaises(TypeError):
+            foo((123, 456))
+        with self.assertRaises(ValueError):
+            foo([123, 'blah', 789])
+
+        @arguments.accept([int, float])
+        def bar(a): pass
+
+        bar((123, 456.789))
+        bar([123, 456.789])
+
+        with self.assertRaises(TypeError):
+            bar()
+        with self.assertRaises(TypeError):
+            bar(123, 456.789)
+        with self.assertRaises(TypeError):
+            bar((123, 'blah'))
+        with self.assertRaises(ValueError):
+            bar([123, 456.789, 'blah'])
+
     def test_with_rest(self):
         @arguments.accept(arguments.sequenceof(int), with_rest=True)
         def foo(a, *rest):
@@ -116,15 +189,15 @@ class SetupTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             foo(123, [456, 789])
 
-        @arguments.accept(int, arguments.sequenceof(int), with_rest=True)
+        @arguments.accept(int, [int], with_rest=True)
         def bar(a, b, *rest):
             self.assertEqual(a, 123)
             self.assertListEqual(b, [456, 789])
 
         bar(123, 456, 789)
 
-    def test_flatten_sequenceof(self):
-        @arguments.accept(arguments.flatten_sequenceof(int))
+    def test_flatten(self):
+        @arguments.accept(arguments.flatten(int))
         def foo(a):
             self.assertListEqual(a, [123, 456, 789])
 
@@ -135,6 +208,18 @@ class SetupTestCase(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             foo([123, ['blah', 789]])
+
+    def test_each(self):
+        @arguments.accept(arguments.each(int, arguments.condition(lambda x: x > 0)))
+        def foo(a): pass
+
+        foo(1)
+        foo(123)
+
+        with self.assertRaises(ValueError):
+            foo(0)
+        with self.assertRaises(ValueError):
+            foo(-456)
 
     def test_either(self):
         @arguments.accept(arguments.either(int, str))
@@ -158,3 +243,48 @@ class SetupTestCase(unittest.TestCase):
             bar('blah')
         with self.assertRaises(TypeError):
             bar([123, 456, 789])
+
+    def test_condition(self):
+        @arguments.accept(arguments.condition(lambda x: x%2 == 0))
+        def foo(a): pass
+
+        foo(2)
+        foo(42)
+
+        with self.assertRaises(ValueError):
+            foo(1)
+        with self.assertRaises(ValueError):
+            foo(23)
+
+        @arguments.accept(arguments.condition(lambda x: x > 0))
+        def bar(a): pass
+
+        bar(1)
+        bar(42)
+
+        with self.assertRaises(ValueError):
+            bar(0)
+        with self.assertRaises(ValueError):
+            bar(-23)
+
+    def test_repr(self):
+        self.assertEqual(repr(arguments._get_constraint(int)), 'int')
+        self.assertEqual(repr(arguments._get_constraint([int])), '[int]')
+        self.assertEqual(repr(arguments._get_constraint((int, float, str))), '(int, float, str)')
+        self.assertEqual(repr(arguments._get_constraint([int, float, str])), '[int, float, str]')
+        self.assertEqual(repr(arguments._get_constraint(arguments.flatten(int))), 'flatten(int)')
+        self.assertEqual(repr(arguments._get_constraint(arguments.each(int, float))), 'each(int, float)')
+        self.assertEqual(repr(arguments._get_constraint(arguments.either(int, str))), 'either(int, str)')
+        self.assertEqual(repr(arguments._get_constraint(lambda x: x / 2)), 'lambda x: x / 2')
+        self.assertEqual(repr(arguments._get_constraint(arguments.condition(lambda x: x < 3))), 'condition(lambda x: x < 3)')
+
+        def foo(x): x
+
+        constraint = arguments.either(
+            arguments.each(int, arguments.condition(lambda x: x%2 == 0)),
+            arguments.sequenceof(foo),
+            str,
+        )
+        reprs = 'either(each(int, condition(lambda x: x%2 == 0)), [foo], str)'
+
+        self.assertEqual(repr(arguments._get_constraint(constraint)), reprs)
