@@ -99,48 +99,52 @@ def Velocity(multiply, offset):
     Apply a linear slope to note-on velocities.
     """
 )
-@_unitrepr.accept(_arguments.sequenceof(_util.note_limit), _arguments.sequenceof(int))
+@_unitrepr.accept([_util.note_limit], [int])
 def VelocitySlope(notes, offset):
     _check_velocity_slope(notes, offset)
     return _Unit(_mididings.VelocitySlope(notes, offset, 1))
 
 @_overload.mark
-@_unitrepr.accept(_arguments.sequenceof(_util.note_limit), _arguments.sequenceof((float, int)))
+@_unitrepr.accept([_util.note_limit], [(float, int)])
 def VelocitySlope(notes, multiply):
     _check_velocity_slope(notes, multiply)
     return _Unit(_mididings.VelocitySlope(notes, multiply, 2))
 
 @_overload.mark
-@_unitrepr.accept(_arguments.sequenceof(_util.note_limit), _arguments.sequenceof(_util.velocity_value))
+@_unitrepr.accept([_util.note_limit], [_util.velocity_value])
 def VelocitySlope(notes, fixed):
     _check_velocity_slope(notes, fixed)
     return _Unit(_mididings.VelocitySlope(notes, fixed, 3))
 
 @_overload.mark
-@_unitrepr.accept(_arguments.sequenceof(_util.note_limit), _arguments.sequenceof((float, int)))
+@_unitrepr.accept([_util.note_limit], [(float, int)])
 def VelocitySlope(notes, gamma):
     _check_velocity_slope(notes, gamma)
     return _Unit(_mididings.VelocitySlope(notes, gamma, 4))
 
 @_overload.mark
-@_unitrepr.accept(_arguments.sequenceof(_util.note_limit), _arguments.sequenceof((float, int)))
+@_unitrepr.accept([_util.note_limit], [(float, int)])
 def VelocitySlope(notes, curve):
     _check_velocity_slope(notes, curve)
     return _Unit(_mididings.VelocitySlope(notes, curve, 5))
 
 @_overload.mark
-@_unitrepr.accept(_arguments.sequenceof(_util.note_limit), _arguments.sequenceof((float, int)), _arguments.sequenceof(int))
+@_unitrepr.accept([_util.note_limit], [(float, int)], [int])
 def VelocitySlope(notes, multiply, offset):
     return VelocitySlope(notes, multiply=multiply) >> VelocitySlope(notes, offset=offset)
 
 
 def _check_velocity_slope(notes, params):
+    message = None
     if len(notes) != len(params):
-        raise ValueError("invalid parameters to VelocitySlope(): notes and velocity values must be sequences of the same length")
-    if len(notes) < 2:
-        raise ValueError("invalid parameters to VelocitySlope(): need at least two notes")
-    if sorted(notes) != notes:
-        raise ValueError("invalid parameters to VelocitySlope(): notes must be in ascending order")
+        message = "invalid parameters to VelocitySlope(): notes and velocity values must be sequences of the same length"
+    elif len(notes) < 2:
+        message = "invalid parameters to VelocitySlope(): need at least two notes"
+    elif sorted(notes) != notes:
+        message = "invalid parameters to VelocitySlope(): notes must be in ascending order"
+
+    if message is not None:
+        raise ValueError(message)
 
 
 @_overload.mark(

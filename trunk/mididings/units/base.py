@@ -224,7 +224,7 @@ _UNIT_TYPES = (_Unit, list, dict)
 _SELECTOR_TYPES = (_Filter, _Selector)
 
 
-@_arguments.accept(_arguments.sequenceof(_UNIT_TYPES))
+@_arguments.accept([_UNIT_TYPES])
 def Chain(units):
     """
     Units connected in series.
@@ -232,7 +232,7 @@ def Chain(units):
     return _Chain(units)
 
 
-@_arguments.accept(_arguments.sequenceof(_UNIT_TYPES), (True, False, None))
+@_arguments.accept([_UNIT_TYPES], (True, False, None))
 def Fork(units, remove_duplicates=None):
     """
     Units connected in parallel.
@@ -247,7 +247,7 @@ def Split(d):
     return _Split(d)
 
 
-@_arguments.accept(_arguments.sequenceof(_SELECTOR_TYPES))
+@_arguments.accept([_SELECTOR_TYPES])
 def AndSelector(conditions):
     """
     Conjunction of multiple filters.
@@ -255,7 +255,7 @@ def AndSelector(conditions):
     return _AndSelector(conditions)
 
 
-@_arguments.accept(_arguments.sequenceof(_SELECTOR_TYPES))
+@_arguments.accept([_SELECTOR_TYPES])
 def OrSelector(conditions):
     """
     Disjunction of multiple filters.
@@ -263,7 +263,7 @@ def OrSelector(conditions):
     return _OrSelector(conditions)
 
 
-@_arguments.accept(_arguments.reduce_bitmask(_arguments.sequenceof(_constants._EventType)), with_rest=True)
+@_arguments.accept(_arguments.reduce_bitmask([_constants._EventType]), with_rest=True)
 @_unitrepr.store
 def Filter(types, *rest):
     """

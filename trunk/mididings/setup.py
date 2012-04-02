@@ -34,19 +34,19 @@ _hooks = []
 
 
 @_arguments.accept(kwargs = {
-    'backend':          _VALID_BACKENDS,
+    'backend':          tuple(_VALID_BACKENDS),
     'client_name':      str,
     'in_ports':         _arguments.either(
-                            _arguments.each(int, _arguments.greater_equal(1)),
-                            _arguments.sequenceof(str)
+                            _arguments.each(int, _arguments.condition(lambda x: x > 0)),
+                            [str]
                         ),
     'out_ports':        _arguments.either(
-                            _arguments.each(int, _arguments.greater_equal(1)),
-                            _arguments.sequenceof(str)
+                            _arguments.each(int, _arguments.condition(lambda x: x > 0)),
+                            [str]
                         ),
     'data_offset':      (0, 1),
     'octave_offset':    int,
-    'initial_scene':    _arguments.either(int, _arguments.sequenceof(int)),
+    'initial_scene':    _arguments.either(int, [int], [int, int]),
     'start_delay':      (int, float, type(None)),
     'silent':           bool,
 })

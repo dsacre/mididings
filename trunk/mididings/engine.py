@@ -18,8 +18,10 @@ import mididings.util as _util
 import mididings.misc as _misc
 import mididings.setup as _setup
 import mididings.overload as _overload
+import mididings.arguments as _arguments
 from mididings.setup import get_config as _get_config
 from mididings.setup import get_hooks as _get_hooks
+from mididings.units.base import _UNIT_TYPES
 
 import time as _time
 import weakref as _weakref
@@ -230,6 +232,7 @@ class Engine(_mididings.Engine):
 
 
 @_overload.mark
+@_arguments.accept(_UNIT_TYPES)
 def run(patch):
     """
     Create the engine and start event processing. This function does not
@@ -239,6 +242,7 @@ def run(patch):
     e.run()
 
 @_overload.mark
+@_arguments.accept(_UNIT_TYPES, _UNIT_TYPES, _UNIT_TYPES, _UNIT_TYPES)
 def run(scenes, control=None, pre=None, post=None):
     """
     Create the engine and start event processing. This function does not
