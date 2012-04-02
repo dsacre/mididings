@@ -46,7 +46,11 @@ _hooks = []
                         ),
     'data_offset':      (0, 1),
     'octave_offset':    int,
-    'initial_scene':    _arguments.either(int, [int], [int, int]),
+    'initial_scene':    _arguments.either(
+                            int,
+                            _arguments.each(tuple, [int]),
+                            _arguments.each(tuple, [int, int])
+                        ),
     'start_delay':      (int, float, type(None)),
     'silent':           bool,
 })
