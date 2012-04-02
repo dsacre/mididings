@@ -29,6 +29,8 @@
 
 namespace Mididings {
 
+class Engine;
+
 namespace Units {
 class Unit;
 class UnitEx;
@@ -43,13 +45,25 @@ class Patch
     typedef std::list<MidiEvent, curious_alloc<MidiEvent, Config::MAX_EVENTS> > EventListRT;
     typedef std::list<MidiEvent> EventList;
 
-    // derive from a container just to add two typedefs. get over it.
+    // deriving from a standard container. get over it.
     template <typename T>
-    struct EventBufferType
+    class EventBufferType
       : public T
     {
+      public:
         typedef typename T::iterator Iterator;
         typedef das::iterator_range<typename T::iterator> Range;
+
+        EventBufferType(Engine & engine)
+          : _engine(engine)
+        { }
+
+        Engine & engine() const {
+            return _engine;
+        }
+
+      private:
+        Engine & _engine;
     };
 
 
@@ -226,10 +240,42 @@ class Patch
     }
 
 
+    /**
+     * Replaces event with one or more events, returns the range containing the new events.
+     */
+    template <typename B, typename IterT>
+    static inline typename B::Range replace_event(B & buffer, typename B::Iterator it, IterT begin, IterT end) {
+        it = buffer.erase(it);
+
+        typename B::Iterator first = buffer.insert(it, *begin);
+        buffer.insert(it, ++begin, end);
+
+        return typename B::Range(first, it);
+    }
+
+    /**
+     * Leaves event unchanged, returns a range containing the single event.
+     */
+    template <typename B>
+    static inline typename B::Range keep_event(B & /*buffer*/, typename B::Iterator it) {
+        typename B::Range ret(it, 1);
+        return ret;
+    }
+
+    /**
+     * Removes event, returns empty range.
+     */
+    template <typename B>
+    static inline typename B::Range delete_event(B & buffer, typename B::Iterator it) {
+        it = buffer.erase(it);
+        return typename B::Range(it);
+    }
+
+
   private:
 
     template <typename B>
-    std::string debug_range(std::string const & str, B const & buffer, typename B::Range const & range) const;
+    static std::string debug_range(std::string const & str, B const & buffer, typename B::Range const & range);
 
 
     ModulePtr const _module;

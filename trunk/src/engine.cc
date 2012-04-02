@@ -32,9 +32,6 @@
 namespace Mididings {
 
 
-Engine * TheEngine = NULL;
-
-
 Engine::Engine(PyObject * self,
                std::string const & backend_name,
                std::string const & client_name,
@@ -50,13 +47,14 @@ Engine::Engine(PyObject * self,
   , _new_subscene(-1)
   , _noteon_patches(Config::MAX_SIMULTANEOUS_NOTES)
   , _sustain_patches(Config::MAX_SUSTAIN_PEDALS)
+  , _buffer(*this)
   , _python_caller(new PythonCaller(boost::bind(&Engine::run_async, this)))
 {
     _backend = Backend::create(backend_name, client_name, in_ports, out_ports);
 
     // construct a patch with a single sanitize unit
-    Patch::UnitPtr sani(new Units::Sanitize);
-    Patch::ModulePtr mod(new Patch::Single(sani));
+    Patch::UnitExPtr sani(new Units::Sanitize);
+    Patch::ModulePtr mod(new Patch::Extended(sani));
     _sanitize_patch.reset(new Patch(mod));
 }
 
@@ -185,7 +183,7 @@ void Engine::run_async()
 std::vector<MidiEvent> Engine::process_test(MidiEvent const & ev)
 {
     std::vector<MidiEvent> v;
-    Patch::EventBuffer buffer;
+    Patch::EventBuffer buffer(*this);
 
     if (!_current_patch) {
         _current_patch = &*_scenes.find(0)->second[0]->patch;

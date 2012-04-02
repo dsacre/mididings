@@ -34,7 +34,7 @@ class Call
     template <typename B>
     typename B::Range process(B & buffer, typename B::Iterator it) const
     {
-        PythonCaller & c = TheEngine->python_caller();
+        PythonCaller & c = buffer.engine().python_caller();
 
         if (_async) {
             return c.call_deferred(buffer, it, _fun, _cont);

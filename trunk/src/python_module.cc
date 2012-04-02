@@ -131,9 +131,9 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<InvertedFilter, bases<Filter>, noncopyable>("InvertedFilter", init<boost::shared_ptr<Filter>, bool>());
 
     // engine
-    class_<Sanitize, bases<Unit>, noncopyable>("Sanitize", init<>());
-    class_<SceneSwitch, bases<Unit>, noncopyable>("SceneSwitch", init<int, int>());
-    class_<SubSceneSwitch, bases<Unit>, noncopyable>("SubSceneSwitch", init<int, int, bool>());
+    class_<Sanitize, bases<UnitEx>, noncopyable>("Sanitize", init<>());
+    class_<SceneSwitch, bases<UnitEx>, noncopyable>("SceneSwitch", init<int, int>());
+    class_<SubSceneSwitch, bases<UnitEx>, noncopyable>("SubSceneSwitch", init<int, int, bool>());
 
     // filters
     class_<PortFilter, bases<Filter>, noncopyable>("PortFilter", init<std::vector<int> const &>());

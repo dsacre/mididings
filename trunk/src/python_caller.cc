@@ -11,6 +11,7 @@
 
 #include "config.hh"
 #include "python_caller.hh"
+#include "patch.hh"
 
 #include <boost/bind.hpp>
 
@@ -70,7 +71,7 @@ typename B::Range PythonCaller::call_now(B & buffer, typename B::Iterator it, bp
 
         if (ret.ptr() == Py_None) {
             // returned None
-            return delete_event(buffer, it);
+            return Patch::delete_event(buffer, it);
         }
 
         bp::extract<bp::list> e(ret);
@@ -79,9 +80,9 @@ typename B::Range PythonCaller::call_now(B & buffer, typename B::Iterator it, bp
             // returned python list
             if (bp::len(e())) {
                 bp::stl_input_iterator<MidiEvent> begin(ret), end;
-                return replace_event(buffer, it, begin, end);
+                return Patch::replace_event(buffer, it, begin, end);
             } else {
-                return delete_event(buffer, it);
+                return Patch::delete_event(buffer, it);
             }
         }
 
@@ -90,20 +91,20 @@ typename B::Range PythonCaller::call_now(B & buffer, typename B::Iterator it, bp
         if (b.check()) {
             // returned bool
             if (b) {
-                return keep_event(buffer, it);
+                return Patch::keep_event(buffer, it);
             } else {
-                return delete_event(buffer, it);
+                return Patch::delete_event(buffer, it);
             }
         }
 
         // returned single event
         *it = bp::extract<MidiEvent>(ret);
-        return keep_event(buffer, it);
+        return Patch::keep_event(buffer, it);
     }
     catch (bp::error_already_set const &)
     {
         PyErr_Print();
-        return delete_event(buffer, it);
+        return Patch::delete_event(buffer, it);
     }
 }
 
@@ -118,38 +119,10 @@ typename B::Range PythonCaller::call_deferred(B & buffer, typename B::Iterator i
     _cond.notify_one();
 
     if (keep) {
-        return keep_event(buffer, it);
+        return Patch::keep_event(buffer, it);
     } else {
-        return delete_event(buffer, it);
+        return Patch::delete_event(buffer, it);
     }
-}
-
-
-template <typename B, typename IterT>
-inline typename B::Range PythonCaller::replace_event(B & buffer, typename B::Iterator it, IterT begin, IterT end)
-{
-    it = buffer.erase(it);
-
-    typename B::Iterator first = buffer.insert(it, *begin);
-    buffer.insert(it, ++begin, end);
-
-    return typename B::Range(first, it);
-}
-
-
-template <typename B>
-inline typename B::Range PythonCaller::keep_event(B & /*buffer*/, typename B::Iterator it)
-{
-    typename B::Range ret(it, 1);
-    return ret;
-}
-
-
-template <typename B>
-inline typename B::Range PythonCaller::delete_event(B & buffer, typename B::Iterator it)
-{
-    it = buffer.erase(it);
-    return typename B::Range(it);
 }
 
 

@@ -182,7 +182,7 @@ void Patch::process(B & buffer, typename B::Range & range) const
 
 
 template <typename B>
-std::string Patch::debug_range(std::string const & str, B const & buffer, typename B::Range const & range) const
+std::string Patch::debug_range(std::string const & str, B const & buffer, typename B::Range const & range)
 {
     std::ostringstream os;
     os << str << ": "

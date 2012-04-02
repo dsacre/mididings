@@ -15,6 +15,7 @@
 #include "units/base.hh"
 #include "units/util.hh"
 #include "engine.hh"
+#include "patch.hh"
 
 
 namespace Mididings {
@@ -22,20 +23,27 @@ namespace Units {
 
 
 class Sanitize
-  : public Unit
+  : public UnitExImpl<Sanitize>
 {
   public:
     Sanitize() { }
 
-    virtual bool process(MidiEvent & ev) const
+    template <typename B>
+    typename B::Range process(B & buffer, typename B::Iterator it) const
     {
-        return TheEngine->sanitize_event(ev);
+        Engine & engine = buffer.engine();
+
+        if (engine.sanitize_event(*it)) {
+            return Patch::keep_event(buffer, it);
+        } else {
+            return Patch::delete_event(buffer, it);
+        }
     }
 };
 
 
 class SceneSwitch
-  : public Unit
+  : public UnitExImpl<SceneSwitch>
 {
   public:
     SceneSwitch(int num, int offset)
@@ -43,18 +51,22 @@ class SceneSwitch
       , _offset(offset)
     { }
 
-    virtual bool process(MidiEvent & ev) const
+    template <typename B>
+    typename B::Range process(B & buffer, typename B::Iterator it) const
     {
+        Engine & engine = buffer.engine();
+
         if (_offset == 0) {
-            TheEngine->switch_scene(get_parameter(_num, ev));
+            engine.switch_scene(get_parameter(_num, *it));
         } else {
             // FIXME: handle gaps in scene numbers
-            int n = TheEngine->current_scene() + _offset;
-            if (TheEngine->has_scene(n)) {
-                TheEngine->switch_scene(n);
+            int n = engine.current_scene() + _offset;
+            if (engine.has_scene(n)) {
+                engine.switch_scene(n);
             }
         }
-        return false;
+
+        return Patch::delete_event(buffer, it);
     }
 
   private:
@@ -64,7 +76,7 @@ class SceneSwitch
 
 
 class SubSceneSwitch
-  : public Unit
+  : public UnitExImpl<SubSceneSwitch>
 {
   public:
     SubSceneSwitch(int num, int offset, bool wrap)
@@ -73,20 +85,23 @@ class SubSceneSwitch
       , _wrap(wrap)
     { }
 
-    virtual bool process(MidiEvent & ev) const
+    template <typename B>
+    typename B::Range process(B & buffer, typename B::Iterator it) const
     {
+        Engine & engine = buffer.engine();
+
         if (_offset == 0) {
-            TheEngine->switch_scene(-1, get_parameter(_num, ev));
+            engine.switch_scene(-1, get_parameter(_num, *it));
         } else {
-            int n = TheEngine->current_subscene() + _offset;
+            int n = engine.current_subscene() + _offset;
             if (_wrap) {
-                n %= TheEngine->num_subscenes();
+                n %= engine.num_subscenes();
             }
-            if (TheEngine->has_subscene(n)) {
-                TheEngine->switch_scene(-1, n);
+            if (engine.has_subscene(n)) {
+                engine.switch_scene(-1, n);
             }
         }
-        return false;
+        return Patch::delete_event(buffer, it);
     }
 
   private:

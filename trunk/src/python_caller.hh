@@ -49,19 +49,6 @@ class PythonCaller
 
   private:
 
-    // replaces event with one or more events, returns the range containing the new events
-    template <typename B, typename IterT>
-    inline typename B::Range replace_event(B & buf, typename B::Iterator it, IterT begin, IterT end);
-
-    // leaves event unchanged, returns a range containing the single event
-    template <typename B>
-    inline typename B::Range keep_event(B & buf, typename B::Iterator it);
-
-    // removes event, returns empty range
-    template <typename B>
-    inline typename B::Range delete_event(B & buf, typename B::Iterator it);
-
-
     void async_thread();
 
     struct AsyncCallInfo {
