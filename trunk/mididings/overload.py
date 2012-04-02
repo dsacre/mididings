@@ -42,9 +42,20 @@ def call(args, kwargs, funcs, name=None):
     # no overload found, generate a comprehensible error message
     if name is None:
         name = inspect.stack()[1][3]
-    candidates = ((name + inspect.formatargspec(*inspect.getargspec(f))) for f in funcs)
 
-    message = "no suitable overload found for %s(), candidates are:\n%s" % (name, '\n'.join(candidates))
+    # format arg spec for each candidate
+    formatargspec = lambda f: inspect.formatargspec(*inspect.getargspec(f))
+    candidates = ('    %s%s' % (name, formatargspec(f)) for f in funcs)
+
+    # format the actual arguments used, replacing values with their types.
+    # formatargspec() doesn't seem to care that the first argument mixes values
+    # and argument names
+    arg_types = ['<%s>' % type(a).__name__ for a in args]
+    kwarg_types = ['<%s>' % type(a).__name__ for a in kwargs.values()]
+    formatvalue = lambda v: '=%s' % v
+    args_used = inspect.formatargspec(arg_types + list(kwargs.keys()), defaults=kwarg_types, formatvalue=formatvalue)
+
+    message = "no suitable overload found for %s%s, candidates are:\n%s" % (name, args_used, '\n'.join(candidates))
     raise TypeError(message)
 
 
