@@ -140,7 +140,7 @@ def _check_velocity_slope(notes, params):
         message = "invalid parameters to VelocitySlope(): notes and velocity values must be sequences of the same length"
     elif len(notes) < 2:
         message = "invalid parameters to VelocitySlope(): need at least two notes"
-    elif sorted(notes) != notes:
+    elif sorted(notes) != list(notes):
         message = "invalid parameters to VelocitySlope(): notes must be in ascending order"
 
     if message is not None:

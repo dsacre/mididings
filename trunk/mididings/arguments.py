@@ -15,6 +15,7 @@ import mididings.misc as misc
 import inspect
 import sys
 import collections
+import types
 import functools
 if sys.version_info < (2, 6):
     functools.reduce = reduce
@@ -171,7 +172,8 @@ class sequenceof(_constraint):
         if not misc.issequence(arg):
             raise TypeError("not a sequence")
         try:
-            return [_apply_constraint(self.what, value) for value in arg]
+            t = type(arg) if not isinstance(arg, types.GeneratorType) else list
+            return t(_apply_constraint(self.what, value) for value in arg)
         except (TypeError, ValueError):
             ex = sys.exc_info()[1]
             message = "illegal item in sequence: %s" % str(ex)
@@ -196,7 +198,8 @@ class tupleof(_constraint):
             message = "expected sequence of %d items, got %d" % (len(self.what), len(arg))
             raise ValueError(message)
         try:
-            return [_apply_constraint(what, value) for what, value in zip(self.what, arg)]
+            t = type(arg) if not isinstance(arg, types.GeneratorType) else list
+            return t(_apply_constraint(what, value) for what, value in zip(self.what, arg))
         except (TypeError, ValueError):
             ex = sys.exc_info()[1]
             message = "illegal item in sequence: %s" % str(ex)
@@ -256,7 +259,6 @@ class either(_constraint):
                 return _apply_constraint(what, arg)
             except (TypeError, ValueError):
                 ex = sys.exc_info()[1]
-                # 
                 exstr = str(ex).replace('\n', '\n    ')
                 errors.append("    #%d '%s': %s: %s" % (n + 1, _get_constraint(what), type(ex).__name__, exstr))
         message = "none of the alternatives matched:\n" + '\n'.join(errors)
