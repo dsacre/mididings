@@ -155,13 +155,27 @@ struct MidiEvent
 
 inline bool operator==(MidiEvent const & lhs, MidiEvent const & rhs)
 {
+    // the obvious case: events of different types are never equal
+    if (lhs.type != rhs.type) {
+        return false;
+    }
+
+    // check which fields are relevant for the given event type
+    bool channel = !(lhs.type & (MIDI_EVENT_SYSEX | MIDI_EVENT_SYSCM | MIDI_EVENT_SYSRT | MIDI_EVENT_DUMMY));
+    bool data1 = (lhs.type & (MIDI_EVENT_NOTE | MIDI_EVENT_CTRL | MIDI_EVENT_POLY_AFTERTOUCH |
+                              MIDI_EVENT_SYSCM_QFRAME | MIDI_EVENT_SYSCM_SONGPOS | MIDI_EVENT_SYSCM_SONGSEL));
+    bool data2 = (lhs.type & (MIDI_EVENT_NOTE | MIDI_EVENT_CTRL | MIDI_EVENT_PITCHBEND |
+                              MIDI_EVENT_AFTERTOUCH | MIDI_EVENT_POLY_AFTERTOUCH | MIDI_EVENT_PROGRAM |
+                              MIDI_EVENT_SYSCM_SONGPOS));
+    bool sysex = (lhs.type & MIDI_EVENT_SYSEX);
+
+    // return true if each field is either irrelevant or identical
     return (
-        lhs.type == rhs.type &&
         lhs.port == rhs.port &&
-        lhs.channel == rhs.channel &&
-        lhs.data1 == rhs.data1 &&
-        lhs.data2 == rhs.data2 &&
-        ((!lhs.sysex && !rhs.sysex) || (lhs.sysex && rhs.sysex && *lhs.sysex == *rhs.sysex)) &&
+        (!channel || lhs.channel == rhs.channel) &&
+        (!data1 || lhs.data1 == rhs.data1) &&
+        (!data2 || lhs.data2 == rhs.data2) &&
+        (!sysex || (lhs.sysex && rhs.sysex && *lhs.sysex == *rhs.sysex)) &&
         lhs.frame == rhs.frame
     );
 }
