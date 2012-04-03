@@ -98,6 +98,16 @@ class MidiEvent(_mididings.MidiEvent):
         _constants.DUMMY:           lambda self: 'Dummy',
     }
 
+    _repr_mapping = {
+        _constants.NOTEON:          lambda self: 'NoteOnEvent(port=%d, channel=%d, note=%d, velocity=%d)' % (self.port, self.channel, self.note, self.velocity),
+        _constants.NOTEOFF:         lambda self: 'NoteOffEvent(port=%d, channel=%d, note=%d, velocity=%d)' % (self.port, self.channel, self.note, self.velocity),
+        _constants.CTRL:            lambda self: 'CtrlEvent(port=%d, channel=%d, ctrl=%d, value=%d)' % (self.port, self.channel, self.ctrl, self.value),
+        _constants.PITCHBEND:       lambda self: 'PitchbendEvent(port=%d, channel=%d, value=%d)' % (self.port, self.channel, self.value),
+        _constants.AFTERTOUCH:      lambda self: 'AftertouchEvent(port=%d, channel=%d, value=%d)' % (self.port, self.channel, self.value),
+        _constants.PROGRAM:         lambda self: 'ProgramEvent(port=%d, channel=%d, program=%d)' % (self.port, self.channel, self.program),
+        _constants.SYSEX:           lambda self: 'SysExEvent(port=%d, sysex=%r)' % (self.port, _util.sysex_to_sequence(self.sysex)),
+    }
+
     def to_string(self, portnames=[], portname_length=0, max_length=0):
         if len(portnames) > self.port_:
             port = portnames[self.port_]
@@ -110,8 +120,10 @@ class MidiEvent(_mididings.MidiEvent):
         return '%s %s' % (header, desc)
 
     def __repr__(self):
-        return 'MidiEvent(%s, %d, %d, %d, %d)' % (self._type_to_string(), self.port, self.channel, self.data1, self.data2)
-
+        return MidiEvent._repr_mapping.get(
+            self.type_,
+            lambda self: 'MidiEvent(%s, %d, %d, %d, %d)' % (self._type_to_string(), self.port, self.channel, self.data1, self.data2)
+        )(self)
 
     def _type_getter(self):
         return _constants._EVENT_TYPES[self.type_]
