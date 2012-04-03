@@ -34,14 +34,13 @@ class Generator
 
     virtual bool process(MidiEvent & ev) const
     {
-        MidiEvent ev_new;
+        MidiEvent ev_new(ev);
 
         ev_new.type = _type;
         ev_new.port = get_parameter(_port, ev);
         ev_new.channel = get_parameter(_channel, ev);
         ev_new.data1 = get_parameter(_data1, ev);
         ev_new.data2 = get_parameter(_data2, ev);
-        ev_new.frame = ev.frame;
 
         ev = ev_new;
 
