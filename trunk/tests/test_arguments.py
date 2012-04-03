@@ -192,7 +192,7 @@ class ArgumentsTestCase(unittest.TestCase):
         @arguments.accept(int, [int], with_rest=True)
         def bar(a, b, *rest):
             self.assertEqual(a, 123)
-            self.assertListEqual(b, [456, 789])
+            self.assertTupleEqual(b, (456, 789))
 
         bar(123, 456, 789)
 
