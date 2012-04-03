@@ -15,6 +15,9 @@ from tests.helpers import *
 from mididings import *
 from mididings.event import *
 
+import copy
+import cPickle
+
 
 class EventTestCase(MididingsTestCase):
 
@@ -184,9 +187,10 @@ class EventTestCase(MididingsTestCase):
         with self.assertRaises(AttributeError): ev.value
         with self.assertRaises(AttributeError): ev.program
 
-    def test_operator_equals(self):
-        a = self.make_event(channel=0)
-        b = self.make_event(channel=1)
+    @data_offsets
+    def test_operator_equals(self, off):
+        a = self.make_event(channel=off(0))
+        b = self.make_event(channel=off(1))
         c = self.make_event(type=a.type, port=a.port, channel=a.channel, data1=a.data1, data2=a.data2)
 
         self.assertFalse(a == b)
@@ -194,3 +198,18 @@ class EventTestCase(MididingsTestCase):
 
         self.assertTrue(a == c)
         self.assertFalse(a != c)
+
+    @data_offsets
+    def test_copy(self, off):
+        a = self.make_event()
+        b = copy.copy(a)
+
+        self.assertEqual(b, a)
+
+    @data_offsets
+    def test_pickle(self, off):
+        a = self.make_event()
+        p = cPickle.dumps(a)
+        b = cPickle.loads(p)
+
+        self.assertEqual(b, a)
