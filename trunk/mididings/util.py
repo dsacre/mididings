@@ -199,7 +199,7 @@ def channel_number(channel):
 def program_number(program):
     if not isinstance(program, int):
         raise TypeError("program must be an integer")
-    if not (0 <= actual(program) < 127):
+    if not (0 <= actual(program) < 128):
         raise ValueError("program number %d is out of range" % program)
     return program
 
