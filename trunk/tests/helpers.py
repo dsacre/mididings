@@ -151,7 +151,7 @@ class MididingsTestCase(unittest.TestCase):
             elif k == 'program': data2 = v - setup.get_config('data_offset')
 
         if type == None:
-            type = random.choice(list(set(constants._EVENT_TYPE_NAMES.keys()) - set([SYSEX, DUMMY])))
+            type = random.choice(list(set(constants._EVENT_TYPES.keys()) - set([SYSEX, DUMMY])))
         if type == NOTE:
             type = random.choice([NOTEON, NOTEOFF])
         if port == None:

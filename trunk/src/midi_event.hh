@@ -24,11 +24,12 @@
 namespace Mididings {
 
 
-enum MidiEventType
+enum MidiEventTypeEnum
 {
     MIDI_EVENT_NONE             = 0,
     MIDI_EVENT_NOTEON           = 1 << 0,
     MIDI_EVENT_NOTEOFF          = 1 << 1,
+    MIDI_EVENT_NOTE             = MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF,
     MIDI_EVENT_CTRL             = 1 << 2,
     MIDI_EVENT_PITCHBEND        = 1 << 3,
     MIDI_EVENT_AFTERTOUCH       = 1 << 4,
@@ -39,17 +40,23 @@ enum MidiEventType
     MIDI_EVENT_SYSCM_SONGPOS    = 1 << 9,
     MIDI_EVENT_SYSCM_SONGSEL    = 1 << 10,
     MIDI_EVENT_SYSCM_TUNEREQ    = 1 << 11,
+    MIDI_EVENT_SYSCM            = MIDI_EVENT_SYSCM_QFRAME | MIDI_EVENT_SYSCM_SONGPOS |
+                                  MIDI_EVENT_SYSCM_SONGSEL | MIDI_EVENT_SYSCM_TUNEREQ,
     MIDI_EVENT_SYSRT_CLOCK      = 1 << 12,
     MIDI_EVENT_SYSRT_START      = 1 << 13,
     MIDI_EVENT_SYSRT_CONTINUE   = 1 << 14,
     MIDI_EVENT_SYSRT_STOP       = 1 << 15,
     MIDI_EVENT_SYSRT_SENSING    = 1 << 16,
     MIDI_EVENT_SYSRT_RESET      = 1 << 17,
-    MIDI_EVENT_DUMMY            = 1 << 30,
-    MIDI_EVENT_ANY              = ~0,
+    MIDI_EVENT_SYSRT            = MIDI_EVENT_SYSRT_CLOCK | MIDI_EVENT_SYSRT_START |
+                                  MIDI_EVENT_SYSRT_CONTINUE | MIDI_EVENT_SYSRT_STOP |
+                                  MIDI_EVENT_SYSRT_SENSING | MIDI_EVENT_SYSRT_RESET,
+    MIDI_EVENT_DUMMY            = 1 << 29,
+    MIDI_EVENT_ANY              = (1 << 30) - 1,
 };
 
-typedef unsigned int MidiEventTypes;
+typedef unsigned int MidiEventType;
+
 
 
 struct MidiEvent

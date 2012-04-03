@@ -70,7 +70,7 @@ class Transpose
 
     virtual bool process(MidiEvent & ev) const
     {
-        if (ev.type & (MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF))
+        if (ev.type & MIDI_EVENT_NOTE)
             ev.note.note += _offset;
         return true;
     }

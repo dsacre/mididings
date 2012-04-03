@@ -66,7 +66,7 @@ class KeyFilter
 {
   public:
     KeyFilter(int lower, int upper, std::vector<int> const & notes)
-      : Filter(MIDI_EVENT_NOTEON | MIDI_EVENT_NOTEOFF, true)
+      : Filter(MIDI_EVENT_NOTE, true)
       , _lower(lower)
       , _upper(upper)
       , _notes(notes)

@@ -101,9 +101,15 @@ class NamedBitMask(NamedFlag):
     def __or__(self, other):
         if type(other) is not type(self):
             return NotImplemented
-        return type(self)(int(self) | int(other), '%s|%s' % (self.name, other.name))
+        return type(self)(
+            int(self) | int(other),
+            '%s|%s' % (self.name, other.name)
+        )
     def __invert__(self):
-        return type(self)(~int(self), ('~%s' if '|' not in self.name else '~(%s)') % self.name)
+        return type(self)(
+            ~int(self) & ((1 << 30) -1),
+            ('~%s' if '|' not in self.name else '~(%s)') % self.name
+        )
 
 
 def prune_globals(g):

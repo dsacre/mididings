@@ -24,8 +24,8 @@ class Generator
   : public Unit
 {
   public:
-    Generator(int type, int port, int channel, int data1, int data2)
-      : _type((MidiEventType)type)
+    Generator(MidiEventType type, int port, int channel, int data1, int data2)
+      : _type(type)
       , _port(port)
       , _channel(channel)
       , _data1(data1)

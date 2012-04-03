@@ -28,6 +28,7 @@
 #include <boost/python/module.hpp>
 #include <boost/python/def.hpp>
 #include <boost/python/class.hpp>
+#include <boost/python/enum.hpp>
 #include <boost/python/scope.hpp>
 #include <boost/python/operators.hpp>
 #include <boost/python/call_method.hpp>
@@ -98,6 +99,7 @@ BOOST_PYTHON_MODULE(_mididings)
     using bp::bases;
     using bp::init;
     using bp::def;
+    using bp::enum_;
     using boost::noncopyable;
     using namespace Units;
 
@@ -135,9 +137,37 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<Patch::Extended, bases<Patch::Module>, noncopyable>("Extended", init<boost::shared_ptr<UnitEx> >());
     }
 
+
+    enum_<MidiEventTypeEnum>("MidiEventType")
+        .value("NONE", MIDI_EVENT_NONE)
+        .value("NOTEON", MIDI_EVENT_NOTEON)
+        .value("NOTEOFF", MIDI_EVENT_NOTEOFF)
+        .value("NOTE", MIDI_EVENT_NOTE)
+        .value("CTRL", MIDI_EVENT_CTRL)
+        .value("PITCHBEND", MIDI_EVENT_PITCHBEND)
+        .value("AFTERTOUCH", MIDI_EVENT_AFTERTOUCH)
+        .value("POLY_AFTERTOUCH", MIDI_EVENT_POLY_AFTERTOUCH)
+        .value("PROGRAM", MIDI_EVENT_PROGRAM)
+        .value("SYSEX", MIDI_EVENT_SYSEX)
+        .value("SYSCM_QFRAME", MIDI_EVENT_SYSCM_QFRAME)
+        .value("SYSCM_SONGPOS", MIDI_EVENT_SYSCM_SONGPOS)
+        .value("SYSCM_SONGSEL", MIDI_EVENT_SYSCM_SONGSEL)
+        .value("SYSCM_TUNEREQ", MIDI_EVENT_SYSCM_TUNEREQ)
+        .value("SYSCM", MIDI_EVENT_SYSCM)
+        .value("SYSRT_CLOCK", MIDI_EVENT_SYSRT_CLOCK)
+        .value("SYSRT_START", MIDI_EVENT_SYSRT_START)
+        .value("SYSRT_CONTINUE", MIDI_EVENT_SYSRT_CONTINUE)
+        .value("SYSRT_STOP", MIDI_EVENT_SYSRT_STOP)
+        .value("SYSRT_SENSING", MIDI_EVENT_SYSRT_SENSING)
+        .value("SYSRT_RESET", MIDI_EVENT_SYSRT_RESET)
+        .value("SYSRT", MIDI_EVENT_SYSRT)
+        .value("DUMMY", MIDI_EVENT_DUMMY)
+        .value("ANY", MIDI_EVENT_ANY)
+    ;
+
     // midi event class, derived from in python
     class_<MidiEvent>("MidiEvent")
-        .def_readwrite("type", &MidiEvent::type)
+        .def_readwrite("type_", &MidiEvent::type)
         .def_readwrite("port_", &MidiEvent::port)
         .def_readwrite("channel_", &MidiEvent::channel)
         .def_readwrite("data1", &MidiEvent::data1)
@@ -157,7 +187,7 @@ BOOST_PYTHON_MODULE(_mididings)
 
     // base
     class_<Pass, bases<Unit>, noncopyable>("Pass", init<bool>());
-    class_<TypeFilter, bases<Filter>, noncopyable>("TypeFilter", init<int>());
+    class_<TypeFilter, bases<Filter>, noncopyable>("TypeFilter", init<MidiEventType>());
     class_<InvertedFilter, bases<Filter>, noncopyable>("InvertedFilter", init<boost::shared_ptr<Filter>, bool>());
 
     // filters
@@ -182,7 +212,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<PitchbendRange, bases<Unit>, noncopyable>("PitchbendRange", init<int, int, int, int>());
 
     // generators
-    class_<Generator, bases<Unit>, noncopyable>("Generator", init<int, int, int, int, int>());
+    class_<Generator, bases<Unit>, noncopyable>("Generator", init<MidiEventType, int, int, int, int>());
     class_<SysExGenerator, bases<Unit>, noncopyable>("SysExGenerator", init<int, MidiEvent::SysExData const &>());
 
     // engine
@@ -203,8 +233,6 @@ BOOST_PYTHON_MODULE(_mididings)
     das::register_vector_converters<Patch::ModulePtr>();
 
     das::register_map_converters<std::string, std::vector<std::string> >();
-
-    das::register_enum_converters<MidiEventType>();
 
 
 #ifdef ENABLE_DEBUG_STATS

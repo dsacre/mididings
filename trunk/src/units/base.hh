@@ -77,7 +77,7 @@ class Filter
       , _pass_other(false)
     { }
 
-    Filter(MidiEventTypes types, bool pass_other)
+    Filter(MidiEventType types, bool pass_other)
       : _types(types)
       , _pass_other(pass_other)
     { }
@@ -94,7 +94,7 @@ class Filter
 
     virtual bool process_filter(MidiEvent & ev) const = 0;
 
-    MidiEventTypes types() const
+    MidiEventType types() const
     {
         return _types;
     }
@@ -105,7 +105,7 @@ class Filter
     }
 
   private:
-    MidiEventTypes const _types;
+    MidiEventType const _types;
     bool const _pass_other;
 };
 
@@ -143,7 +143,7 @@ class TypeFilter
   : public Filter
 {
   public:
-    TypeFilter(MidiEventTypes types)
+    TypeFilter(MidiEventType types)
       : Filter()
       , _types(types)
     { }
@@ -153,7 +153,7 @@ class TypeFilter
         return (ev.type & _types);
     }
 
-    MidiEventTypes const _types;
+    MidiEventType const _types;
 };
 
 

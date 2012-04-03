@@ -153,7 +153,8 @@ def event_type(type):
     """
     Check and return event type.
     """
-    if not isinstance(type, _constants._EventType) or type not in (1 << x for x in range(_constants._NUM_EVENT_TYPES)):
+#    if not isinstance(type, _constants._EventType) or type not in (1 << x for x in range(_constants._NUM_EVENT_TYPES)):
+    if type not in _constants._EVENT_TYPES:
         raise ValueError("invalid event type %r" % type)
     return type
 
