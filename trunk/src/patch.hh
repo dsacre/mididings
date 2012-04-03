@@ -33,8 +33,8 @@ namespace Mididings {
 class Engine;
 
 namespace Units {
-class Unit;
-class UnitEx;
+    class Unit;
+    class UnitEx;
 }
 
 

@@ -109,6 +109,7 @@ BOOST_PYTHON_MODULE(_mididings)
     // list of supported backends
     def("available_backends", &Backend::available, bp::return_value_policy<bp::return_by_value>());
 
+
     // main engine class, derived from in python
     class_<Engine, EngineWrap, noncopyable>("Engine", init<std::string const &, std::string const &,
                                                        std::vector<std::string> const &, std::vector<std::string> const &, bool>())
@@ -126,18 +127,20 @@ BOOST_PYTHON_MODULE(_mididings)
 #endif // ENABLE_TEST
     ;
 
+
     // patch class, derived from in python
     {
-    bp::scope patch_scope = class_<Patch, noncopyable>("Patch", init<Patch::ModulePtr>());
+        bp::scope patch_scope = class_<Patch, noncopyable>("Patch", init<Patch::ModulePtr>());
 
-    class_<Patch::Module, noncopyable>("Module", bp::no_init);
-    class_<Patch::Chain, bases<Patch::Module>, noncopyable>("Chain", init<Patch::ModuleVector>());
-    class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector, bool>());
-    class_<Patch::Single, bases<Patch::Module>, noncopyable>("Single", init<boost::shared_ptr<Unit> >());
-    class_<Patch::Extended, bases<Patch::Module>, noncopyable>("Extended", init<boost::shared_ptr<UnitEx> >());
+        class_<Patch::Module, noncopyable>("Module", bp::no_init);
+        class_<Patch::Chain, bases<Patch::Module>, noncopyable>("Chain", init<Patch::ModuleVector>());
+        class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector, bool>());
+        class_<Patch::Single, bases<Patch::Module>, noncopyable>("Single", init<boost::shared_ptr<Unit> >());
+        class_<Patch::Extended, bases<Patch::Module>, noncopyable>("Extended", init<boost::shared_ptr<UnitEx> >());
     }
 
 
+    // midi event type enum
     enum_<MidiEventTypeEnum>("MidiEventType")
         .value("NONE", MIDI_EVENT_NONE)
         .value("NOTEON", MIDI_EVENT_NOTEON)
