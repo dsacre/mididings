@@ -183,7 +183,7 @@ def AftertouchEvent(port, channel, value):
     """
     Create a new aftertouch event object.
     """
-    return MidiEvent(_constants.AFTERTOUCH, port, channel, value)
+    return MidiEvent(_constants.AFTERTOUCH, port, channel, 0, value)
 
 @_arguments.accept(_util.port_number, _util.channel_number, _util.program_number)
 def ProgramEvent(port, channel, program):
