@@ -200,6 +200,13 @@ class EventTestCase(MididingsTestCase):
         self.assertFalse(a != c)
 
     @data_offsets
+    def test_rebuild_repr(self, off):
+        for n in range(1024):
+            ev = self.make_event()
+            rebuilt = eval(repr(ev), self.mididings_dict)
+            self.assertEqual(rebuilt, ev)
+
+    @data_offsets
     def test_copy(self, off):
         a = self.make_event()
         b = copy.copy(a)

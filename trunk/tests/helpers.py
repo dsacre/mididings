@@ -24,6 +24,7 @@ from mididings import setup, engine, misc, constants
 from mididings.event import *
 
 import mididings
+import mididings.event
 
 
 def data_offsets(f):
@@ -43,6 +44,9 @@ class MididingsTestCase(unittest.TestCase):
     def setUp(self):
         setup.reset()
         setup.config(data_offset = 0)
+
+        self.mididings_dict = mididings.__dict__.copy()
+        self.mididings_dict.update(mididings.event.__dict__)
 
     def check_patch(self, patch, d):
         """
@@ -99,6 +103,11 @@ class MididingsTestCase(unittest.TestCase):
         # run scenes
         r1 = self._run_scenes(scenes, events)
 
+        # check if events can be rebuilt from their repr()
+        for ev in r1:
+            rebuilt = eval(repr(ev), self.mididings_dict)
+            self.assertEqual(rebuilt, ev)
+
         rebuilt = self._rebuild_repr(scenes)
         if rebuilt is not None:
             # run scenes rebuilt from their repr(), result should be identical
@@ -114,7 +123,7 @@ class MididingsTestCase(unittest.TestCase):
             if 'Process' in rep:
                 # patches with Process() units are too tricky for now
                 return None
-            w = eval(rep, mididings.__dict__)
+            w = eval(rep, self.mididings_dict)
             # the repr() of the rebuilt patch should be identical to the repr()
             # string it was built from
             self.assertEqual(repr(w), rep)
@@ -151,7 +160,7 @@ class MididingsTestCase(unittest.TestCase):
             elif k == 'program': data2 = v - setup.get_config('data_offset')
 
         if type == None:
-            type = random.choice(list(set(constants._EVENT_TYPES.keys()) - set([SYSEX, DUMMY])))
+            type = random.choice(list(set(constants._EVENT_TYPES.values()) - set([SYSEX, DUMMY])))
         if type == NOTE:
             type = random.choice([NOTEON, NOTEOFF])
         if port == None:
