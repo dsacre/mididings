@@ -16,7 +16,7 @@ from mididings import *
 from mididings.event import *
 
 import copy
-import cPickle
+import pickle
 
 
 class EventTestCase(MididingsTestCase):
@@ -209,7 +209,7 @@ class EventTestCase(MididingsTestCase):
     @data_offsets
     def test_pickle(self, off):
         a = self.make_event()
-        p = cPickle.dumps(a)
-        b = cPickle.loads(p)
+        p = pickle.dumps(a)
+        b = pickle.loads(p)
 
         self.assertEqual(b, a)
