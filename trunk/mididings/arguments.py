@@ -103,6 +103,8 @@ def _apply_constraint(constraint, value):
 
 
 def _get_constraint(c):
+    if c is None:
+        return _any()
     if inspect.isclass(c) or isinstance(c, tuple):
         # type or tuple: type or value constraint
         return _type_value_constraint(c)
@@ -125,6 +127,11 @@ def _get_constraint(c):
 
 class _constraint(object):
     pass
+
+
+class _any(_constraint):
+    def __call__(self, arg):
+        return arg
 
 
 class _type_value_constraint(_constraint):

@@ -70,7 +70,7 @@ _CONTROLLER_NAMES = {
 }
 
 
-def note_number(note, check=True, allow_end=False):
+def note_number(note, allow_end=False):
     """
     Convert note name/number to MIDI note number.
     """
@@ -92,7 +92,7 @@ def note_number(note, check=True, allow_end=False):
         raise TypeError("note must be an integer or string")
 
     end = 128 if not allow_end else 129
-    if check and not (0 <= r < end):
+    if not (0 <= r < end):
         raise ValueError("note number %d is out of range" % r)
     return r
 
@@ -196,10 +196,10 @@ def channel_number(channel):
     return channel
 
 
-def program_number(program, check=True):
+def program_number(program):
     if not isinstance(program, int):
         raise TypeError("program must be an integer")
-    if check and not (0 <= actual(program) < 127):
+    if not (0 <= actual(program) < 127):
         raise ValueError("program number %d is out of range" % program)
     return program
 
@@ -212,11 +212,11 @@ def ctrl_number(ctrl):
     return ctrl
 
 
-def ctrl_value(value, check=True, allow_end=False):
+def ctrl_value(value, allow_end=False):
     if not isinstance(value, int):
         raise TypeError("controller value must be an integer")
     end = 128 if not allow_end else 129
-    if check and not (0 <= value < end):
+    if not (0 <= value < end):
         raise ValueError("controller value %d is out of range" % value)
     return value
 
@@ -224,11 +224,11 @@ def ctrl_limit(value):
     return ctrl_value(value, allow_end=True)
 
 
-def velocity_value(velocity, check=True, allow_end=False):
+def velocity_value(velocity, allow_end=False):
     if not isinstance(velocity, int):
         raise TypeError("velocity must be an integer")
     end = 128 if not allow_end else 129
-    if check and not (0 <= velocity < end):
+    if not (0 <= velocity < end):
         raise ValueError("velocity %d is out of range" % velocity)
     return velocity
 

@@ -13,6 +13,7 @@
 import _mididings
 
 import mididings.constants as _constants
+import mididings.arguments as _arguments
 import mididings.util as _util
 import mididings.misc as _misc
 
@@ -43,11 +44,12 @@ class MidiEvent(_mididings.MidiEvent):
     The main MIDI event class.
     All event data is part of the C++ base class.
     """
+    @_arguments.accept(None, _constants._EventType, _util.port_number, _util.channel_number, int, int)
     def __init__(self, type=_constants.NONE, port=_util.NoDataOffset(0), channel=_util.NoDataOffset(0), data1=0, data2=0):
         _mididings.MidiEvent.__init__(self)
         self.type = type
-        self.port = _util.port_number(port)
-        self.channel = _util.channel_number(channel)
+        self.port = port
+        self.channel = channel
         self.data1 = data1
         self.data2 = data2
 
@@ -65,68 +67,47 @@ class MidiEvent(_mididings.MidiEvent):
         except KeyError:
             return 'NONE'
 
+    def _sysex_to_hex_string(self):
+        data = self.sysex
+        if max_length:
+            m = (max_length - len(h) - 25) / 3
+            if len(data) > m:
+                return '%s ...' % _misc.string_to_hex(data[:m])
+        return _misc.string_to_hex(data)
+
+    _to_string_mapping = {
+        _constants.NOTEON:          lambda self: 'Note On:  %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note)),
+        _constants.NOTEOFF:         lambda self: 'Note Off: %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note)),
+        _constants.CTRL:            lambda self: 'Ctrl:     %3d %3d' % (self.ctrl, self.value) +
+                                                        ('  (%s)' % _util.controller_name(self.ctrl) if _util.controller_name(self.ctrl) else ''),
+        _constants.PITCHBEND:       lambda self: 'Pitchbend:  %5d' % self.value,
+        _constants.AFTERTOUCH:      lambda self: 'Aftertouch:   %3d' % self.value,
+        _constants.POLY_AFTERTOUCH: lambda self: 'Poly Aftertouch: %3d %3d  (%s)' % (self.note, self.value, _util.note_name(self.note)),
+        _constants.PROGRAM:         lambda self: 'Program:      %3d' % self.program,
+        _constants.SYSEX:           lambda self: 'SysEx:   %8d  [%s]' % (len(data), _sysex_to_hex_string()),
+        _constants.SYSCM_QFRAME:    lambda self: 'SysCm QFrame: %3d' % self.data1,
+        _constants.SYSCM_SONGPOS:   lambda self: 'SysCm SongPos:%3d %3d' % (self.data1, self.data2),
+        _constants.SYSCM_SONGSEL:   lambda self: 'SysCm SongSel:%3d' % self.data1,
+        _constants.SYSCM_TUNEREQ:   lambda self: 'SysCm TuneReq',
+        _constants.SYSRT_CLOCK:     lambda self: 'SysRt Clock',
+        _constants.SYSRT_START:     lambda self: 'SysRt Start',
+        _constants.SYSRT_CONTINUE:  lambda self: 'SysRt Continue',
+        _constants.SYSRT_STOP:      lambda self: 'SysRt Stop',
+        _constants.SYSRT_SENSING:   lambda self: 'SysRt Sensing',
+        _constants.SYSRT_RESET:     lambda self: 'SysRt Reset',
+        _constants.DUMMY:           lambda self: 'Dummy',
+    }
+
     def to_string(self, portnames=[], portname_length=0, max_length=0):
         if len(portnames) > self.port_:
             port = portnames[self.port_]
         else:
             port = str(self.port)
 
-        h = '[%*s, %2d]' % (max(portname_length, 2), port, self.channel)
+        header = '[%*s, %2d]' % (max(portname_length, 2), port, self.channel)
+        desc = MidiEvent._to_string_mapping.get(self.type_, lambda self: 'None')(self)
 
-        if self.type == _constants.NOTEON:
-            s = 'Note On:  %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
-        elif self.type == _constants.NOTEOFF:
-            s = 'Note Off: %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note))
-        elif self.type == _constants.CTRL:
-            s = 'Ctrl:     %3d %3d' % (self.ctrl, self.value)
-            n = _util.controller_name(self.ctrl)
-            if n:
-                s += '  (%s)' % n
-        elif self.type == _constants.PITCHBEND:
-            s = 'Pitchbend:  %5d' % self.value
-        elif self.type == _constants.AFTERTOUCH:
-            s = 'Aftertouch:   %3d' % self.value
-        elif self.type == _constants.POLY_AFTERTOUCH:
-            s = 'Poly Aftertouch: %3d %3d  (%s)' % (self.note, self.value, _util.note_name(self.note))
-        elif self.type == _constants.PROGRAM:
-            s = 'Program:      %3d' % self.program
-        elif self.type == _constants.SYSEX:
-            data = self.sysex
-            if max_length:
-                m = (max_length - len(h) - 25) / 3
-                if len(data) > m:
-                    hexstring = '%s ...' % _misc.string_to_hex(data[:m])
-                else:
-                    hexstring = _misc.string_to_hex(data)
-            else:
-                hexstring = _misc.string_to_hex(data)
-            s = 'SysEx:   %8d  [%s]' % (len(data), hexstring)
-        elif self.type == _constants.SYSCM_QFRAME:
-            s = 'SysCm QFrame: %3d' % self.data1
-        elif self.type == _constants.SYSCM_SONGPOS:
-            s = 'SysCm SongPos:%3d %3d' % (self.data1, self.data2)
-        elif self.type == _constants.SYSCM_SONGSEL:
-            s = 'SysCm SongSel:%3d' % self.data1
-        elif self.type == _constants.SYSCM_TUNEREQ:
-            s = 'SysCm TuneReq'
-        elif self.type == _constants.SYSRT_CLOCK:
-            s = 'SysRt Clock'
-        elif self.type == _constants.SYSRT_START:
-            s = 'SysRt Start'
-        elif self.type == _constants.SYSRT_CONTINUE:
-            s = 'SysRt Continue'
-        elif self.type == _constants.SYSRT_STOP:
-            s = 'SysRt Stop'
-        elif self.type == _constants.SYSRT_SENSING:
-            s = 'SysRt Sensing'
-        elif self.type == _constants.SYSRT_RESET:
-            s = 'SysRt Reset'
-        elif self.type == _constants.DUMMY:
-            s = 'Dummy'
-        else:
-            s = 'None'
-
-        return '%s %s' % (h, s)
+        return '%s %s' % (header, desc)
 
     def __repr__(self):
         return 'MidiEvent(%s, %d, %d, %d, %d)' % (self._type_to_string(), self.port, self.channel, self.data1, self.data2)
@@ -169,77 +150,49 @@ class MidiEvent(_mididings.MidiEvent):
 
 
 
+@_arguments.accept(_util.port_number, _util.channel_number, _util.note_number, _util.velocity_value)
 def NoteOnEvent(port, channel, note, velocity):
     """
     Create a new note-on event object.
     """
-    return MidiEvent(
-        _constants.NOTEON,
-        port,
-        channel,
-        _util.note_number(note, False),
-        _util.velocity_value(velocity, False)
-    )
+    return MidiEvent(_constants.NOTEON, port, channel, note, velocity)
 
+@_arguments.accept(_util.port_number, _util.channel_number, _util.note_number, _util.velocity_value)
 def NoteOffEvent(port, channel, note, velocity=0):
     """
     Create a new note-off event object.
     """
-    return MidiEvent(
-        _constants.NOTEOFF,
-        port,
-        channel,
-        _util.note_number(note, False),
-        _util.velocity_value(velocity, False)
-    )
+    return MidiEvent(_constants.NOTEOFF, port, channel, note, velocity)
 
+@_arguments.accept(_util.port_number, _util.channel_number, _util.ctrl_number, _util.ctrl_value)
 def CtrlEvent(port, channel, ctrl, value):
     """
     Create a new control change event object.
     """
-    return MidiEvent(
-        _constants.CTRL,
-        port,
-        channel,
-        _util.ctrl_number(ctrl),
-        _util.ctrl_value(value, False)
-    )
+    return MidiEvent(_constants.CTRL, port, channel, ctrl, value)
 
+@_arguments.accept(_util.port_number, _util.channel_number, int)
 def PitchbendEvent(port, channel, value):
     """
     Create a new pitch bend event object.
     """
-    return MidiEvent(
-        _constants.PITCHBEND,
-        port,
-        channel,
-        0,
-        value
-    )
+    return MidiEvent(_constants.PITCHBEND, port, channel, 0, value)
 
+@_arguments.accept(_util.port_number, _util.channel_number, int)
 def AftertouchEvent(port, channel, value):
     """
     Create a new aftertouch event object.
     """
-    return MidiEvent(
-        _constants.AFTERTOUCH,
-        port,
-        channel,
-        value
-    )
+    return MidiEvent(_constants.AFTERTOUCH, port, channel, value)
 
+@_arguments.accept(_util.port_number, _util.channel_number, _util.program_number)
 def ProgramEvent(port, channel, program):
     """
     Create a new program change event object.
     """
-    return MidiEvent(
-        _constants.PROGRAM,
-        port,
-        channel,
-        0,
-        _util.actual(_util.program_number(program, False))
-    )
+    return MidiEvent(_constants.PROGRAM, port, channel, 0, _util.actual(program))
 
+@_arguments.accept(_util.port_number, _util.sysex_data)
 def SysExEvent(port, sysex):
     """
     Create a new sysex event object.
