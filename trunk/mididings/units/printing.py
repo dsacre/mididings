@@ -26,28 +26,34 @@ class _Print(_CallBase):
     portnames_used = False
 
     def __init__(self, name, portnames):
-        self.name = name
-        self.portnames = portnames
-
-        # to be calculated later
-        self.ports = None
-
-        if portnames != None:
+        if portnames is not None:
             _Print.portnames_used = True
 
         # find maximum name length
         if name:
             _Print.max_name_length = max(_Print.max_name_length, len(name))
 
-        _CallBase.__init__(self, self.do_print, True, True)
+        # using a separare object to do the actual printing avoids keeping
+        # references back to this unit, thus preventing a cycle
+        printer = _Printer(name, portnames)
 
-    def do_print(self, ev):
+        _CallBase.__init__(self, printer, True, True)
+
+
+class _Printer(object):
+    def __init__(self, name, portnames):
+        self.name = name
+        self.portnames = portnames
+        # to be calculated later
+        self.ports = None
+
+    def __call__(self, ev):
         # lazy import to avoid problems with circular imports
         from mididings import engine
 
         # get list of port names to be used
         # (delayed 'til first use, because the engine doesn't yet exist during __init__)
-        if self.ports == None:
+        if self.ports is None:
             if self.portnames == 'in':
                 self.ports = engine.in_ports()
             elif self.portnames == 'out':
