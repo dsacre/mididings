@@ -115,51 +115,6 @@ struct map_from_dict_converter
 };
 
 
-
-template <typename T>
-struct enum_from_int_converter
-  : from_python_converter<T, enum_from_int_converter<T> >
-{
-    static bool convertible(PyObject *obj_ptr) {
-#if PY_MAJOR_VERSION < 3
-        return PyInt_Check(obj_ptr);
-#else
-        return PyLong_Check(obj_ptr);
-#endif
-    }
-
-    static void construct(T & enumval, PyObject *obj_ptr) {
-#if PY_MAJOR_VERSION < 3
-        enumval = static_cast<T>(PyInt_AsLong(obj_ptr));
-#else
-        enumval = static_cast<T>(PyLong_AsUnsignedLong(obj_ptr));
-#endif
-    }
-};
-
-
-template <typename T>
-struct enum_to_int_converter
-  : boost::python::to_python_converter<T, enum_to_int_converter<T>
-#ifdef BOOST_PYTHON_SUPPORTS_PY_SIGNATURES
-        , true
-#endif
-    >
-{
-    static PyObject *convert(T const & enumval) {
-#if PY_MAJOR_VERSION < 3
-        return PyInt_FromLong(static_cast<unsigned long>(enumval));
-#else
-        return PyLong_FromUnsignedLong(static_cast<unsigned long>(enumval));
-#endif
-    }
-
-    static PyTypeObject const *get_pytype() {
-        return &PyLong_Type;
-    }
-};
-
-
 } // python_converters
 
 
@@ -176,14 +131,6 @@ template <typename K, typename V>
 void register_map_converters()
 {
     python_converters::map_from_dict_converter<K, V>();
-}
-
-
-template <typename T>
-void register_enum_converters()
-{
-    python_converters::enum_from_int_converter<T>();
-    python_converters::enum_to_int_converter<T>();
 }
 
 
