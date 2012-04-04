@@ -51,7 +51,7 @@ def NoteOn(port, channel, note, velocity):
 
 @_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
 @_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.note_number_ref, _util.velocity_value_ref)
-def NoteOff(port, channel, note, velocity):
+def NoteOff(port, channel, note, velocity=0):
     """
     Generate note-off event.
     """
