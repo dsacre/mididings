@@ -46,6 +46,9 @@ class Dings(object):
         else:
             execfile(filename, self.dings_dict)
 
+        # avoid memory leaks
+        self.dings_dict.clear()
+
     def run_patch(self, in_ports, out_ports, patch):
         if in_ports:
             mididings.config(in_ports=in_ports)
