@@ -128,7 +128,7 @@ def _get_constraint(c):
 def nullable(c):
     if inspect.isclass(c):
         c = (c,)
-    return c + (types.NoneType,)
+    return c + (type(None),)
 
 
 class _constraint(object):
