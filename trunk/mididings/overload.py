@@ -21,8 +21,9 @@ def call(args, kwargs, funcs, name=None):
     """
     for f in funcs:
         n = len(args)
+
         # get argument names and the number of default arguments of f
-        argspec = inspect.getargspec(f)
+        argspec = _getargspec(f)
         names = argspec[0]
         varargs = argspec[1]
         ndef = len(argspec[3]) if argspec[3] else 0
@@ -44,7 +45,7 @@ def call(args, kwargs, funcs, name=None):
         name = inspect.stack()[1][3]
 
     # format arg spec for each candidate
-    formatargspec = lambda f: inspect.formatargspec(*inspect.getargspec(f))
+    formatargspec = lambda f: inspect.formatargspec(*_getargspec(f))
     candidates = ('    %s%s' % (name, formatargspec(f)) for f in funcs)
 
     # format the actual arguments used, replacing values with their types.
@@ -59,8 +60,18 @@ def call(args, kwargs, funcs, name=None):
     raise TypeError(message)
 
 
-# mapping of all overloaded function names to the corresponding _Overload object
-_registry = {}
+def _getargspec(f):
+    """
+    Wrapper around inspect.getargspec() that returns sensible results for
+    functools.partial objects.
+    """
+    if isinstance(f, functools.partial):
+        argspec = list(inspect.getargspec(f.func))
+        argspec[0] = argspec[0][len(f.args):]
+        return tuple(argspec)
+    else:
+        return inspect.getargspec(f)
+
 
 
 class _Overload(object):
@@ -79,6 +90,19 @@ class _Overload(object):
         return call(args, kwargs, self.funcs, self.name)
 
 
+# mapping of all overloaded function names to the corresponding _Overload object
+_registry = {}
+
+
+def _register_overload(f, docstring):
+    k = (f.__module__, f.__name__)
+    # create a new _Overload object if necessary, add function f to it
+    if k not in _registry:
+        _registry[k] = _Overload(f.__name__, docstring)
+    _registry[k].add(f)
+    return k
+
+
 def mark(f, docstring=None):
     """
     Decorator that marks a function as being overloaded.
@@ -88,11 +112,7 @@ def mark(f, docstring=None):
         # the actual decorator
         return functools.partial(mark, docstring=f)
 
-    k = (f.__module__, f.__name__)
-    # create a new _Overload object if necessary, add function f to it
-    if k not in _registry:
-        _registry[k] = _Overload(f.__name__, docstring)
-    _registry[k].add(f)
+    k = _register_overload(f, docstring)
 
     @functools.wraps(f)
     def call_overload(*args, **kwargs):
@@ -104,3 +124,25 @@ def mark(f, docstring=None):
 
     # return a function that, instead of calling f, calls the _Overload object
     return call_overload
+
+
+class partial(object):
+    """
+    Decorator that adds functools.partial objects as overloads for the given
+    function.
+    """
+    def __init__(self, *partial_args):
+        self.partial_args = partial_args
+
+    def __call__(self, f):
+        k = _register_overload(f, None)
+
+        # register partial objects as overloads
+        for part in self.partial_args:
+            _registry[k].add(functools.partial(f, *part))
+
+        @functools.wraps(f)
+        def call_overload(*args, **kwargs):
+            return _registry[k](*args, **kwargs)
+
+        return call_overload

@@ -34,13 +34,12 @@ def Generator(type, port=_constants.EVENT_PORT, channel=_constants.EVENT_CHANNEL
     ))
 
 
-@_overload.mark(
+@_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.note_number_ref, _util.velocity_value_ref)
+def NoteOn(port, channel, note, velocity):
     """
     Generate note-on event.
     """
-)
-@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.note_number_ref, _util.velocity_value_ref)
-def NoteOn(port, channel, note, velocity):
     return _Unit(_mididings.Generator(
         _constants.NOTEON,
         _util.actual_ref(port),
@@ -49,18 +48,13 @@ def NoteOn(port, channel, note, velocity):
         velocity
     ))
 
-@_overload.mark
-def NoteOn(note, velocity):
-    return NoteOn(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity)
 
-
-@_overload.mark(
+@_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.note_number_ref, _util.velocity_value_ref)
+def NoteOff(port, channel, note, velocity):
     """
     Generate note-off event.
     """
-)
-@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.note_number_ref, _util.velocity_value_ref)
-def NoteOff(port, channel, note, velocity):
     return _Unit(_mididings.Generator(
         _constants.NOTEOFF,
         _util.actual_ref(port),
@@ -69,18 +63,13 @@ def NoteOff(port, channel, note, velocity):
         velocity
     ))
 
-@_overload.mark
-def NoteOff(note, velocity):
-    return NoteOff(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, note, velocity)
 
-
-@_overload.mark(
+@_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.ctrl_number_ref, _util.ctrl_value_ref)
+def Ctrl(port, channel, ctrl, value):
     """
     Generate control change event.
     """
-)
-@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.ctrl_number_ref, _util.ctrl_value_ref)
-def Ctrl(port, channel, ctrl, value):
     return _Unit(_mididings.Generator(
         _constants.CTRL,
         _util.actual_ref(port),
@@ -89,18 +78,13 @@ def Ctrl(port, channel, ctrl, value):
         value
     ))
 
-@_overload.mark
-def Ctrl(ctrl, value):
-    return Ctrl(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, ctrl, value)
 
-
-@_overload.mark(
+@_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, int)
+def Pitchbend(port, channel, value):
     """
     Generate pitch-bend event.
     """
-)
-@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, int)
-def Pitchbend(port, channel, value):
     return _Unit(_mididings.Generator(
         _constants.PITCHBEND,
         _util.actual_ref(port),
@@ -109,18 +93,13 @@ def Pitchbend(port, channel, value):
         value
     ))
 
-@_overload.mark
-def Pitchbend(value):
-    return Pitchbend(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, value)
 
-
-@_overload.mark(
+@_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, int)
+def Aftertouch(port, channel, value):
     """
     Generate aftertouch event.
     """
-)
-@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, int)
-def Aftertouch(port, channel, value):
     return _Unit(_mididings.Generator(
         _constants.AFTERTOUCH,
         _util.actual_ref(port),
@@ -129,18 +108,13 @@ def Aftertouch(port, channel, value):
         value
     ))
 
-@_overload.mark
-def Aftertouch(value):
-    return Aftertouch(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, value)
 
-
-@_overload.mark(
+@_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.program_number_ref)
+def Program(port, channel, program):
     """
     Generate program change event.
     """
-)
-@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.program_number_ref)
-def Program(port, channel, program):
     return _Unit(_mididings.Generator(
         _constants.PROGRAM,
         _util.actual_ref(port),
@@ -149,24 +123,14 @@ def Program(port, channel, program):
         _util.actual_ref(program)
     ))
 
-@_overload.mark
-def Program(program):
-    return Program(_constants.EVENT_PORT, _constants.EVENT_CHANNEL, program)
 
-
-
-@_overload.mark(
+@_overload.partial((_constants.EVENT_PORT,))
+@_unitrepr.accept(_util.port_number_ref, _util.sysex_data)
+def SysEx(port, sysex):
     """
     Generate sysex event.
     """
-)
-@_unitrepr.accept(_util.port_number_ref, _util.sysex_data)
-def SysEx(port, sysex):
     return _Unit(_mididings.SysExGenerator(
         _util.actual_ref(port),
         sysex,
     ))
-
-@_overload.mark
-def SysEx(sysex):
-    return SysEx(_constants.EVENT_PORT, sysex)
