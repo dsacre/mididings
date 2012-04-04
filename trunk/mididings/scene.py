@@ -10,7 +10,13 @@
 # (at your option) any later version.
 #
 
+from mididings.units.base import _UNIT_TYPES
+
+import mididings.arguments as _arguments
+
+
 class Scene(object):
+    @_arguments.accept(None, str, _UNIT_TYPES + (type(None),))
     def __init__(self, name, patch, init_patch=None):
         self.name = name
         self.patch = patch
@@ -18,6 +24,7 @@ class Scene(object):
 
 
 class SceneGroup(object):
+    @_arguments.accept(None, str, [(Scene, _UNIT_TYPES)])
     def __init__(self, name, scenes):
         self.name = name
-        self.scenes = scenes
+        self.subscenes = subscenes

@@ -67,7 +67,7 @@ class Engine(_mididings.Engine):
             if isinstance(s, _scene.SceneGroup):
                 self._scenes[i] = (s.name, [])
 
-                for v in s.scenes:
+                for v in s.subscenes:
                     name, proc, init = self._parse_scene(v)
                     self.add_scene(_util.actual(i), _patch.Patch(proc), _patch.Patch(init))
                     self._scenes[i][1].append(name)
