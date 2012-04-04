@@ -24,7 +24,7 @@ class Scene(object):
 
 
 class SceneGroup(object):
-    @_arguments.accept(None, str, [(Scene, _UNIT_TYPES)])
-    def __init__(self, name, scenes):
+    @_arguments.accept(None, str, [(Scene,) + _UNIT_TYPES])
+    def __init__(self, name, subscenes):
         self.name = name
         self.subscenes = subscenes
