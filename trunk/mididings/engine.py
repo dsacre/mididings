@@ -242,7 +242,7 @@ def run(patch):
     e.run()
 
 @_overload.mark
-@_arguments.accept(_UNIT_TYPES, _UNIT_TYPES, _UNIT_TYPES, _UNIT_TYPES)
+@_arguments.accept(_UNIT_TYPES, _arguments.nullable(_UNIT_TYPES), _arguments.nullable(_UNIT_TYPES), _arguments.nullable(_UNIT_TYPES))
 def run(scenes, control=None, pre=None, post=None):
     """
     Create the engine and start event processing. This function does not

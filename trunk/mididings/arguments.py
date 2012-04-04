@@ -125,6 +125,12 @@ def _get_constraint(c):
         assert False
 
 
+def nullable(c):
+    if inspect.isclass(c):
+        c = (c,)
+    return c + (types.NoneType,)
+
+
 class _constraint(object):
     pass
 
@@ -148,8 +154,8 @@ class _type_value_constraint(_constraint):
         elif all(inspect.isclass(c) for c in self.constraint):
             # multiple types, check if instance
             if not isinstance(arg, self.constraint):
-                types = ", ".join(c.__name__ for c in self.constraint)
-                message = "expected one of (%s), got %s" % (types, type(arg).__name__)
+                argtypes = ", ".join(c.__name__ for c in self.constraint)
+                message = "expected one of (%s), got %s" % (argtypes, type(arg).__name__)
                 raise TypeError(message)
             return arg
         else:

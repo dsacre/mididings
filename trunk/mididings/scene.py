@@ -16,7 +16,7 @@ import mididings.arguments as _arguments
 
 
 class Scene(object):
-    @_arguments.accept(None, str, _UNIT_TYPES, _UNIT_TYPES + (type(None),))
+    @_arguments.accept(None, str, _UNIT_TYPES, _arguments.nullable(_UNIT_TYPES))
     def __init__(self, name, patch, init_patch=None):
         self.name = name
         self.patch = patch
