@@ -32,7 +32,7 @@ for _name, _value in _mididings.MidiEventType.names.items():
     globals()[_name] = _type_object
     # only masks matching a single event type (exactly one bit set) are added
     # to the event types dict
-    if len([x for x in range(32) if _value & (1 << x)]) == 1:
+    if len([_x for _x in range(32) if _value & (1 << _x)]) == 1:
         _EVENT_TYPES[int(_value)] = _type_object
 
 
