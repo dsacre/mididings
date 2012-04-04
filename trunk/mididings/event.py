@@ -44,17 +44,20 @@ class MidiEvent(_mididings.MidiEvent):
     The main MIDI event class.
     All event data is part of the C++ base class.
     """
-    @_arguments.accept(None, _constants._EventType, _util.port_number, _util.channel_number, int, int)
-    def __init__(self, type=_constants.NONE, port=_util.NoDataOffset(0), channel=_util.NoDataOffset(0), data1=0, data2=0):
+    @_arguments.accept(None, _constants._EventType, _util.port_number, _util.channel_number, int, int, None)
+    def __init__(self, type, port=_util.NoDataOffset(0), channel=_util.NoDataOffset(0), data1=0, data2=0, sysex=None):
         _mididings.MidiEvent.__init__(self)
         self.type = type
         self.port = port
         self.channel = channel
         self.data1 = data1
         self.data2 = data2
+        if sysex is not None:
+            self.sysex = sysex
 
     def __getinitargs__(self):
-        return (self.type, self.port, self.channel, self.data1, self.data2)
+        return (self.type, self.port, self.channel, self.data1, self.data2,
+                self.sysex if self.type == _constants.SYSEX else None)
 
     def _check_type_attribute(self, type, name):
         if not self.type & type:
@@ -79,7 +82,7 @@ class MidiEvent(_mididings.MidiEvent):
         _constants.NOTEON:          lambda self: 'Note On:  %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note)),
         _constants.NOTEOFF:         lambda self: 'Note Off: %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note)),
         _constants.CTRL:            lambda self: 'Ctrl:     %3d %3d' % (self.ctrl, self.value) +
-                                                        ('  (%s)' % _util.controller_name(self.ctrl) if _util.controller_name(self.ctrl) else ''),
+                                                    ('  (%s)' % _util.controller_name(self.ctrl) if _util.controller_name(self.ctrl) else ''),
         _constants.PITCHBEND:       lambda self: 'Pitchbend:  %5d' % self.value,
         _constants.AFTERTOUCH:      lambda self: 'Aftertouch:   %3d' % self.value,
         _constants.POLY_AFTERTOUCH: lambda self: 'Poly Aftertouch: %3d %3d  (%s)' % (self.note, self.value, _util.note_name(self.note)),
@@ -209,6 +212,4 @@ def SysExEvent(port, sysex):
     """
     Create a new sysex event object.
     """
-    ev = MidiEvent(_constants.SYSEX, port)
-    ev.sysex = sysex
-    return ev
+    return MidiEvent(_constants.SYSEX, port, sysex=sysex)

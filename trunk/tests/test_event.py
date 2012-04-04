@@ -199,12 +199,23 @@ class EventTestCase(MididingsTestCase):
         self.assertTrue(a == c)
         self.assertFalse(a != c)
 
+        d = SysExEvent(off(0), '\xf0\x04\x08\x15\x16\x23\x42\xf7')
+        e = SysExEvent(off(1), '\xf0\x09\x11\x02\x74\x5b\x41\x56\x63\x56\xf7')
+        f = SysExEvent(port=d.port, sysex=d.sysex)
+
+        self.assertFalse(d == e)
+        self.assertTrue(d != e)
+
+        self.assertTrue(d == f)
+        self.assertFalse(d != f)
+
     @data_offsets
     def test_rebuild_repr(self, off):
-        for n in range(1024):
+        for n in range(256):
             ev = self.make_event()
             rebuilt = eval(repr(ev), self.mididings_dict)
             self.assertEqual(rebuilt, ev)
+            self.assertEqual(repr(ev), repr(rebuilt))
 
     @data_offsets
     def test_copy(self, off):
@@ -213,10 +224,19 @@ class EventTestCase(MididingsTestCase):
 
         self.assertEqual(b, a)
 
+        c = SysExEvent(off(23), '\xf0\x04\x08\x15\x16\x23\x42\xf7')
+        d = copy.copy(c)
+
+        self.assertEqual(d, c)
+
     @data_offsets
     def test_pickle(self, off):
         a = self.make_event()
-        p = pickle.dumps(a)
-        b = pickle.loads(p)
+        b = pickle.loads(pickle.dumps(a))
 
         self.assertEqual(b, a)
+
+        c = SysExEvent(off(23), '\xf0\x04\x08\x15\x16\x23\x42\xf7')
+        d = pickle.loads(pickle.dumps(c))
+
+        self.assertEqual(d, c)
