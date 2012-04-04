@@ -159,17 +159,23 @@ class MididingsTestCase(unittest.TestCase):
             elif k in ('data2', 'velocity', 'value'): data2 = v
             elif k == 'program': data2 = v - setup.get_config('data_offset')
 
-        if type == None:
-            type = random.choice(list(set(constants._EVENT_TYPES.values()) - set([SYSEX, DUMMY])))
-        if type == NOTE:
+        if type is None:
+            if channel is None:
+                type = random.choice(list(set(constants._EVENT_TYPES.values()) - set([SYSEX, DUMMY])))
+            else:
+                type = random.choice([NOTEON, NOTEOFF, CTRL, PITCHBEND, AFTERTOUCH, POLY_AFTERTOUCH, PROGRAM])
+        elif type == NOTE:
             type = random.choice([NOTEON, NOTEOFF])
-        if port == None:
+        elif misc.issequence(type):
+            type = random.choice(type)
+
+        if port is None:
             port = random.randrange(0, 42) + setup.get_config('data_offset')
-        if channel == None:
+        if channel is None:
             channel = random.randrange(0, 16) + setup.get_config('data_offset')
-        if data1 == None:
+        if data1 is None:
             data1 = random.randrange(0, 128)
-        if data2 == None:
+        if data2 is None:
             data2 = (random.randrange(1, 128) if type == NOTEON
                      else 0 if type == NOTEOFF
                      else random.randrange(0, 128))

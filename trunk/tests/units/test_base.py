@@ -34,8 +34,8 @@ class BaseTestCase(MididingsTestCase):
         p = Pass() // Pass()
         self.check_patch(p, {ev: True})
 
-        p = +Channel(3)
-        self.check_patch(p, {ev: [ev, self.modify_event(ev, channel=3)]})
+        p = +Port(3)
+        self.check_patch(p, {ev: [ev, self.modify_event(ev, port=3)]})
 
         p = Fork([Pass(), Discard(), Pass()])
         self.check_patch(p, {ev: [ev]})

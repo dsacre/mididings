@@ -47,7 +47,7 @@ class ChannelFilter
 {
   public:
     ChannelFilter(std::vector<int> const & channels)
-      : Filter()
+      : Filter(~(MIDI_EVENT_SYSTEM | MIDI_EVENT_DUMMY), false)
       , _channels(channels)
     { }
 

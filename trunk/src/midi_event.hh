@@ -51,6 +51,7 @@ enum MidiEventTypeEnum
     MIDI_EVENT_SYSRT            = MIDI_EVENT_SYSRT_CLOCK | MIDI_EVENT_SYSRT_START |
                                   MIDI_EVENT_SYSRT_CONTINUE | MIDI_EVENT_SYSRT_STOP |
                                   MIDI_EVENT_SYSRT_SENSING | MIDI_EVENT_SYSRT_RESET,
+    MIDI_EVENT_SYSTEM           = MIDI_EVENT_SYSEX | MIDI_EVENT_SYSCM | MIDI_EVENT_SYSRT,
     MIDI_EVENT_DUMMY            = 1 << 29,
     MIDI_EVENT_ANY              = (1 << 30) - 1,
 };
@@ -161,7 +162,7 @@ inline bool operator==(MidiEvent const & lhs, MidiEvent const & rhs)
     }
 
     // check which fields are relevant for the given event type
-    bool channel = !(lhs.type & (MIDI_EVENT_SYSEX | MIDI_EVENT_SYSCM | MIDI_EVENT_SYSRT | MIDI_EVENT_DUMMY));
+    bool channel = !(lhs.type & (MIDI_EVENT_SYSTEM | MIDI_EVENT_DUMMY));
     bool data1 = (lhs.type & (MIDI_EVENT_NOTE | MIDI_EVENT_CTRL | MIDI_EVENT_POLY_AFTERTOUCH |
                               MIDI_EVENT_SYSCM_QFRAME | MIDI_EVENT_SYSCM_SONGPOS | MIDI_EVENT_SYSCM_SONGSEL));
     bool data2 = (lhs.type & (MIDI_EVENT_NOTE | MIDI_EVENT_CTRL | MIDI_EVENT_PITCHBEND |

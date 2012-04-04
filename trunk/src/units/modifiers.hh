@@ -51,7 +51,9 @@ class Channel
 
     virtual bool process(MidiEvent & ev) const
     {
-        ev.channel = _channel;
+        if (!(ev.type & (MIDI_EVENT_SYSTEM | MIDI_EVENT_DUMMY))) {
+            ev.channel = _channel;
+        }
         return true;
     }
 
@@ -70,8 +72,9 @@ class Transpose
 
     virtual bool process(MidiEvent & ev) const
     {
-        if (ev.type & MIDI_EVENT_NOTE)
+        if (ev.type & MIDI_EVENT_NOTE) {
             ev.note.note += _offset;
+        }
         return true;
     }
 

@@ -164,6 +164,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .value("SYSRT_SENSING", MIDI_EVENT_SYSRT_SENSING)
         .value("SYSRT_RESET", MIDI_EVENT_SYSRT_RESET)
         .value("SYSRT", MIDI_EVENT_SYSRT)
+        .value("SYSTEM", MIDI_EVENT_SYSTEM)
         .value("DUMMY", MIDI_EVENT_DUMMY)
         .value("ANY", MIDI_EVENT_ANY)
     ;
