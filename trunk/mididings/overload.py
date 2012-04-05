@@ -48,13 +48,12 @@ def call(args, kwargs, funcs, name=None):
     formatargspec = lambda f: inspect.formatargspec(*_getargspec(f))
     candidates = ('    %s%s' % (name, formatargspec(f)) for f in funcs)
 
-    # format the actual arguments used, replacing values with their types.
-    # formatargspec() doesn't seem to care that the first argument mixes values
-    # and argument names
-    arg_types = ['<%s>' % type(a).__name__ for a in args]
-    kwarg_types = ['<%s>' % type(a).__name__ for a in kwargs.values()]
+    # formatargspec() doesn't seem to care that the first argument mixes
+    # asterisks and argument names
+    argx = ['*'] * len(args)
+    kwargx = ['*'] * len(kwargs)
     formatvalue = lambda v: '=%s' % v
-    args_used = inspect.formatargspec(arg_types + list(kwargs.keys()), defaults=kwarg_types, formatvalue=formatvalue)
+    args_used = inspect.formatargspec(argx + list(kwargs.keys()), defaults=kwargx, formatvalue=formatvalue)
 
     message = "no suitable overload found for %s%s, candidates are:\n%s" % (name, args_used, '\n'.join(candidates))
     raise TypeError(message)
