@@ -136,11 +136,11 @@ class MidiEvent(_mididings.MidiEvent):
 
     def _sysex_getter(self):
         self._check_type_attribute(_constants.SYSEX, 'sysex')
-        return _util.sysex_to_sequence(self._get_sysex_data())
+        return _util.sysex_to_sequence(self.sysex_)
 
     def _sysex_setter(self, sysex):
         self._check_type_attribute(_constants.SYSEX, 'sysex')
-        self._set_sysex_data(_util.sysex_data(sysex))
+        self.sysex_ = _util.sysex_data(sysex)
 
 
     type = property(_type_getter, _type_setter)

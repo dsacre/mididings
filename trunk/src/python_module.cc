@@ -36,6 +36,7 @@
 #include <boost/python/return_by_value.hpp>
 
 #include <vector>
+#include <map>
 #include <string>
 #include <cstdlib>
 
@@ -58,6 +59,7 @@ void unload() {
     std::cout << "Units::Unit: " << das::counted_objects<Units::Unit>::allocated() << " " << das::counted_objects<Units::Unit>::deallocated() << std::endl;
     std::cout << "Units::UnitEx: " << das::counted_objects<Units::UnitEx>::allocated() << " " << das::counted_objects<Units::UnitEx>::deallocated() << std::endl;
     std::cout << "MidiEvent: " << das::counted_objects<MidiEvent>::allocated() << " " << das::counted_objects<MidiEvent>::deallocated() << std::endl;
+    std::cout << "SysExData: " << das::counted_objects<SysExData>::allocated() << " " << das::counted_objects<SysExData>::deallocated() << std::endl;
 }
 
 #endif // ENABLE_DEBUG_STATS
@@ -176,8 +178,7 @@ BOOST_PYTHON_MODULE(_mididings)
         .def_readwrite("channel_", &MidiEvent::channel)
         .def_readwrite("data1", &MidiEvent::data1)
         .def_readwrite("data2", &MidiEvent::data2)
-        .def("_get_sysex_data", &MidiEvent::get_sysex_data, bp::return_value_policy<bp::return_by_value>())
-        .def("_set_sysex_data", &MidiEvent::set_sysex_data)
+        .def_readwrite("sysex_", &MidiEvent::sysex)
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
         .enable_pickling()
@@ -202,7 +203,7 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<CtrlFilter, bases<Filter>, noncopyable>("CtrlFilter", init<std::vector<int> const &>());
     class_<CtrlValueFilter, bases<Filter>, noncopyable>("CtrlValueFilter", init<int, int>());
     class_<ProgramFilter, bases<Filter>, noncopyable>("ProgramFilter", init<std::vector<int> const &>());
-    class_<SysExFilter, bases<Filter>, noncopyable>("SysExFilter", init<MidiEvent::SysExData const &, bool>());
+    class_<SysExFilter, bases<Filter>, noncopyable>("SysExFilter", init<SysExDataConstPtr const &, bool>());
 
     // modifiers
     class_<Port, bases<Unit>, noncopyable>("Port", init<int>());
@@ -217,7 +218,7 @@ BOOST_PYTHON_MODULE(_mididings)
 
     // generators
     class_<Generator, bases<Unit>, noncopyable>("Generator", init<MidiEventType, int, int, int, int>());
-    class_<SysExGenerator, bases<Unit>, noncopyable>("SysExGenerator", init<int, MidiEvent::SysExData const &>());
+    class_<SysExGenerator, bases<Unit>, noncopyable>("SysExGenerator", init<int, SysExDataConstPtr const &>());
 
     // engine
     class_<Sanitize, bases<UnitEx>, noncopyable>("Sanitize", init<>());
@@ -229,14 +230,15 @@ BOOST_PYTHON_MODULE(_mididings)
 
 
     // register to/from-python converters for various types
-    das::register_vector_converters<int>();
-    das::register_vector_converters<unsigned char>();
-    das::register_vector_converters<float>();
-    das::register_vector_converters<std::string>();
-    das::register_vector_converters<MidiEvent>();
-    das::register_vector_converters<Patch::ModulePtr>();
+    das::register_vector_converters<std::vector<int> >();
+    das::register_vector_converters<std::vector<float> >();
+    das::register_vector_converters<std::vector<std::string> >();
+    das::register_vector_converters<std::vector<MidiEvent> >();
+    das::register_vector_converters<std::vector<Patch::ModulePtr> >();
 
-    das::register_map_converters<std::string, std::vector<std::string> >();
+    das::register_shared_ptr_vector_converters<SysExData>();
+
+    das::register_map_converters<std::map<std::string, std::vector<std::string> > >();
 
 
 #ifdef ENABLE_DEBUG_STATS

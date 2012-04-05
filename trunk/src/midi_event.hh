@@ -60,18 +60,40 @@ typedef unsigned int MidiEventType;
 
 
 
+class SysExData
+  : public std::vector<unsigned char>
+  , das::counted_objects<SysExData>
+{
+  public:
+    SysExData()
+      : std::vector<unsigned char>()
+    { }
+
+    template <typename InputIterator>
+    SysExData(InputIterator first, InputIterator last)
+      : std::vector<unsigned char>(first, last)
+    { }
+
+    SysExData(SysExData const & other)
+      : std::vector<unsigned char>(other)
+    { }
+
+    ~SysExData() { }
+
+    SysExData & operator=(SysExData const & other) {
+        std::vector<unsigned char>::operator=(other);
+        return *this;
+    }
+};
+
+typedef boost::shared_ptr<SysExData> SysExDataPtr;
+typedef boost::shared_ptr<SysExData const> SysExDataConstPtr;
+
+
+
 struct MidiEvent
   : das::counted_objects<MidiEvent>
 {
-    typedef std::vector<unsigned char> SysExData;
-    typedef boost::shared_ptr<SysExData> SysExPtr;
-    typedef boost::shared_ptr<SysExData const> SysExConstPtr;
-
-    struct null_deleter {
-        void operator()(void const *) const { }
-    };
-
-
     MidiEvent()
       : type(MIDI_EVENT_NONE)
       , port(0)
@@ -116,16 +138,14 @@ struct MidiEvent
     }
 
 
-    SysExData const & get_sysex_data() const {
-        if (!sysex) {
-            throw std::runtime_error("no sysex data");
-        }
-        return *sysex;
-    }
+//    SysExDataConstPtr const & get_sysex_data() const {
+//        return sysex;
+//    }
+//
+//    void set_sysex_data(SysExDataConstPtr const & sysex_) {
+//        sysex = sysex_;
+//    }
 
-    void set_sysex_data(SysExData const & sysex_) {
-        sysex.reset(new SysExData(sysex_));
-    }
 
     MidiEventType type;
     int port;
@@ -148,7 +168,7 @@ struct MidiEvent
         };
     };
 
-    SysExConstPtr sysex;
+    SysExDataConstPtr sysex;
 
     uint64_t frame;
 };

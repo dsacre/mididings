@@ -60,7 +60,7 @@ class SysExGenerator
   : public Unit
 {
   public:
-    SysExGenerator(int port, MidiEvent::SysExData const & sysex)
+    SysExGenerator(int port, SysExDataConstPtr const & sysex)
       : _port(port)
       , _sysex(sysex)
     { }
@@ -72,14 +72,14 @@ class SysExGenerator
         ev.channel = 0;
         ev.data1 = 0;
         ev.data2 = 0;
-        ev.sysex.reset(&_sysex, MidiEvent::null_deleter());
+        ev.sysex = _sysex;
 
         return true;
     }
 
   private:
     int const _port;
-    MidiEvent::SysExData const _sysex;
+    SysExDataConstPtr const _sysex;
 };
 
 

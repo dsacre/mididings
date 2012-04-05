@@ -16,8 +16,7 @@
 #include <boost/python/extract.hpp>
 #include <boost/python/list.hpp>
 
-#include <vector>
-#include <map>
+#include <boost/shared_ptr.hpp>
 
 
 namespace das {
@@ -27,19 +26,19 @@ namespace python_converters {
 
 template <typename T>
 struct vector_from_sequence_converter
-  : from_python_converter<std::vector<T>, vector_from_sequence_converter<T> >
+  : from_python_converter<T, vector_from_sequence_converter<T> >
 {
     static bool convertible(PyObject *obj_ptr) {
         return PySequence_Check(obj_ptr);
     }
 
-    static void construct(std::vector<T> & vec, PyObject *obj_ptr) {
+    static void construct(T & vec, PyObject *obj_ptr) {
         Py_ssize_t size = PySequence_Size(obj_ptr);
         vec.reserve(size);
 
         for (Py_ssize_t i = 0; i != size; ++i) {
             PyObject *item = PySequence_GetItem(obj_ptr, i);
-            vec.push_back(boost::python::extract<T>(item));
+            vec.push_back(boost::python::extract<typename T::value_type>(item));
             boost::python::decref(item);
         }
     }
@@ -48,16 +47,16 @@ struct vector_from_sequence_converter
 
 template <typename T>
 struct vector_from_iterator_converter
-  : from_python_converter<std::vector<T>, vector_from_iterator_converter<T> >
+  : from_python_converter<T, vector_from_iterator_converter<T> >
 {
     static bool convertible(PyObject *obj_ptr) {
         return PyIter_Check(obj_ptr);
     }
 
-    static void construct(std::vector<T> & vec, PyObject *obj_ptr) {
+    static void construct(T & vec, PyObject *obj_ptr) {
         PyObject *item;
         while ((item = PyIter_Next(obj_ptr))) {
-            vec.push_back(boost::python::extract<T>(item));
+            vec.push_back(boost::python::extract<typename T::value_type>(item));
             boost::python::decref(item);
         }
 
@@ -71,15 +70,63 @@ struct vector_from_iterator_converter
 
 template <typename T>
 struct vector_to_list_converter
-  : boost::python::to_python_converter<std::vector<T>, vector_to_list_converter<T>
+  : boost::python::to_python_converter<T, vector_to_list_converter<T>
 #ifdef BOOST_PYTHON_SUPPORTS_PY_SIGNATURES
         , true
 #endif
     >
 {
-    static PyObject *convert(std::vector<T> const & vec) {
+    static PyObject *convert(T const & vec) {
         boost::python::list ret;
-        for (typename std::vector<T>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+        for (typename T::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+            ret.append(*it);
+        }
+
+        return boost::python::incref(ret.ptr());
+    }
+
+    static PyTypeObject const *get_pytype() {
+        return &PyList_Type;
+    }
+};
+
+
+template <typename T>
+struct shared_ptr_vector_from_sequence_converter
+  : from_python_converter<boost::shared_ptr<T const>, shared_ptr_vector_from_sequence_converter<T> >
+{
+    static bool convertible(PyObject *obj_ptr) {
+        return PySequence_Check(obj_ptr);
+    }
+
+    static void construct(boost::shared_ptr<T const> & pvec, PyObject *obj_ptr) {
+        Py_ssize_t size = PySequence_Size(obj_ptr);
+
+        T *vec = new T;
+        vec->reserve(size);
+
+        for (Py_ssize_t i = 0; i != size; ++i) {
+            PyObject *item = PySequence_GetItem(obj_ptr, i);
+            vec->push_back(boost::python::extract<typename T::value_type>(item));
+            boost::python::decref(item);
+        }
+
+        pvec.reset(vec);
+    }
+};
+
+
+template <typename T>
+struct shared_ptr_vector_to_list_converter
+  : boost::python::to_python_converter<boost::shared_ptr<T const>, shared_ptr_vector_to_list_converter<T>
+#ifdef BOOST_PYTHON_SUPPORTS_PY_SIGNATURES
+        , true
+#endif
+    >
+{
+    static PyObject *convert(boost::shared_ptr<T const> const & pvec) {
+        boost::python::list ret;
+        for (typename T::const_iterator it = pvec->begin(); it != pvec->end(); ++it) {
             ret.append(*it);
         }
 
@@ -93,21 +140,21 @@ struct vector_to_list_converter
 
 
 
-template <typename K, typename V>
+template <typename T>
 struct map_from_dict_converter
-  : from_python_converter<std::map<K, V>, map_from_dict_converter<K, V> >
+  : from_python_converter<T, map_from_dict_converter<T> >
 {
     static bool convertible(PyObject *obj_ptr) {
         return PyDict_Check(obj_ptr);
     }
 
-    static void construct(std::map<K, V> & map, PyObject *obj_ptr) {
+    static void construct(T & map, PyObject *obj_ptr) {
         PyObject *key_ptr, *value_ptr;
         Py_ssize_t pos = 0;
 
         while (PyDict_Next(obj_ptr, &pos, &key_ptr, &value_ptr)) {
-            K key = boost::python::extract<K>(key_ptr);
-            V value = boost::python::extract<V>(value_ptr);
+            typename T::key_type key = boost::python::extract<typename T::key_type>(key_ptr);
+            typename T::mapped_type value = boost::python::extract<typename T::mapped_type>(value_ptr);
 
             map[key] = value;
         }
@@ -119,18 +166,23 @@ struct map_from_dict_converter
 
 
 template <typename T>
-void register_vector_converters()
-{
+void register_vector_converters() {
     python_converters::vector_from_sequence_converter<T>();
     python_converters::vector_from_iterator_converter<T>();
     python_converters::vector_to_list_converter<T>();
 }
 
 
-template <typename K, typename V>
-void register_map_converters()
-{
-    python_converters::map_from_dict_converter<K, V>();
+template <typename T>
+void register_shared_ptr_vector_converters() {
+    python_converters::shared_ptr_vector_from_sequence_converter<T>();
+    python_converters::shared_ptr_vector_to_list_converter<T>();
+}
+
+
+template <typename T>
+void register_map_converters() {
+    python_converters::map_from_dict_converter<T>();
 }
 
 

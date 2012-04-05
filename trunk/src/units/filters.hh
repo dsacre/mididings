@@ -175,7 +175,7 @@ class SysExFilter
   : public Filter
 {
   public:
-    SysExFilter(MidiEvent::SysExData const & sysex, bool partial)
+    SysExFilter(SysExDataConstPtr const & sysex, bool partial)
       : Filter(MIDI_EVENT_SYSEX, false)
       , _sysex(sysex)
       , _partial(partial)
@@ -185,13 +185,13 @@ class SysExFilter
     {
         if (_partial) {
             return std::search(ev.sysex->begin(), ev.sysex->end(),
-                               _sysex.begin(), _sysex.end()) == ev.sysex->begin();
+                               _sysex->begin(), _sysex->end()) == ev.sysex->begin();
         } else {
-            return *ev.sysex == _sysex;
+            return *ev.sysex == *_sysex;
         }
     }
 
-    MidiEvent::SysExData const _sysex;
+    SysExDataConstPtr const _sysex;
     bool const _partial;
 };
 
