@@ -74,7 +74,7 @@ class LiveDings(object):
 
         # create canvas
         self.canvas = widget_factory.Canvas(self.win, highlightthickness=0)
-        if self.options.color_background != None:
+        if self.options.color_background is not None:
             self.canvas.config(background=self.options.color_background)
         self.canvas.grid(column=3, columnspan=5, row=0, sticky='nsew')
         self.canvas.bind('<Button-1>', self.on_button_press)

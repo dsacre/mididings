@@ -25,7 +25,7 @@ def _make_split(t, d, unpack=False):
         t = lambda p, t=t: t(*(p if isinstance(p, tuple) else (p,)))
 
     # build dict with all items from d, except d[None]
-    dd = dict((k, v) for k, v in d.items() if k != None)
+    dd = dict((k, v) for k, v in d.items() if k is not None)
 
     # build fork from all normal items
     r = Fork((t(k) >> w) for k, w in dd.items())

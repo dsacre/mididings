@@ -86,7 +86,7 @@ class Engine(_mididings.Engine):
 
         # delay before actually sending any midi data (give qjackctl patchbay time to react...)
         delay = _get_config('start_delay')
-        if delay != None:
+        if delay is not None:
             if delay > 0:
                 _time.sleep(delay)
             else:
@@ -202,7 +202,7 @@ class Engine(_mididings.Engine):
     def switch_scene(self, scene, subscene=None):
         _mididings.Engine.switch_scene(self,
             _util.actual(scene),
-            _util.actual(subscene) if subscene != None else -1
+            _util.actual(subscene) if subscene is not None else -1
          )
 
     def switch_subscene(self, subscene):
@@ -341,7 +341,7 @@ def active():
     """
     Return True if the engine is running, otherwise False.
     """
-    return _TheEngine != None and _TheEngine() != None
+    return _TheEngine is not None and _TheEngine() is not None
 
 def restart():
     """

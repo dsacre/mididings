@@ -63,7 +63,7 @@ class _Harmonizer(object):
 
     def __call__(self, ev):
         off = self.note_offset(ev.note)
-        if off != None:
+        if off is not None:
             ev.note += off
             return True
         else:
@@ -113,7 +113,7 @@ def Harmonize(tonic, scale, interval, non_harmonic='below'):
 
         # create one KeyFilter()/Transpose() pair for each offset
         for off, keys in groups:
-            if off != None:
+            if off is not None:
                 f.append(KeyFilter(notes=[k[0] for k in keys]) >> Transpose(off))
 
     return Filter(NOTE) % f

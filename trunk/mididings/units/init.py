@@ -38,18 +38,18 @@ def Output(port, channel, program=None, volume=None, pan=None, expression=None, 
 
     init = []
 
-    if bank != None:
+    if bank is not None:
         init.append(Ctrl(port, channel, 0, bank // 128))
         init.append(Ctrl(port, channel, 32, bank % 128))
 
-    if program != None:
+    if program is not None:
         init.append(Program(port, channel, program))
 
-    if volume != None:
+    if volume is not None:
         init.append(Ctrl(port, channel, 7, volume))
-    if pan != None:
+    if pan is not None:
         init.append(Ctrl(port, channel, 10, volume))
-    if expression != None:
+    if expression is not None:
         init.append(Ctrl(port, channel, 11, volume))
 
     for k, v in ctrls.items():

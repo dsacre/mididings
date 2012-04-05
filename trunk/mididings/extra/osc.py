@@ -30,7 +30,7 @@ class OSCInterface(object):
             self.notify_ports = [notify_ports]
 
     def on_start(self):
-        if self.port != None:
+        if self.port is not None:
             self.server = _liblo.ServerThread(self.port)
             self.server.register_methods(self)
             self.server.start()
@@ -38,7 +38,7 @@ class OSCInterface(object):
         self.send_config()
 
     def on_exit(self):
-        if self.port != None:
+        if self.port is not None:
             self.server.stop()
             del self.server
 
