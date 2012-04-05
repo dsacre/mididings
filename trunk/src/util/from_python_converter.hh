@@ -25,18 +25,18 @@ struct from_python_converter
         boost::python::converter::registry::push_back(&convertible, &construct, boost::python::type_id<T>());
     }
 
-    static void *convertible(PyObject *obj_ptr) {
-        if (!Conversion::convertible(obj_ptr)) return 0;
-        return obj_ptr;
+    static void *convertible(PyObject *obj) {
+        if (!Conversion::convertible(obj)) return 0;
+        return obj;
     }
 
-    static void construct(PyObject *obj_ptr, boost::python::converter::rvalue_from_python_stage1_data *data) {
+    static void construct(PyObject *obj, boost::python::converter::rvalue_from_python_stage1_data *data) {
         void *storage = (reinterpret_cast<boost::python::converter::rvalue_from_python_storage<T>*>(data))->storage.bytes;
 
         new (storage) T();
         T & t = *(T *) storage;
 
-        Conversion::construct(t, obj_ptr);
+        Conversion::construct(t, obj);
 
         data->convertible = storage;
     }

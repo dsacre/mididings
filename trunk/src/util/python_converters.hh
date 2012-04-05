@@ -30,16 +30,16 @@ template <typename T>
 struct vector_from_sequence_converter
   : from_python_converter<T, vector_from_sequence_converter<T> >
 {
-    static bool convertible(PyObject *obj_ptr) {
-        return PySequence_Check(obj_ptr);
+    static bool convertible(PyObject *obj) {
+        return PySequence_Check(obj);
     }
 
-    static void construct(T & vec, PyObject *obj_ptr) {
-        Py_ssize_t size = PySequence_Size(obj_ptr);
+    static void construct(T & vec, PyObject *obj) {
+        Py_ssize_t size = PySequence_Size(obj);
         vec.reserve(size);
 
         for (Py_ssize_t i = 0; i != size; ++i) {
-            PyObject *item = PySequence_GetItem(obj_ptr, i);
+            PyObject *item = PySequence_GetItem(obj, i);
             vec.push_back(boost::python::extract<typename T::value_type>(item));
             boost::python::decref(item);
         }
@@ -51,13 +51,13 @@ template <typename T>
 struct vector_from_iterator_converter
   : from_python_converter<T, vector_from_iterator_converter<T> >
 {
-    static bool convertible(PyObject *obj_ptr) {
-        return PyIter_Check(obj_ptr);
+    static bool convertible(PyObject *obj) {
+        return PyIter_Check(obj);
     }
 
-    static void construct(T & vec, PyObject *obj_ptr) {
+    static void construct(T & vec, PyObject *obj) {
         PyObject *item;
-        while ((item = PyIter_Next(obj_ptr))) {
+        while ((item = PyIter_Next(obj))) {
             vec.push_back(boost::python::extract<typename T::value_type>(item));
             boost::python::decref(item);
         }
@@ -97,17 +97,17 @@ template <typename T>
 struct shared_ptr_vector_from_sequence_converter
   : from_python_converter<boost::shared_ptr<T const>, shared_ptr_vector_from_sequence_converter<T> >
 {
-    static bool convertible(PyObject *obj_ptr) {
-        return PySequence_Check(obj_ptr);
+    static bool convertible(PyObject *obj) {
+        return PySequence_Check(obj);
     }
 
-    static void construct(boost::shared_ptr<T const> & pvec, PyObject *obj_ptr) {
-        Py_ssize_t size = PySequence_Size(obj_ptr);
+    static void construct(boost::shared_ptr<T const> & pvec, PyObject *obj) {
+        Py_ssize_t size = PySequence_Size(obj);
 
         T *vec = new T(size);
 
         for (Py_ssize_t i = 0; i != size; ++i) {
-            PyObject *item = PySequence_GetItem(obj_ptr, i);
+            PyObject *item = PySequence_GetItem(obj, i);
             (*vec)[i] = boost::python::extract<typename T::value_type>(item);
             boost::python::decref(item);
         }
@@ -146,14 +146,14 @@ template <typename T>
 struct shared_ptr_vector_from_bytes_converter
   : from_python_converter<boost::shared_ptr<T const>, shared_ptr_vector_from_bytes_converter<T> >
 {
-    static bool convertible(PyObject *obj_ptr) {
-        return PyBytes_Check(obj_ptr);
+    static bool convertible(PyObject *obj) {
+        return PyBytes_Check(obj);
     }
 
-    static void construct(boost::shared_ptr<T const> & pvec, PyObject *obj_ptr) {
+    static void construct(boost::shared_ptr<T const> & pvec, PyObject *obj) {
         char *buffer;
         Py_ssize_t size;
-        PyBytes_AsStringAndSize(obj_ptr, &buffer, &size);
+        PyBytes_AsStringAndSize(obj, &buffer, &size);
 
         T *vec = new T(size);
 
@@ -189,15 +189,15 @@ template <typename T>
 struct map_from_dict_converter
   : from_python_converter<T, map_from_dict_converter<T> >
 {
-    static bool convertible(PyObject *obj_ptr) {
-        return PyDict_Check(obj_ptr);
+    static bool convertible(PyObject *obj) {
+        return PyDict_Check(obj);
     }
 
-    static void construct(T & map, PyObject *obj_ptr) {
+    static void construct(T & map, PyObject *obj) {
         PyObject *key_ptr, *value_ptr;
         Py_ssize_t pos = 0;
 
-        while (PyDict_Next(obj_ptr, &pos, &key_ptr, &value_ptr)) {
+        while (PyDict_Next(obj, &pos, &key_ptr, &value_ptr)) {
             typename T::key_type key = boost::python::extract<typename T::key_type>(key_ptr);
             typename T::mapped_type value = boost::python::extract<typename T::mapped_type>(value_ptr);
 
@@ -225,13 +225,11 @@ void register_shared_ptr_vector_converters() {
 }
 
 #if PY_MAJOR_VERSION >= 3
-
 template <typename T>
 void register_shared_ptr_vector_bytes_converters() {
     python_converters::shared_ptr_vector_from_bytes_converter<T>();
     python_converters::shared_ptr_vector_to_bytes_converter<T>();
 }
-
 #endif
 
 template <typename T>
