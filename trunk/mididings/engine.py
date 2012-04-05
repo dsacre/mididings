@@ -217,6 +217,14 @@ class Engine(_mididings.Engine):
     def scenes(self):
         return self._scenes
 
+    def output_event(self, ev):
+        ev._finalize()
+        _mididings.Engine.output_event(self, ev)
+
+    def process(self, ev):
+        ev._finalize()
+        return _mididings.Engine.process(self, ev)
+
     def restart(self):
         _atexit.register(self._restart)
         self.quit()

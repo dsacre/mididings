@@ -188,6 +188,20 @@ class EventTestCase(MididingsTestCase):
         with self.assertRaises(AttributeError): ev.program
 
     @data_offsets
+    def test_SysExEvent_modify(self, off):
+        sysex1 = '\xf0\x04\x08\x15\x16\x23\x42\xf7'
+        sysex2 = '\xf0\x05\x08\x15\x16\x23\x42\xf7'
+        ev = SysExEvent(off(1), sysex1)
+
+        def foo(ev):
+            ev.sysex[1] = 0x05
+            return ev
+
+        (r,) = self.run_patch(Process(foo), ev)
+
+        self.assertEqual(r.sysex, self.native_sysex(sysex2))
+
+    @data_offsets
     def test_operator_equals(self, off):
         a = self.make_event(channel=off(0))
         b = self.make_event(channel=off(1))

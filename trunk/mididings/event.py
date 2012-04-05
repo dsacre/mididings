@@ -108,7 +108,7 @@ class MidiEvent(_mididings.MidiEvent):
         _constants.PITCHBEND:       lambda self: 'PitchbendEvent(port=%d, channel=%d, value=%d)' % (self.port, self.channel, self.value),
         _constants.AFTERTOUCH:      lambda self: 'AftertouchEvent(port=%d, channel=%d, value=%d)' % (self.port, self.channel, self.value),
         _constants.PROGRAM:         lambda self: 'ProgramEvent(port=%d, channel=%d, program=%d)' % (self.port, self.channel, self.program),
-        _constants.SYSEX:           lambda self: 'SysExEvent(port=%d, sysex=%r)' % (self.port, _util.sysex_to_sequence(self.sysex)),
+        _constants.SYSEX:           lambda self: 'SysExEvent(port=%d, sysex=%r)' % (self.port, self._get_sysex()),
     }
 
     def to_string(self, portnames=[], portname_length=0, max_length=0):
@@ -128,19 +128,51 @@ class MidiEvent(_mididings.MidiEvent):
             lambda self: 'MidiEvent(%s, %d, %d, %d, %d)' % (self._type_to_string(), self.port, self.channel, self.data1, self.data2)
         )(self)
 
+
+    def __eq__(self, other):
+        if not isinstance(other, MidiEvent):
+            return NotImplemented
+        self._finalize()
+        other._finalize()
+        return _mididings.MidiEvent.__eq__(self, other)
+
+    def __ne__(self, other):
+        if not isinstance(other, MidiEvent):
+            return NotImplemented
+        self._finalize()
+        other._finalize()
+        return _mididings.MidiEvent.__ne__(self, other)
+
+    def __hash__(self):
+        self._finalize()
+        return _mididings.MidiEvent.__hash__(self)
+
+    def _finalize(self):
+        if hasattr(self, '_sysex_tmp'):
+            self.sysex_ = _util.sysex_data(self._sysex_tmp)
+            delattr(self, '_sysex_tmp')
+
+
     def _type_getter(self):
         return _constants._EVENT_TYPES[self.type_]
 
     def _type_setter(self, type):
         self.type_ = type
 
+    def _get_sysex(self):
+        if hasattr(self, '_sysex_tmp'):
+            return self._sysex_tmp
+        else:
+            return _util.sysex_to_sequence(self.sysex_)
+
     def _sysex_getter(self):
         self._check_type_attribute(_constants.SYSEX, 'sysex')
-        return _util.sysex_to_sequence(self.sysex_)
+        self._sysex_tmp = self._get_sysex()
+        return self._sysex_tmp
 
     def _sysex_setter(self, sysex):
         self._check_type_attribute(_constants.SYSEX, 'sysex')
-        self.sysex_ = _util.sysex_data(sysex)
+        self._sysex_tmp = _util.sysex_to_sequence(sysex)
 
 
     type = property(_type_getter, _type_setter)

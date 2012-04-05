@@ -237,7 +237,7 @@ BOOST_PYTHON_MODULE(_mididings)
     das::register_vector_converters<std::vector<Patch::ModulePtr> >();
 
 #if PY_VERSION_HEX >= 0x02060000
-  das::register_shared_ptr_vector_bytearray_converters<SysExData>();
+    das::register_shared_ptr_vector_bytearray_converters<SysExData>();
 #else
     das::register_shared_ptr_vector_converters<SysExData>();
 #endif

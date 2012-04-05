@@ -74,32 +74,20 @@ typename B::Range PythonCaller::call_now(B & buffer, typename B::Iterator it, bp
             return Patch::delete_event(buffer, it);
         }
 
-        bp::extract<bp::list> e(ret);
+        bp::list ret_list = bp::extract<bp::list>(ret);
+        bp::ssize_t len = bp::len(ret_list);
 
-        if (e.check()) {
-            // returned python list
-            if (bp::len(e())) {
-                bp::stl_input_iterator<MidiEvent> begin(ret), end;
-                return Patch::replace_event(buffer, it, begin, end);
-            } else {
-                return Patch::delete_event(buffer, it);
-            }
+        if (len == 0) {
+            return Patch::delete_event(buffer, it);
         }
-
-        bp::extract<bool> b(ret);
-
-        if (b.check()) {
-            // returned bool
-            if (b) {
-                return Patch::keep_event(buffer, it);
-            } else {
-                return Patch::delete_event(buffer, it);
-            }
+        else if (len == 1) {
+            *it = bp::extract<MidiEvent>(ret_list[0]);
+            return Patch::keep_event(buffer, it);
         }
-
-        // returned single event
-        *it = bp::extract<MidiEvent>(ret);
-        return Patch::keep_event(buffer, it);
+        else {
+            bp::stl_input_iterator<MidiEvent> begin(ret_list), end;
+            return Patch::replace_event(buffer, it, begin, end);
+        }
     }
     catch (bp::error_already_set const &)
     {

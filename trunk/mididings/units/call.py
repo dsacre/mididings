@@ -17,6 +17,7 @@ from mididings.units.base import _Unit
 import mididings.event as _event
 import mididings.overload as _overload
 import mididings.unitrepr as _unitrepr
+import mididings.misc as _misc
 from mididings.setup import get_config as _get_config
 
 import sys as _sys
@@ -36,14 +37,21 @@ class _CallBase(_Unit):
         def do_call(ev):
             # add additional properties that don't exist on the C++ side
             ev.__class__ = _event.MidiEvent
+
             # call the function
-            r = function(ev)
-            # if the function returned a generator, it needs to be made into a list
-            # before returning to C++
-            if isinstance(r, _types.GeneratorType):
-                return list(r)
-            else:
-                return r
+            ret = function(ev)
+
+            if ret is None:
+                return None
+            elif isinstance(ret, _types.GeneratorType):
+                # function is a generator, build list
+                ret = list(ret)
+            elif not _misc.issequence(ret):
+                ret = [ret]
+
+            for ev in ret:
+                ev._finalize()
+            return ret
 
         _Unit.__init__(self, _mididings.Call(do_call, async, cont))
 
