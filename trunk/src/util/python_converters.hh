@@ -140,20 +140,19 @@ struct shared_ptr_vector_to_list_converter
 };
 
 
-#if PY_MAJOR_VERSION >= 3
+#if PY_VERSION_HEX >= 0x02060000
 
 template <typename T>
-struct shared_ptr_vector_from_bytes_converter
-  : from_python_converter<boost::shared_ptr<T const>, shared_ptr_vector_from_bytes_converter<T> >
+struct shared_ptr_vector_from_bytearray_converter
+  : from_python_converter<boost::shared_ptr<T const>, shared_ptr_vector_from_bytearray_converter<T> >
 {
     static bool convertible(PyObject *obj) {
-        return PyBytes_Check(obj);
+        return PyByteArray_Check(obj);
     }
 
     static void construct(boost::shared_ptr<T const> & pvec, PyObject *obj) {
-        char *buffer;
-        Py_ssize_t size;
-        PyBytes_AsStringAndSize(obj, &buffer, &size);
+        char const *buffer = PyByteArray_AsString(obj);
+        Py_ssize_t size = PyByteArray_Size(obj);
 
         T *vec = new T(size);
 
@@ -165,23 +164,23 @@ struct shared_ptr_vector_from_bytes_converter
 
 
 template <typename T>
-struct shared_ptr_vector_to_bytes_converter
-  : boost::python::to_python_converter<boost::shared_ptr<T const>, shared_ptr_vector_to_bytes_converter<T>
+struct shared_ptr_vector_to_bytearray_converter
+  : boost::python::to_python_converter<boost::shared_ptr<T const>, shared_ptr_vector_to_bytearray_converter<T>
 #ifdef BOOST_PYTHON_SUPPORTS_PY_SIGNATURES
         , true
 #endif
     >
 {
     static PyObject *convert(boost::shared_ptr<T const> const & pvec) {
-        return PyBytes_FromStringAndSize(reinterpret_cast<char const *>(&pvec->front()), pvec->size());
+        return PyByteArray_FromStringAndSize(reinterpret_cast<char const *>(&pvec->front()), pvec->size());
     }
 
     static PyTypeObject const *get_pytype() {
-        return &PyBytes_Type;
+        return &PyByteArray_Type;
     }
 };
 
-#endif
+#endif // PY_VERSION_HEX >= 0x02060000
 
 
 
@@ -224,13 +223,13 @@ void register_shared_ptr_vector_converters() {
     python_converters::shared_ptr_vector_to_list_converter<T>();
 }
 
-#if PY_MAJOR_VERSION >= 3
+#if PY_VERSION_HEX >= 0x02060000
 template <typename T>
-void register_shared_ptr_vector_bytes_converters() {
-    python_converters::shared_ptr_vector_from_bytes_converter<T>();
-    python_converters::shared_ptr_vector_to_bytes_converter<T>();
+void register_shared_ptr_vector_bytearray_converters() {
+    python_converters::shared_ptr_vector_from_bytearray_converter<T>();
+    python_converters::shared_ptr_vector_to_bytearray_converter<T>();
 }
-#endif
+#endif // PY_VERSION_HEX >= 0x02060000
 
 template <typename T>
 void register_map_converters() {

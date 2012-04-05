@@ -196,7 +196,7 @@ class MididingsTestCase(unittest.TestCase):
         if isinstance(sysex, str):
             sysex = map(ord, sysex)
 
-        if sys.version_info < (3,):
-            return list(sysex)
+        if sys.version_info >= (2, 6):
+            return bytearray(sysex)
         else:
-            return bytes(sysex)
+            return list(sysex)
