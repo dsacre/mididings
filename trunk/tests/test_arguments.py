@@ -15,8 +15,8 @@ try:
 except:
     import unittest
 
-import mididings.arguments as arguments
-import mididings.misc as misc
+from mididings import arguments
+from mididings import misc
 
 
 class ArgumentsTestCase(unittest.TestCase):
