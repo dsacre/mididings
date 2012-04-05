@@ -236,7 +236,11 @@ BOOST_PYTHON_MODULE(_mididings)
     das::register_vector_converters<std::vector<MidiEvent> >();
     das::register_vector_converters<std::vector<Patch::ModulePtr> >();
 
+#if PY_MAJOR_VERSION < 3
     das::register_shared_ptr_vector_converters<SysExData>();
+#else
+    das::register_shared_ptr_vector_bytes_converters<SysExData>();
+#endif
 
     das::register_map_converters<std::map<std::string, std::vector<std::string> > >();
 

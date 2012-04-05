@@ -69,6 +69,10 @@ class SysExData
       : std::vector<unsigned char>()
     { }
 
+    SysExData(std::size_t n)
+      : std::vector<unsigned char>(n)
+    { }
+
     template <typename InputIterator>
     SysExData(InputIterator first, InputIterator last)
       : std::vector<unsigned char>(first, last)
@@ -136,15 +140,6 @@ struct MidiEvent
         frame = other.frame;
         return *this;
     }
-
-
-//    SysExDataConstPtr const & get_sysex_data() const {
-//        return sysex;
-//    }
-//
-//    void set_sysex_data(SysExDataConstPtr const & sysex_) {
-//        sysex = sysex_;
-//    }
 
 
     MidiEventType type;

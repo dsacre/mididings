@@ -18,6 +18,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <algorithm>
+
 
 namespace das {
 
@@ -102,12 +104,11 @@ struct shared_ptr_vector_from_sequence_converter
     static void construct(boost::shared_ptr<T const> & pvec, PyObject *obj_ptr) {
         Py_ssize_t size = PySequence_Size(obj_ptr);
 
-        T *vec = new T;
-        vec->reserve(size);
+        T *vec = new T(size);
 
         for (Py_ssize_t i = 0; i != size; ++i) {
             PyObject *item = PySequence_GetItem(obj_ptr, i);
-            vec->push_back(boost::python::extract<typename T::value_type>(item));
+            (*vec)[i] = boost::python::extract<typename T::value_type>(item);
             boost::python::decref(item);
         }
 
@@ -137,6 +138,50 @@ struct shared_ptr_vector_to_list_converter
         return &PyList_Type;
     }
 };
+
+
+#if PY_MAJOR_VERSION >= 3
+
+template <typename T>
+struct shared_ptr_vector_from_bytes_converter
+  : from_python_converter<boost::shared_ptr<T const>, shared_ptr_vector_from_bytes_converter<T> >
+{
+    static bool convertible(PyObject *obj_ptr) {
+        return PyBytes_Check(obj_ptr);
+    }
+
+    static void construct(boost::shared_ptr<T const> & pvec, PyObject *obj_ptr) {
+        char *buffer;
+        Py_ssize_t size;
+        PyBytes_AsStringAndSize(obj_ptr, &buffer, &size);
+
+        T *vec = new T(size);
+
+        std::copy(buffer, buffer + size, &vec->front());
+
+        pvec.reset(vec);
+    }
+};
+
+
+template <typename T>
+struct shared_ptr_vector_to_bytes_converter
+  : boost::python::to_python_converter<boost::shared_ptr<T const>, shared_ptr_vector_to_bytes_converter<T>
+#ifdef BOOST_PYTHON_SUPPORTS_PY_SIGNATURES
+        , true
+#endif
+    >
+{
+    static PyObject *convert(boost::shared_ptr<T const> const & pvec) {
+        return PyBytes_FromStringAndSize(reinterpret_cast<char const *>(&pvec->front()), pvec->size());
+    }
+
+    static PyTypeObject const *get_pytype() {
+        return &PyBytes_Type;
+    }
+};
+
+#endif
 
 
 
@@ -179,6 +224,15 @@ void register_shared_ptr_vector_converters() {
     python_converters::shared_ptr_vector_to_list_converter<T>();
 }
 
+#if PY_MAJOR_VERSION >= 3
+
+template <typename T>
+void register_shared_ptr_vector_bytes_converters() {
+    python_converters::shared_ptr_vector_from_bytes_converter<T>();
+    python_converters::shared_ptr_vector_to_bytes_converter<T>();
+}
+
+#endif
 
 template <typename T>
 void register_map_converters() {
