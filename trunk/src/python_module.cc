@@ -229,6 +229,27 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
 
 
+    enum_<TransformMode>("TransformMode")
+        .value("OFFSET", TRANSFORM_MODE_OFFSET)
+        .value("MULTIPLY", TRANSFORM_MODE_MULTIPLY)
+        .value("FIXED", TRANSFORM_MODE_FIXED)
+        .value("GAMMA", TRANSFORM_MODE_GAMMA)
+        .value("CURVE", TRANSFORM_MODE_CURVE)
+    ;
+
+    enum_<EventAttribute>("EventAttribute")
+        .value("PORT", EVENT_ATTRIBUTE_PORT)
+        .value("CHANNEL", EVENT_ATTRIBUTE_CHANNEL)
+        .value("DATA1", EVENT_ATTRIBUTE_DATA1)
+        .value("DATA2", EVENT_ATTRIBUTE_DATA2)
+        .value("NOTE", EVENT_ATTRIBUTE_NOTE)
+        .value("VELOCITY", EVENT_ATTRIBUTE_VELOCITY)
+        .value("CTRL", EVENT_ATTRIBUTE_CTRL)
+        .value("VALUE", EVENT_ATTRIBUTE_VALUE)
+        .value("PROGRAM", EVENT_ATTRIBUTE_PROGRAM)
+    ;
+
+
     // register to/from-python converters for various types
     das::register_vector_converters<std::vector<int> >();
     das::register_vector_converters<std::vector<float> >();

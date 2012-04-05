@@ -26,26 +26,22 @@ class _EventAttribute(_NamedFlag):
 
 _EVENT_TYPES = {}
 
+# populate this module with midi event type constants
 for _name, _value in _mididings.MidiEventType.names.items():
     _type_object = _EventType(int(_value), _name)
+
     # add event type object to this module's global namespace
     globals()[_name] = _type_object
+
     # only masks matching a single event type (exactly one bit set) are added
     # to the event types dict
     if len([_x for _x in range(32) if _value & (1 << _x)]) == 1:
         _EVENT_TYPES[int(_value)] = _type_object
 
 
-EVENT_PORT      = _EventAttribute(-1, 'EVENT_PORT')
-EVENT_CHANNEL   = _EventAttribute(-2, 'EVENT_CHANNEL')
-# generic
-EVENT_DATA1     = _EventAttribute(-3, 'EVENT_DATA1')
-EVENT_DATA2     = _EventAttribute(-4, 'EVENT_DATA2')
-# note
-EVENT_NOTE      = _EventAttribute(-3, 'EVENT_NOTE')
-EVENT_VELOCITY  = _EventAttribute(-4, 'EVENT_VELOCITY')
-# controller
-EVENT_CTRL      = _EventAttribute(-3, 'EVENT_CTRL')
-EVENT_VALUE     = _EventAttribute(-4, 'EVENT_VALUE')
-# program change
-EVENT_PROGRAM   = _EventAttribute(-4, 'EVENT_PROGRAM')
+# populate this module with midi event attribute constants
+for _name, _value in _mididings.EventAttribute.names.items():
+    _attribute_object = _EventAttribute(int(_value), "EVENT_" + _name)
+
+    # add event attribute object to this module's global namespace
+    globals()["EVENT_" + _name] = _attribute_object

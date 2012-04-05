@@ -29,11 +29,16 @@ enum TransformMode {
 };
 
 
-enum ParameterIndices {
-    PARAMETER_PORT = -1,
-    PARAMETER_CHANNEL = -2,
-    PARAMETER_DATA1 = -3,
-    PARAMETER_DATA2 = -4,
+enum EventAttribute {
+    EVENT_ATTRIBUTE_PORT = -1,
+    EVENT_ATTRIBUTE_CHANNEL = -2,
+    EVENT_ATTRIBUTE_DATA1 = -3,
+    EVENT_ATTRIBUTE_DATA2 = -4,
+    EVENT_ATTRIBUTE_NOTE = -3,
+    EVENT_ATTRIBUTE_VELOCITY = -4,
+    EVENT_ATTRIBUTE_CTRL = -3,
+    EVENT_ATTRIBUTE_VALUE = -4,
+    EVENT_ATTRIBUTE_PROGRAM = -4,
 };
 
 
@@ -104,13 +109,13 @@ inline int get_parameter(int value, MidiEvent const & ev)
     }
 
     switch (value) {
-      case PARAMETER_PORT:
+      case EVENT_ATTRIBUTE_PORT:
         return ev.port;
-      case PARAMETER_CHANNEL:
+      case EVENT_ATTRIBUTE_CHANNEL:
         return ev.channel;
-      case PARAMETER_DATA1:
+      case EVENT_ATTRIBUTE_DATA1:
         return ev.data1;
-      case PARAMETER_DATA2:
+      case EVENT_ATTRIBUTE_DATA2:
         return ev.data2;
       default:
         FAIL();
