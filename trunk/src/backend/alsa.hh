@@ -89,7 +89,7 @@ class ALSABackend
     snd_midi_event_t *_parser;
 
     // per-port buffers of incoming sysex data
-    std::map<int, MidiEvent::SysExPtr> _sysex_buffer;
+    std::map<int, SysExDataPtr> _sysex_buffer;
 
     boost::scoped_ptr<boost::thread> _thread;
 };

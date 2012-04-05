@@ -148,7 +148,7 @@ MidiEvent BackendBase::buffer_to_midi_event(unsigned char *data, std::size_t len
           case 0xf0:
             ev.type = MIDI_EVENT_SYSEX;
             // FIXME: come up with a realtime-safe way to do this
-            ev.sysex.reset(new MidiEvent::SysExData(data, data + len));
+            ev.sysex.reset(new SysExData(data, data + len));
             break;
           case 0xf1:
             ev.type = MIDI_EVENT_SYSCM_QFRAME;

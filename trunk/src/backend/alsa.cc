@@ -353,7 +353,7 @@ void ALSABackend::alsa_to_midi_event_sysex(MidiEvent & ev, snd_seq_event_t const
     if (ptr[0] == 0xf0) {
         // new sysex started, insert into buffer
         _sysex_buffer.erase(ev.port);
-        _sysex_buffer.insert(std::make_pair(ev.port, MidiEvent::SysExPtr(new MidiEvent::SysExData(ptr, ptr + len))));
+        _sysex_buffer.insert(std::make_pair(ev.port, SysExDataPtr(new SysExData(ptr, ptr + len))));
     }
     else if (_sysex_buffer.find(ev.port) != _sysex_buffer.end()) {
         // previous sysex continued, append to buffer
