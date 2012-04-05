@@ -244,14 +244,16 @@ def subscene_number(subscene):
     return subscene
 
 
+SYSEX_TYPE = list if _sys.version_info < (3,) else bytes
+
 def sysex_to_sequence(sysex):
     if isinstance(sysex, str):
         sysex = map(ord, sysex)
 
-    if _sys.version_info < (3,):
-        return list(sysex)
+    if isinstance(sysex, SYSEX_TYPE):
+        return sysex
     else:
-        return bytes(sysex)
+        return SYSEX_TYPE(sysex)
 
 
 def sysex_data(sysex, allow_partial=False):
