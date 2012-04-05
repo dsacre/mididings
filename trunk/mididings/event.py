@@ -190,9 +190,6 @@ class MidiEvent(_mididings.MidiEvent):
                                'data2', 'value')
     program   = _make_property(_constants.PROGRAM, 'data2', 'program', offset=True)
 
-    # for backward compatibility
-    param     = ctrl
-
     sysex = property(_sysex_getter, _sysex_setter)
 
 

@@ -26,7 +26,6 @@ if _sys.version_info >= (3,):
 else:
     import thread as _thread
 import subprocess as _subprocess
-import functools as _functools
 import types as _types
 import copy as _copy
 import collections as _collections
@@ -41,7 +40,7 @@ class _CallBase(_Unit):
             # call the function
             ret = function(ev)
 
-            if ret is None:
+            if ret is None or async:
                 return None
             elif isinstance(ret, _types.GeneratorType):
                 # function is a generator, build list
@@ -86,10 +85,7 @@ def Process(function):
 @_overload.mark
 @_unitrepr.accept(_collections.Callable)
 def Call(function):
-    def wrapper(function, ev):
-        if function(ev) != None:
-            print("return value from Call() ignored. please use Process() instead")
-    return _CallBase(_functools.partial(wrapper, function), True, True)
+    return _CallBase(function, True, True)
 
 @_overload.mark
 @_unitrepr.accept(_collections.Callable)

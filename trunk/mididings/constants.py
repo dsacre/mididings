@@ -46,9 +46,6 @@ EVENT_NOTE      = _EventAttribute(-3, 'EVENT_NOTE')
 EVENT_VELOCITY  = _EventAttribute(-4, 'EVENT_VELOCITY')
 # controller
 EVENT_CTRL      = _EventAttribute(-3, 'EVENT_CTRL')
-# for backward compatibility
-EVENT_PARAM     = _EventAttribute(-3, 'EVENT_CTRL')
-EVENT_PARAM._deprecated = True
 EVENT_VALUE     = _EventAttribute(-4, 'EVENT_VALUE')
 # program change
 EVENT_PROGRAM   = _EventAttribute(-4, 'EVENT_PROGRAM')
