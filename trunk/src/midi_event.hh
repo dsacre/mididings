@@ -108,16 +108,6 @@ struct MidiEvent
       , frame(0)
     { }
 
-    MidiEvent(MidiEventType type_, int port_, int channel_, int data1_, int data2_)
-      : type(type_)
-      , port(port_)
-      , channel(channel_)
-      , data1(data1_)
-      , data2(data2_)
-      , sysex()
-      , frame(0)
-    { }
-
     MidiEvent(MidiEvent const & other)
       : type(other.type)
       , port(other.port)

@@ -44,7 +44,8 @@ class MidiEvent(_mididings.MidiEvent):
     The main MIDI event class.
     All event data is part of the C++ base class.
     """
-    @_arguments.accept(None, _constants._EventType, _util.port_number, _util.channel_number, int, int, None)
+    @_arguments.accept(None, _constants._EventType, _util.port_number, _util.channel_number,
+                       int, int, _arguments.nullable(_util.sysex_data))
     def __init__(self, type, port=_util.NoDataOffset(0), channel=_util.NoDataOffset(0), data1=0, data2=0, sysex=None):
         _mididings.MidiEvent.__init__(self)
         self.type = type
@@ -53,9 +54,10 @@ class MidiEvent(_mididings.MidiEvent):
         self.data1 = data1
         self.data2 = data2
         if sysex is not None:
-            self.sysex = sysex
+            self.sysex_ = sysex
 
     def __getinitargs__(self):
+        self._finalize()
         return (self.type, self.port, self.channel, self.data1, self.data2,
                 self.sysex if self.type == _constants.SYSEX else None)
 
@@ -70,13 +72,13 @@ class MidiEvent(_mididings.MidiEvent):
         except KeyError:
             return 'NONE'
 
-    def _sysex_to_hex_string(self):
+    def _sysex_to_hex(self, max_length):
         data = self.sysex
         if max_length:
-            m = (max_length - len(h) - 25) / 3
+            m = max(0, max_length // 3)
             if len(data) > m:
-                return '%s ...' % _misc.string_to_hex(data[:m])
-        return _misc.string_to_hex(data)
+                return '%s ...' % _misc.sequence_to_hex(data[:m])
+        return _misc.sequence_to_hex(data)
 
     _to_string_mapping = {
         _constants.NOTEON:          lambda self: 'Note On:  %3d %3d  (%s)' % (self.note, self.velocity, _util.note_name(self.note)),
@@ -87,7 +89,6 @@ class MidiEvent(_mididings.MidiEvent):
         _constants.AFTERTOUCH:      lambda self: 'Aftertouch:   %3d' % self.value,
         _constants.POLY_AFTERTOUCH: lambda self: 'Poly Aftertouch: %3d %3d  (%s)' % (self.note, self.value, _util.note_name(self.note)),
         _constants.PROGRAM:         lambda self: 'Program:      %3d' % self.program,
-        _constants.SYSEX:           lambda self: 'SysEx:   %8d  [%s]' % (len(data), _sysex_to_hex_string()),
         _constants.SYSCM_QFRAME:    lambda self: 'SysCm QFrame: %3d' % self.data1,
         _constants.SYSCM_SONGPOS:   lambda self: 'SysCm SongPos:%3d %3d' % (self.data1, self.data2),
         _constants.SYSCM_SONGSEL:   lambda self: 'SysCm SongSel:%3d' % self.data1,
@@ -108,7 +109,7 @@ class MidiEvent(_mididings.MidiEvent):
         _constants.PITCHBEND:       lambda self: 'PitchbendEvent(port=%d, channel=%d, value=%d)' % (self.port, self.channel, self.value),
         _constants.AFTERTOUCH:      lambda self: 'AftertouchEvent(port=%d, channel=%d, value=%d)' % (self.port, self.channel, self.value),
         _constants.PROGRAM:         lambda self: 'ProgramEvent(port=%d, channel=%d, program=%d)' % (self.port, self.channel, self.program),
-        _constants.SYSEX:           lambda self: 'SysExEvent(port=%d, sysex=%r)' % (self.port, self._get_sysex()),
+        _constants.SYSEX:           lambda self: 'SysExEvent(port=%d, sysex=%r)' % (self.port, _misc.bytestring(self._get_sysex())),
     }
 
     def to_string(self, portnames=[], portname_length=0, max_length=0):
@@ -118,7 +119,16 @@ class MidiEvent(_mididings.MidiEvent):
             port = str(self.port)
 
         header = '[%*s, %2d]' % (max(portname_length, 2), port, self.channel)
-        desc = MidiEvent._to_string_mapping.get(self.type_, lambda self: 'None')(self)
+
+        if self.type_ == _constants.SYSEX:
+            maxsysex = (max_length - len(header) - 25) if max_length else 0
+            sysexstr = self._sysex_to_hex(maxsysex)
+            desc = 'SysEx:   %8d  [%s]' % (len(self.sysex), sysexstr)
+        else:
+            desc = MidiEvent._to_string_mapping.get(
+                self.type_,
+                lambda self: 'None'
+            )(self)
 
         return '%s %s' % (header, desc)
 
@@ -154,6 +164,8 @@ class MidiEvent(_mididings.MidiEvent):
 
 
     def _type_getter(self):
+        # return an event type constant, rather than the plain int stored in
+        # self.type_
         return _constants._EVENT_TYPES[self.type_]
 
     def _type_setter(self, type):

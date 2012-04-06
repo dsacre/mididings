@@ -122,8 +122,15 @@ def prune_globals(g):
     ]
 
 
-def string_to_hex(s):
-    return ' '.join(hex(ord(c))[2:].zfill(2) for c in s)
+def sequence_to_hex(data):
+    return ' '.join(hex(x)[2:].zfill(2) for x in data)
+
+
+class bytestring(object):
+    def __init__(self, data):
+        self.data = data
+    def __repr__(self):
+        return '\'%s\'' % ''.join('\\x' + hex(x)[2:].zfill(2) for x in self.data)
 
 
 def get_terminal_size():

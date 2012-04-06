@@ -299,7 +299,8 @@ void Engine::process_scene_switch(B & buffer)
         // check if the scene has an init patch
         if (s->init_patch) {
             // create dummy event to trigger init patch
-            MidiEvent ev(MIDI_EVENT_DUMMY, 0, 0, 0, 0);
+            MidiEvent ev;
+            ev.type = MIDI_EVENT_DUMMY;
 
             typename B::Iterator it = buffer.insert(buffer.end(), ev);
             typename B::Range r(typename B::Range(it, buffer.end()));
