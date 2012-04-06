@@ -38,11 +38,19 @@ _hooks = []
     'client_name':      str,
     'in_ports':         _arguments.either(
                             _arguments.each(int, _arguments.condition(lambda x: x > 0)),
-                            [str]
+                            _arguments.sequenceof(_arguments.either(
+                                str,
+                                [str, str],
+                                [str, [str]],
+                            )),
                         ),
     'out_ports':        _arguments.either(
                             _arguments.each(int, _arguments.condition(lambda x: x > 0)),
-                            [str]
+                            _arguments.sequenceof(_arguments.either(
+                                str,
+                                [str, str],
+                                [str, [str]],
+                            )),
                         ),
     'data_offset':      (0, 1),
     'octave_offset':    int,

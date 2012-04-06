@@ -39,10 +39,32 @@ _TheEngine = None
 
 
 def _make_portnames(ports, prefix):
-    if _misc.issequence(ports):
-        return ports
-    else:
+    if not _misc.issequence(ports):
         return [prefix + str(_util.offset(n)) for n in range(ports)]
+
+    portnames = []
+    for port in ports:
+        if _misc.issequence(port):
+            portnames.append(port[0])
+        else:
+            portnames.append(port)
+    return portnames
+
+
+def _make_port_connections(ports):
+    if not _misc.issequence(ports):
+        return {}
+
+    connections = {}
+    for port in ports:
+        if _misc.issequence(port):
+            portname = port[0]
+            if _misc.issequence(port[1]):
+                connections[portname] = port[1]
+            else:
+                connections[portname] = [port[1]]
+    return connections
+
 
 
 class Engine(_mididings.Engine):
@@ -60,6 +82,9 @@ class Engine(_mididings.Engine):
             not _get_config('silent')
         )
         _mididings.Engine.__init__(self, *engine_args)
+
+        self.connect_ports(_make_port_connections(_get_config('in_ports')),
+                           _make_port_connections(_get_config('out_ports')))
 
         self._scenes = {}
 

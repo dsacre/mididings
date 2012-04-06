@@ -263,7 +263,7 @@ BOOST_PYTHON_MODULE(_mididings)
     das::register_shared_ptr_vector_converters<SysExData>();
 #endif
 
-    das::register_map_converters<std::map<std::string, std::vector<std::string> > >();
+    das::register_map_converters<Backend::PortConnectionMap>();
 
 
 #ifdef ENABLE_DEBUG_STATS
