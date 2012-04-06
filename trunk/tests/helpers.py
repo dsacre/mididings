@@ -134,7 +134,8 @@ class MididingsTestCase(unittest.TestCase):
         setup._config_impl(
             backend='dummy'
         )
-        e = engine.Engine(scenes, None, None, None)
+        e = engine.Engine()
+        e.setup(scenes, None, None, None)
         r = []
         if not misc.issequence(events):
             events = [events]

@@ -46,7 +46,7 @@ def _make_portnames(ports, prefix):
 
 
 class Engine(_mididings.Engine):
-    def __init__(self, scenes, control, pre, post):
+    def __init__(self):
         # build the actual port names
         self.in_ports = _make_portnames(_get_config('in_ports'), 'in_')
         self.out_ports = _make_portnames(_get_config('out_ports'), 'out_')
@@ -63,25 +63,45 @@ class Engine(_mididings.Engine):
 
         self._scenes = {}
 
-        for i, s in scenes.items():
-            if isinstance(s, _scene.SceneGroup):
-                self._scenes[i] = (s.name, [])
+    def setup(self, scenes, control, pre, post):
+        # build and setup all scenes and scene groups
+        for number, scene in scenes.items():
+            if isinstance(scene, _scene.SceneGroup):
+                self._scenes[number] = (scene.name, [])
 
-                for v in s.subscenes:
-                    name, proc, init = self._parse_scene(v)
-                    self.add_scene(_util.actual(i), _patch.Patch(proc), _patch.Patch(init))
-                    self._scenes[i][1].append(name)
+                for subscene in scene.subscenes:
+                    sceneobj = _scene._parse(scene)
+                    self._scenes[number][1].append(sceneobj.name)
+
+                    # build patches
+                    patch = _patch.Patch(sceneobj.patch)
+                    init_patch = _patch.Patch(sceneobj.init_patch)
+                    # add scene to base class object
+                    self.add_scene(_util.actual(number), patch, init_patch)
             else:
-                name, proc, init = self._parse_scene(s)
+                sceneobj = _scene._parse_scene(scene)
+                self._scenes[number] = (sceneobj.name, [])
 
-                self._scenes[i] = (name, [])
-                self.add_scene(_util.actual(i), _patch.Patch(proc), _patch.Patch(init))
+                # build patches
+                patch = _patch.Patch(sceneobj.patch)
+                init_patch = _patch.Patch(sceneobj.init_patch)
+                # add scene to base class object
+                self.add_scene(_util.actual(number), patch, init_patch)
 
+        # build and setup control, pre, and post patches
         control_patch = _patch.Patch(control) if control else None
         pre_patch = _patch.Patch(pre) if pre else None
         post_patch = _patch.Patch(post) if post else None
+        # tell base class object about these patches
         self.set_processing(control_patch, pre_patch, post_patch)
 
+        global _TheEngine
+        _TheEngine = _weakref.ref(self)
+
+        _gc.collect()
+        _gc.disable()
+
+    def run(self):
         self._quit = _threading.Event()
 
         # delay before actually sending any midi data (give qjackctl patchbay time to react...)
@@ -92,13 +112,6 @@ class Engine(_mididings.Engine):
             else:
                 raw_input("press enter to start midi processing...")
 
-        global _TheEngine
-        _TheEngine = _weakref.ref(self)
-
-        _gc.collect()
-        _gc.disable()
-
-    def run(self):
         self._call_hooks('on_start')
 
         n = _get_config('initial_scene')
@@ -132,22 +145,6 @@ class Engine(_mididings.Engine):
 
     def process_file(self):
         self.start(0)
-
-    def _parse_scene(self, s):
-        if isinstance(s, _scene.Scene):
-            init = [s.init_patch] if s.init_patch else []
-            proc = s.patch
-            name = s.name if s.name else ''
-        elif isinstance(s, tuple):
-            init = [s[0]]
-            proc = s[1]
-            name = ''
-        else:
-            init = []
-            proc = s
-            name = ''
-        init += _patch.get_init_patches(proc)
-        return name, proc, init
 
     def scene_switch_callback(self, scene, subscene):
         # the scene and subscene parameters are the actual numbers without offset!
@@ -183,10 +180,8 @@ class Engine(_mididings.Engine):
                 else:
                     name = scene_data[0]
 
-                if name:
-                    print("switching to scene %s: %s" % (number, name))
-                else:
-                    print("switching to scene %s" % number)
+                scene_desc = ("%s: %s" % (number, name)) if name else str(number)
+                print("switching to scene %s" % scene_desc)
             else:
                 print("no such scene: %s" % number)
 
@@ -246,7 +241,8 @@ def run(patch):
     Create the engine and start event processing. This function does not
     usually return until mididings exits.
     """
-    e = Engine({_util.offset(0): patch}, None, None, None)
+    e = Engine()
+    e.setup({_util.offset(0): patch}, None, None, None)
     e.run()
 
 @_overload.mark
@@ -256,7 +252,8 @@ def run(scenes, control=None, pre=None, post=None):
     Create the engine and start event processing. This function does not
     usually return until mididings exits.
     """
-    e = Engine(scenes, control, pre, post)
+    e = Engine()
+    e.setup(scenes, control, pre, post)
     e.run()
 
 
@@ -271,7 +268,8 @@ def process_file(infile, outfile, patch):
         in_ports=[infile],
         out_ports=[outfile],
     )
-    e = Engine({0: patch}, None, None, None)
+    e = Engine()
+    e.setup({0: patch}, None, None, None)
     e.process_file()
 
 
