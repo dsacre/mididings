@@ -105,31 +105,13 @@ class Engine(_mididings.Engine):
         self._quit = _threading.Event()
 
         # delay before actually sending any midi data (give qjackctl patchbay time to react...)
-        delay = _get_config('start_delay')
-        if delay is not None:
-            if delay > 0:
-                _time.sleep(delay)
-            else:
-                raw_input("press enter to start midi processing...")
+        self._start_delay()
 
         self._call_hooks('on_start')
 
-        n = _get_config('initial_scene')
-        if n in self._scenes:
-            # scene number
-            initial_scene = _util.actual(n)
-            initial_subscene = -1
-        elif _misc.issequence(n) and len(n) > 1 and n[0] in self._scenes:
-            # scene number as tuple...
-            initial_scene = _util.actual(n[0])
-            if _util.actual(n[1]) < len(self._scenes[n[0]][1]):
-                # ...and valid subscene
-                initial_subscene = _util.actual(n[1])
-            else:
-                initial_subscene = -1
-        else:
-            initial_scene = -1
-            initial_subscene = -1
+        initial_scene, initial_subscene = self._parse_scene_number(_get_config('initial_scene'))
+
+        # start the actual event processing
         self.start(initial_scene, initial_subscene)
 
         try:
@@ -142,6 +124,28 @@ class Engine(_mididings.Engine):
             self._call_hooks('on_exit')
             global _TheEngine
             _TheEngine = None
+
+    def _start_delay(self):
+        delay = _get_config('start_delay')
+        if delay is not None:
+            if delay > 0:
+                _time.sleep(delay)
+            else:
+                raw_input("press enter to start midi processing...")
+
+    def _parse_scene_number(self, number):
+        if number in self._scenes:
+            # single scene number, no subscene
+            return (_util.actual(number), -1)
+        elif _misc.issequence(number) and len(number) > 1 and number[0] in self._scenes:
+            # scene/subscene numbers as tuple...
+            if _util.actual(number[1]) < len(self._scenes[number[0]][1]):
+                # both scene and subscene numbers are valid
+                return (_util.actual(number[0]), _util.actual(number[1]))
+            # subscene number is invalid
+            return (_util.actual(number[0]), -1)
+        # no such scene
+        return (-1, -1)
 
     def process_file(self):
         self.start(0)
