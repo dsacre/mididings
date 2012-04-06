@@ -30,6 +30,11 @@ import types as _types
 import copy as _copy
 import collections as _collections
 
+if _sys.version_info >= (2, 6):
+    _callable_constraint = _collections.Callable
+else:
+    _callable_constraint = callable
+
 
 class _CallBase(_Unit):
     def __init__(self, function, async, cont):
@@ -75,7 +80,7 @@ class _System(_CallBase):
         _CallBase.__init__(self, do_system, True, True)
 
 
-@_unitrepr.accept(_collections.Callable)
+@_unitrepr.accept(_callable_constraint)
 def Process(function):
     if _get_config('backend') == 'jack-rt' and not _get_config('silent'):
         print("WARNING: using Process() with the 'jack-rt' backend is probably a bad idea")
@@ -83,16 +88,16 @@ def Process(function):
 
 
 @_overload.mark
-@_unitrepr.accept(_collections.Callable)
+@_unitrepr.accept(_callable_constraint)
 def Call(function):
     return _CallBase(function, True, True)
 
 @_overload.mark
-@_unitrepr.accept(_collections.Callable)
+@_unitrepr.accept(_callable_constraint)
 def Call(thread):
     return _CallThread(thread)
 
 
-@_unitrepr.accept((str, _collections.Callable))
+@_unitrepr.accept((str, _callable_constraint))
 def System(command):
     return _System(command)

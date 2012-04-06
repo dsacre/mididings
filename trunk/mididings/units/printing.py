@@ -17,7 +17,13 @@ import mididings.unitrepr as _unitrepr
 import mididings.constants as _constants
 import mididings.misc as _misc
 
+import sys as _sys
 import collections as _collections
+
+if _sys.version_info >= (2, 6):
+    _callable_constraint = _collections.Callable
+else:
+    _callable_constraint = callable
 
 
 class _Print(_CallBase):
@@ -98,6 +104,6 @@ def Print(name=None, portnames=None):
     return _Print(name, portnames)
 
 @_overload.mark
-@_unitrepr.accept((str, _collections.Callable))
+@_unitrepr.accept((str, _callable_constraint))
 def Print(string):
     return _PrintString(string)
