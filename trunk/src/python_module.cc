@@ -209,11 +209,11 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<Port, bases<Unit>, noncopyable>("Port", init<int>());
     class_<Channel, bases<Unit>, noncopyable>("Channel", init<int>());
     class_<Transpose, bases<Unit>, noncopyable>("Transpose", init<int>());
-    class_<Velocity, bases<Unit>, noncopyable>("Velocity", init<float, int>());
-    class_<VelocitySlope, bases<Unit>, noncopyable>("VelocitySlope", init<std::vector<int> const &, std::vector<float> const &, int>());
+    class_<Velocity, bases<Unit>, noncopyable>("Velocity", init<float, TransformMode>());
+    class_<VelocitySlope, bases<Unit>, noncopyable>("VelocitySlope", init<std::vector<int> const &, std::vector<float> const &, TransformMode>());
     class_<CtrlMap, bases<Unit>, noncopyable>("CtrlMap", init<int, int>());
     class_<CtrlRange, bases<Unit>, noncopyable>("CtrlRange", init<int, int, int, int, int>());
-    class_<CtrlCurve, bases<Unit>, noncopyable>("CtrlCurve", init<int, float, int>());
+    class_<CtrlCurve, bases<Unit>, noncopyable>("CtrlCurve", init<int, float, TransformMode>());
     class_<PitchbendRange, bases<Unit>, noncopyable>("PitchbendRange", init<int, int, int, int>());
 
     // generators

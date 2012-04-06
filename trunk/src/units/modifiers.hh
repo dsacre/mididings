@@ -88,7 +88,7 @@ class Velocity
   : public Unit
 {
   public:
-    Velocity(float param, int mode)
+    Velocity(float param, TransformMode mode)
       : _param(param)
       , _mode(mode)
     { }
@@ -96,14 +96,14 @@ class Velocity
     virtual bool process(MidiEvent & ev) const
     {
         if (ev.type == MIDI_EVENT_NOTEON && ev.note.velocity > 0) {
-            ev.note.velocity = apply_transform(ev.note.velocity, _param, (TransformMode)_mode);
+            ev.note.velocity = apply_transform(ev.note.velocity, _param, _mode);
         }
         return true;
     }
 
   private:
     float const _param;
-    int const _mode;
+    TransformMode const _mode;
 };
 
 
@@ -111,7 +111,7 @@ class VelocitySlope
   : public Unit
 {
   public:
-    VelocitySlope(std::vector<int> notes, std::vector<float> params, int mode)
+    VelocitySlope(std::vector<int> notes, std::vector<float> params, TransformMode mode)
       : _notes(notes)
       , _params(params)
       , _mode(mode)
@@ -132,7 +132,7 @@ class VelocitySlope
             ev.note.velocity = apply_transform(
                 ev.note.velocity,
                 map_range(ev.note.note, _notes[n], _notes[n + 1], _params[n], _params[n + 1]),
-                (TransformMode)_mode
+                _mode
             );
         }
         return true;
@@ -141,7 +141,7 @@ class VelocitySlope
   private:
     std::vector<int> const _notes;
     std::vector<float> const _params;
-    int const _mode;
+    TransformMode const _mode;
 };
 
 
@@ -203,7 +203,7 @@ class CtrlCurve
   : public Unit
 {
   public:
-    CtrlCurve(int ctrl, float param, int mode)
+    CtrlCurve(int ctrl, float param, TransformMode mode)
       : _ctrl(ctrl)
       , _param(param)
       , _mode(mode)
@@ -212,7 +212,7 @@ class CtrlCurve
     virtual bool process(MidiEvent & ev) const
     {
         if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _ctrl) {
-            ev.ctrl.value = apply_transform(ev.ctrl.value, _param, (TransformMode)_mode);
+            ev.ctrl.value = apply_transform(ev.ctrl.value, _param, _mode);
         }
         return true;
     }
@@ -220,7 +220,7 @@ class CtrlCurve
   private:
     int const _ctrl;
     float const _param;
-    int const _mode;
+    TransformMode const _mode;
 };
 
 
