@@ -10,7 +10,7 @@
 # (at your option) any later version.
 #
 
-import mididings.misc as misc
+from mididings import misc
 
 import inspect
 import sys
@@ -125,11 +125,6 @@ def _get_constraint(c):
         assert False
 
 
-def nullable(c):
-    if inspect.isclass(c):
-        c = (c,)
-    return c + (type(None),)
-
 
 class _constraint(object):
     pass
@@ -171,6 +166,22 @@ class _type_value_constraint(_constraint):
             return self.constraint.__name__
         else:
             return repr(tuple(map(_type_value_constraint, self.constraint)))
+
+
+class nullable(_constraint):
+    """
+    Allows the argument to be None, instead of matching any other constraint.
+    """
+    def __init__(self, what):
+        self.what = what
+
+    def __call__(self, arg):
+        if arg is None:
+            return None
+        return _apply_constraint(self.what, arg)
+
+    def __repr__(self):
+        return 'nullable(%r)' % _get_constraint(self.what)
 
 
 class sequenceof(_constraint):

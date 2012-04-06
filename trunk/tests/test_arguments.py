@@ -113,6 +113,18 @@ class ArgumentsTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             bar(123, b=456, c=789, d=123)
 
+    def test_nullable(self):
+        @arguments.accept(arguments.nullable(int))
+        def foo(a): pass
+
+        foo(None)
+        foo(42)
+
+        with self.assertRaises(TypeError):
+            foo()
+        with self.assertRaises(TypeError):
+            foo(123.456)
+
     def test_sequenceof(self):
         @arguments.accept(arguments.sequenceof(int))
         def foo(a):
@@ -269,6 +281,7 @@ class ArgumentsTestCase(unittest.TestCase):
 
     def test_repr(self):
         self.assertEqual(repr(arguments._get_constraint(int)), 'int')
+        self.assertEqual(repr(arguments._get_constraint(arguments.nullable(int))), 'nullable(int)')
         self.assertEqual(repr(arguments._get_constraint([int])), '[int]')
         self.assertEqual(repr(arguments._get_constraint((int, float, str))), '(int, float, str)')
         self.assertEqual(repr(arguments._get_constraint([int, float, str])), '[int, float, str]')
