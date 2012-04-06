@@ -14,6 +14,7 @@ from tests.helpers import *
 
 from mididings import *
 from mididings.event import *
+import mididings.constants
 
 import copy
 import pickle
@@ -203,30 +204,30 @@ class EventTestCase(MididingsTestCase):
 
     @data_offsets
     def test_operator_equals(self, off):
-        a = self.make_event(channel=off(0))
-        b = self.make_event(channel=off(1))
-        c = self.make_event(type=a.type, port=a.port, channel=a.channel, data1=a.data1, data2=a.data2)
+        for t in constants._EVENT_TYPES.values():
+            a = self.make_event(type=t, port=off(0))
+            b = self.make_event(type=t, port=off(1))
+            c = self.make_event(type=a.type, port=a.port, channel=a.channel, data1=a.data1, data2=a.data2, sysex=a.sysex_)
 
-        self.assertFalse(a == b)
-        self.assertTrue(a != b)
+            self.assertNotEqual(a, b)
+            self.assertFalse(a == b)
+            self.assertTrue(a != b)
 
-        self.assertTrue(a == c)
-        self.assertFalse(a != c)
+            self.assertEqual(a, c)
+            self.assertTrue(a == c)
+            self.assertFalse(a != c)
 
-        d = SysExEvent(off(0), '\xf0\x04\x08\x15\x16\x23\x42\xf7')
-        e = SysExEvent(off(1), '\xf0\x09\x11\x02\x74\x5b\x41\x56\x63\x56\xf7')
-        f = SysExEvent(port=d.port, sysex=d.sysex)
-
-        self.assertFalse(d == e)
-        self.assertTrue(d != e)
-
-        self.assertTrue(d == f)
-        self.assertFalse(d != f)
+    @data_offsets
+    def test_to_string(self, off):
+        for t in constants._EVENT_TYPES.values():
+            ev = self.make_event(t)
+            self.assertTrue(isinstance(ev.to_string(), str))
+            self.assertTrue(isinstance(ev.to_string(['foo', 'bar'], 3, 80), str))
 
     @data_offsets
     def test_rebuild_repr(self, off):
-        for n in range(256):
-            ev = self.make_event()
+        for t in constants._EVENT_TYPES.values():
+            ev = self.make_event(t)
             rebuilt = eval(repr(ev), self.mididings_dict)
             self.assertEqual(rebuilt, ev)
             self.assertEqual(repr(ev), repr(rebuilt))

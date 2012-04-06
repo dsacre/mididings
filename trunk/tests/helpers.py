@@ -18,6 +18,7 @@ except:
 import random
 import itertools
 import sys
+import copy
 
 from mididings import *
 from mididings import setup, engine, misc, constants
@@ -150,7 +151,7 @@ class MididingsTestCase(unittest.TestCase):
         Create a new MIDI event. Attributes can be specified in args or
         kwargs, unspecified attributes are filled with random values.
         """
-        type, port, channel, data1, data2 = itertools.islice(itertools.chain(args, itertools.repeat(None)), 5)
+        type, port, channel, data1, data2, sysex = itertools.islice(itertools.chain(args, itertools.repeat(None)), 6)
 
         for k, v in kwargs.items():
             if k == 'type': type = v
@@ -159,10 +160,11 @@ class MididingsTestCase(unittest.TestCase):
             elif k in ('data1', 'note', 'ctrl'): data1 = v
             elif k in ('data2', 'velocity', 'value'): data2 = v
             elif k == 'program': data2 = v - setup.get_config('data_offset')
+            elif k == 'sysex': sysex = v
 
         if type is None:
             if channel is None:
-                type = random.choice(list(set(constants._EVENT_TYPES.values()) - set([SYSEX, DUMMY])))
+                type = random.choice(list(set(constants._EVENT_TYPES.values()) - set([DUMMY])))
             else:
                 type = random.choice([NOTEON, NOTEOFF, CTRL, PITCHBEND, AFTERTOUCH, POLY_AFTERTOUCH, PROGRAM])
         elif type == NOTE:
@@ -181,14 +183,17 @@ class MididingsTestCase(unittest.TestCase):
                      else 0 if type == NOTEOFF
                      else random.randrange(0, 128))
 
-        return MidiEvent(type, port, channel, data1, data2)
+        if type == SYSEX and sysex is None:
+            sysex = [0xf0] + [random.randrange(0, 128) for n in range(random.randrange(1024))] + [0xf7]
+
+        return MidiEvent(type, port, channel, data1, data2, sysex)
 
     def modify_event(self, ev, **kwargs):
         """
         Make a copy of the event ev, replacing arbitrary attributes with the
         values given in kwargs.
         """
-        r = MidiEvent(ev.type, ev.port, ev.channel, ev.data1, ev.data2)
+        r = copy.copy(ev)
         for k, v in kwargs.items():
             setattr(r, k, v)
         return r
