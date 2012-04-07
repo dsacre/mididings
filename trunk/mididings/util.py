@@ -123,7 +123,7 @@ def note_range(notes):
             else:
                 raise TypeError("note range must be a tuple of integers or a string")
         except (ValueError, IndexError):
-            raise ValueError("invalid note range '%s'" % notes)
+            raise ValueError("invalid note range %r" % notes)
 
 
 def note_name(note):
@@ -223,6 +223,15 @@ def ctrl_value(value, allow_end=False):
 def ctrl_limit(value):
     return ctrl_value(value, allow_end=True)
 
+def ctrl_range(value):
+    try:
+        n = ctrl_value(value)
+        return (n, n + 1)
+    except Exception:
+        if isinstance(value, tuple) and len(value) == 2:
+            return (ctrl_limit(value[0]), ctrl_limit(value[1]))
+    raise ValueError("invalid controller value range %r" % value)
+
 
 def velocity_value(velocity, allow_end=False):
     if not isinstance(velocity, int):
@@ -234,6 +243,15 @@ def velocity_value(velocity, allow_end=False):
 
 def velocity_limit(velocity):
     return velocity_value(velocity, allow_end=True)
+
+def velocity_range(velocity):
+    try:
+        n = velocity_value(velocity)
+        return (n, n + 1)
+    except Exception:
+        if isinstance(velocity, tuple) and len(velocity) == 2:
+            return (velocity_limit(velocity[0]), velocity_limit(velocity[1]))
+    raise ValueError("invalid velocity range %r" % velocity)
 
 
 def scene_number(scene):
