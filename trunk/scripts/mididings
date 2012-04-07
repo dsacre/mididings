@@ -39,7 +39,7 @@ class Dings(object):
             d = '.'
         sys.path.insert(0, d)
         # just a kludge to make AutoRestart() work
-        sys.modules['dings_main'] = type('FakeModule', (), {'__file__': filename})
+        sys.modules['__mididings_main__'] = type('MididingsMain', (), {'__file__': os.path.abspath(filename)})
 
         if sys.version_info >= (3,):
             exec(compile(open(filename).read(), filename, 'exec'), self.dings_dict)

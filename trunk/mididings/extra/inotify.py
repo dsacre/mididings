@@ -13,6 +13,7 @@
 import mididings.engine as _engine
 
 import sys as _sys
+import os as _os
 
 import pyinotify as _pyinotify
 
@@ -27,12 +28,26 @@ class AutoRestart(object):
         self.notifier = _pyinotify.ThreadedNotifier(self.wm)
 
         if self.modules:
-            # add watches for imported modules
-            for m in _sys.modules.values():
-                # builtin modules don't have a __file__ attribute
-                if hasattr(m, '__file__'):
-                    f = m.__file__
-                    self.wm.add_watch(f, _pyinotify.IN_MODIFY, self._process_IN_MODIFY)
+            # find the name of the main script being executed
+            if '__mididings_main__' in _sys.modules:
+                main_file = _sys.modules['__mididings_main__'].__file__
+            elif hasattr(_sys.modules['__main__'], '__file__'):
+                main_file = _sys.modules['__main__'].__file__
+            else:
+                main_file = None
+
+            if main_file:
+                base_dir = _os.path.dirname(_os.path.abspath(main_file))
+
+                # add watches for imported modules
+                for m in _sys.modules.values():
+                    # builtin modules don't have a __file__ attribute
+                    if hasattr(m, '__file__'):
+                        f = _os.path.abspath(m.__file__)
+                        # only watch file if it's in the same directory as the
+                        # main script
+                        if f.startswith(base_dir):
+                            self.wm.add_watch(f, _pyinotify.IN_MODIFY, self._process_IN_MODIFY)
 
         # add watches for additional files
         for f in self.filenames:
