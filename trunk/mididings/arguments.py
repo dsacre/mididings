@@ -47,7 +47,7 @@ def accept(*constraints, **kwargs):
 
     @decorator.decorator
     def constrain_arguments(f, *args, **kwargs):
-        argspec = inspect.getargspec(f)
+        argspec = misc.getargspec(f)
         arg_names = argspec[0]
         have_varargs = (argspec[1] is not None) and not with_rest
 

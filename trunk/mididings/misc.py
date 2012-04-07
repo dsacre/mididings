@@ -58,6 +58,27 @@ def islambda(f):
     return isinstance(f, type(lam)) and f.__name__ == lam.__name__
 
 
+_argspec_cache = {}
+
+def getargspec(f):
+    """
+    Wrapper around inspect.getargspec() that returns sensible results for
+    functools.partial objects.
+    All results are cached since inspect.getargspec() is a little slow.
+    """
+    if f in _argspec_cache:
+        return _argspec_cache[f]
+    else:
+        if isinstance(f, functools.partial):
+            argspec = list(inspect.getargspec(f.func))
+            argspec[0] = argspec[0][len(f.args):]
+            r = tuple(argspec)
+        else:
+            r = inspect.getargspec(f)
+        _argspec_cache[f] = r
+        return r
+
+
 class deprecated(object):
     def __init__(self, replacement=None):
         self.replacement = None

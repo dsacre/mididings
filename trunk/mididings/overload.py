@@ -10,6 +10,8 @@
 # (at your option) any later version.
 #
 
+from mididings import misc
+
 import inspect
 import functools
 
@@ -23,7 +25,7 @@ def call(args, kwargs, funcs, name=None):
         n = len(args)
 
         # get argument names and the number of default arguments of f
-        argspec = _getargspec(f)
+        argspec = misc.getargspec(f)
         names = argspec[0]
         varargs = argspec[1]
         ndef = len(argspec[3]) if argspec[3] else 0
@@ -45,7 +47,7 @@ def call(args, kwargs, funcs, name=None):
         name = inspect.stack()[1][3]
 
     # format arg spec for each candidate
-    formatargspec = lambda f: inspect.formatargspec(*_getargspec(f))
+    formatargspec = lambda f: inspect.formatargspec(*misc.getargspec(f))
     candidates = ('    %s%s' % (name, formatargspec(f)) for f in funcs)
 
     # formatargspec() doesn't seem to care that the first argument mixes
@@ -57,19 +59,6 @@ def call(args, kwargs, funcs, name=None):
 
     message = "no suitable overload found for %s%s, candidates are:\n%s" % (name, args_used, '\n'.join(candidates))
     raise TypeError(message)
-
-
-def _getargspec(f):
-    """
-    Wrapper around inspect.getargspec() that returns sensible results for
-    functools.partial objects.
-    """
-    if isinstance(f, functools.partial):
-        argspec = list(inspect.getargspec(f.func))
-        argspec[0] = argspec[0][len(f.args):]
-        return tuple(argspec)
-    else:
-        return inspect.getargspec(f)
 
 
 

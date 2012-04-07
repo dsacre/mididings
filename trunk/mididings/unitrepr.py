@@ -51,7 +51,7 @@ def unit_to_string(unit):
     # can't do anything for units that didn't go through @store (or @accept)
     assert hasattr(unit, '_name')
 
-    argnames = inspect.getargspec(unit._function)[0]
+    argnames = misc.getargspec(unit._function)[0]
 
     if sys.version_info >= (2, 6):
         args = [
