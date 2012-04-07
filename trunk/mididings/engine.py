@@ -95,7 +95,7 @@ class Engine(_mididings.Engine):
                 self._scenes[number] = (scene.name, [])
 
                 for subscene in scene.subscenes:
-                    sceneobj = _scene._parse(scene)
+                    sceneobj = _scene._parse_scene(subscene)
                     self._scenes[number][1].append(sceneobj.name)
 
                     # build patches
