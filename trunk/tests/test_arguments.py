@@ -187,6 +187,39 @@ class ArgumentsTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             bar([123, 456.789, 'blah'])
 
+    def test_mappingof(self):
+        @arguments.accept(arguments.mappingof(int, float))
+        def foo(a):
+            for k, v in a.items():
+                self.assertIsInstance(k, int)
+                self.assertIsInstance(v, float)
+
+        foo({})
+        foo({23: 12.34, 42: 56.78})
+
+        with self.assertRaises(TypeError):
+            foo()
+        with self.assertRaises(TypeError):
+            foo({23: 12.34, 42: 666})
+        with self.assertRaises(TypeError):
+            foo({23: 12.34, 123.456: 56.78})
+
+        @arguments.accept({str: int})
+        def bar(a):
+            for k, v in a.items():
+                self.assertIsInstance(k, str)
+                self.assertIsInstance(v, int)
+
+        bar({})
+        bar({'foo': 23, 'bar': 42})
+
+        with self.assertRaises(TypeError):
+            bar()
+        with self.assertRaises(TypeError):
+            bar({'foo': 23, 'bar': 123.456})
+        with self.assertRaises(TypeError):
+            bar({'foo': 23, 666: 42})
+
     def test_with_rest(self):
         @arguments.accept(arguments.sequenceof(int), with_rest=True)
         def foo(a, *rest):
@@ -287,6 +320,7 @@ class ArgumentsTestCase(unittest.TestCase):
         self.assertEqual(repr(arguments._get_constraint([int])), '[int]')
         self.assertEqual(repr(arguments._get_constraint((int, float, str))), '(int, float, str)')
         self.assertEqual(repr(arguments._get_constraint([int, float, str])), '[int, float, str]')
+        self.assertEqual(repr(arguments._get_constraint({int: str})), '{int: str}')
         self.assertEqual(repr(arguments._get_constraint(arguments.flatten(int))), 'flatten(int)')
         self.assertEqual(repr(arguments._get_constraint(arguments.each(int, float))), 'each(int, float)')
         self.assertEqual(repr(arguments._get_constraint(arguments.either(int, str))), 'either(int, str)')

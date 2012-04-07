@@ -94,7 +94,7 @@ def _try_apply_constraint(constraint, arg, func_name, arg_name):
         typestr = "type" if isinstance(ex, TypeError) else "value"
         argstr = ("for parameter '%s'" % arg_name) if arg_name else "in varargs"
 
-        message = "invalid %s %s of %s(): %s" % (typestr, argstr, func_name, str(ex))
+        message = "invalid %s %s of %s():\n%s" % (typestr, argstr, func_name, str(ex))
         raise type(ex)(message)
 
 
@@ -105,7 +105,7 @@ def _apply_constraint(constraint, value):
 def _get_constraint(c):
     if c is None:
         return _any()
-    if inspect.isclass(c) or isinstance(c, tuple):
+    elif inspect.isclass(c) or isinstance(c, tuple):
         # type or tuple: type or value constraint
         return _type_value_constraint(c)
     elif isinstance(c, list):
@@ -115,8 +115,12 @@ def _get_constraint(c):
         else:
             # list: tupleof() constraint
             return tupleof(*c)
+    elif isinstance(c, dict):
+        assert len(c) == 1
+        # single-item dict: mappingof() constraint
+        return mappingof(list(c.keys())[0], list(c.values())[0])
     elif isinstance(c, _constraint):
-        # contraint object
+        # constraint object
         return c
     elif sys.version_info >= (2, 6) and isinstance(c, collections.Callable) or callable(c):
         # function or other callable object
@@ -233,17 +237,49 @@ class tupleof(_constraint):
         return repr(list(map(_get_constraint, self.what)))
 
 
+class mappingof(_constraint):
+    """
+    Checks that the argument is a dictionary, and applies constraints to each
+    key and each value.
+    """
+    def __init__(self, fromwhat, towhat):
+        self.fromwhat = fromwhat
+        self.towhat = towhat
+
+    def __call__(self, arg):
+        if not isinstance(arg, dict):
+            raise TypeError("not a dictionary")
+        try:
+            keys = (_apply_constraint(self.fromwhat, key) for key in arg.keys())
+        except (TypeError, ValueError):
+            ex = sys.exc_info()[1]
+            message = "illegal key in dictionary: %s" % str(ex)
+            raise type(ex)(message)
+        try:
+            values = (_apply_constraint(self.towhat, value) for value in arg.values())
+        except (TypeError, ValueError):
+            ex = sys.exc_info()[1]
+            message = "illegal value in dictionary: %s" % str(ex)
+            raise type(ex)(message)
+        return dict(zip(keys, values))
+
+    def __repr__(self):
+        return repr({_get_constraint(self.fromwhat): _get_constraint(self.towhat)})
+
+
 class flatten(_constraint):
     """
     Flattens all arguments into a single list, and applies a constraint to
     each element in that list.
     """
-    def __init__(self, what):
+    def __init__(self, what, return_type=None):
         self.what = what
+        self.return_type = return_type
 
     def __call__(self, arg):
         try:
-            return [_apply_constraint(self.what, value) for value in misc.flatten(arg)]
+            r = [_apply_constraint(self.what, value) for value in misc.flatten(arg)]
+            return r if self.return_type is None else self.return_type(r)
         except (TypeError, ValueError):
             ex = sys.exc_info()[1]
             message = "illegal item in sequence: %s" % str(ex)
@@ -284,7 +320,7 @@ class either(_constraint):
             except (TypeError, ValueError):
                 ex = sys.exc_info()[1]
                 exstr = str(ex).replace('\n', '\n    ')
-                errors.append("    #%d '%s': %s: %s" % (n + 1, _get_constraint(what), type(ex).__name__, exstr))
+                errors.append("    #%d %s: %s: %s" % (n + 1, _get_constraint(what), type(ex).__name__, exstr))
         message = "none of the alternatives matched:\n" + '\n'.join(errors)
         raise TypeError(message)
 
