@@ -12,7 +12,6 @@
 
 import mididings.engine as _engine
 
-import os as _os
 import sys as _sys
 
 import pyinotify as _pyinotify
@@ -33,9 +32,7 @@ class AutoRestart(object):
                 # builtin modules don't have a __file__ attribute
                 if hasattr(m, '__file__'):
                     f = m.__file__
-                    # only watch modules with relative path or in the current working directory
-                    if not _os.path.isabs(f) or f.startswith(_os.getcwd()):
-                        self.wm.add_watch(f, _pyinotify.IN_MODIFY, self._process_IN_MODIFY)
+                    self.wm.add_watch(f, _pyinotify.IN_MODIFY, self._process_IN_MODIFY)
 
         # add watches for additional files
         for f in self.filenames:
