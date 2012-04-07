@@ -17,6 +17,7 @@ import mididings.scene as _scene
 import mididings.util as _util
 import mididings.misc as _misc
 import mididings.setup as _setup
+import mididings.constants as _constants
 import mididings.overload as _overload
 import mididings.arguments as _arguments
 from mididings.setup import get_config as _get_config
@@ -270,9 +271,14 @@ def run(patch):
     Create the engine and start event processing. This function does not
     usually return until mididings exits.
     """
-    e = Engine()
-    e.setup({_util.offset(0): patch}, None, None, None)
-    e.run()
+    if isinstance(patch, dict) and all(not isinstance(k, _constants._EventType) for k in patch.keys()):
+        # bypass the overload mechanism (just this once...) if there's no way
+        # the given dict could be accepted as a split
+        run(scenes=patch)
+    else:
+        e = Engine()
+        e.setup({_util.offset(0): patch}, None, None, None)
+        e.run()
 
 @_overload.mark
 @_arguments.accept(_UNIT_TYPES, _arguments.nullable(_UNIT_TYPES), _arguments.nullable(_UNIT_TYPES), _arguments.nullable(_UNIT_TYPES))
