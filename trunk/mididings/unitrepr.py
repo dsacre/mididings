@@ -28,9 +28,9 @@ def store(f, *args, **kwargs):
     """
     unit = f(*args, **kwargs)
 
-    # store the unit's name, and the name/value of each argument
+    # store the unit's name, the function object, and the value of each argument
     unit._name = f.name if isinstance(f, overload._Overload) else f.__name__
-    unit._argnames = inspect.getargspec(f)[0]
+    unit._function = f
     unit._args = args
 
     return unit
@@ -51,6 +51,8 @@ def unit_to_string(unit):
     # can't do anything for units that didn't go through @store (or @accept)
     assert hasattr(unit, '_name')
 
+    argnames = inspect.getargspec(unit._function)[0]
+
     if sys.version_info >= (2, 6):
         args = [
             misc.bytestring(a) if isinstance(a, bytearray) else a
@@ -60,7 +62,7 @@ def unit_to_string(unit):
         args = unit._args
 
     # (ab)use inspect module to format the arguments used
-    formatted = inspect.formatargspec(args=unit._argnames, defaults=args)
+    formatted = inspect.formatargspec(args=argnames, defaults=args)
     return unit._name + formatted
 
 
