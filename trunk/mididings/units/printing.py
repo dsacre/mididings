@@ -23,7 +23,8 @@ import collections as _collections
 if _sys.version_info >= (2, 6):
     _callable_constraint = _collections.Callable
 else:
-    _callable_constraint = callable
+    import mididings.arguments as _arguments
+    _callable_constraint = _arguments.condition(lambda c: callable(c))
 
 
 class _Print(_CallBase):

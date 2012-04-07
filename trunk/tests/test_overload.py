@@ -10,6 +10,8 @@
 # (at your option) any later version.
 #
 
+from __future__ import with_statement
+
 try:
     import unittest2 as unittest
 except:

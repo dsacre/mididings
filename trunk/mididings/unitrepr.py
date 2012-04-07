@@ -15,6 +15,8 @@ from mididings import arguments
 from mididings import misc
 
 import inspect
+import sys
+
 import decorator
 
 
@@ -49,10 +51,14 @@ def unit_to_string(unit):
     # can't do anything for units that didn't go through @store (or @accept)
     assert hasattr(unit, '_name')
 
-    args = [
-        misc.bytestring(a) if isinstance(a, bytearray) else a
-        for a in unit._args
-    ]
+    if sys.version_info >= (2, 6):
+        args = [
+            misc.bytestring(a) if isinstance(a, bytearray) else a
+            for a in unit._args
+        ]
+    else:
+        args = unit._args
+
     # (ab)use inspect module to format the arguments used
     formatted = inspect.formatargspec(args=unit._argnames, defaults=args)
     return unit._name + formatted

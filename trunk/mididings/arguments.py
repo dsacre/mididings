@@ -118,7 +118,7 @@ def _get_constraint(c):
     elif isinstance(c, _constraint):
         # contraint object
         return c
-    elif isinstance(c, collections.Callable):
+    elif sys.version_info >= (2, 6) and isinstance(c, collections.Callable) or callable(c):
         # function or other callable object
         return transform(c)
     else:
