@@ -240,7 +240,7 @@ def Fork(units, remove_duplicates=None):
     return _Fork(units, remove_duplicates)
 
 
-@_arguments.accept({_arguments.reduce_bitmask([_constants._EventType]): _UNIT_TYPES})
+@_arguments.accept({_arguments.nullable(_arguments.reduce_bitmask([_constants._EventType])): _UNIT_TYPES})
 def Split(d):
     """
     Split events by type.
