@@ -315,17 +315,17 @@ class ArgumentsTestCase(unittest.TestCase):
             bar(-23)
 
     def test_repr(self):
-        self.assertEqual(repr(arguments._get_constraint(int)), 'int')
-        self.assertEqual(repr(arguments._get_constraint(arguments.nullable(int))), 'nullable(int)')
-        self.assertEqual(repr(arguments._get_constraint([int])), '[int]')
-        self.assertEqual(repr(arguments._get_constraint((int, float, str))), '(int, float, str)')
-        self.assertEqual(repr(arguments._get_constraint([int, float, str])), '[int, float, str]')
-        self.assertEqual(repr(arguments._get_constraint({int: str})), '{int: str}')
-        self.assertEqual(repr(arguments._get_constraint(arguments.flatten(int))), 'flatten(int)')
-        self.assertEqual(repr(arguments._get_constraint(arguments.each(int, float))), 'each(int, float)')
-        self.assertEqual(repr(arguments._get_constraint(arguments.either(int, str))), 'either(int, str)')
-        self.assertEqual(repr(arguments._get_constraint(lambda x: x / 2)), 'lambda x: x / 2')
-        self.assertEqual(repr(arguments._get_constraint(arguments.condition(lambda x: x < 3))), 'condition(lambda x: x < 3)')
+        self.assertEqual(repr(arguments._make_constraint(int)), 'int')
+        self.assertEqual(repr(arguments._make_constraint(arguments.nullable(int))), 'nullable(int)')
+        self.assertEqual(repr(arguments._make_constraint([int])), '[int]')
+        self.assertEqual(repr(arguments._make_constraint((int, float, str))), '(int, float, str)')
+        self.assertEqual(repr(arguments._make_constraint([int, float, str])), '[int, float, str]')
+        self.assertEqual(repr(arguments._make_constraint({int: str})), '{int: str}')
+        self.assertEqual(repr(arguments._make_constraint(arguments.flatten(int))), 'flatten(int)')
+        self.assertEqual(repr(arguments._make_constraint(arguments.each(int, float))), 'each(int, float)')
+        self.assertEqual(repr(arguments._make_constraint(arguments.either(int, str))), 'either(int, str)')
+        self.assertEqual(repr(arguments._make_constraint(lambda x: x / 2)), 'lambda x: x / 2')
+        self.assertEqual(repr(arguments._make_constraint(arguments.condition(lambda x: x < 3))), 'condition(lambda x: x < 3)')
 
         def foo(x): x
 
@@ -336,4 +336,4 @@ class ArgumentsTestCase(unittest.TestCase):
         )
         reprs = 'either(each(int, condition(lambda x: x%2 == 0)), [foo], str)'
 
-        self.assertEqual(repr(arguments._get_constraint(constraint)), reprs)
+        self.assertEqual(repr(arguments._make_constraint(constraint)), reprs)

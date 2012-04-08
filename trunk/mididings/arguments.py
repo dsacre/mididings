@@ -45,6 +45,10 @@ def accept(*constraints, **kwargs):
     with_rest = kwargs['with_rest'] if 'with_rest' in kwargs else False
     kwargs_constraints = kwargs['kwargs'] if 'kwargs' in kwargs else {}
 
+    # build all constraints
+    constraints = [_make_constraint(c) for c in constraints]
+    kwargs_constraints = dict((k, _make_constraint(v)) for k, v in kwargs_constraints.items())
+
     @decorator.decorator
     def constrain_arguments(f, *args, **kwargs):
         argspec = misc.getargspec(f)
@@ -88,7 +92,7 @@ def accept(*constraints, **kwargs):
 
 def _try_apply_constraint(constraint, arg, func_name, arg_name):
     try:
-        return _apply_constraint(constraint, arg)
+        return constraint(arg)
     except (TypeError, ValueError):
         ex = sys.exc_info()[1]
         typestr = "type" if isinstance(ex, TypeError) else "value"
@@ -98,16 +102,9 @@ def _try_apply_constraint(constraint, arg, func_name, arg_name):
         raise type(ex)(message)
 
 
-def _apply_constraint(constraint, value):
-    return _get_constraint(constraint)(value)
-
-
-def _get_constraint(c):
+def _make_constraint(c):
     if c is None:
         return _any()
-    elif inspect.isclass(c) or isinstance(c, tuple):
-        # type or tuple: type or value constraint
-        return _type_value_constraint(c)
     elif isinstance(c, list):
         if len(c) == 1:
             # single-item list: sequenceof() constraint
@@ -119,10 +116,14 @@ def _get_constraint(c):
         assert len(c) == 1
         # single-item dict: mappingof() constraint
         return mappingof(list(c.keys())[0], list(c.values())[0])
+    elif inspect.isclass(c) or isinstance(c, tuple):
+        # type or tuple: type or value constraint
+        return _type_value_constraint(c)
     elif isinstance(c, _constraint):
         # constraint object
         return c
-    elif sys.version_info >= (2, 6) and isinstance(c, collections.Callable) or callable(c):
+    elif ((sys.version_info >= (2, 6) and isinstance(c, collections.Callable))
+        or (sys.version_info < (2, 6) and callable(c))):
         # function or other callable object
         return transform(c)
     else:
@@ -177,15 +178,15 @@ class nullable(_constraint):
     Allows the argument to be None, instead of matching any other constraint.
     """
     def __init__(self, what):
-        self.what = what
+        self.what = _make_constraint(what)
 
     def __call__(self, arg):
         if arg is None:
             return None
-        return _apply_constraint(self.what, arg)
+        return self.what(arg)
 
     def __repr__(self):
-        return 'nullable(%r)' % _get_constraint(self.what)
+        return 'nullable(%r)' % self.what
 
 
 class sequenceof(_constraint):
@@ -194,21 +195,21 @@ class sequenceof(_constraint):
     each element in that sequence.
     """
     def __init__(self, what):
-        self.what = what
+        self.what = _make_constraint(what)
 
     def __call__(self, arg):
         if not misc.issequence(arg):
             raise TypeError("not a sequence")
         try:
             t = type(arg) if not isinstance(arg, types.GeneratorType) else list
-            return t(_apply_constraint(self.what, value) for value in arg)
+            return t(self.what(value) for value in arg)
         except (TypeError, ValueError):
             ex = sys.exc_info()[1]
             message = "illegal item in sequence: %s" % str(ex)
             raise type(ex)(message)
 
     def __repr__(self):
-        return repr([_get_constraint(self.what)])
+        return repr([self.what])
 
 
 class tupleof(_constraint):
@@ -217,7 +218,7 @@ class tupleof(_constraint):
     different constraints to each element in that sequence.
     """
     def __init__(self, *what):
-        self.what = what
+        self.what = [_make_constraint(c) for c in what]
 
     def __call__(self, arg):
         if not misc.issequence(arg):
@@ -227,14 +228,14 @@ class tupleof(_constraint):
             raise ValueError(message)
         try:
             t = type(arg) if not isinstance(arg, types.GeneratorType) else list
-            return t(_apply_constraint(what, value) for what, value in zip(self.what, arg))
+            return t(what(value) for what, value in zip(self.what, arg))
         except (TypeError, ValueError):
             ex = sys.exc_info()[1]
             message = "illegal item in sequence: %s" % str(ex)
             raise type(ex)(message)
 
     def __repr__(self):
-        return repr(list(map(_get_constraint, self.what)))
+        return repr(self.what)
 
 
 class mappingof(_constraint):
@@ -243,20 +244,20 @@ class mappingof(_constraint):
     key and each value.
     """
     def __init__(self, fromwhat, towhat):
-        self.fromwhat = fromwhat
-        self.towhat = towhat
+        self.fromwhat = _make_constraint(fromwhat)
+        self.towhat = _make_constraint(towhat)
 
     def __call__(self, arg):
         if not isinstance(arg, dict):
             raise TypeError("not a dictionary")
         try:
-            keys = (_apply_constraint(self.fromwhat, key) for key in arg.keys())
+            keys = (self.fromwhat(key) for key in arg.keys())
         except (TypeError, ValueError):
             ex = sys.exc_info()[1]
             message = "illegal key in dictionary: %s" % str(ex)
             raise type(ex)(message)
         try:
-            values = (_apply_constraint(self.towhat, value) for value in arg.values())
+            values = (self.towhat(value) for value in arg.values())
         except (TypeError, ValueError):
             ex = sys.exc_info()[1]
             message = "illegal value in dictionary: %s" % str(ex)
@@ -264,7 +265,7 @@ class mappingof(_constraint):
         return dict(zip(keys, values))
 
     def __repr__(self):
-        return repr({_get_constraint(self.fromwhat): _get_constraint(self.towhat)})
+        return repr({self.fromwhat: self.towhat})
 
 
 class flatten(_constraint):
@@ -273,12 +274,12 @@ class flatten(_constraint):
     each element in that list.
     """
     def __init__(self, what, return_type=None):
-        self.what = what
+        self.what = _make_constraint(what)
         self.return_type = return_type
 
     def __call__(self, arg):
         try:
-            r = [_apply_constraint(self.what, value) for value in misc.flatten(arg)]
+            r = [self.what(value) for value in misc.flatten(arg)]
             return r if self.return_type is None else self.return_type(r)
         except (TypeError, ValueError):
             ex = sys.exc_info()[1]
@@ -286,7 +287,7 @@ class flatten(_constraint):
             raise type(ex)(message)
 
     def __repr__(self):
-        return 'flatten(%r)' % _get_constraint(self.what)
+        return 'flatten(%r)' % self.what
 
 
 class each(_constraint):
@@ -294,15 +295,15 @@ class each(_constraint):
     Applies each of the given constraints.
     """
     def __init__(self, *requirements):
-        self.requirements = requirements
+        self.requirements = [_make_constraint(c) for c in requirements]
 
     def __call__(self, arg):
         for what in self.requirements:
-            arg = _apply_constraint(what, arg)
+            arg = what(arg)
         return arg
 
     def __repr__(self):
-        return 'each(%s)' % (', '.join(repr(_get_constraint(r)) for r in self.requirements))
+        return 'each(%s)' % (', '.join(repr(c) for c in self.requirements))
 
 
 class either(_constraint):
@@ -310,22 +311,22 @@ class either(_constraint):
     Accepts the argument if any of the given constraints can be applied.
     """
     def __init__(self, *alternatives):
-        self.alternatives = alternatives
+        self.alternatives = [_make_constraint(c) for c in alternatives]
 
     def __call__(self, arg):
         errors = []
         for n, what in enumerate(self.alternatives):
             try:
-                return _apply_constraint(what, arg)
+                return what(arg)
             except (TypeError, ValueError):
                 ex = sys.exc_info()[1]
                 exstr = str(ex).replace('\n', '\n    ')
-                errors.append("    #%d %s: %s: %s" % (n + 1, _get_constraint(what), type(ex).__name__, exstr))
+                errors.append("    #%d %s: %s: %s" % (n + 1, what, type(ex).__name__, exstr))
         message = "none of the alternatives matched:\n" + '\n'.join(errors)
         raise TypeError(message)
 
     def __repr__(self):
-        return 'either(%s)' % (', '.join(repr(_get_constraint(a)) for a in self.alternatives))
+        return 'either(%s)' % (', '.join(repr(c) for c in self.alternatives))
 
 
 class transform(_constraint):
@@ -364,10 +365,10 @@ class reduce_bitmask(_constraint):
     Flattens all arguments and reduces them to a single bitmask.
     """
     def __init__(self, what):
-        self.what = what
+        self.what = _make_constraint(what)
 
     def __call__(self, arg):
-        seq = _apply_constraint(self.what, misc.flatten(arg))
+        seq = self.what(misc.flatten(arg))
         return functools.reduce(lambda x, y: x | y, seq)
 
 
