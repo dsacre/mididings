@@ -168,19 +168,14 @@ def port_number(port):
             raise ValueError("invalid port number %d" % port)
         return port
     elif isinstance(port, str):
-        # XXX workaround for circular absolute imports
-        import mididings.engine as engine
+        in_ports = _setup._in_portnames
+        out_ports = _setup._out_portnames
 
-        in_ports = engine.in_ports()
-        out_ports = engine.out_ports()
-        is_in = (_misc.issequence(in_ports) and port in in_ports)
-        is_out = (_misc.issequence(out_ports) and port in out_ports)
-
-        if is_in and is_out and in_ports.index(port) != out_ports.index(port):
+        if port in in_ports and port in out_ports and in_ports.index(port) != out_ports.index(port):
             raise ValueError("port name '%s' is ambiguous" % port)
-        elif is_in:
+        elif port in in_ports:
             return offset(in_ports.index(port))
-        elif is_out:
+        elif port in out_ports:
             return offset(out_ports.index(port))
         else:
             raise ValueError("invalid port name '%s'" % port)
