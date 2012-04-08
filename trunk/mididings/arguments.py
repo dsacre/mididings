@@ -23,7 +23,7 @@ if sys.version_info < (2, 6):
 import decorator
 
 
-def accept(*constraints, **kwargs):
+class accept(object):
     """
     A decorator that applies type checks and other constraints to the arguments
     of the decorated function.
@@ -42,52 +42,53 @@ def accept(*constraints, **kwargs):
     dictionary, and the value from that dictionnary is used as the constraint
     to be applied.
     """
-    with_rest = kwargs['with_rest'] if 'with_rest' in kwargs else False
-    kwargs_constraints = kwargs['kwargs'] if 'kwargs' in kwargs else {}
+    def __init__(self, *constraints, **kwargs):
+        self.with_rest = kwargs['with_rest'] if 'with_rest' in kwargs else False
+        kwargs_constraints = kwargs['kwargs'] if 'kwargs' in kwargs else {}
 
-    # build all constraints
-    constraints = [_make_constraint(c) for c in constraints]
-    kwargs_constraints = dict((k, _make_constraint(v)) for k, v in kwargs_constraints.items())
+        # build all constraints
+        self.constraints = [_make_constraint(c) for c in constraints]
+        self.kwargs_constraints = dict((k, _make_constraint(v)) for k, v in kwargs_constraints.items())
 
-    @decorator.decorator
-    def constrain_arguments(f, *args, **kwargs):
+    def __call__(self, f):
         argspec = misc.getargspec(f)
-        arg_names = argspec[0]
-        have_varargs = (argspec[1] is not None) and not with_rest
+        self.arg_names = argspec[0]
+        self.have_varargs = (argspec[1] is not None) and not self.with_rest
 
+        assert ((len(self.constraints) == len(self.arg_names) and not self.have_varargs)
+             or (len(self.constraints) == len(self.arg_names) + 1 and self.have_varargs))
+
+        return decorator.decorator(self.wrapper, f)
+
+    def wrapper(self, f, *args, **kwargs):
         mod_args = []
         mod_kwargs = {}
 
-        assert ((len(constraints) == len(arg_names) and not have_varargs)
-             or (len(constraints) == len(arg_names) + 1 and have_varargs))
-
-        for constraint, arg_name, arg in zip(constraints, arg_names, args):
-            if with_rest and arg_name == arg_names[-1]:
+        for constraint, arg_name, arg in zip(self.constraints, self.arg_names, args):
+            if self.with_rest and arg_name == self.arg_names[-1]:
                 # with_rest is True and this is the last argument: combine with varargs
-                index = len(arg_names)
+                index = len(self.arg_names)
                 arg = (arg,) + args[index:]
 
             a = _try_apply_constraint(constraint, arg, f.__name__, arg_name)
             mod_args.append(a)
 
-        if have_varargs:
+        if self.have_varargs:
             index = len(arg_names)
-            constraint = constraints[index]
+            constraint = self.constraints[index]
 
             for arg in args[index:]:
                 a = _try_apply_constraint(constraint, arg, f.__name__, None)
                 mod_args.append(a)
 
         for k, v in kwargs.items():
-            if k not in kwargs_constraints:
+            if k not in self.kwargs_constraints:
                 message = "%s() got an unexpected keyword argument '%s'" % (f.__name__, k)
                 raise TypeError(message)
-            a = _try_apply_constraint(kwargs_constraints[k], v, f.__name__, k)
+            a = _try_apply_constraint(self.kwargs_constraints[k], v, f.__name__, k)
             mod_kwargs[k] = a
 
         return f(*mod_args, **mod_kwargs)
-
-    return constrain_arguments
 
 
 def _try_apply_constraint(constraint, arg, func_name, arg_name):
