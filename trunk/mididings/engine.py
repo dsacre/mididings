@@ -20,8 +20,6 @@ import mididings.setup as _setup
 import mididings.constants as _constants
 import mididings.overload as _overload
 import mididings.arguments as _arguments
-from mididings.setup import get_config as _get_config
-from mididings.setup import get_hooks as _get_hooks
 from mididings.units.base import _UNIT_TYPES
 
 import time as _time
@@ -39,53 +37,19 @@ if _sys.version_info >= (3,):
 _TheEngine = None
 
 
-def _make_portnames(ports, prefix):
-    if not _misc.issequence(ports):
-        return [prefix + str(_util.offset(n)) for n in range(ports)]
-
-    portnames = []
-    for port in ports:
-        if _misc.issequence(port):
-            portnames.append(port[0])
-        else:
-            portnames.append(port)
-    return portnames
-
-
-def _make_port_connections(ports):
-    if not _misc.issequence(ports):
-        return {}
-
-    connections = {}
-    for port in ports:
-        if _misc.issequence(port):
-            portname = port[0]
-            if _misc.issequence(port[1]):
-                connections[portname] = port[1]
-            else:
-                connections[portname] = [port[1]]
-    return connections
-
-
-
 class Engine(_mididings.Engine):
     def __init__(self):
-        # build the actual port names
-        self.in_ports = _make_portnames(_get_config('in_ports'), 'in_')
-        self.out_ports = _make_portnames(_get_config('out_ports'), 'out_')
-
         # initialize C++ base class
         engine_args = (
-            _get_config('backend'),
-            _get_config('client_name'),
-            self.in_ports,
-            self.out_ports,
-            not _get_config('silent')
+            _setup.get_config('backend'),
+            _setup.get_config('client_name'),
+            _setup._in_portnames,
+            _setup._out_portnames,
+            not _setup.get_config('silent')
         )
         _mididings.Engine.__init__(self, *engine_args)
 
-        self.connect_ports(_make_port_connections(_get_config('in_ports')),
-                           _make_port_connections(_get_config('out_ports')))
+        self.connect_ports(_setup._in_port_connections, _setup._out_port_connections)
 
         self._scenes = {}
 
@@ -135,7 +99,7 @@ class Engine(_mididings.Engine):
 
         self._call_hooks('on_start')
 
-        initial_scene, initial_subscene = self._parse_scene_number(_get_config('initial_scene'))
+        initial_scene, initial_subscene = self._parse_scene_number(_setup.get_config('initial_scene'))
 
         # start the actual event processing
         self.start(initial_scene, initial_subscene)
@@ -152,7 +116,7 @@ class Engine(_mididings.Engine):
             _TheEngine = None
 
     def _start_delay(self):
-        delay = _get_config('start_delay')
+        delay = _setup.get_config('start_delay')
         if delay is not None:
             if delay > 0:
                 _time.sleep(delay)
@@ -201,7 +165,7 @@ class Engine(_mididings.Engine):
         else:
             number = str(scene)
 
-        if not _get_config('silent'):
+        if not _setup.get_config('silent'):
             if found:
                 # get scene/subscene name
                 scene_data = self._scenes[scene]
@@ -219,7 +183,7 @@ class Engine(_mididings.Engine):
             self._call_hooks('on_switch_scene', scene, subscene)
 
     def _call_hooks(self, name, *args):
-        for hook in _get_hooks():
+        for hook in _setup.get_hooks():
             if hasattr(hook, name):
                 f = getattr(hook, name)
                 f(*args)
@@ -349,19 +313,13 @@ def in_ports():
     """
     Return the list of input port names.
     """
-    if active():
-        return _TheEngine().in_ports
-    else:
-        return _make_portnames(_get_config('in_ports'), 'in_')
+    return _setup._in_portnames
 
 def out_ports():
     """
     Return the list of output port names.
     """
-    if active():
-        return _TheEngine().out_ports
-    else:
-        return _make_portnames(_get_config('out_ports'), 'out_')
+    return _setup._out_portnames
 
 def time():
     """

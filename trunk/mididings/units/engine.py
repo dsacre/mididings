@@ -20,7 +20,7 @@ import mididings.overload as _overload
 import mididings.unitrepr as _unitrepr
 
 
-@_unitrepr.accept()
+@_unitrepr.store
 def Sanitize():
     return _Unit(_mididings.Sanitize())
 

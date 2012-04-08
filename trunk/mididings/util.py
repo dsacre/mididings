@@ -12,7 +12,7 @@
 
 import mididings.misc as _misc
 import mididings.constants as _constants
-from mididings.setup import get_config as _get_config
+import mididings.setup as _setup
 
 import sys as _sys
 
@@ -85,7 +85,7 @@ def note_number(note, allow_end=False):
         try:
             name = note[:i]
             octave = int(note[i:])
-            r = _NOTE_NUMBERS[name] + (octave + _get_config('octave_offset')) * 12
+            r = _NOTE_NUMBERS[name] + (octave + _setup.get_config('octave_offset')) * 12
         except Exception:
             raise ValueError("invalid note name '%s'" % note)
     else:
@@ -132,7 +132,7 @@ def note_name(note):
     """
     if not isinstance(note, int):
         raise TypeError("note must be an integer")
-    return _NOTE_NAMES[note % 12] + str((note // 12) - _get_config('octave_offset'))
+    return _NOTE_NAMES[note % 12] + str((note // 12) - _setup.get_config('octave_offset'))
 
 
 def tonic_note_number(key):
@@ -317,7 +317,7 @@ def offset(n):
     """
     Add current data offset.
     """
-    return n + _get_config('data_offset')
+    return n + _setup.get_config('data_offset')
 
 
 def actual(n):
@@ -327,7 +327,7 @@ def actual(n):
     if isinstance(n, NoDataOffset):
         return int(n)
     else:
-        return n - _get_config('data_offset')
+        return n - _setup.get_config('data_offset')
 
 
 
