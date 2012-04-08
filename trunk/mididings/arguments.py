@@ -74,7 +74,7 @@ class accept(object):
             mod_args.append(a)
 
         if self.have_varargs:
-            index = len(arg_names)
+            index = len(self.arg_names)
             constraint = self.constraints[index]
 
             for arg in args[index:]:
