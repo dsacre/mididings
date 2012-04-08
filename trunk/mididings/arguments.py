@@ -117,9 +117,16 @@ def _make_constraint(c):
         assert len(c) == 1
         # single-item dict: mappingof() constraint
         return mappingof(list(c.keys())[0], list(c.values())[0])
-    elif inspect.isclass(c) or isinstance(c, tuple):
-        # type or tuple: type or value constraint
-        return _type_value_constraint(c)
+    elif isinstance(c, tuple):
+        if all(inspect.isclass(cc) for cc in c):
+            # multiple types: type constraint
+            return _type_constraint(c, True)
+        else:
+            # any other tuple: value constraint
+            return _value_constraint(c)
+    elif inspect.isclass(c):
+        # single type: type constraint
+        return _type_constraint(c)
     elif isinstance(c, _constraint):
         # constraint object
         return c
@@ -141,37 +148,46 @@ class _any(_constraint):
         return arg
 
 
-class _type_value_constraint(_constraint):
-    def __init__(self, constraint):
-        self.constraint = constraint
+class _type_constraint(_constraint):
+    def __init__(self, types, multiple=False):
+        self.types = types
+        self.multiple = multiple
 
     def __call__(self, arg):
-        if inspect.isclass(self.constraint):
+        if not self.multiple:
             # single type, check if instance
-            if not isinstance(arg, self.constraint):
-                message = "expected %s, got %s" % (self.constraint.__name__, type(arg).__name__)
+            if not isinstance(arg, self.types):
+                message = "expected %s, got %s" % (self.types.__name__, type(arg).__name__)
                 raise TypeError(message)
             return arg
-        elif all(inspect.isclass(c) for c in self.constraint):
+        else:
             # multiple types, check if instance
-            if not isinstance(arg, self.constraint):
-                argtypes = ", ".join(c.__name__ for c in self.constraint)
+            if not isinstance(arg, self.types):
+                argtypes = ", ".join(c.__name__ for c in self.types)
                 message = "expected one of (%s), got %s" % (argtypes, type(arg).__name__)
                 raise TypeError(message)
             return arg
-        else:
-            # multiple values, check if value is in sequence
-            if arg not in self.constraint:
-                args = ", ".join(repr(c) for c in self.constraint)
-                message = "expected one of (%s), got %r" % (args, arg)
-                raise ValueError(message)
-            return arg
 
     def __repr__(self):
-        if inspect.isclass(self.constraint):
-            return self.constraint.__name__
+        if not self.multiple:
+            return self.types.__name__
         else:
-            return repr(tuple(map(_type_value_constraint, self.constraint)))
+            return repr(tuple(map(_type_constraint, self.types)))
+
+
+class _value_constraint(_constraint):
+    def __init__(self, values):
+        self.values = values
+
+    def __call__(self, arg):
+        if arg not in self.values:
+            args = ", ".join(repr(c) for c in self.values)
+            message = "expected one of (%s), got %r" % (args, arg)
+            raise ValueError(message)
+        return arg
+
+    def __repr__(self):
+        return repr(tuple(self.values))
 
 
 class nullable(_constraint):

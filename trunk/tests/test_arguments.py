@@ -318,6 +318,7 @@ class ArgumentsTestCase(unittest.TestCase):
         self.assertEqual(repr(arguments._make_constraint(int)), 'int')
         self.assertEqual(repr(arguments._make_constraint(arguments.nullable(int))), 'nullable(int)')
         self.assertEqual(repr(arguments._make_constraint([int])), '[int]')
+        self.assertEqual(repr(arguments._make_constraint((23, 42))), '(23, 42)')
         self.assertEqual(repr(arguments._make_constraint((int, float, str))), '(int, float, str)')
         self.assertEqual(repr(arguments._make_constraint([int, float, str])), '[int, float, str]')
         self.assertEqual(repr(arguments._make_constraint({int: str})), '{int: str}')
