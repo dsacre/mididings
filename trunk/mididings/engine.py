@@ -138,7 +138,7 @@ class Engine(_mididings.Engine):
         return (-1, -1)
 
     def process_file(self):
-        self.start(0)
+        self.start(0, -1)
 
     def scene_switch_callback(self, scene, subscene):
         # the scene and subscene parameters are the actual numbers without offset!
@@ -272,7 +272,7 @@ def process_file(infile, outfile, patch):
         out_ports=[outfile],
     )
     e = Engine()
-    e.setup({0: patch}, None, None, None)
+    e.setup({_util.offset(0): patch}, None, None, None)
     e.process_file()
 
 
