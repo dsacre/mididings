@@ -143,7 +143,7 @@ class MididingsTestCase(unittest.TestCase):
         if not misc.issequence(events):
             events = [events]
         for ev in events:
-            r += e.process(ev)[:]
+            r += e.process_event(ev)[:]
         for ev in r:
             ev.__class__ = MidiEvent
         return r

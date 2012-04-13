@@ -206,6 +206,10 @@ class Engine(_mididings.Engine):
     def scenes(self):
         return self._scenes
 
+    def process_event(self, ev):
+        ev._finalize()
+        return _mididings.Engine.process_event(self, ev)
+
     def output_event(self, ev):
         ev._finalize()
         _mididings.Engine.output_event(self, ev)

@@ -175,9 +175,10 @@ void Engine::run_async()
 }
 
 
-#ifdef ENABLE_TEST
-std::vector<MidiEvent> Engine::process_test(MidiEvent const & ev)
+std::vector<MidiEvent> Engine::process_event(MidiEvent const & ev)
 {
+    boost::mutex::scoped_lock lock(_process_mutex);
+
     std::vector<MidiEvent> v;
     Patch::EventBuffer buffer(*this);
 
@@ -192,7 +193,6 @@ std::vector<MidiEvent> Engine::process_test(MidiEvent const & ev)
     v.insert(v.end(), buffer.begin(), buffer.end());
     return v;
 }
-#endif
 
 
 template <typename B>

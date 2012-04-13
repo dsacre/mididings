@@ -95,15 +95,13 @@ class Engine
         return i != _scenes.end() ? i->second.size() : 0;
     }
 
+    std::vector<MidiEvent> process_event(MidiEvent const & ev);
+
     void output_event(MidiEvent const & ev);
 
     double time();
 
     PythonCaller & python_caller() const { return *_python_caller; }
-
-#ifdef ENABLE_TEST
-    std::vector<MidiEvent> process_test(MidiEvent const & ev);
-#endif
 
   protected:
     virtual void scene_switch_callback(int scene, int subscene) = 0;

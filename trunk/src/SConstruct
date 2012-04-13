@@ -20,7 +20,6 @@ env = Environment(
 #        'ENABLE_DEBUG_FN',
 #        'ENABLE_DEBUG_PRINT',
 #        'ENABLE_DEBUG_STATS',
-        'ENABLE_TEST',
 #        'ENABLE_BENCHMARK',
         'ENABLE_ALSA_SEQ',
         'ENABLE_JACK_MIDI',
