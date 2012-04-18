@@ -17,5 +17,8 @@ from mididings.scene import *
 from mididings.units import *
 
 
+__version__ = '20120418'
+
+
 import mididings.misc as _misc
 __all__ = _misc.prune_globals(globals())

@@ -30,28 +30,39 @@ _DEFAULT_CONFIG = {
 }
 
 
-def _parse_portnames(ports, prefix):
+def _default_portname(n, out):
+    prefix = 'out_' if out else 'in_'
+    return prefix + str(n + get_config('data_offset'))
+
+def _parse_portnames(ports, out):
     if not _misc.issequence(ports):
-        return [prefix + str(n + get_config('data_offset')) for n in range(ports)]
+        return [_default_portname(n, out) for n in range(ports)]
 
     portnames = []
-    for port in ports:
+    for n, port in enumerate(ports):
         if _misc.issequence(port):
-            portnames.append(port[0])
+            if port[0] is None:
+                portnames.append(_default_portname(n, out))
+            else:
+                portnames.append(port[0])
         else:
             portnames.append(port)
     return portnames
 
 
-def _parse_port_connections(ports):
+def _parse_port_connections(ports, out):
     if not _misc.issequence(ports):
         return {}
 
     connections = {}
-    for port in ports:
+    for n, port in enumerate(ports):
         if _misc.issequence(port):
             portname = port[0]
-            if _misc.issequence(port[1]):
+            if port[0] is None:
+                portname = _default_portname(n, out)
+            if port[1] is None:
+                pass
+            elif _misc.issequence(port[1]):
                 connections[portname] = port[1]
             else:
                 connections[portname] = [port[1]]
@@ -59,9 +70,9 @@ def _parse_port_connections(ports):
 
 
 def reset():
-    global _config, _config_override, _hooks
+    global _config, _config_overridden, _hooks
     _config = _DEFAULT_CONFIG.copy()
-    _config_override = []
+    _config_overridden = []
     _hooks = []
     _config_updated()
 
@@ -100,23 +111,23 @@ def config(**kwargs):
     _config_impl(**kwargs)
 
 
-def _config_impl(_override=False, **kwargs):
+def _config_impl(override=False, **kwargs):
     for k, v in kwargs.items():
         # everything seems ok, go ahead and change the config
-        if _override or k not in _config_override:
+        if override or k not in _config_overridden:
             _config[k] = v
-        if _override:
-            _config_override.append(k)
+        if override:
+            _config_overridden.append(k)
     _config_updated()
 
 
 def _config_updated():
     global _in_portnames, _out_portnames
     global _in_port_connections, _out_port_connections
-    _in_portnames = _parse_portnames(get_config('in_ports'), 'in_')
-    _out_portnames = _parse_portnames(get_config('out_ports'), 'out_')
-    _in_port_connections = _parse_port_connections(get_config('in_ports'))
-    _out_port_connections = _parse_port_connections(get_config('out_ports'))
+    _in_portnames = _parse_portnames(get_config('in_ports'), False)
+    _out_portnames = _parse_portnames(get_config('out_ports'), True)
+    _in_port_connections = _parse_port_connections(get_config('in_ports'), False)
+    _out_port_connections = _parse_port_connections(get_config('out_ports'), True)
 
 
 def get_config(var):
