@@ -78,7 +78,7 @@ a {
 }
 
 li {
-    margin-top: 0.2em;
+    margin-top: 0.4em;
     margin-bottom: 0.2em;
 }
 
@@ -101,10 +101,14 @@ li.toplevel:last-child {
 
 div.example {
     background-color: #ffd;
-    margin: 0em 16em 1em 2.2em;
+    margin: 0.6em 16em 1em 2.2em;
     padding: 3px;
     border: 1px dashed #edb;
     font-family: monospace;
+}
+
+li > div.example {
+    margin-left: 0em;
 }
 
 div.example > div.header {

@@ -29,18 +29,42 @@ Possible keyword arguments are:
 </p>
 <ul>
   <li><b>backend</b>: MIDI backend to be used:
-  <ul>
-    <li><b>'alsa'</b>: Use the ALSA sequencer (this is the default).</li>
-    <li><b>'jack'</b>: Use JACK MIDI. All MIDI events are buffered and processed outside the JACK process callback,
-    and will thus be delayed by (at least) one period.</li>
-    <li><b>'jack-rt'</b>: MIDI events are processed directly in the JACK process callback. It's not safe to run Python
-    code in a realtime context, so it's recommended to avoid Process(), which <i>might</i> cause xruns (or worse).
-    All other units should be safe to use.</li>
-  </ul>
+    <ul>
+      <li><b>'alsa'</b>: Use the ALSA sequencer (this is the default).</li>
+      <li><b>'jack'</b>: Use JACK MIDI. All MIDI events are buffered and processed outside the JACK process callback,
+      and will thus be delayed by (at least) one period.</li>
+      <li><b>'jack-rt'</b>: MIDI events are processed directly in the JACK process callback. It's not safe to run Python
+      code in a realtime context, so it's recommended to avoid Process(), which <i>might</i> cause xruns (or worse).
+      All other units should be safe to use.</li>
+    </ul>
   </li>
   <li><b>client_name</b>: MIDI client name to be used.</li>
-  <li><b>in_ports/out_ports</b>: Integers indicating the number of input/output ports to create (named in_<i>n</i>
-  or out_<i>n</i>), or lists of port names, in which case the list's length determines the number of ports.</li>
+  <li><b>in_ports / out_ports</b>: Defines the number and names of input and output ports, and optionally external
+  ports to connect them to. Possible values are:
+    <ul>
+      <li>Integers: Simply indicates the number of ports to create (named in_<i>n</i> and out_<i>n</i>, respectively).
+        <div class="example"><div class="header">
+        Create two input ports with default names (in_1 and in_2):
+        </div>
+        config(in_ports=2)
+        </div>
+      </li>
+      <li>Lists of ports, where each port is described by a string specifying its name, or a list/tuple containing the port name,
+      followed by any number of regular expressions specifying ports to connect to.
+      These regular expressions are matched against the full name (clientname:portname) of each external port.
+      ALSA clients and ports can be specified using either their names or numbers.
+        <div class="example"><div class="header">
+        Create three output ports with custom names, and automatically connect two of those ports to other clients:
+        </div>
+        config(out_ports=[<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;'foo',<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;('bar', '24:0', 'yoshimi:midi in'),<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;('baz', 'LinuxSampler:.*'),<br>
+        ])
+        </div>
+      </li>
+    </ul>
+  </li>
   <li><b>data_offset</b>: 1 (default) or 0. Determines whether program, port and channel numbers will be
   in the range 1-128 or 0-127.</li>
   <li><b>octave_offset</b>: Offset in octaves from note number 0 to C0.
@@ -77,7 +101,7 @@ The SceneSwitch() unit can be used to switch between these scenes.
   Values can also be tuples with two items, the first being an init-patch that's executed once every time the
   scenes is selected, and the second being the actual patch that processes incoming events.</li>
   <li><b>control</b>: The "control" patch, which is always active, and runs in parallel to the current scene.</li>
-  <li><b>pre/post</b>: Allows processing to take place before/after every scene. Does not affect
+  <li><b>pre / post</b>: Allows processing to take place before/after every scene. Does not affect
   the control patch.</li>
 </ul>
 
@@ -151,6 +175,7 @@ SceneGroup("Example Song", [
   <li><b>NOTE</b> = NOTEON | NOTEOFF</li>
   <li><b>SYSCM</b> = SYSCM_*</li>
   <li><b>SYSRT</b> = SYSRT_*</li>
+  <li><b>SYSTEM</b> = SYSEX | SYSCM | SYSRT</li>
   <li><b>NONE</b></li>
   <li><b>ANY</b></li>
 </ul>
@@ -160,7 +185,7 @@ SceneGroup("Example Song", [
 
 <h3>Event Attributes</h3>
 <p>
-  These constants are used to refer to an event's data attributes:
+  These constants are used by generator units and the SceneSwitch() unit to refer to an event's data attributes:
 </p>
 <ul>
   <li><b>EVENT_PORT</b></li>
