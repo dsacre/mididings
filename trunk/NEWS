@@ -1,3 +1,26 @@
+2012-04-19
+
+  * Added the ability to automatically connect to other JACK or ALSA
+    clients, using regex-based port name matching.
+  * Most functions and units now check the types and values of their
+    arguments, allowing for much more comprehensible error messages.
+  * New dependency: The Python decorator module is now required to run
+    mididings.
+  * Much cleaner and more efficient conversion between Python and C++
+    sequence and mapping types, implemented entirely in C++.
+  * SysEx data is now passed to Python functions as a mutable bytearray
+    object (or as list in Python 2.5).
+  * Many SysEx-related bugfixes: SysEx() and SysExEvent() now work
+    correctly when data_offset is 1, SysExFilter(manufacturer) works
+    again, and Print() no longer raises an exception when it encounters
+    a SysEx event.
+  * AutoRestart() is now a little smarter when deciding which files to
+    watch for changes.
+  * Fixed the process_file() function (which apparently no one used in
+    years...)
+  * Replaced a gcc-ism: mididings can now be built with clang++ (version
+    3.0 or later).
+
 2012-03-12
 
   * Added methods apply(), invert() and negate() to filter objects, and

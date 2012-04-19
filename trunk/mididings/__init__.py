@@ -17,7 +17,7 @@ from mididings.scene import *
 from mididings.units import *
 
 
-__version__ = '20120418'
+__version__ = '20120419'
 
 
 import mididings.misc as _misc
