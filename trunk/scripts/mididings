@@ -85,8 +85,8 @@ if __name__ == '__main__':
     parser.add_option('-c', dest='client_name', help="ALSA or JACK client name")
     parser.add_option('-i', dest='in_ports', type=int, help="number of input ports")
     parser.add_option('-o', dest='out_ports', type=int, help="number of output ports")
-    parser.add_option('-I', dest='in_connections', type=str, action='append', help='input port connection (regex)')
-    parser.add_option('-O', dest='out_connections', type=str, action='append', help='output port connection (regex)')
+    parser.add_option('-I', dest='in_connections', type=str, action='append', help='input port connection (regular expression)')
+    parser.add_option('-O', dest='out_connections', type=str, action='append', help='output port connection (regular expression)')
     parser.add_option('-d', dest='start_delay', type=float, help="delay (in seconds) before starting MIDI processing")
     parser.add_option('-f', dest='filename', help="file name of script to run")
 

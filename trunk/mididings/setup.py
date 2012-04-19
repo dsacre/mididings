@@ -56,16 +56,12 @@ def _parse_port_connections(ports, out):
 
     connections = {}
     for n, port in enumerate(ports):
-        if _misc.issequence(port):
-            portname = port[0]
-            if port[0] is None:
-                portname = _default_portname(n, out)
-            if port[1] is None:
-                pass
-            elif _misc.issequence(port[1]):
-                connections[portname] = port[1]
-            else:
-                connections[portname] = [port[1]]
+        if not _misc.issequence(port) or len(port) <= 1 or port[1] is None:
+            continue
+        portname = port[0]
+        if port[0] is None:
+            portname = _default_portname(n, out)
+        connections[portname] = port[1:]
     return connections
 
 
@@ -83,19 +79,11 @@ def reset():
     'client_name':      str,
     'in_ports':         _arguments.either(
                             _arguments.each(int, _arguments.condition(lambda x: x > 0)),
-                            _arguments.sequenceof(_arguments.either(
-                                str,
-                                [str, str],
-                                [str, [str]],
-                            )),
+                            _arguments.sequenceof(_arguments.either(str, [str])),
                         ),
     'out_ports':        _arguments.either(
                             _arguments.each(int, _arguments.condition(lambda x: x > 0)),
-                            _arguments.sequenceof(_arguments.either(
-                                str,
-                                [str, str],
-                                [str, [str]],
-                            )),
+                            _arguments.sequenceof(_arguments.either(str, [str])),
                         ),
     'data_offset':      (0, 1),
     'octave_offset':    int,
