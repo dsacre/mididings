@@ -21,8 +21,7 @@ Requirements:
 * JACK (>= 0.116.0) [http://jackaudio.org/]
 * Boost >= 1.34.1 (Boost.Python, Boost.Thread) [http://www.boost.org/]
 * Glib [http://library.gnome.org/devel/glib/]
-* Python decorator module
-  [http://micheles.googlecode.com/hg/decorator/index.html]
+* decorator [http://pypi.python.org/pypi/decorator]
 
 
 Optional:
