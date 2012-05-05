@@ -18,6 +18,7 @@ config = {
     'smf':          False,
 }
 
+
 def check_option(name, argv):
     for arg in argv:
         if arg == '--enable-%s' % name:
@@ -26,6 +27,7 @@ def check_option(name, argv):
         elif arg == '--disable-%s' % name:
             sys.argv.remove(arg)
             config[name] = False
+
 
 check_option('alsa-seq', sys.argv[1:])
 check_option('jack-midi', sys.argv[1:])
@@ -45,13 +47,27 @@ def pkgconfig(pkg):
         elif opt == '-L':
             library_dirs.append(val)
 
-def boost_lib_name(lib):
-    for libdir in ('/usr/lib', '/usr/local/lib', '/usr/lib64', '/usr/local/lib64'):
-        for suffix in ('', '-mt'):
+
+def lib_dirs():
+    try:
+        status, output = getstatusoutput(sysconfig.get_config_var('CC') + ' -print-search-dirs')
+        for line in output.splitlines():
+            if 'libraries: =' in line:
+                libdirs = line.split('=', 1)[1]
+                return libdirs.split(':')
+        return []
+    except Exception:
+        return []
+
+
+def boost_lib_name(lib, suffixes=[]):
+    libdirs = ['/usr/lib', '/usr/local/lib', '/usr/lib64', '/usr/local/lib64'] + lib_dirs()
+    for suffix in suffixes + ['', '-mt']:
+        for libdir in libdirs:
             libname = 'lib%s%s.so' % (lib, suffix)
             if os.path.isfile(os.path.join(libdir, libname)):
                 return lib + suffix
-    return lib + '-mt'
+    return lib
 
 
 sources = [
@@ -71,15 +87,11 @@ include_dirs.append('src')
 
 pkgconfig('glib-2.0')
 
-libraries.append(boost_lib_name('boost_python'))
+boost_python_suffixes = ['-py%d%d' % sys.version_info[:2]]
+if sys.version_info >= (3,):
+    boost_python_suffixes.append('3')
+libraries.append(boost_lib_name('boost_python', boost_python_suffixes))
 libraries.append(boost_lib_name('boost_thread'))
-
-# uncomment and adapt these to build using a custom install of boost.
-# you may also need to comment out the two lines above
-#include_dirs.append('/opt/boost1.43/include')
-#library_dirs.append('/opt/boost1.43/lib')
-#libraries.append('boost_python')
-#libraries.append('boost_thread')
 
 
 if config['alsa-seq']:
