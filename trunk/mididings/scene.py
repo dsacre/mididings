@@ -17,11 +17,13 @@ import mididings.arguments as _arguments
 
 
 class Scene(object):
-    @_arguments.accept(None, _arguments.nullable(str), _UNIT_TYPES, _arguments.nullable(_UNIT_TYPES))
-    def __init__(self, name, patch, init_patch=None):
+    @_arguments.accept(None, _arguments.nullable(str), _UNIT_TYPES,
+                       _arguments.nullable(_UNIT_TYPES), _arguments.nullable(_UNIT_TYPES))
+    def __init__(self, name, patch, init_patch=None, exit_patch=None):
         self.name = name if name else ''
         self.patch = patch
-        self.init_patch = init_patch if init_patch else []
+        self.init_patch = [init_patch] if init_patch else []
+        self.exit_patch = [exit_patch] if exit_patch else []
 
 
 class SceneGroup(object):
@@ -36,12 +38,13 @@ def _parse_scene(scene):
     if isinstance(scene, Scene):
         pass
     elif isinstance(scene, tuple):
-        scene = Scene(None, scene[1], [scene[0]])
+        scene = Scene(None, *scene)
     else:
         scene = Scene(None, scene, None)
 
     # add any initializations defined in the processing patch (via Init() etc.)
     # to the init patch
     scene.init_patch += _patch.get_init_patches(scene.patch)
+    scene.exit_patch += _patch.get_exit_patches(scene.patch)
 
     return scene

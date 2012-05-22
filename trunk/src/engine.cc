@@ -75,13 +75,13 @@ void Engine::connect_ports(Backend::PortConnectionMap const & in_port_connection
 }
 
 
-void Engine::add_scene(int i, PatchPtr patch, PatchPtr init_patch)
+void Engine::add_scene(int i, PatchPtr patch, PatchPtr init_patch, PatchPtr exit_patch)
 {
     if (!has_scene(i)) {
         _scenes[i] = std::vector<ScenePtr>();
     }
 
-    _scenes[i].push_back(ScenePtr(new Scene(patch, init_patch)));
+    _scenes[i].push_back(ScenePtr(new Scene(patch, init_patch, exit_patch)));
 }
 
 
@@ -285,42 +285,60 @@ void Engine::process_scene_switch(B & buffer)
         scene_switch_callback(_new_scene, _new_subscene);
     }
 
-    // determine the actual scene and subscene number we're switching to
-    int scene = _new_scene != -1 ? _new_scene : _current_scene;
-    int subscene = _new_subscene != -1 ? _new_subscene : 0;
+    // create dummy event to trigger init and exit patches
+    MidiEvent dummy_ev;
+    dummy_ev.type = MIDI_EVENT_DUMMY;
 
-    SceneMap::const_iterator i = _scenes.find(scene);
+    // determine the actual scene and subscene number we're switching to
+    int scene_num = _new_scene != -1 ? _new_scene : _current_scene;
+    int subscene_num = _new_subscene != -1 ? _new_subscene : 0;
+
+    SceneMap::const_iterator scene_it = _scenes.find(scene_num);
 
     // check if scene and subscene exist
-    if (i != _scenes.end() && static_cast<int>(i->second.size()) > subscene) {
+    if (scene_it != _scenes.end() && static_cast<int>(scene_it->second.size()) > subscene_num) {
         // found something...
-        ScenePtr s = i->second[subscene];
+        ScenePtr scene = scene_it->second[subscene_num];
+
+        // if the previous (still current) scene has an exit patch, we need
+        // to run that first
+        if (_current_scene != -1) {
+            ScenePtr prev_scene = _scenes.find(_current_scene)->second[_current_subscene];
+
+            if (prev_scene->exit_patch) {
+                typename B::Iterator it = buffer.insert(buffer.end(), dummy_ev);
+                typename B::Range r(it, buffer.end());
+
+                // run event through exit patch
+                prev_scene->exit_patch->process(buffer, r);
+
+                if (_post_patch) {
+                    _post_patch->process(buffer, r);
+                }
+                _sanitize_patch->process(buffer, r);
+            }
+        }
 
         // check if the scene has an init patch
-        if (s->init_patch) {
-            // create dummy event to trigger init patch
-            MidiEvent ev;
-            ev.type = MIDI_EVENT_DUMMY;
-
-            typename B::Iterator it = buffer.insert(buffer.end(), ev);
-            typename B::Range r(typename B::Range(it, buffer.end()));
+        if (scene->init_patch) {
+            typename B::Iterator it = buffer.insert(buffer.end(), dummy_ev);
+            typename B::Range r(it, buffer.end());
 
             // run event through init patch
-            s->init_patch->process(buffer, r);
+            scene->init_patch->process(buffer, r);
 
             if (_post_patch) {
                 _post_patch->process(buffer, r);
             }
-
             _sanitize_patch->process(buffer, r);
         }
 
         // store pointer to patch
-        _current_patch = &*s->patch;
+        _current_patch = &*scene->patch;
 
         // store scene and subscene numbers
-        _current_scene = scene;
-        _current_subscene = subscene;
+        _current_scene = scene_num;
+        _current_subscene = subscene_num;
     }
 
     // mark as done

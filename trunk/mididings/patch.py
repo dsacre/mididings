@@ -37,7 +37,7 @@ class Patch(_mididings.Patch):
                 _units.splits._make_split(_units.base.Filter, p, unpack=True)
             )
 
-        elif isinstance(p, _units.init._Init):
+        elif isinstance(p, _units.init._InitExit):
             return Patch.Single(_mididings.Pass(False))
 
         elif isinstance(p, _units.base._Unit):
@@ -60,8 +60,25 @@ def get_init_patches(patch):
     elif isinstance(patch, dict):
         return flatten([get_init_patches(p) for p in patch.values()])
 
-    elif isinstance(patch, _units.init._Init):
+    elif isinstance(patch, _units.init._InitExit):
         return [patch.init_patch]
+
+    else:
+        return []
+
+
+def get_exit_patches(patch):
+    if isinstance(patch, _units.base._Chain):
+        return flatten([get_exit_patches(p) for p in patch])
+
+    elif isinstance(patch, list):
+        return flatten([get_exit_patches(p) for p in patch])
+
+    elif isinstance(patch, dict):
+        return flatten([get_exit_patches(p) for p in patch.values()])
+
+    elif isinstance(patch, _units.init._InitExit):
+        return [patch.exit_patch]
 
     else:
         return []

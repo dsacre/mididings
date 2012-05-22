@@ -66,8 +66,9 @@ class Engine(_mididings.Engine):
                     # build patches
                     patch = _patch.Patch(sceneobj.patch)
                     init_patch = _patch.Patch(sceneobj.init_patch)
+                    exit_patch = _patch.Patch(sceneobj.exit_patch)
                     # add scene to base class object
-                    self.add_scene(_util.actual(number), patch, init_patch)
+                    self.add_scene(_util.actual(number), patch, init_patch, exit_patch)
             else:
                 sceneobj = _scene._parse_scene(scene)
                 self._scenes[number] = (sceneobj.name, [])
@@ -75,8 +76,9 @@ class Engine(_mididings.Engine):
                 # build patches
                 patch = _patch.Patch(sceneobj.patch)
                 init_patch = _patch.Patch(sceneobj.init_patch)
+                exit_patch = _patch.Patch(sceneobj.exit_patch)
                 # add scene to base class object
-                self.add_scene(_util.actual(number), patch, init_patch)
+                self.add_scene(_util.actual(number), patch, init_patch, exit_patch)
 
         # build and setup control, pre, and post patches
         control_patch = _patch.Patch(control) if control else None

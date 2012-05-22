@@ -20,14 +20,20 @@ import functools as _functools
 import copy as _copy
 
 
-class _Init(_Unit):
-    def __init__(self, patch):
-        self.init_patch = patch
+class _InitExit(_Unit):
+    def __init__(self, init_patch=[], exit_patch=[]):
+        self.init_patch = init_patch
+        self.exit_patch = exit_patch
 
 
 @_unitrepr.accept(_UNIT_TYPES)
 def Init(patch):
-    return _Init(patch)
+    return _InitExit(init_patch=patch)
+
+
+@_unitrepr.accept(_UNIT_TYPES)
+def Exit(patch):
+    return _InitExit(exit_patch=patch)
 
 
 def Output(port, channel, program=None, volume=None, pan=None, expression=None, ctrls={}):

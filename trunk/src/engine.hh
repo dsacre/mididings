@@ -41,13 +41,15 @@ class Engine
     typedef boost::shared_ptr<Patch> PatchPtr;
 
     struct Scene {
-        Scene(PatchPtr patch_, PatchPtr init_patch_)
-          : patch(patch_),
-            init_patch(init_patch_)
+        Scene(PatchPtr patch_, PatchPtr init_patch_, PatchPtr exit_patch_)
+          : patch(patch_)
+          , init_patch(init_patch_)
+          , exit_patch(exit_patch_)
         { }
 
         PatchPtr patch;
         PatchPtr init_patch;
+        PatchPtr exit_patch;
     };
 
     typedef boost::shared_ptr<Scene> ScenePtr;
@@ -69,7 +71,7 @@ class Engine
     void connect_ports(Backend::PortConnectionMap const & in_port_connections,
                        Backend::PortConnectionMap const & out_port_connections);
 
-    void add_scene(int i, PatchPtr patch, PatchPtr init_patch);
+    void add_scene(int i, PatchPtr patch, PatchPtr init_patch, PatchPtr exit_patch);
     void set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch);
 
     void start(int initial_scene, int initial_subscene);
