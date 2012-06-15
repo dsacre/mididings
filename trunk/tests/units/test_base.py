@@ -130,3 +130,12 @@ class BaseTestCase(MididingsTestCase):
             self.make_event(CTRL, ctrl=23, value=42): True,
             self.make_event(CTRL, ctrl=42, value=123): False,
         })
+
+    def test_SelectorElse(self):
+        p = PortFilter(2) % (Port(3), Port(4))
+        ev1 = self.make_event(port=1)
+        ev2 = self.make_event(port=2)
+        self.check_patch(p, {
+            ev1: [self.modify_event(ev1, port=4)],
+            ev2: [self.modify_event(ev2, port=3)],
+        })

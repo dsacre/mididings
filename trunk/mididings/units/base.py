@@ -127,13 +127,22 @@ class _Selector(object):
         """
         Apply the selector (operator %).
         """
-        return self.apply(other)
+        if isinstance(other, tuple) and len(other) in (1, 2):
+            return self.apply(*other)
+        else:
+            return self.apply(other)
 
-    def apply(self, patch):
-        return Fork([
-            self.build() >> patch,
-            self.build_negated(),
-        ])
+    def apply(self, patch, else_patch=None):
+        if else_patch is None:
+            return Fork([
+                self.build() >> patch,
+                self.build_negated(),
+            ])
+        else:
+            return Fork([
+                self.build() >> patch,
+                self.build_negated() >> else_patch,
+            ])
 
 
 class _AndSelector(_Selector):

@@ -136,6 +136,17 @@ Change CC events with controller number 23 or 42 from channel 1 to channel 2:
 (ChannelFilter(1) &amp; (CtrlFilter(23) | CtrlFilter(42))) % Channel(2)
 </div>
 
+<h4>S % (A, B)<br>
+S.apply(A, B)</h4>
+<p>
+Applies A to events which match selector S, and B to events which don't.
+</p>
+<div class="example"><div class="header">
+Change notes between C3 and C5 to channel 1, and all other notes to channel 2:
+</div>
+KeyFilter('c3:c5') % (Channel(1), Channel(2))
+</div>
+
 
 <h2><a name="notes"></a>Note names and ranges</h2>
 
