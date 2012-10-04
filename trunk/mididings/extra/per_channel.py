@@ -12,12 +12,19 @@
 
 
 class PerChannel(object):
+    """
+    Utility class, usable with Process() and Call(), that delegates events
+    to different instances of the same class, using one instance per
+    channel/port combination.
+    New instances are created as needed, using the given factory function,
+    when the first event with a new channel/port arrives.
+    """
     def __init__(self, factory):
-        self.per_channel = {}
+        self.channel_proc = {}
         self.factory = factory
 
     def __call__(self, ev):
         k = (ev.port, ev.channel)
-        if k not in self.per_channel:
-            self.per_channel[k] = self.factory()
-        return self.per_channel[k](ev)
+        if k not in self.channel_proc:
+            self.channel_proc[k] = self.factory()
+        return self.channel_proc[k](ev)
