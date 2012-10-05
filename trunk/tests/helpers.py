@@ -64,7 +64,7 @@ class MididingsTestCase(unittest.TestCase):
         list of resulting events.
         """
         for ev, expected in d.items():
-            r = self.run_scenes(scenes, ev)
+            r = list(itertools.chain(*self.run_scenes(scenes, ev)))
             if isinstance(expected, bool):
                 # boolean value: ensure that at most one event was returned
                 self.assertLessEqual(len(r), 1)
@@ -91,12 +91,17 @@ class MididingsTestCase(unittest.TestCase):
             for f, p in zip((filt, ~filt, -filt), [expected[0], expected[1], not expected[0]]):
                 self.check_patch(f, {ev: p})
 
+    def check_sequence(self, scenes, events):
+        # TODO
+        pass
+
     def run_patch(self, patch, events):
         """
         Run the given events through the given patch, return the list of
         resulting events.
         """
-        return self.run_scenes({ setup.get_config('data_offset'): patch }, events)
+        r = self.run_scenes({ setup.get_config('data_offset'): patch }, events)
+        return list(itertools.chain(*r))
 
     def run_scenes(self, scenes, events):
         """
@@ -104,22 +109,46 @@ class MididingsTestCase(unittest.TestCase):
         resulting events.
         """
         # run scenes
-        r1 = self._run_scenes(scenes, events)
+        r1 = self._run_scenes_impl(scenes, events)
 
         # check if events can be rebuilt from their repr()
-        for ev in r1:
-            rebuilt = eval(repr(ev), self.mididings_dict)
-            self.assertEqual(rebuilt, ev)
+        for r in r1:
+            for ev in r:
+                rebuilt = eval(repr(ev), self.mididings_dict)
+                self.assertEqual(rebuilt, ev)
 
         rebuilt = self._rebuild_repr(scenes)
         if rebuilt is not None:
             # run scenes rebuilt from their repr(), result should be identical
-            r2 = self._run_scenes(rebuilt, events)
+            r2 = self._run_scenes_impl(rebuilt, events)
             self.assertEqual(r2, r1)
 
         return r1
 
+    def _run_scenes_impl(self, scenes, events):
+        # set up a dummy engine
+        setup._config_impl(backend='dummy')
+        e = engine.Engine()
+        e.setup(scenes, None, None, None)
+        r = []
+        # allow input to be a single event, as well as a sequence of events
+        if not misc.issequence(events):
+            events = [events]
+        # process each event, append each list of output events to the returned
+        # list of lists
+        for ev in events:
+            ret = e.process_event(ev)[:]
+            for rev in ret:
+                rev.__class__ = MidiEvent
+            r.append(ret)
+        return r
+
     def _rebuild_repr(self, scenes):
+        """
+        Build a string representation of the given scenes using repr(), and
+        return new scenes created by evaluating these representations using
+        eval().
+        """
         r = {}
         for k, v in scenes.items():
             rep = repr(v)
@@ -131,21 +160,6 @@ class MididingsTestCase(unittest.TestCase):
             # string it was built from
             self.assertEqual(repr(w), rep)
             r[k] = w
-        return r
-
-    def _run_scenes(self, scenes, events):
-        setup._config_impl(
-            backend='dummy'
-        )
-        e = engine.Engine()
-        e.setup(scenes, None, None, None)
-        r = []
-        if not misc.issequence(events):
-            events = [events]
-        for ev in events:
-            r += e.process_event(ev)[:]
-        for ev in r:
-            ev.__class__ = MidiEvent
         return r
 
     def make_event(self, *args, **kwargs):
