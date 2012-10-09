@@ -34,7 +34,11 @@ class _SustainToNoteoff(object):
                 return r
         elif ev.type == NOTEON and self.pedal:
             # note on while pedal is held
-            return ev
+            if ev.note in self.notes:
+                self.notes.remove(ev.note)
+                return [_event.NoteOffEvent(ev.port, ev.channel, ev.note, 0), ev]
+            else:
+                return ev
         elif ev.type == NOTEOFF and self.pedal:
             # delay note off until pedal released
             self.notes.add(ev.note)
