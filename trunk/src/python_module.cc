@@ -22,7 +22,9 @@
 #include "curious_alloc.hh"
 
 #include "util/python.hh"
-#include "util/python_converters.hh"
+#include "util/python_sequence_converters.hh"
+#include "util/python_bytearray_converters.hh"
+#include "util/python_dict_converters.hh"
 #include "util/counted_objects.hh"
 
 #include <boost/python/module.hpp>
@@ -249,19 +251,27 @@ BOOST_PYTHON_MODULE(_mididings)
 
 
     // register to/from-python converters for various types
-    das::register_vector_converters<std::vector<int> >();
-    das::register_vector_converters<std::vector<float> >();
-    das::register_vector_converters<std::vector<std::string> >();
-    das::register_vector_converters<std::vector<MidiEvent> >();
-    das::register_vector_converters<std::vector<Patch::ModulePtr> >();
+    das::python::from_sequence_converter<std::vector<int> >();
+    das::python::from_sequence_converter<std::vector<float> >();
+
+    das::python::from_sequence_converter<std::vector<std::string> >();
+    das::python::to_list_converter<std::vector<std::string> >();
+
+    das::python::from_sequence_converter<std::vector<MidiEvent> >();
+    das::python::to_list_converter<std::vector<MidiEvent> >();
+
+    das::python::from_sequence_converter<std::vector<Patch::ModulePtr> >();
+
 
 #if PY_VERSION_HEX >= 0x02060000
-    das::register_shared_ptr_vector_bytearray_converters<SysExData>();
+    das::python::from_bytearray_converter<SysExData, SysExDataConstPtr>();
+    das::python::to_bytearray_converter<SysExData, SysExDataConstPtr>();
 #else
-    das::register_shared_ptr_vector_converters<SysExData>();
+    das::python::from_sequence_converter<SysExData, SysExDataConstPtr>();
+    das::python::to_list_converter<SysExData, SysExDataConstPtr>();
 #endif
 
-    das::register_map_converters<Backend::PortConnectionMap>();
+    das::python::from_dict_converter<Backend::PortConnectionMap>();
 
 
 #ifdef ENABLE_DEBUG_STATS
