@@ -15,7 +15,11 @@ import mididings.util as _util
 import mididings.engine as _engine
 
 
-class _FloatingKeySplitAnalyze(object):
+class _FloatingKeySplitAnalyzer(object):
+    """
+    Analyzer class that determines the current split point based on the given
+    parameters and the notes being played.
+    """
     def __init__(self, threshold_lower, threshold_upper, hold_time, margin_lower, margin_upper):
         self.threshold_lower = _util.note_number(threshold_lower)
         self.threshold_upper = _util.note_number(threshold_upper)
@@ -37,9 +41,24 @@ class _FloatingKeySplitAnalyze(object):
             if t and t < now - self.hold_time:
                 del self.notes_upper[k]
 
-        # calculate new threshold
-        lower = max(self.notes_lower) if len(self.notes_lower) else self.threshold_lower - self.margin_lower
-        upper = min(self.notes_upper) if len(self.notes_upper) else self.threshold_upper + self.margin_upper
+        # the lower reference point is the highest note played in the region
+        # below the split point, but never below the lower threshold by more
+        # than the set margin
+        lower = self.threshold_lower - self.margin_lower
+        if len(self.notes_lower):
+            m = max(self.notes_lower)
+            lower = max(m, lower)
+
+        # the upper reference point is the lowest note played in the region
+        # above the split point, but never above the upper threshold by more
+        # than the set margin
+        upper = self.threshold_upper + self.margin_upper
+        if len(self.notes_upper):
+            m = min(self.notes_upper)
+            upper = min(m, upper)
+
+        # calculate new threshold as the center between upper and lower
+        # reference point, but confined by the given thresholds
         self.threshold = min(max((lower + upper + 1) / 2, self.threshold_lower), self.threshold_upper)
 
         if ev.type == NOTEON:
@@ -59,15 +78,18 @@ class _FloatingKeySplitAnalyze(object):
 
 
 class _FloatingKeySplitFilter(object):
-    def __init__(self, analyze, index):
-        self.analyze = analyze
+    """
+    Filter class that filters events based on the state of the given analyser.
+    """
+    def __init__(self, analyzer, index):
+        self.analyzer = analyzer
         self.index = index
 
     def __call__(self, ev):
-        # the split point can never move past a note that's still being held, so this is
-        # valid for both note-on and note-off events
-        if (self.index == 0 and ev.note < self.analyze.threshold or
-            self.index == 1 and ev.note >= self.analyze.threshold):
+        # the split point can never move past a note that's still being held,
+        # so this is valid for both note-on and note-off events
+        if (self.index == 0 and ev.note < self.analyzer.threshold or
+            self.index == 1 and ev.note >= self.analyzer.threshold):
             return ev
         else:
             return None
@@ -75,11 +97,16 @@ class _FloatingKeySplitFilter(object):
 
 def FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper,
                      hold_time=1.0, margin_lower=12, margin_upper=12):
-    analyze = _FloatingKeySplitAnalyze(threshold_lower, threshold_upper, hold_time, margin_lower, margin_upper)
+    # create a single analyzer instance
+    analyzer = _FloatingKeySplitAnalyzer(threshold_lower, threshold_upper, hold_time, margin_lower, margin_upper)
+
     return Split({
-        NOTE:   Process(analyze) >> [
-                    Process(_FloatingKeySplitFilter(analyze, 0)) >> patch_lower,
-                    Process(_FloatingKeySplitFilter(analyze, 1)) >> patch_upper,
+        # separate filter instances are needed for both regions, in order to
+        # be able to send note events to different patches
+        NOTE:   Process(analyzer) >> [
+                    Process(_FloatingKeySplitFilter(analyzer, 0)) >> patch_lower,
+                    Process(_FloatingKeySplitFilter(analyzer, 1)) >> patch_upper,
                 ],
+        # non-note-events are sent to both patches
         None:   [ patch_lower, patch_upper ],
     })
