@@ -59,7 +59,7 @@ class _FloatingKeySplitAnalyzer(object):
 
         # calculate new threshold as the center between upper and lower
         # reference point, but confined by the given thresholds
-        self.threshold = min(max((lower + upper + 1) / 2, self.threshold_lower), self.threshold_upper)
+        self.threshold = min(max((lower + upper + 1) // 2, self.threshold_lower), self.threshold_upper)
 
         if ev.type == NOTEON:
             # add notes to the appropriate list
