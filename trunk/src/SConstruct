@@ -61,7 +61,8 @@ sources = [
     'backend/base.cc',
 ]
 
-env.ParseConfig('pkg-config --cflags --libs glib-2.0')
+#env.ParseConfig('pkg-config --cflags --libs glib-2.0')
+env.Append(CCFLAGS = '-std=c++0x')
 
 if 'ENABLE_ALSA_SEQ' in env['CPPDEFINES']:
     env.ParseConfig('pkg-config --cflags --libs alsa')

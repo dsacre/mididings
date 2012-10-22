@@ -16,28 +16,54 @@ config = {
     'alsa-seq':     (platform.system() == 'Linux'),
     'jack-midi':    True,
     'smf':          False,
+    'c++11':        False,
 }
 
+include_dirs = []
+libraries = []
+library_dirs = []
+define_macros = []
+extra_compile_args = []
 
-def check_option(name, argv):
-    for arg in argv:
-        if arg == '--enable-%s' % name:
+
+# parse and then remove additional custom command line options
+for opt in config.keys():
+    for arg in sys.argv:
+        if arg == '--enable-%s' % opt:
             sys.argv.remove(arg)
-            config[name] = True
-        elif arg == '--disable-%s' % name:
+            config[opt] = True
+        elif arg == '--disable-%s' % opt:
             sys.argv.remove(arg)
-            config[name] = False
+            config[opt] = False
 
 
-check_option('alsa-seq', sys.argv[1:])
-check_option('jack-midi', sys.argv[1:])
-check_option('smf', sys.argv[1:])
+# hack to modify the compiler flags from the distutils default
+distutils_customize_compiler = sysconfig.customize_compiler
+def my_customize_compiler(compiler):
+    retval = distutils_customize_compiler(compiler)
+    try:
+        # -Wstrict-prototypes is not valid for C++
+        compiler.compiler_so.remove('-Wstrict-prototypes')
+        # immediately stop on error
+        compiler.compiler_so.append('-Wfatal-errors')
+        # some options to reduce the size of the binary
+        compiler.compiler_so.remove('-g')
+        compiler.compiler_so.append('-finline-functions')
+        compiler.compiler_so.append('-fvisibility=hidden')
+    except (AttributeError, ValueError):
+        pass
+    return retval
+sysconfig.customize_compiler = my_customize_compiler
 
 
-def pkgconfig(pkg):
-    status, output = getstatusoutput('pkg-config --libs --cflags %s' % pkg)
+def pkgconfig(name):
+    """
+    Run pkg-config for the given package, and add the required flags to our
+    list of build arguments.
+    """
+    status, output = getstatusoutput('pkg-config --libs --cflags %s' % name)
     if status:
-        sys.exit("couldn't find package '%s'" % pkg)
+        sys.exit("couldn't find package '%s'" % name)
     for token in output.split():
         opt, val = token[:2], token[2:]
         if opt == '-I':
@@ -49,6 +75,9 @@ def pkgconfig(pkg):
 
 
 def lib_dirs():
+    """
+    Attempt to return the compiler's library search paths.
+    """
     try:
         status, output = getstatusoutput(sysconfig.get_config_var('CC') + ' -print-search-dirs')
         for line in output.splitlines():
@@ -60,14 +89,18 @@ def lib_dirs():
         return []
 
 
-def boost_lib_name(lib, suffixes=[]):
+def boost_lib_name(name, add_suffixes=[]):
+    """
+    Try to figure out the correct boost library name (with or without "-mt"
+    suffix, or with any of the given additional suffixes).
+    """
     libdirs = ['/usr/lib', '/usr/local/lib', '/usr/lib64', '/usr/local/lib64'] + lib_dirs()
-    for suffix in suffixes + ['', '-mt']:
+    for suffix in add_suffixes + ['', '-mt']:
         for libdir in libdirs:
-            libname = 'lib%s%s.so' % (lib, suffix)
+            libname = 'lib%s%s.so' % (name, suffix)
             if os.path.isfile(os.path.join(libdir, libname)):
-                return lib + suffix
-    return lib
+                return name + suffix
+    return name
 
 
 sources = [
@@ -78,17 +111,10 @@ sources = [
     'src/backend/base.cc',
 ]
 
-include_dirs = []
-define_macros = []
-libraries = []
-library_dirs = []
-
 include_dirs.append('src')
 
-pkgconfig('glib-2.0')
-
 boost_python_suffixes = ['-py%d%d' % sys.version_info[:2]]
-if sys.version_info >= (3,):
+if sys.version_info[0] == 3:
     boost_python_suffixes.append('3')
 libraries.append(boost_lib_name('boost_python', boost_python_suffixes))
 libraries.append(boost_lib_name('boost_thread'))
@@ -111,24 +137,10 @@ if config['smf']:
     sources.append('src/backend/smf.cc')
     pkgconfig('smf')
 
-
-# hack to modify the compiler flags from the distutils default
-distutils_customize_compiler = sysconfig.customize_compiler
-def my_customize_compiler(compiler):
-    retval = distutils_customize_compiler(compiler)
-    try:
-        # -Wstrict-prototypes is not valid for C++
-        compiler.compiler_so.remove('-Wstrict-prototypes')
-        # immediately stop on error
-        compiler.compiler_so.append('-Wfatal-errors')
-        # some options to reduce the size of the binary
-        compiler.compiler_so.remove('-g')
-        compiler.compiler_so.append('-finline-functions')
-        compiler.compiler_so.append('-fvisibility=hidden')
-    except (AttributeError, ValueError):
-        pass
-    return retval
-sysconfig.customize_compiler = my_customize_compiler
+if config['c++11']:
+    extra_compile_args.append('-std=c++0x')
+else:
+    pkgconfig('glib-2.0')
 
 
 setup(
@@ -147,6 +159,7 @@ setup(
             library_dirs = library_dirs,
             libraries = libraries,
             define_macros = define_macros,
+            extra_compile_args = extra_compile_args,
         ),
     ],
     packages = [
