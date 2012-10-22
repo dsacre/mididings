@@ -207,7 +207,7 @@ bool JACKBackend::read_event(MidiEvent & ev, jack_nframes_t nframes)
 
 bool JACKBackend::write_event(MidiEvent const & ev, jack_nframes_t nframes)
 {
-    unsigned char data[Config::MAX_JACK_EVENT_SIZE];
+    unsigned char data[Config::JACK_MAX_EVENT_SIZE];
     std::size_t len = sizeof(data);
     int port;
     uint64_t frame;

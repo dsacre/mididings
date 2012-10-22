@@ -29,8 +29,8 @@ JACKBufferedBackend::JACKBufferedBackend(std::string const & client_name,
                                          PortNameVector const & in_port_names,
                                          PortNameVector const & out_port_names)
   : JACKBackend(client_name, in_port_names, out_port_names)
-  , _in_rb(Config::MAX_JACK_EVENTS)
-  , _out_rb(Config::MAX_JACK_EVENTS)
+  , _in_rb(Config::JACK_MAX_EVENTS)
+  , _out_rb(Config::JACK_MAX_EVENTS)
   , _quit(false)
 {
 }
