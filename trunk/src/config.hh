@@ -33,6 +33,7 @@ namespace Config
     // maximum number of sustain pedal states that can be remembered in case of a scene switch
     static int const MAX_SUSTAIN_PEDALS = 4;
 
+    static int const ASYNC_THREAD_STACK_SIZE = 262144;
     static int const MAX_ASYNC_CALLS = 256;
     static int const ASYNC_JOIN_TIMEOUT = 3000;
     static int const ASYNC_CALLBACK_INTERVAL = 50;
@@ -45,6 +46,7 @@ namespace Config
 
     // realtime priority offset for buffered JACK backend, subtracted from JACK's own priority
     static int const JACK_BUFFERED_RTPRIO_OFFSET = 10;
+    static int const JACK_BUFFERED_THREAD_STACK_SIZE = 262144;
 }
 
 

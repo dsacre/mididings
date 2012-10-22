@@ -41,7 +41,13 @@ PythonCaller::PythonCaller(EngineCallback engine_callback)
   , _quit(false)
 {
     // start async thread
+#if BOOST_VERSION >= 105000
+    boost::thread::attributes attr;
+    attr.set_stack_size(Config::ASYNC_THREAD_STACK_SIZE);
+    _thread.reset(new boost::thread(attr, boost::bind(&PythonCaller::async_thread, this)));
+#else
     _thread.reset(new boost::thread(boost::bind(&PythonCaller::async_thread, this)));
+#endif
 }
 
 

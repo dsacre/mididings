@@ -53,10 +53,15 @@ void JACKBufferedBackend::start(InitFunction init, CycleFunction cycle)
     _in_rb.reset();
 
     // start processing thread
-    _thread.reset(new boost::thread((
-        boost::lambda::bind(init),
-        boost::lambda::bind(cycle)
-    )));
+    boost::function<void ()> func = (boost::lambda::bind(init), boost::lambda::bind(cycle));
+#if BOOST_VERSION >= 105000
+    boost::thread::attributes attr;
+    attr.set_stack_size(Config::JACK_BUFFERED_THREAD_STACK_SIZE);
+    _thread.reset(new boost::thread(attr, func));
+#else
+    _thread.reset(new boost::thread(func));
+#endif
+
 
     // can't get native posix thread handle before boost 1.37.0
 #if BOOST_VERSION >= 103700
