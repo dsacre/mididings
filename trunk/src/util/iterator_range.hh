@@ -20,10 +20,9 @@ namespace das {
 template <typename T>
 class iterator_range
 {
-  private:
+  public:
     typedef typename std::iterator_traits<T>::difference_type difference_type;
 
-  public:
     /**
      * Construction from two iterators.
      */
