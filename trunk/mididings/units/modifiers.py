@@ -35,17 +35,24 @@ def Port(port):
 @_unitrepr.accept(_util.channel_number)
 def Channel(channel):
     """
-    Change channel number.a
+    Change channel number.
     """
     return _Unit(_mididings.Channel(_util.actual(channel)))
 
 
-@_unitrepr.accept(int)
-def Transpose(offset):
+@_overload.mark(
     """
     Transpose note events.
     """
+)
+@_unitrepr.accept(int)
+def Transpose(offset):
     return _Unit(_mididings.Transpose(offset))
+
+@_overload.mark
+@_unitrepr.accept(int)
+def Transpose(octaves):
+    return _Unit(_mididings.Transpose(octaves * 12))
 
 
 @_arguments.accept(_util.note_number)

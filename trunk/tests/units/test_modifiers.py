@@ -57,12 +57,20 @@ class ModifiersTestCase(MididingsTestCase):
     def test_Transpose(self, off):
         ev1 = self.make_event(NOTEON, note=random.randrange(0, 115))
         ev2 = self.make_event(NOTEON, note=random.randrange(0, 115))
-        ev3 = self.make_event(CTRL)
+        ev3 = self.make_event(NOTEON, note=random.randrange(24, 127))
+        ev4 = self.make_event(NOTEON, note=random.randrange(24, 127))
+        ev5 = self.make_event(CTRL)
 
         self.check_patch(Transpose(12), {
             ev1: [self.modify_event(ev1, note=ev1.note + 12)],
             ev2: [self.modify_event(ev2, note=ev2.note + 12)],
-            ev3: [ev3],
+            ev5: [ev5],
+        })
+
+        self.check_patch(Transpose(octaves=-2), {
+            ev3: [self.modify_event(ev3, note=ev3.note - 24)],
+            ev4: [self.modify_event(ev4, note=ev4.note - 24)],
+            ev5: [ev5],
         })
 
         with self.assertRaises(TypeError):
