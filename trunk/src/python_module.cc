@@ -23,7 +23,7 @@
 
 #include "util/python.hh"
 #include "util/python_sequence_converters.hh"
-#include "util/python_bytearray_converters.hh"
+#include "util/python_bytes_converters.hh"
 #include "util/python_dict_converters.hh"
 #include "util/counted_objects.hh"
 

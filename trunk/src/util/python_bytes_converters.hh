@@ -7,8 +7,8 @@
  * (at your option) any later version.
  */
 
-#ifndef DAS_UTIL_PYTHON_VECTOR_BYTEARRAY_CONVERTERS_HH
-#define DAS_UTIL_PYTHON_VECTOR_BYTEARRAY_CONVERTERS_HH
+#ifndef DAS_UTIL_PYTHON_VECTOR_BYTES_CONVERTERS_HH
+#define DAS_UTIL_PYTHON_VECTOR_BYTES_CONVERTERS_HH
 
 #include "util/from_python_converter.hh"
 #include "util/to_python_converter.hh"
@@ -19,6 +19,49 @@
 
 namespace das {
 namespace python {
+
+
+#if PY_VERSION_HEX >= 0x03000000
+
+/**
+ * Converter from a Python bytes object to std::vector.
+ */
+template <typename T, typename P=T>
+struct from_bytes_converter
+  : from_python_converter<T, P, from_bytes_converter<T, P> >
+{
+    static bool convertible(PyObject *obj) {
+        return PyBytes_Check(obj);
+    }
+
+    static void construct(T & vec, PyObject *obj) {
+        char const *buffer = PyBytes_AsString(obj);
+        Py_ssize_t size = PyBytes_Size(obj);
+
+        vec.reserve(size);
+        std::copy(buffer, buffer + size, std::back_inserter(vec));
+    }
+};
+
+
+/**
+ * Converter from std::vector to a Python bytes object.
+ */
+template <typename T, typename P=T>
+struct to_bytes_converter
+  : to_python_converter<T, P, to_bytes_converter<T, P> >
+{
+    static PyObject *convert(T const & vec) {
+        return PyBytes_FromStringAndSize(reinterpret_cast<char const *>(&vec.front()), vec.size());
+    }
+
+    static PyTypeObject const *get_pytype() {
+        return &PyBytes_Type;
+    }
+};
+
+#endif // PY_VERSION_HEX >= 0x03000000
+
 
 
 #if PY_VERSION_HEX >= 0x02060000
@@ -67,4 +110,4 @@ struct to_bytearray_converter
 } // namespace das
 
 
-#endif // DAS_UTIL_PYTHON_VECTOR_BYTEARRAY_CONVERTERS_HH
+#endif // DAS_UTIL_PYTHON_VECTOR_BYTES_CONVERTERS_HH
