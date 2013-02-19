@@ -54,9 +54,9 @@ def Output(port, channel, program=None, volume=None, pan=None, expression=None, 
     if volume is not None:
         init.append(Ctrl(port, channel, 7, volume))
     if pan is not None:
-        init.append(Ctrl(port, channel, 10, volume))
+        init.append(Ctrl(port, channel, 10, pan))
     if expression is not None:
-        init.append(Ctrl(port, channel, 11, volume))
+        init.append(Ctrl(port, channel, 11, expression))
 
     for k, v in ctrls.items():
         init.append(Ctrl(port, channel, k, v))
