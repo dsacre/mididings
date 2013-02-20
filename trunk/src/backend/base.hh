@@ -83,6 +83,9 @@ class BackendBase
         }
     }
 
+    // wait for all pending event output to be completed.
+    virtual void finish() = 0;
+
     // return the number of output ports
     virtual std::size_t num_out_ports() const = 0;
 

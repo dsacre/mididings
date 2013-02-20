@@ -37,6 +37,9 @@ class SMFBackend
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
 
+    // not implemented
+    virtual void finish() { }
+
     virtual std::size_t num_out_ports() const { return _smf_in->number_of_tracks; }
 
   private:

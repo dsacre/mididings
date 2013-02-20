@@ -42,7 +42,13 @@ class ALSABackend
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
 
-    virtual std::size_t num_out_ports() const { return _out_ports.size(); }
+    virtual void finish() {
+        // nothing to do
+    }
+
+    virtual std::size_t num_out_ports() const {
+        return _out_ports.size();
+    }
 
     virtual void connect_ports(PortConnectionMap const & in_port_connections,
                                PortConnectionMap const & out_port_connections);

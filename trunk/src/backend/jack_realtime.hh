@@ -14,6 +14,8 @@
 
 #include "backend/jack.hh"
 
+#include <boost/thread/condition.hpp>
+
 #include "util/ringbuffer.hh"
 
 
@@ -39,6 +41,8 @@ class JACKRealtimeBackend
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
 
+    virtual void finish();
+
   private:
     virtual int process(jack_nframes_t);
 
@@ -48,6 +52,8 @@ class JACKRealtimeBackend
     jack_nframes_t _nframes;
 
     das::ringbuffer<MidiEvent> _out_rb;
+
+    boost::condition _cond;
 };
 
 

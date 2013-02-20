@@ -15,6 +15,8 @@
 #include <jack/jack.h>
 #include <pthread.h>
 
+#include <boost/thread/mutex.hpp>
+
 #include "util/debug.hh"
 
 
@@ -62,6 +64,8 @@ int JACKRealtimeBackend::process(jack_nframes_t nframes)
         _run_cycle();
     }
 
+    _cond.notify_one();
+
     return 0;
 }
 
@@ -85,6 +89,15 @@ void JACKRealtimeBackend::output_event(MidiEvent const & ev)
             DEBUG_PRINT("couldn't write event to output ringbuffer");
         }
     }
+}
+
+
+void JACKRealtimeBackend::finish()
+{
+    boost::mutex mutex;
+    boost::mutex::scoped_lock lock(mutex);
+
+    _cond.timed_wait(lock, boost::posix_time::milliseconds(config::JACK_REALTIME_FINISH_TIMEOUT));
 }
 
 

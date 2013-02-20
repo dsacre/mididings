@@ -60,6 +60,9 @@ namespace config
     static int const JACK_BUFFERED_RTPRIO_OFFSET = 10;
     // Stack size of the processing thread in the buffered JACK backend
     static std::size_t const JACK_BUFFERED_THREAD_STACK_SIZE = 262144;
+
+    // Time in milliseconds to wait for the current JACK period to complete.
+    static int const JACK_REALTIME_FINISH_TIMEOUT = 200;
 }
 
 

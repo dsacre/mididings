@@ -45,6 +45,9 @@ class JACKBufferedBackend
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
 
+    // not implemented
+    virtual void finish() { }
+
   private:
     virtual int process(jack_nframes_t);
 
