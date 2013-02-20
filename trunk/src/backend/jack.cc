@@ -23,8 +23,8 @@
 #include "util/debug.hh"
 
 
-namespace Mididings {
-namespace Backend {
+namespace mididings {
+namespace backend {
 
 
 JACKBackend::JACKBackend(std::string const & client_name,
@@ -207,7 +207,7 @@ bool JACKBackend::read_event(MidiEvent & ev, jack_nframes_t nframes)
 
 bool JACKBackend::write_event(MidiEvent const & ev, jack_nframes_t nframes)
 {
-    unsigned char data[Config::JACK_MAX_EVENT_SIZE];
+    unsigned char data[config::JACK_MAX_EVENT_SIZE];
     std::size_t len = sizeof(data);
     int port;
     uint64_t frame;
@@ -242,5 +242,5 @@ bool JACKBackend::write_event(MidiEvent const & ev, jack_nframes_t nframes)
 }
 
 
-} // Backend
-} // Mididings
+} // backend
+} // mididings

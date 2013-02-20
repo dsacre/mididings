@@ -23,8 +23,8 @@
 #include <boost/thread/thread.hpp>
 
 
-namespace Mididings {
-namespace Backend {
+namespace mididings {
+namespace backend {
 
 
 class ALSABackend
@@ -95,8 +95,8 @@ class ALSABackend
 };
 
 
-} // Backend
-} // Mididings
+} // backend
+} // mididings
 
 
 #endif // MIDIDINGS_BACKEND_ALSA_HH

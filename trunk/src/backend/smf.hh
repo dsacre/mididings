@@ -21,8 +21,8 @@
 #include <smf.h>
 
 
-namespace Mididings {
-namespace Backend {
+namespace mididings {
+namespace backend {
 
 
 class SMFBackend
@@ -47,8 +47,8 @@ class SMFBackend
 };
 
 
-} // Backend
-} // Mididings
+} // backend
+} // mididings
 
 
 #endif // MIDIDINGS_BACKEND_SMF_HH

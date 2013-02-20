@@ -23,8 +23,8 @@
 #include "midi_event.hh"
 
 
-namespace Mididings {
-namespace Backend {
+namespace mididings {
+namespace backend {
 
 
 struct Error
@@ -95,8 +95,8 @@ class BackendBase
 };
 
 
-} // Backend
-} // Mididings
+} // backend
+} // mididings
 
 
 #endif // MIDIDINGS_BACKEND_BASE_HH

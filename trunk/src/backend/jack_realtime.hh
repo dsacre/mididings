@@ -17,8 +17,8 @@
 #include "util/ringbuffer.hh"
 
 
-namespace Mididings {
-namespace Backend {
+namespace mididings {
+namespace backend {
 
 
 /*
@@ -51,8 +51,8 @@ class JACKRealtimeBackend
 };
 
 
-} // Backend
-} // Mididings
+} // backend
+} // mididings
 
 
 #endif // MIDIDINGS_BACKEND_JACK_REALTIME_HH

@@ -27,8 +27,8 @@
 #include "util/debug.hh"
 
 
-namespace Mididings {
-namespace Backend {
+namespace mididings {
+namespace backend {
 
 
 ALSABackend::ALSABackend(std::string const & client_name,
@@ -444,7 +444,7 @@ void ALSABackend::midi_event_to_alsa_sysex(snd_seq_event_t & alsa_ev, MidiEvent 
     std::size_t size = ev.sysex->size();
 
     // number of bytes that will be sent in this chunk
-    std::size_t len = std::min(size - count, Config::ALSA_SYSEX_CHUNK_SIZE);
+    std::size_t len = std::min(size - count, config::ALSA_SYSEX_CHUNK_SIZE);
 
     // let's hope the alsa guys just "forgot" that little const keyword...
     snd_seq_ev_set_sysex(&alsa_ev, len, const_cast<void *>(static_cast<void const *>(data + count)));
@@ -520,11 +520,11 @@ void ALSABackend::output_event(MidiEvent const & ev)
         if (count) {
             // wait as long as it takes for one chunk to be transmitted at MIDI baud rate.
             // constant copied from Simple Sysexxer by Christoph Eckert.
-            ::usleep(Config::ALSA_SYSEX_CHUNK_SIZE * 352);
+            ::usleep(config::ALSA_SYSEX_CHUNK_SIZE * 352);
         }
     } while (count);
 }
 
 
-} // Backend
-} // Mididings
+} // backend
+} // mididings

@@ -16,8 +16,8 @@
 #include "units/util.hh"
 
 
-namespace Mididings {
-namespace Units {
+namespace mididings {
+namespace units {
 
 
 class Generator
@@ -83,8 +83,8 @@ class SysExGenerator
 };
 
 
-} // Units
-} // Mididings
+} // units
+} // mididings
 
 
 #endif // MIDIDINGS_UNITS_GENERATORS_HH

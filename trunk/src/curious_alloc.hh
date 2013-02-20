@@ -19,7 +19,7 @@
 #include "util/debug.hh"
 
 
-namespace Mididings {
+namespace mididings {
 
 
 template <typename R>
@@ -156,7 +156,7 @@ template <typename T, std::size_t N, typename R> std::size_t curious_alloc<T, N,
 template <typename T, std::size_t N, typename R> std::allocator<T> curious_alloc<T, N, R>::fallback_ = std::allocator<T>();
 
 
-} // Mididings
+} // mididings
 
 
 #endif // MIDIDINGS_CURIOUS_ALLOC_HH

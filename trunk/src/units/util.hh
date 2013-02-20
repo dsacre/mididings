@@ -16,8 +16,8 @@
 #include <algorithm>
 
 
-namespace Mididings {
-namespace Units {
+namespace mididings {
+namespace units {
 
 
 enum TransformMode {
@@ -124,8 +124,8 @@ inline int get_parameter(int value, MidiEvent const & ev)
 }
 
 
-} // Units
-} // Mididings
+} // units
+} // mididings
 
 
 #endif // MIDIDINGS_UNITS_UTIL_HH

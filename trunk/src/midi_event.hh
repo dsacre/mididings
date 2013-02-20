@@ -21,7 +21,7 @@
 #include "util/counted_objects.hh"
 
 
-namespace Mididings {
+namespace mididings {
 
 
 enum MidiEventTypeEnum
@@ -192,7 +192,7 @@ inline bool operator!=(MidiEvent const & lhs, MidiEvent const & rhs)
 }
 
 
-} // Mididings
+} // mididings
 
 
 #endif // MIDIDINGS_MIDI_EVENT_HH

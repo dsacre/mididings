@@ -25,8 +25,8 @@
 #include <algorithm>
 
 
-namespace Mididings {
-namespace Backend {
+namespace mididings {
+namespace backend {
 
 
 namespace {
@@ -303,5 +303,5 @@ std::size_t BackendBase::midi_event_to_buffer(MidiEvent const & ev, unsigned cha
 }
 
 
-} // Backend
-} // Mididings
+} // backend
+} // mididings

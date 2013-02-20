@@ -13,8 +13,8 @@
 #include "backend/smf.hh"
 
 
-namespace Mididings {
-namespace Backend {
+namespace mididings {
+namespace backend {
 
 
 SMFBackend::SMFBackend(std::string const & infile, std::string const & outfile)
@@ -85,5 +85,5 @@ void SMFBackend::output_event(MidiEvent const & ev)
 }
 
 
-} // Backend
-} // Mididings
+} // backend
+} // mididings

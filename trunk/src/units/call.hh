@@ -17,8 +17,8 @@
 #include <boost/python/object.hpp>
 
 
-namespace Mididings {
-namespace Units {
+namespace mididings {
+namespace units {
 
 
 class Call
@@ -50,8 +50,8 @@ class Call
 };
 
 
-} // Units
-} // Mididings
+} // units
+} // mididings
 
 
 #endif // MIDIDINGS_UNITS_CALL_HH

@@ -26,7 +26,7 @@
 #include "util/ringbuffer.hh"
 
 
-namespace Mididings {
+namespace mididings {
 
 
 class PythonCaller
@@ -67,7 +67,7 @@ class PythonCaller
 };
 
 
-} // Mididings
+} // mididings
 
 
 #endif // MIDIDINGS_PYTHON_CALLER_HH

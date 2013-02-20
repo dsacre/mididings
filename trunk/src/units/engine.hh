@@ -18,8 +18,8 @@
 #include "patch.hh"
 
 
-namespace Mididings {
-namespace Units {
+namespace mididings {
+namespace units {
 
 
 class Sanitize
@@ -111,8 +111,8 @@ class SubSceneSwitch
 };
 
 
-} // Units
-} // Mididings
+} // units
+} // mididings
 
 
 #endif // MIDIDINGS_UNITS_ENGINE_HH

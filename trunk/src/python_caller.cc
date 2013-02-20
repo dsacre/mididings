@@ -32,18 +32,18 @@
 namespace bp = boost::python;
 
 
-namespace Mididings {
+namespace mididings {
 
 
 PythonCaller::PythonCaller(EngineCallback engine_callback)
-  : _rb(new das::ringbuffer<AsyncCallInfo>(Config::MAX_ASYNC_CALLS))
+  : _rb(new das::ringbuffer<AsyncCallInfo>(config::MAX_ASYNC_CALLS))
   , _engine_callback(engine_callback)
   , _quit(false)
 {
     // start async thread
 #if BOOST_VERSION >= 105000
     boost::thread::attributes attr;
-    attr.set_stack_size(Config::ASYNC_THREAD_STACK_SIZE);
+    attr.set_stack_size(config::ASYNC_THREAD_STACK_SIZE);
     _thread.reset(new boost::thread(attr, boost::bind(&PythonCaller::async_thread, this)));
 #else
     _thread.reset(new boost::thread(boost::bind(&PythonCaller::async_thread, this)));
@@ -57,7 +57,7 @@ PythonCaller::~PythonCaller()
     _cond.notify_one();
 
 #if BOOST_VERSION >= 103500
-    _thread->timed_join(boost::posix_time::milliseconds(Config::ASYNC_JOIN_TIMEOUT));
+    _thread->timed_join(boost::posix_time::milliseconds(config::ASYNC_JOIN_TIMEOUT));
 #else
     // what if the thread doesn't terminate, due to a long-running python function?
     _thread->join();
@@ -151,11 +151,11 @@ void PythonCaller::async_thread()
             boost::mutex::scoped_lock lock(mutex);
 
 #if BOOST_VERSION >= 103500
-            _cond.timed_wait(lock, boost::posix_time::milliseconds(Config::ASYNC_CALLBACK_INTERVAL));
+            _cond.timed_wait(lock, boost::posix_time::milliseconds(config::ASYNC_CALLBACK_INTERVAL));
 #else
             boost::xtime xt;
             boost::xtime_get(&xt, boost::TIME_UTC);
-            xt.nsec += Config::ASYNC_CALLBACK_INTERVAL * 1000000;
+            xt.nsec += config::ASYNC_CALLBACK_INTERVAL * 1000000;
             _cond.timed_wait(lock, xt);
 #endif
         }
@@ -177,4 +177,4 @@ template Patch::EventBuffer::Range PythonCaller::call_deferred
             (Patch::EventBuffer &, Patch::EventBuffer::Iterator, boost::python::object const &, bool);
 
 
-} // Mididings
+} // mididings

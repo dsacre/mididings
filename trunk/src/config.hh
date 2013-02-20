@@ -19,10 +19,10 @@
 #include <cstring>
 
 
-namespace Mididings {
+namespace mididings {
 
 
-namespace Config
+namespace config
 {
     // Total number of events that can be stored simultaneously in the event
     // list during each process cycle
@@ -63,7 +63,7 @@ namespace Config
 }
 
 
-} // Mididings
+} // mididings
 
 
 #endif // MIDIDINGS_CONFIG_HH

@@ -29,7 +29,7 @@
 #include "util/counted_objects.hh"
 
 
-namespace Mididings {
+namespace mididings {
 
 
 class Engine
@@ -62,14 +62,14 @@ class Engine
 
     Engine(std::string const & backend_name,
            std::string const & client_name,
-           Backend::PortNameVector const & in_ports,
-           Backend::PortNameVector const & out_ports,
+           backend::PortNameVector const & in_ports,
+           backend::PortNameVector const & out_ports,
            bool verbose);
 
     virtual ~Engine();
 
-    void connect_ports(Backend::PortConnectionMap const & in_port_connections,
-                       Backend::PortConnectionMap const & out_port_connections);
+    void connect_ports(backend::PortConnectionMap const & in_port_connections,
+                       backend::PortConnectionMap const & out_port_connections);
 
     void add_scene(int i, PatchPtr patch, PatchPtr init_patch, PatchPtr exit_patch);
     void set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch);
@@ -133,7 +133,7 @@ class Engine
 
     bool _verbose;
 
-    boost::shared_ptr<Backend::BackendBase> _backend;
+    boost::shared_ptr<backend::BackendBase> _backend;
 
     SceneMap _scenes;
 
@@ -161,7 +161,7 @@ class Engine
 };
 
 
-} // Mididings
+} // mididings
 
 
 #endif // MIDIDINGS_ENGINE_HH

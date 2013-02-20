@@ -21,16 +21,16 @@
 #include "util/debug.hh"
 
 
-namespace Mididings {
-namespace Backend {
+namespace mididings {
+namespace backend {
 
 
 JACKBufferedBackend::JACKBufferedBackend(std::string const & client_name,
                                          PortNameVector const & in_port_names,
                                          PortNameVector const & out_port_names)
   : JACKBackend(client_name, in_port_names, out_port_names)
-  , _in_rb(Config::JACK_MAX_EVENTS)
-  , _out_rb(Config::JACK_MAX_EVENTS)
+  , _in_rb(config::JACK_MAX_EVENTS)
+  , _out_rb(config::JACK_MAX_EVENTS)
   , _quit(false)
 {
 }
@@ -56,7 +56,7 @@ void JACKBufferedBackend::start(InitFunction init, CycleFunction cycle)
     boost::function<void ()> func = (boost::lambda::bind(init), boost::lambda::bind(cycle));
 #if BOOST_VERSION >= 105000
     boost::thread::attributes attr;
-    attr.set_stack_size(Config::JACK_BUFFERED_THREAD_STACK_SIZE);
+    attr.set_stack_size(config::JACK_BUFFERED_THREAD_STACK_SIZE);
     _thread.reset(new boost::thread(attr, func));
 #else
     _thread.reset(new boost::thread(func));
@@ -69,7 +69,7 @@ void JACKBufferedBackend::start(InitFunction init, CycleFunction cycle)
     int jack_rtprio = jack_client_real_time_priority(_client);
 
     if (jack_rtprio != -1) {
-        int rtprio = jack_rtprio - Config::JACK_BUFFERED_RTPRIO_OFFSET;
+        int rtprio = jack_rtprio - config::JACK_BUFFERED_RTPRIO_OFFSET;
         jack_acquire_real_time_scheduling(_thread->native_handle(), rtprio);
     }
 #endif
@@ -130,5 +130,5 @@ void JACKBufferedBackend::output_event(MidiEvent const & ev)
 }
 
 
-} // Backend
-} // Mididings
+} // backend
+} // mididings

@@ -27,13 +27,13 @@
 #include "util/debug.hh"
 
 
-namespace Mididings {
+namespace mididings {
 
 
 Engine::Engine(std::string const & backend_name,
                std::string const & client_name,
-               Backend::PortNameVector const & in_ports,
-               Backend::PortNameVector const & out_ports,
+               backend::PortNameVector const & in_ports,
+               backend::PortNameVector const & out_ports,
                bool verbose)
   : _verbose(verbose)
   , _current_patch(NULL)
@@ -41,15 +41,15 @@ Engine::Engine(std::string const & backend_name,
   , _current_subscene(-1)
   , _new_scene(-1)
   , _new_subscene(-1)
-  , _noteon_patches(Config::MAX_SIMULTANEOUS_NOTES)
-  , _sustain_patches(Config::MAX_SUSTAIN_PEDALS)
+  , _noteon_patches(config::MAX_SIMULTANEOUS_NOTES)
+  , _sustain_patches(config::MAX_SUSTAIN_PEDALS)
   , _buffer(*this)
   , _python_caller(new PythonCaller(boost::bind(&Engine::run_async, this)))
 {
-    _backend = Backend::create(backend_name, client_name, in_ports, out_ports);
+    _backend = backend::create(backend_name, client_name, in_ports, out_ports);
 
     // construct a patch with a single sanitize unit
-    Patch::UnitExPtr sani(new Units::Sanitize);
+    Patch::UnitExPtr sani(new units::Sanitize);
     Patch::ModulePtr mod(new Patch::Extended(sani));
     _sanitize_patch.reset(new Patch(mod));
 }
@@ -66,8 +66,8 @@ Engine::~Engine()
 }
 
 
-void Engine::connect_ports(Backend::PortConnectionMap const & in_port_connections,
-                           Backend::PortConnectionMap const & out_port_connections)
+void Engine::connect_ports(backend::PortConnectionMap const & in_port_connections,
+                           backend::PortConnectionMap const & out_port_connections)
 {
     if (_backend) {
         _backend->connect_ports(in_port_connections, out_port_connections);
@@ -445,4 +445,4 @@ double Engine::time()
 }
 
 
-} // Mididings
+} // mididings

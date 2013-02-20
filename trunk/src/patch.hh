@@ -28,11 +28,11 @@
 #include "util/debug.hh"
 
 
-namespace Mididings {
+namespace mididings {
 
 class Engine;
 
-namespace Units {
+namespace units {
     class Unit;
     class UnitEx;
 }
@@ -44,7 +44,7 @@ class Patch
 {
   private:
 
-    typedef std::list<MidiEvent, curious_alloc<MidiEvent, Config::MAX_EVENTS> > EventListRT;
+    typedef std::list<MidiEvent, curious_alloc<MidiEvent, config::MAX_EVENTS> > EventListRT;
     typedef std::list<MidiEvent> EventList;
 
     // deriving from a standard container. get over it.
@@ -84,8 +84,8 @@ class Patch
     typedef EventBufferType<EventList> EventBuffer;
 
 
-    typedef boost::shared_ptr<Units::Unit> UnitPtr;
-    typedef boost::shared_ptr<Units::UnitEx> UnitExPtr;
+    typedef boost::shared_ptr<units::Unit> UnitPtr;
+    typedef boost::shared_ptr<units::UnitEx> UnitExPtr;
 
 
     /**
@@ -286,7 +286,7 @@ class Patch
 };
 
 
-} // Mididings
+} // mididings
 
 
 #endif // MIDIDINGS_PATCH_HH

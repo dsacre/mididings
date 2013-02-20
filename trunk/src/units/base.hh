@@ -22,8 +22,8 @@
 #include "util/debug.hh"
 
 
-namespace Mididings {
-namespace Units {
+namespace mididings {
+namespace units {
 
 
 class Unit
@@ -175,8 +175,8 @@ class Pass
 };
 
 
-} // Units
-} // Mididings
+} // units
+} // mididings
 
 
 #endif // MIDIDINGS_UNITS_BASE_HH

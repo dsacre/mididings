@@ -18,15 +18,15 @@
 #include "util/debug.hh"
 
 
-namespace Mididings {
-namespace Backend {
+namespace mididings {
+namespace backend {
 
 
 JACKRealtimeBackend::JACKRealtimeBackend(std::string const & client_name,
                                          PortNameVector const & in_port_names,
                                          PortNameVector const & out_port_names)
   : JACKBackend(client_name, in_port_names, out_port_names)
-  , _out_rb(Config::JACK_MAX_EVENTS)
+  , _out_rb(config::JACK_MAX_EVENTS)
 {
 }
 
@@ -88,5 +88,5 @@ void JACKRealtimeBackend::output_event(MidiEvent const & ev)
 }
 
 
-} // Backend
-} // Mididings
+} // backend
+} // mididings

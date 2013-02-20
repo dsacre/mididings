@@ -21,8 +21,8 @@
 #include <jack/types.h>
 
 
-namespace Mididings {
-namespace Backend {
+namespace mididings {
+namespace backend {
 
 
 /*
@@ -69,8 +69,8 @@ class JACKBackend
 };
 
 
-} // Backend
-} // Mididings
+} // backend
+} // mididings
 
 
 #endif // MIDIDINGS_BACKEND_JACK_HH

@@ -47,7 +47,7 @@
 #endif
 
 
-namespace Mididings {
+namespace mididings {
 
 
 #ifdef ENABLE_DEBUG_STATS
@@ -58,8 +58,8 @@ void unload() {
     std::cout << "Engine: " << das::counted_objects<Engine>::allocated() << " " << das::counted_objects<Engine>::deallocated() << std::endl;
     std::cout << "Patch: " << das::counted_objects<Patch>::allocated() << " " << das::counted_objects<Patch>::deallocated() << std::endl;
     std::cout << "Patch::Module: " << das::counted_objects<Patch::Module>::allocated() << " " << das::counted_objects<Patch::Module>::deallocated() << std::endl;
-    std::cout << "Units::Unit: " << das::counted_objects<Units::Unit>::allocated() << " " << das::counted_objects<Units::Unit>::deallocated() << std::endl;
-    std::cout << "Units::UnitEx: " << das::counted_objects<Units::UnitEx>::allocated() << " " << das::counted_objects<Units::UnitEx>::deallocated() << std::endl;
+    std::cout << "units::Unit: " << das::counted_objects<units::Unit>::allocated() << " " << das::counted_objects<units::Unit>::deallocated() << std::endl;
+    std::cout << "units::UnitEx: " << das::counted_objects<units::UnitEx>::allocated() << " " << das::counted_objects<units::UnitEx>::deallocated() << std::endl;
     std::cout << "MidiEvent: " << das::counted_objects<MidiEvent>::allocated() << " " << das::counted_objects<MidiEvent>::deallocated() << std::endl;
     std::cout << "SysExData: " << das::counted_objects<SysExData>::allocated() << " " << das::counted_objects<SysExData>::deallocated() << std::endl;
 }
@@ -74,8 +74,8 @@ class EngineWrap
     EngineWrap(PyObject *self,
                std::string const & backend_name,
                std::string const & client_name,
-               Backend::PortNameVector const & in_ports,
-               Backend::PortNameVector const & out_ports,
+               backend::PortNameVector const & in_ports,
+               backend::PortNameVector const & out_ports,
                bool verbose)
       : Engine(backend_name, client_name, in_ports, out_ports, verbose)
       , _self(self)
@@ -105,13 +105,13 @@ BOOST_PYTHON_MODULE(_mididings)
     using bp::def;
     using bp::enum_;
     using boost::noncopyable;
-    using namespace Units;
+    using namespace units;
 
     PyEval_InitThreads();
 
 
     // list of supported backends
-    def("available_backends", &Backend::available, bp::return_value_policy<bp::return_by_value>());
+    def("available_backends", &backend::available, bp::return_value_policy<bp::return_by_value>());
 
 
     // main engine class, derived from in python
@@ -271,7 +271,7 @@ BOOST_PYTHON_MODULE(_mididings)
     das::python::to_list_converter<SysExData, SysExDataConstPtr>();
 #endif
 
-    das::python::from_dict_converter<Backend::PortConnectionMap>();
+    das::python::from_dict_converter<backend::PortConnectionMap>();
 
 
 #ifdef ENABLE_DEBUG_STATS
@@ -280,4 +280,4 @@ BOOST_PYTHON_MODULE(_mididings)
 }
 
 
-} // Mididings
+} // mididings

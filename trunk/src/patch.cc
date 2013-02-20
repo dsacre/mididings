@@ -20,7 +20,7 @@
 #include "util/debug.hh"
 
 
-namespace Mididings {
+namespace mididings {
 
 
 template <typename B>
@@ -210,4 +210,4 @@ template void Patch::process(EventBufferRT &, EventBufferRT::Range &) const;
 template void Patch::process(EventBuffer &, EventBuffer::Range &) const;
 
 
-} // Mididings
+} // mididings

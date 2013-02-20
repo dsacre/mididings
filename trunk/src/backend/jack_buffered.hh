@@ -23,8 +23,8 @@
 #include "util/ringbuffer.hh"
 
 
-namespace Mididings {
-namespace Backend {
+namespace mididings {
+namespace backend {
 
 
 /*
@@ -60,8 +60,8 @@ class JACKBufferedBackend
 };
 
 
-} // Backend
-} // Mididings
+} // backend
+} // mididings
 
 
 #endif // MIDIDINGS_BACKEND_JACK_BUFFERED_HH
