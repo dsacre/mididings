@@ -107,6 +107,7 @@ sources = [
     'src/engine.cc',
     'src/patch.cc',
     'src/python_caller.cc',
+    'src/send_midi.cc',
     'src/python_module.cc',
     'src/backend/base.cc',
 ]

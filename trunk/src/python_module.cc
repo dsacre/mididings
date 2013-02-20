@@ -12,6 +12,7 @@
 #include "config.hh"
 #include "engine.hh"
 #include "patch.hh"
+#include "send_midi.hh"
 #include "midi_event.hh"
 #include "units/base.hh"
 #include "units/engine.hh"
@@ -112,6 +113,9 @@ BOOST_PYTHON_MODULE(_mididings)
 
     // list of supported backends
     def("available_backends", &backend::available, bp::return_value_policy<bp::return_by_value>());
+
+    // simple MIDI send function, works with no engine running
+    def("send_midi", &send_midi);
 
 
     // main engine class, derived from in python
