@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# mididings
+#
+# Copyright (C) 2008-2013  Dominic Sacré  <dominic.sacre@gmx.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+
+import optparse
+import _mididings
+
+
+def parse_event(string):
+    ev = _mididings.MidiEvent()
+
+    split = string.split(',')
+    typestr = split[0]
+
+    if not (hasattr(_mididings.MidiEventType, typestr) and
+            bin(getattr(_mididings.MidiEventType, typestr)).count('1') == 1 and
+            typestr != 'DUMMY'):
+        raise ValueError("invalid MIDI event type '%s'" % typestr)
+
+    ev.type_ = getattr(_mididings.MidiEventType, typestr)
+
+    if not typestr.startswith('SYS'):
+        ev.channel_ = int(split[1])
+
+    return ev
+
+
+if __name__ == '__main__':
+    usage   = "Usage: send_midi [options] dest_port event [...]"
+    version = "mididings %s" % _mididings.__version__
+
+    parser = optparse.OptionParser(usage=usage, version=version)
+    parser.add_option('-b', dest='backend', help="name of backend to use", default='alsa')
+
+    options, args = parser.parse_args()
+
+    try:
+        dest_port = args[0]
+    except IndexError:
+        raise ValueError("no destination port specified")
+
+    events = [parse_event(arg) for arg in args[1:]]
+
+    _mididings.send_midi(options.backend, dest_port, events)
