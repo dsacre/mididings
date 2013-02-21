@@ -10,6 +10,7 @@
 # (at your option) any later version.
 #
 
+import _mididings
 from mididings.setup import config, hook
 from mididings.engine import run, process_file
 from mididings.constants import *
@@ -17,7 +18,7 @@ from mididings.scene import *
 from mididings.units import *
 
 
-__version__ = '20120419'
+__version__ = _mididings.__version__
 
 
 import mididings.misc as _misc

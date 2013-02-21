@@ -110,6 +110,12 @@ BOOST_PYTHON_MODULE(_mididings)
 
     PyEval_InitThreads();
 
+#ifdef VERSION
+    bp::scope().attr("__version__") = VERSION;
+#else
+    bp::scope().attr("__version__") = "(unknown)";
+#endif
+
 
     // list of supported backends
     def("available_backends", &backend::available, bp::return_value_policy<bp::return_by_value>());

@@ -12,6 +12,8 @@ else:
     from commands import getstatusoutput
 
 
+version = '20120419'
+
 config = {
     'alsa-seq':     (platform.system() == 'Linux'),
     'jack-midi':    True,
@@ -24,6 +26,9 @@ libraries = []
 library_dirs = []
 define_macros = []
 extra_compile_args = []
+
+
+define_macros.append(('VERSION', '"%s"' % version))
 
 
 # parse and then remove additional custom command line options
@@ -146,7 +151,7 @@ else:
 
 setup(
     name = 'mididings',
-    version = '20120419',
+    version = version,
     author = 'Dominic Sacre',
     author_email = 'dominic.sacre@gmx.de',
     url = 'http://das.nasophon.de/mididings/',
