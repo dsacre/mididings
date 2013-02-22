@@ -359,6 +359,11 @@ void ALSABackend::alsa_to_midi_event_sysex(MidiEvent & ev, snd_seq_event_t const
         // previous sysex continued, append to buffer
         _sysex_buffer[ev.port]->insert(_sysex_buffer[ev.port]->end(), ptr, ptr + len);
     }
+    else {
+        // sysex didn't start with 0xf0, ignore it
+        ev.type = MIDI_EVENT_NONE;
+        return;
+    }
 
     if (_sysex_buffer[ev.port]->back() == 0xf7) {
         // end of sysex, assign complete event
