@@ -11,43 +11,84 @@
 # (at your option) any later version.
 #
 
+import sys
 import optparse
 import _mididings
 
 
-def parse_event(string):
+def parse_event(string, data_offset):
     ev = _mididings.MidiEvent()
 
-    split = string.split(',')
-    typestr = split[0]
+    args = string.split(',')
 
+    # type is first argument, case insensitive
+    typestr = args.pop(0).upper()
+
+    # valid event type values have exactly one bit set
     if not (hasattr(_mididings.MidiEventType, typestr) and
             bin(getattr(_mididings.MidiEventType, typestr)).count('1') == 1 and
             typestr != 'DUMMY'):
         raise ValueError("invalid MIDI event type '%s'" % typestr)
 
-    ev.type_ = getattr(_mididings.MidiEventType, typestr)
+    try:
+        ev.type_ = getattr(_mididings.MidiEventType, typestr)
+        ev.port_ = 0
+        # set channel for non-system events only
+        if not typestr.startswith('SYS'):
+            ev.channel_ = int(args.pop(0)) - data_offset
 
-    if not typestr.startswith('SYS'):
-        ev.channel_ = int(split[1])
+        if typestr in ('NOTEON', 'NOTEOFF', 'CTRL', 'POLY_AFTERTOUCH', 'SYSCM_SONGPOS'):
+            ev.data1 = int(args.pop(0))
+            ev.data2 = int(args.pop(0))
+        elif typestr in ('AFTERTOUCH', 'PITCHBEND'):
+            ev.data2 = int(args.pop(0))
+        elif typestr == 'PROGRAM':
+            ev.data2 = int(args.pop(0)) - data_offset
+        elif typestr in ('SYSCM_QFRAME', 'SYSCM_SONGSEL'):
+            ev.data1 = int(args.pop(0))
+        elif typestr == 'SYSEX':
+            ev.sysex_ = bytearray(int(x, 16) for x in args)
+            del args[:]
+    except IndexError:
+        raise ValueError("too few parameters specified for MIDI event type '%s'" % typestr)
+
+    if len(args) != 0:
+        raise ValueError("too many parameters specified for MIDI event type '%s'" % typestr)
 
     return ev
 
 
 if __name__ == '__main__':
-    usage   = "Usage: send_midi [options] dest_port event [...]"
-    version = "mididings %s" % _mididings.__version__
+    usage       = "Usage: send_midi [options] dest_port event [...]"
+    description = "Sends one or more MIDI events via ALSA or JACK."
+    version     = "mididings %s" % _mididings.__version__
+    epilog      = "Examples:\n" \
+                  "send_midi LinuxSampler:0 NOTEON,1,60,127\n" \
+                  "send_midi -J mididings:in_.* PROGRAM,1,42\n" \
+                  "send_midi 14:0 SYSEX,F0,23,42,F7"
 
-    parser = optparse.OptionParser(usage=usage, version=version)
-    parser.add_option('-b', dest='backend', help="name of backend to use", default='alsa')
+    parser = optparse.OptionParser(usage=usage, description=description, epilog=epilog, version=version)
+    # leave epilog formatting intact
+    parser.format_epilog = lambda formatter: '\n%s\n' % epilog
+
+    parser.add_option('-A', '--alsa', dest='backend', action='store_const',
+                      const='alsa', default='alsa', help="use ALSA (default)")
+    parser.add_option('-J', '--jack', dest='backend', action='store_const',
+                      const='jack-rt', help="use JACK")
+    parser.add_option('-0', '--zero-based', dest='data_offset', action='store_const',
+                      const=0, default=1, help="channel and program numbers start at zero")
 
     options, args = parser.parse_args()
 
+    if len(args) < 2:
+        parser.print_usage()
+        sys.exit(1)
+
     try:
         dest_port = args[0]
-    except IndexError:
-        raise ValueError("no destination port specified")
-
-    events = [parse_event(arg) for arg in args[1:]]
-
-    _mididings.send_midi(options.backend, dest_port, events)
+        # parse all events
+        events = [parse_event(arg, options.data_offset) for arg in args[1:]]
+        # send all events to the given destination port
+        _mididings.send_midi(options.backend, dest_port, events)
+    except Exception as ex:
+        sys.exit("send_midi: error: %s" % ex)
