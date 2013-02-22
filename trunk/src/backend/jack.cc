@@ -37,7 +37,7 @@ JACKBackend::JACKBackend(std::string const & client_name,
     ASSERT(!out_port_names.empty());
 
     // create JACK client
-    if ((_client = jack_client_open(client_name.c_str(), JackNullOption, NULL)) == 0) {
+    if ((_client = jack_client_open(client_name.c_str(), JackNoStartServer, NULL)) == NULL) {
         throw Error("can't connect to jack server");
     }
 
