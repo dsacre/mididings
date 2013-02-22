@@ -113,7 +113,7 @@ void JACKBackend::connect_ports_impl(PortConnectionMap const & port_connections,
         BOOST_FOREACH (std::string const & pattern, element->second) {
             // connect to all ports that match the pattern
             if (connect_matching_ports(port_name, pattern, external_ports, out) == 0) {
-                std::cerr << "regular expression '" << pattern << "' didn't match any ports" << std::endl;
+                std::cerr << "warning: regular expression '" << pattern << "' didn't match any JACK MIDI ports" << std::endl;
             }
         }
     }
