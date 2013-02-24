@@ -177,5 +177,6 @@ setup(
     scripts = [
         'scripts/mididings',
         'scripts/livedings',
+        'scripts/send_midi',
     ],
 )
