@@ -15,6 +15,7 @@
 #include <jack/jack.h>
 #include <jack/thread.h>
 
+#include <boost/version.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 

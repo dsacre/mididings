@@ -13,6 +13,7 @@
 #include "python_caller.hh"
 #include "patch.hh"
 
+#include <boost/version.hpp>
 #include <boost/bind.hpp>
 
 #include <boost/thread/mutex.hpp>
