@@ -54,6 +54,9 @@ PythonCaller::PythonCaller(EngineCallback engine_callback)
 
 PythonCaller::~PythonCaller()
 {
+    // release the GIL to ensure that we don't block the async thread
+    das::python::scoped_gil_release release;
+
     _quit = true;
     _cond.notify_one();
 
@@ -69,7 +72,7 @@ PythonCaller::~PythonCaller()
 template <typename B>
 typename B::Range PythonCaller::call_now(B & buffer, typename B::Iterator it, bp::object const & fun)
 {
-    das::scoped_gil_lock gil;
+    das::python::scoped_gil_lock gil;
 
     try
     {
@@ -133,7 +136,7 @@ void PythonCaller::async_thread()
         }
 
         if (_rb->read_space()) {
-            das::scoped_gil_lock gil;
+            das::python::scoped_gil_lock gil;
 
             // read event from ringbuffer
             AsyncCallInfo c;

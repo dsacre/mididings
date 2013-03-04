@@ -83,7 +83,7 @@ class EngineWrap
     { }
 
     void scene_switch_callback(int scene, int subscene) {
-        das::scoped_gil_lock gil;
+        das::python::scoped_gil_lock gil;
         try {
             boost::python::call_method<void>(_self, "scene_switch_callback", scene, subscene);
         } catch (boost::python::error_already_set &) {

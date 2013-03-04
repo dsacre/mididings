@@ -15,14 +15,16 @@
 #include <boost/noncopyable.hpp>
 
 namespace das {
+namespace python {
 
 
 class scoped_gil_lock
   : boost::noncopyable
 {
   public:
-    scoped_gil_lock() {
-        _gil = PyGILState_Ensure();
+    scoped_gil_lock()
+      : _gil(PyGILState_Ensure())
+    {
     }
 
     ~scoped_gil_lock() {
@@ -34,6 +36,25 @@ class scoped_gil_lock
 };
 
 
+class scoped_gil_release
+  : boost::noncopyable
+{
+  public:
+    scoped_gil_release()
+      : _state(PyEval_SaveThread())
+    {
+    }
+
+    ~scoped_gil_release() {
+        PyEval_RestoreThread(_state);
+    }
+
+  private:
+    PyThreadState *_state;
+};
+
+
+} // namespace python
 } // namespace das
 
 
