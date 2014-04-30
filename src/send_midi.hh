@@ -1,7 +1,7 @@
 /*
  * mididings
  *
- * Copyright (C) 2008-2013  Dominic Sacré  <dominic.sacre@gmx.de>
+ * Copyright (C) 2013-2014  Dominic Sacré  <dominic.sacre@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,4 +30,3 @@ void send_midi(std::string const & backend_name,
 
 
 #endif // MIDIDINGS_SEND_MIDI_HH
-

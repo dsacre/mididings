@@ -1,7 +1,7 @@
 /*
  * mididings
  *
- * Copyright (C) 2008-2013  Dominic Sacré  <dominic.sacre@gmx.de>
+ * Copyright (C) 2013-2014  Dominic Sacré  <dominic.sacre@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,8 @@ void send_midi(std::string const & backend_name,
                std::string const & dest_port,
                std::vector<MidiEvent> const & events)
 {
-    backend::PortNameVector in_ports(1, "input");   //////
+    // TODO: allow creation of backend with no input ports
+    backend::PortNameVector in_ports(1, "input");
     backend::PortNameVector out_ports(1, "output");
 
     boost::shared_ptr<backend::BackendBase> send_backend =
@@ -42,4 +43,3 @@ void send_midi(std::string const & backend_name,
 
 
 } // mididings
-
