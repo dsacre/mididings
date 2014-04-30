@@ -43,14 +43,15 @@ env.Append(CCFLAGS = cflags)
 
 # avoid some annoying warnings caused by recent boost versions and an overreacting gcc
 env.Append(CCFLAGS = '-Wno-missing-field-initializers')
+env.Append(CCFLAGS = '-Wno-unused-local-typedefs')
 
 env.Append(
-#    CPPPATH = [sysconfig.get_python_inc(plat_specific=1)],
-#    LIBPATH = [sysconfig.get_python_lib(plat_specific=1)],
+    CPPPATH = [sysconfig.get_python_inc(plat_specific=1)],
+    LIBPATH = [sysconfig.get_python_lib(plat_specific=1)],
 #    CPPPATH = ['/opt/boost1.43/include', '/opt/python3.2/include/python3.2m'],
 #    LIBPATH = ['/opt/boost1.43/lib', '/opt/python3.2/lib'],
-    CPPPATH = ['/opt/boost1.51/include', '/opt/python3.3/include/python3.3m'],
-    LIBPATH = ['/opt/boost1.51/lib'],
+#    CPPPATH = ['/opt/boost1.51/include', '/opt/python3.3/include/python3.3m'],
+#    LIBPATH = ['/opt/boost1.51/lib'],
 )
 
 sources = [
