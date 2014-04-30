@@ -29,6 +29,7 @@ import subprocess as _subprocess
 import types as _types
 import copy as _copy
 import collections as _collections
+import inspect as _inspect
 
 
 class _CallBase(_Unit):
@@ -75,22 +76,36 @@ class _System(_CallBase):
         _CallBase.__init__(self, do_system, True, True)
 
 
-@_unitrepr.accept(_collections.Callable)
-def Process(function):
+def _call_partial(function, args, kwargs, require_event=False):
+    argspec = _inspect.getargspec(function)
+    if (not require_event and argspec[1] == None
+                and len(argspec[0]) - int(_inspect.ismethod(function)) == 0):
+        if len(kwargs):
+            return lambda ev: function(**kwargs)
+        else:
+            return lambda ev: function()
+    if len(args) or len(kwargs):
+        return lambda ev: function(ev, *args, **kwargs)
+    else:
+        return function
+
+
+@_unitrepr.accept(_collections.Callable, None, kwargs={ None: None })
+def Process(function, *args, **kwargs):
     if _get_config('backend') == 'jack-rt' and not _get_config('silent'):
         print("WARNING: using Process() with the 'jack-rt' backend is probably a bad idea")
-    return _CallBase(function, False, False)
+    return _CallBase(_call_partial(function, args, kwargs, True), False, False)
 
 
 @_overload.mark
-@_unitrepr.accept(_collections.Callable)
-def Call(function):
-    return _CallBase(function, True, True)
+@_unitrepr.accept(_collections.Callable, None, kwargs={ None: None })
+def Call(function, *args, **kwargs):
+    return _CallBase(_call_partial(function, args, kwargs), True, True)
 
 @_overload.mark
-@_unitrepr.accept(_collections.Callable)
-def Call(thread):
-    return _CallThread(thread)
+@_unitrepr.accept(_collections.Callable, kwargs={ None: None })
+def Call(thread, **kwargs):
+    return _CallThread(_call_partial(function, (), kwargs))
 
 
 @_unitrepr.accept((str, _collections.Callable))

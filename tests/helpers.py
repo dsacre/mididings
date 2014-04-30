@@ -152,8 +152,8 @@ class MididingsTestCase(unittest.TestCase):
         r = {}
         for k, v in scenes.items():
             rep = repr(v)
-            if 'Process' in rep:
-                # patches with Process() units are too tricky for now
+            if 'Process' in rep or 'Call' in rep:
+                # patches with Process() units etc. are too tricky for now
                 return None
             w = eval(rep, self.mididings_dict)
             # the repr() of the rebuilt patch should be identical to the repr()

@@ -14,6 +14,8 @@ from tests.helpers import *
 
 from mididings import *
 
+import threading
+
 
 class CallTestCase(MididingsTestCase):
 
@@ -58,3 +60,48 @@ class CallTestCase(MididingsTestCase):
         self.check_patch(Process(lambda ev: (ev for ev in [ev, ev])), {
             ev: [ev, ev]
         })
+
+    @data_offsets
+    def test_Call(self, off):
+        event = threading.Event()
+
+        def foo(ev):
+            self.assertEqual(ev.type, NOTEON)
+            self.assertEqual(ev.port, off(0))
+            self.assertEqual(ev.channel, off(0))
+            self.assertEqual(ev.note, 66)
+            self.assertEqual(ev.velocity, 23)
+            event.set()
+
+        ev = self.make_event(NOTEON, off(0), off(0), 66, 23)
+        self.check_patch(Call(foo), { ev: [ev] })
+        self.assertTrue(event.wait(1.0))
+
+    @data_offsets
+    def test_Call_no_arg(self, off):
+        event = threading.Event()
+
+        def foo():
+            event.set()
+
+        ev = self.make_event()
+        self.check_patch(Call(foo), { ev: [ev] })
+        self.assertTrue(event.wait(1.0))
+
+    @data_offsets
+    def test_Call_partial(self, off):
+        event = threading.Event()
+
+        def foo(ev, bar, **kwargs):
+            self.assertEqual(ev.type, NOTEON)
+            self.assertEqual(ev.port, off(0))
+            self.assertEqual(ev.channel, off(0))
+            self.assertEqual(ev.note, 66)
+            self.assertEqual(ev.velocity, 23)
+            self.assertEqual(bar, 42)
+            self.assertEqual(kwargs['baz'], 666)
+            event.set()
+
+        ev = self.make_event(NOTEON, off(0), off(0), 66, 23)
+        self.check_patch(Call(foo, 42, baz=666), { ev: [ev] })
+        self.assertTrue(event.wait(1.0))
