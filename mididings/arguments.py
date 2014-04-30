@@ -35,10 +35,10 @@ class accept(object):
     are instead combined with the last regular positional argument into a
     single list. This list is then passed to the original function as a single
     argument.
-
-    Keyword arguments are accepted if their name is in the kwargs_constraints
-    dictionary, and the value from that dictionnary is used as the constraint
-    to be applied.
+    The kwargs dictionary, itself passed as an optional keyword argument,
+    maps keyword arguments to the corresponding constraints. None can be used
+    as a key in this dictionary to specify constraints for keyword arguments
+    with any name.
     """
     def __init__(self, *constraints, **kwargs):
         self.with_rest = kwargs['with_rest'] if 'with_rest' in kwargs else False
@@ -80,10 +80,13 @@ class accept(object):
                 mod_args.append(a)
 
         for k, v in kwargs.items():
-            if k not in self.kwargs_constraints:
+            if k in self.kwargs_constraints:
+                a = _try_apply_constraint(self.kwargs_constraints[k], v, f.__name__, k)
+            elif None in self.kwargs_constraints:
+                a = _try_apply_constraint(self.kwargs_constraints[None], v, f.__name__, k)
+            else:
                 message = "%s() got an unexpected keyword argument '%s'" % (f.__name__, k)
                 raise TypeError(message)
-            a = _try_apply_constraint(self.kwargs_constraints[k], v, f.__name__, k)
             mod_kwargs[k] = a
 
         return f(*mod_args, **mod_kwargs)

@@ -115,6 +115,21 @@ class ArgumentsTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             bar(123, b=456, c=789, d=123)
 
+    def test_kwargs_any(self):
+        @arguments.accept(None, kwargs={None: int})
+        def foo(*args, **kwargs):
+            self.assertEqual(len(args), 2)
+            self.assertEqual(args[0], 23)
+            self.assertEqual(args[1], 42)
+            self.assertEqual(len(kwargs), 2)
+            self.assertEqual(kwargs['bar'], 13)
+            self.assertEqual(kwargs['baz'], 666)
+
+        foo(23, 42, bar=13, baz=666)
+
+        with self.assertRaises(TypeError):
+            foo(23, 42, bar=13, baz=66.6)
+
     def test_nullable(self):
         @arguments.accept(arguments.nullable(int))
         def foo(a): pass
