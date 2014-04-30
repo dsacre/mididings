@@ -110,6 +110,21 @@ def Aftertouch(port, channel, value):
 
 
 @_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.note_number_ref, int)
+def PolyAftertouch(port, channel, note, value):
+    """
+    Generate polyphonic afterouch event.
+    """
+    return _Unit(_mididings.Generator(
+        _constants.POLY_AFTERTOUCH,
+        _util.actual_ref(port),
+        _util.actual_ref(channel),
+        note,
+        value
+    ))
+
+
+@_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
 @_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.program_number_ref)
 def Program(port, channel, program):
     """

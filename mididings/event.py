@@ -241,6 +241,13 @@ def AftertouchEvent(port, channel, value):
     """
     return MidiEvent(_constants.AFTERTOUCH, port, channel, 0, value)
 
+@_arguments.accept(_util.port_number, _util.channel_number, _util.note_number, int)
+def PolyAftertouchEvent(port, channel, note, value):
+    """
+    Create a new polyphonic aftertouch event object.
+    """
+    return MidiEvent(_constants.POLY_AFTERTOUCH, port, channel, note, value)
+
 @_arguments.accept(_util.port_number, _util.channel_number, _util.program_number)
 def ProgramEvent(port, channel, program):
     """

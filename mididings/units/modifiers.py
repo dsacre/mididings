@@ -14,7 +14,7 @@ import _mididings
 
 from mididings.units.base import _Unit, Filter, Split, Pass
 from mididings.units.splits import VelocitySplit
-from mididings.units.generators import NoteOn, NoteOff
+from mididings.units.generators import NoteOn, NoteOff, PolyAftertouch
 
 import mididings.util as _util
 import mididings.misc as _misc
@@ -60,9 +60,10 @@ def Key(note):
     """
     Change note number.
     """
-    return Filter(_constants.NOTE) % Split({
+    return Filter(_constants.NOTE | _constants.POLY_AFTERTOUCH) % Split({
         _constants.NOTEON:  NoteOn(note, _constants.EVENT_VELOCITY),
         _constants.NOTEOFF: NoteOff(note, _constants.EVENT_VELOCITY),
+        _constants.POLY_AFTERTOUCH: PolyAftertouch(note, _constants.EVENT_VALUE),
     })
 
 

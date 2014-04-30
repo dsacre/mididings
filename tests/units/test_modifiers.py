@@ -56,21 +56,25 @@ class ModifiersTestCase(MididingsTestCase):
     @data_offsets
     def test_Transpose(self, off):
         ev1 = self.make_event(NOTEON, note=random.randrange(0, 115))
-        ev2 = self.make_event(NOTEON, note=random.randrange(0, 115))
+        ev2 = self.make_event(NOTEOFF, note=random.randrange(0, 115))
         ev3 = self.make_event(NOTEON, note=random.randrange(24, 127))
-        ev4 = self.make_event(NOTEON, note=random.randrange(24, 127))
+        ev4 = self.make_event(NOTEOFF, note=random.randrange(24, 127))
         ev5 = self.make_event(CTRL)
+        ev6 = self.make_event(POLY_AFTERTOUCH, note=random.randrange(0, 115))
+        ev7 = self.make_event(POLY_AFTERTOUCH, note=random.randrange(24, 127))
 
         self.check_patch(Transpose(12), {
             ev1: [self.modify_event(ev1, note=ev1.note + 12)],
             ev2: [self.modify_event(ev2, note=ev2.note + 12)],
             ev5: [ev5],
+            ev6: [self.modify_event(ev6, note=ev6.note + 12)],
         })
 
         self.check_patch(Transpose(octaves=-2), {
             ev3: [self.modify_event(ev3, note=ev3.note - 24)],
             ev4: [self.modify_event(ev4, note=ev4.note - 24)],
             ev5: [ev5],
+            ev7: [self.modify_event(ev7, note=ev7.note - 24)],
         })
 
         with self.assertRaises(TypeError):
@@ -82,10 +86,12 @@ class ModifiersTestCase(MididingsTestCase):
     def test_Key(self, off):
         ev = self.make_event(NOTE)
         ev2 = self.make_event(CTRL)
+        ev3 = self.make_event(POLY_AFTERTOUCH)
 
         self.check_patch(Key(42), {
             ev: [self.modify_event(ev, note=42)],
             ev2: [ev2],
+            ev3: [self.modify_event(ev3, note=42)],
         })
 
         with self.assertRaises(TypeError):
