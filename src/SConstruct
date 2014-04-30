@@ -25,8 +25,8 @@ def boost_lib_name(name, add_suffixes=[]):
 
 env = Environment(
 #    CXX = 'clang++',
-#    CCFLAGS = ['-O2', '-W', '-Wall', '-finline-functions', '-fvisibility=hidden'],
-    CCFLAGS = ['-g', '-W', '-Wall'],
+#    CCFLAGS = ['-O2', '-Wall', '-Wextra', '-finline-functions', '-fvisibility=hidden'],
+    CCFLAGS = ['-g', '-Wall', '-Wextra'],
     CPPDEFINES = [
 #        'NDEBUG',
 #        'ENABLE_DEBUG_FN',
@@ -54,8 +54,8 @@ cflags = [ x for x in cv_opt.split() if x not in ['-g', '-O2', '-Wstrict-prototy
 env.Append(CCFLAGS = cflags)
 
 # avoid some annoying warnings caused by recent boost versions and an overreacting gcc
-env.Append(CCFLAGS = '-Wno-missing-field-initializers')
-env.Append(CCFLAGS = '-Wno-unused-local-typedefs')
+#env.Append(CCFLAGS = '-Wno-missing-field-initializers')
+#env.Append(CCFLAGS = '-Wno-unused-local-typedefs')
 
 env.Append(
     CPPPATH = [sysconfig.get_python_inc(plat_specific=1)],
