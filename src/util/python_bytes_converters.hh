@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012  Dominic Sacré  <dominic.sacre@gmx.de>
+ * Copyright (C) 2012-2014  Dominic Sacré  <dominic.sacre@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -7,8 +7,8 @@
  * (at your option) any later version.
  */
 
-#ifndef DAS_UTIL_PYTHON_VECTOR_BYTES_CONVERTERS_HH
-#define DAS_UTIL_PYTHON_VECTOR_BYTES_CONVERTERS_HH
+#ifndef DAS_UTIL_PYTHON_BYTES_CONVERTERS_HH
+#define DAS_UTIL_PYTHON_BYTES_CONVERTERS_HH
 
 #include "util/from_python_converter.hh"
 #include "util/to_python_converter.hh"
@@ -106,4 +106,4 @@ struct to_bytearray_converter
 } // namespace das
 
 
-#endif // DAS_UTIL_PYTHON_VECTOR_BYTES_CONVERTERS_HH
+#endif // DAS_UTIL_PYTHON_BYTES_CONVERTERS_HH
