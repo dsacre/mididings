@@ -60,6 +60,9 @@ class _Unit(object):
         """
         Apply to duplicate (unary operator +)
         """
+        return self.add()
+
+    def add(self):
         return Fork([ Pass(), self ])
 
     def __repr__(self):

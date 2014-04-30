@@ -26,7 +26,7 @@ class BaseTestCase(MididingsTestCase):
         })
 
     def test_Fork(self):
-        ev = self.make_event(port=2)
+        ev = self.make_event(port=2, channel=7)
 
         p = Fork([Pass(), Pass()])
         self.check_patch(p, {ev: True})
@@ -36,6 +36,9 @@ class BaseTestCase(MididingsTestCase):
 
         p = +Port(3)
         self.check_patch(p, {ev: [ev, self.modify_event(ev, port=3)]})
+
+        p = Channel(12).add()
+        self.check_patch(p, {ev: [ev, self.modify_event(ev, channel=12)]})
 
         p = Fork([Pass(), Discard(), Pass()])
         self.check_patch(p, {ev: [ev]})
