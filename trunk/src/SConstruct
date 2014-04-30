@@ -1,15 +1,27 @@
-# -*- python -*-
-
 import os
 from distutils import sysconfig
 
-def boost_lib_name(lib):
-    for libdir in ('/usr/lib', '/usr/local/lib', '/usr/lib64', '/usr/local/lib64'):
-        for suffix in ('', '-mt'):
-            libname = 'lib%s%s.so' % (lib, suffix)
+
+def lib_dirs():
+    try:
+        status, output = getstatusoutput(sysconfig.get_config_var('CC') + ' -print-search-dirs')
+        for line in output.splitlines():
+            if 'libraries: =' in line:
+                libdirs = line.split('=', 1)[1]
+                return libdirs.split(':')
+        return []
+    except Exception:
+        return []
+
+def boost_lib_name(name, add_suffixes=[]):
+    libdirs = ['/usr/lib', '/usr/local/lib', '/usr/lib64', '/usr/local/lib64'] + lib_dirs()
+    for suffix in add_suffixes + ['', '-mt']:
+        for libdir in libdirs:
+            libname = 'lib%s%s.so' % (name, suffix)
             if os.path.isfile(os.path.join(libdir, libname)):
-                return lib + suffix
-    return lib + '-mt'
+                return name + suffix
+    return name
+
 
 env = Environment(
 #    CXX = 'clang++',
