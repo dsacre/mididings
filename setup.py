@@ -19,6 +19,7 @@ config = {
     'jack-midi':    True,
     'smf':          False,
     'c++11':        False,
+    'debug':        True,
 }
 
 include_dirs = []
@@ -44,20 +45,30 @@ for opt in config.keys():
 
 # hack to modify the compiler flags from the distutils default
 distutils_customize_compiler = sysconfig.customize_compiler
+
 def my_customize_compiler(compiler):
     retval = distutils_customize_compiler(compiler)
+    # -Wstrict-prototypes is not valid for C++
     try:
-        # -Wstrict-prototypes is not valid for C++
         compiler.compiler_so.remove('-Wstrict-prototypes')
-        # immediately stop on error
-        compiler.compiler_so.append('-Wfatal-errors')
-        # some options to reduce the size of the binary
-        compiler.compiler_so.remove('-g')
-        compiler.compiler_so.append('-finline-functions')
-        compiler.compiler_so.append('-fvisibility=hidden')
-    except (AttributeError, ValueError):
+    except ValueError:
         pass
+
+    if not config['debug']:
+        try:
+            # the -g flag might occur twice in python's compiler flags
+            compiler.compiler_so.remove('-g')
+            compiler.compiler_so.remove('-g')
+        except ValueError:
+            pass
+
+    # immediately stop on error
+    compiler.compiler_so.append('-Wfatal-errors')
+    # some options to reduce the size of the binary
+    compiler.compiler_so.append('-finline-functions')
+    compiler.compiler_so.append('-fvisibility=hidden')
     return retval
+
 sysconfig.customize_compiler = my_customize_compiler
 
 
