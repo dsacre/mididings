@@ -44,6 +44,8 @@ class Dings(object):
     def make_port_definitions(self, connections, nports):
         if connections is None:
             return nports
+        elif nports is None:
+            pass
         elif nports < len(connections):
             connections = connections[:nports]
         elif nports > len(connections):
