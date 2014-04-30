@@ -17,9 +17,6 @@
 #include <boost/bind.hpp>
 
 #include <boost/thread/mutex.hpp>
-#if BOOST_VERSION < 103500
-#  include <boost/thread/xtime.hpp>
-#endif
 
 #include <boost/python/object.hpp>
 #include <boost/python/ptr.hpp>
@@ -60,12 +57,7 @@ PythonCaller::~PythonCaller()
     _quit = true;
     _cond.notify_one();
 
-#if BOOST_VERSION >= 103500
     _thread->timed_join(boost::posix_time::milliseconds(config::ASYNC_JOIN_TIMEOUT));
-#else
-    // what if the thread doesn't terminate, due to a long-running python function?
-    _thread->join();
-#endif
 }
 
 
@@ -153,15 +145,7 @@ void PythonCaller::async_thread()
         else {
             // wait until woken up again
             boost::mutex::scoped_lock lock(mutex);
-
-#if BOOST_VERSION >= 103500
             _cond.timed_wait(lock, boost::posix_time::milliseconds(config::ASYNC_CALLBACK_INTERVAL));
-#else
-            boost::xtime xt;
-            boost::xtime_get(&xt, boost::TIME_UTC);
-            xt.nsec += config::ASYNC_CALLBACK_INTERVAL * 1000000;
-            _cond.timed_wait(lock, xt);
-#endif
         }
 
         _engine_callback();

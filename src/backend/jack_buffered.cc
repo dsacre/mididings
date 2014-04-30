@@ -64,8 +64,6 @@ void JACKBufferedBackend::start(InitFunction init, CycleFunction cycle)
 #endif
 
 
-    // can't get native posix thread handle before boost 1.37.0
-#if BOOST_VERSION >= 103700
     // try to use realtime scheduling for MIDI processing thread
     int jack_rtprio = jack_client_real_time_priority(_client);
 
@@ -73,7 +71,6 @@ void JACKBufferedBackend::start(InitFunction init, CycleFunction cycle)
         int rtprio = jack_rtprio - config::JACK_BUFFERED_RTPRIO_OFFSET;
         jack_acquire_real_time_scheduling(_thread->native_handle(), rtprio);
     }
-#endif
 }
 
 
