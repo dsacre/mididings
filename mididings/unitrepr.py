@@ -53,13 +53,10 @@ def unit_to_string(unit):
 
     argnames = misc.getargspec(unit._function)[0]
 
-    if sys.version_info >= (2, 6):
-        args = [
-            misc.bytestring(a) if isinstance(a, bytearray) else a
-            for a in unit._args
-        ]
-    else:
-        args = unit._args
+    args = [
+        misc.bytestring(a) if isinstance(a, bytearray) else a
+        for a in unit._args
+    ]
 
     # (ab)use inspect module to format the arguments used
     formatted = inspect.formatargspec(args=argnames, defaults=args)

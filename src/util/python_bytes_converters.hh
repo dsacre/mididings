@@ -64,8 +64,6 @@ struct to_bytes_converter
 
 
 
-#if PY_VERSION_HEX >= 0x02060000
-
 /**
  * Converter from a Python bytearray object to std::vector.
  */
@@ -102,8 +100,6 @@ struct to_bytearray_converter
         return &PyByteArray_Type;
     }
 };
-
-#endif // PY_VERSION_HEX >= 0x02060000
 
 
 } // namespace python

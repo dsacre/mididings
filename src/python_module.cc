@@ -272,14 +272,8 @@ BOOST_PYTHON_MODULE(_mididings)
 
     das::python::from_sequence_converter<std::vector<Patch::ModulePtr> >();
 
-
-#if PY_VERSION_HEX >= 0x02060000
     das::python::from_bytearray_converter<SysExData, SysExDataConstPtr>();
     das::python::to_bytearray_converter<SysExData, SysExDataConstPtr>();
-#else
-    das::python::from_sequence_converter<SysExData, SysExDataConstPtr>();
-    das::python::to_list_converter<SysExData, SysExDataConstPtr>();
-#endif
 
     das::python::from_dict_converter<backend::PortConnectionMap>();
 

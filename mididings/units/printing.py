@@ -20,12 +20,6 @@ import mididings.misc as _misc
 import sys as _sys
 import collections as _collections
 
-if _sys.version_info >= (2, 6):
-    _callable_constraint = _collections.Callable
-else:
-    import mididings.arguments as _arguments
-    _callable_constraint = _arguments.condition(lambda c: callable(c))
-
 
 class _Print(_CallBase):
     max_name_length = -1
@@ -105,6 +99,6 @@ def Print(name=None, portnames=None):
     return _Print(name, portnames)
 
 @_overload.mark
-@_unitrepr.accept((str, _callable_constraint))
+@_unitrepr.accept((str, _collections.Callable))
 def Print(string):
     return _PrintString(string)

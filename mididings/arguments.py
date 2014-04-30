@@ -17,8 +17,6 @@ import sys
 import collections
 import types
 import functools
-if sys.version_info < (2, 6):
-    functools.reduce = reduce
 
 import decorator
 
@@ -130,8 +128,7 @@ def _make_constraint(c):
     elif isinstance(c, _constraint):
         # constraint object
         return c
-    elif ((sys.version_info >= (2, 6) and isinstance(c, collections.Callable))
-        or (sys.version_info < (2, 6) and callable(c))):
+    elif isinstance(c, collections.Callable):
         # function or other callable object
         return transform(c)
     else:
