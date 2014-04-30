@@ -122,11 +122,6 @@ void PythonCaller::async_thread()
 
     for (;;)
     {
-        // check for program termination
-        if (_quit) {
-            return;
-        }
-
         if (_rb->read_space()) {
             das::python::scoped_gil_lock gil;
 
@@ -141,6 +136,10 @@ void PythonCaller::async_thread()
             catch (bp::error_already_set &) {
                 PyErr_Print();
             }
+        }
+        else if (_quit) {
+            // program termination
+            return;
         }
         else {
             // wait until woken up again
