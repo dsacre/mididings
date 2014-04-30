@@ -50,7 +50,7 @@ ALSABackend::ALSABackend(std::string const & client_name,
     BOOST_FOREACH (std::string const & port_name, in_port_names) {
         int id = snd_seq_create_simple_port(_seq, port_name.c_str(),
                         SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
-                        SND_SEQ_PORT_TYPE_APPLICATION);
+                        SND_SEQ_PORT_TYPE_APPLICATION | SND_SEQ_PORT_TYPE_MIDI_GENERIC);
 
         if (id < 0) {
             throw Error("error creating sequencer input port");
@@ -66,7 +66,7 @@ ALSABackend::ALSABackend(std::string const & client_name,
     BOOST_FOREACH (std::string const & port_name, out_port_names) {
         int id = snd_seq_create_simple_port(_seq, port_name.c_str(),
                         SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
-                        SND_SEQ_PORT_TYPE_APPLICATION);
+                        SND_SEQ_PORT_TYPE_APPLICATION | SND_SEQ_PORT_TYPE_MIDI_GENERIC);
 
         if (id < 0) {
             throw Error("error creating sequencer output port");
@@ -113,7 +113,7 @@ void ALSABackend::connect_ports_impl(PortConnectionMap const & port_connections,
 {
     if (port_connections.empty()) return;
 
-    // get all JACK MIDI ports we could connect to
+    // get all ALSA sequencer ports we could connect to
     ClientPortInfoVector external_ports = get_external_ports(!out);
 
     // for each of our ports...
