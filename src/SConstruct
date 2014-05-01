@@ -35,7 +35,6 @@ env = Environment(
 #        'ENABLE_BENCHMARK',
         'ENABLE_ALSA_SEQ',
         'ENABLE_JACK_MIDI',
-        'ENABLE_SMF',
     ],
     CPPPATH = ['.'],
     ENV = os.environ,
@@ -85,9 +84,5 @@ if 'ENABLE_ALSA_SEQ' in env['CPPDEFINES']:
 if 'ENABLE_JACK_MIDI' in env['CPPDEFINES']:
     env.ParseConfig('pkg-config --cflags --libs jack')
     sources.append(['backend/jack.cc', 'backend/jack_buffered.cc', 'backend/jack_realtime.cc'])
-
-if 'ENABLE_SMF' in env['CPPDEFINES']:
-    env.ParseConfig('pkg-config --cflags --libs smf')
-    sources.append('backend/smf.cc')
 
 env.SharedLibrary('_mididings', sources, SHLIBPREFIX='', SHOBJSUFFIX='.o')

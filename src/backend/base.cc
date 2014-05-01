@@ -18,9 +18,6 @@
   #include "backend/jack_buffered.hh"
   #include "backend/jack_realtime.hh"
 #endif
-#ifdef ENABLE_SMF
-  #include "backend/smf.hh"
-#endif
 
 #include <algorithm>
 
@@ -73,11 +70,6 @@ boost::shared_ptr<BackendBase> create(std::string const & backend_name,
     }
     else if (backend_name == "jack-rt") {
         return boost::shared_ptr<BackendBase>(new JACKRealtimeBackend(client_name, in_ports, out_ports));
-    }
-#endif
-#ifdef ENABLE_SMF
-    else if (backend_name == "smf") {
-        return boost::shared_ptr<BackendBase>(new SMFBackend(in_ports[0], out_ports[0]));
     }
 #endif
     else {

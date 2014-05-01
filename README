@@ -29,20 +29,20 @@ Optional:
 
 * pyliblo [http://das.nasophon.de/pyliblo/]
   (to send or receive OSC messages)
+* pysmf [http://das.nasophon.de/pysmf/]
+  (to read/write standard MIDI files using the process_file() function)
 * dbus-python [http://dbus.freedesktop.org/releases/dbus-python/]
   (to send DBUS messages)
-* pyinotify >= 0.8 [http://trac.dbzteam.org/pyinotify">pyinotify]
+* pyinotify >= 0.8 [https://github.com/seb-m/pyinotify]
   (to automatically restart when a script changes)
 * Tkinter
   (for the livedings GUI)
-* libsmf [http://sourceforge.net/projects/libsmf]
-  (to read/write standard MIDI files using the process_file() function)
 
 
 Installation:
 =============
 
-./setup.py build [--disable-jack-midi] [--disable-alsa-seq] [--enable-smf]
+./setup.py build [--disable-jack-midi] [--disable-alsa-seq]
 ./setup.py install
 
 

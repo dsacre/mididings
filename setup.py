@@ -17,7 +17,6 @@ version = '20120419'
 config = {
     'alsa-seq':     (platform.system() == 'Linux'),
     'jack-midi':    True,
-    'smf':          False,
     'c++11':        False,
     'debug':        True,
 }
@@ -148,11 +147,6 @@ if config['jack-midi']:
                     'src/backend/jack_buffered.cc',
                     'src/backend/jack_realtime.cc'])
     pkgconfig('jack')
-
-if config['smf']:
-    define_macros.append(('ENABLE_SMF', 1))
-    sources.append('src/backend/smf.cc')
-    pkgconfig('smf')
 
 if config['c++11']:
     extra_compile_args.append('-std=c++0x')

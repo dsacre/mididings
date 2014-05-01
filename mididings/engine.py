@@ -139,9 +139,6 @@ class Engine(_mididings.Engine):
         # no such scene
         return (-1, -1)
 
-    def process_file(self):
-        self.start(0, -1)
-
     def scene_switch_callback(self, scene, subscene):
         # the scene and subscene parameters are the actual numbers without offset!
         if scene == -1:
@@ -262,22 +259,6 @@ def run(scenes, control=None, pre=None, post=None):
     e.run()
 
 
-def process_file(infile, outfile, patch):
-    """
-    Process a MIDI file using the smf backend.
-    """
-    _setup._config_impl(
-        backend='smf',
-    )
-    _setup.config(
-        in_ports=[infile],
-        out_ports=[outfile],
-    )
-    e = Engine()
-    e.setup({_util.offset(0): patch}, None, None, None)
-    e.process_file()
-
-
 def switch_scene(scene, subscene=None):
     """
     Switch to the given scene number.
@@ -351,3 +332,41 @@ def quit():
     Quit mididings.
     """
     _TheEngine().quit()
+
+
+
+def process_file(infile, outfile, patch):
+    """
+    Process a MIDI file, using pysmf.
+    """
+    import smf
+
+    # create dummy engine with no inputs or outputs
+    _setup._config_impl(backend='dummy')
+    engine = Engine()
+    engine.setup({_util.offset(0): patch}, None, None, None)
+
+    # open input file
+    smf_in = smf.SMF(infile)
+
+    # create SMF object with same ppqn and number of tracks as input file
+    smf_out = smf.SMF()
+    smf_out.ppqn = smf_in.ppqn
+    for n in range(len(smf_in.tracks)):
+        smf_out.add_track()
+
+    for smf_ev in smf_in.events:
+        if smf_ev.midi_buffer[0] == 0xff:
+            # event is metadata. copy to output unmodified
+            smf_out.add_event(smf.Event(smf_ev.midi_buffer), smf_ev.track_number, pulses=smf_ev.time_pulses)
+        else:
+            ev = _mididings.buffer_to_midi_event(smf_ev.midi_buffer, smf_ev.track_number, smf_ev.time_pulses)
+
+            # use base class version of process_event() to bypass calling
+            # ev._finalize(), which would fail since ev is of type
+            # _mididings.MidiEvent.
+            for out_ev in _mididings.Engine.process_event(engine, ev):
+                buf, track, pulses = _mididings.midi_event_to_buffer(out_ev)
+                smf_out.add_event(smf.Event(buf), track, pulses=pulses)
+
+    smf_out.save(outfile)
