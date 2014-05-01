@@ -49,6 +49,16 @@ boost::shared_ptr<class BackendBase> create(std::string const & backend_name,
                                             PortNameVector const & out_ports);
 
 
+// convert normalized MIDI data to one MidiEvent
+MidiEvent buffer_to_midi_event(unsigned char const *data, std::size_t len,
+                               int port, uint64_t frame);
+
+// convert MidiEvent object to normalized MIDI data
+std::size_t midi_event_to_buffer(MidiEvent const & ev, unsigned char *data,
+                                 std::size_t & len, int & port, uint64_t & frame);
+
+
+
 class BackendBase
   : boost::noncopyable
 {
@@ -88,13 +98,6 @@ class BackendBase
 
     // return the number of output ports
     virtual std::size_t num_out_ports() const = 0;
-
-  protected:
-    // convert normalized MIDI data to one MidiEvent
-    static MidiEvent buffer_to_midi_event(unsigned char *data, std::size_t len, int port, uint64_t frame);
-
-    // convert MidiEvent object to normalized MIDI data
-    static std::size_t midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame);
 };
 
 

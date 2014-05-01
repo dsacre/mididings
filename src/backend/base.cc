@@ -86,7 +86,7 @@ boost::shared_ptr<BackendBase> create(std::string const & backend_name,
 }
 
 
-MidiEvent BackendBase::buffer_to_midi_event(unsigned char *data, std::size_t len, int port, uint64_t frame)
+MidiEvent buffer_to_midi_event(unsigned char const *data, std::size_t len, int port, uint64_t frame)
 {
     MidiEvent ev;
 
@@ -194,7 +194,7 @@ MidiEvent BackendBase::buffer_to_midi_event(unsigned char *data, std::size_t len
 }
 
 
-std::size_t BackendBase::midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame)
+std::size_t midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame)
 {
     frame = ev.frame;
     port = ev.port;
