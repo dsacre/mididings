@@ -14,6 +14,7 @@
 #include "patch.hh"
 #include "send_midi.hh"
 #include "midi_event.hh"
+#include "backend/base.hh"
 #include "units/base.hh"
 #include "units/engine.hh"
 #include "units/filters.hh"
@@ -34,6 +35,7 @@
 #include <boost/python/enum.hpp>
 #include <boost/python/scope.hpp>
 #include <boost/python/operators.hpp>
+#include <boost/python/tuple.hpp>
 #include <boost/python/call_method.hpp>
 #include <boost/python/return_value_policy.hpp>
 #include <boost/python/return_by_value.hpp>
@@ -96,6 +98,21 @@ class EngineWrap
 };
 
 
+MidiEvent buffer_to_midi_event(std::vector<unsigned char> const & buffer, int port, uint64_t frame) {
+    return backend::buffer_to_midi_event(&buffer.front(), buffer.size(), port, frame);
+}
+
+boost::python::tuple midi_event_to_buffer(MidiEvent const & ev) {
+    std::vector<unsigned char> buffer(256, 0);
+    std::size_t len = buffer.size();
+    int port;
+    uint64_t frame;
+    backend::midi_event_to_buffer(ev, &buffer.front(), len, port, frame);
+    buffer.resize(len);
+    return boost::python::make_tuple(buffer, port, frame);
+}
+
+
 
 BOOST_PYTHON_MODULE(_mididings)
 {
@@ -119,6 +136,10 @@ BOOST_PYTHON_MODULE(_mididings)
 
     // list of supported backends
     def("available_backends", &backend::available, bp::return_value_policy<bp::return_by_value>());
+
+    def("buffer_to_midi_event", buffer_to_midi_event);
+    def("midi_event_to_buffer", midi_event_to_buffer);
+
 
     // simple MIDI send function, works with no engine running
     def("send_midi", &send_midi);
@@ -263,6 +284,8 @@ BOOST_PYTHON_MODULE(_mididings)
     // register to/from-python converters for various types
     das::python::from_sequence_converter<std::vector<int> >();
     das::python::from_sequence_converter<std::vector<float> >();
+    das::python::from_sequence_converter<std::vector<unsigned char> >();
+    das::python::to_list_converter<std::vector<unsigned char> >();
 
     das::python::from_sequence_converter<std::vector<std::string> >();
     das::python::to_list_converter<std::vector<std::string> >();
