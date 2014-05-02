@@ -10,8 +10,6 @@
 # (at your option) any later version.
 #
 
-from __future__ import with_statement
-
 from tests.helpers import *
 
 from mididings import *
