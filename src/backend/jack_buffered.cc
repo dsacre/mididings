@@ -15,6 +15,8 @@
 #include <jack/jack.h>
 #include <jack/thread.h>
 
+#include <algorithm>
+
 #include <boost/version.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
@@ -69,6 +71,7 @@ void JACKBufferedBackend::start(InitFunction init, CycleFunction cycle)
 
     if (jack_rtprio != -1) {
         int rtprio = jack_rtprio - config::JACK_BUFFERED_RTPRIO_OFFSET;
+        rtprio = std::max(rtprio, 1);
         jack_acquire_real_time_scheduling(_thread->native_handle(), rtprio);
     }
 }
