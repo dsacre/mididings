@@ -17,6 +17,7 @@
 
 #include <string>
 #include <vector>
+#include <queue>
 
 #include <jack/types.h>
 
@@ -44,7 +45,7 @@ class JACKBackend
 
   protected:
     // XXX this should be pure virtual.
-    // it isn't, because the process thread is started within the c'tor
+    // it isn't, because the process thread is started from within the c'tor
     virtual int process(jack_nframes_t) { return 0; } //= 0;
 
     void clear_buffers(jack_nframes_t nframes);
@@ -58,14 +59,40 @@ class JACKBackend
     jack_nframes_t _current_frame;
 
   private:
-    static int process_(jack_nframes_t, void *);
+    static int process_(jack_nframes_t nframes, void *arg);
+
+    void fill_input_queue(jack_nframes_t nframes);
 
     void connect_ports_impl(PortConnectionMap const & port_connections, std::vector<jack_port_t *> const & ports, bool out);
     int connect_matching_ports(std::string const & port_name, std::string const & pattern, PortNameVector const & external_ports, bool out);
 
-    // loop counters used by read_event()
-    int _input_port;
-    int _input_count;
+
+    template <typename T, typename Container, typename Compare>
+    class reservable_priority_queue
+      : public std::priority_queue<T, Container, Compare>
+    {
+    public:
+        typedef typename std::priority_queue<T, Container, Compare>::size_type size_type;
+
+        reservable_priority_queue(size_type capacity = 0) {
+            reserve(capacity);
+        };
+        void reserve(size_type capacity) {
+            this->c.reserve(capacity);
+        }
+        size_type capacity() const {
+            return this->c.capacity();
+        }
+    };
+
+    struct compare_frame {
+        bool operator() (MidiEvent const & lhs, MidiEvent const & rhs) const {
+            return lhs.frame > rhs.frame;
+        }
+    };
+
+    // queue of incoming MIDI events, ordered by frame
+    reservable_priority_queue<MidiEvent, std::vector<MidiEvent>, compare_frame> _input_queue;
 };
 
 

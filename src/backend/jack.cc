@@ -31,6 +31,7 @@ JACKBackend::JACKBackend(std::string const & client_name,
                          PortNameVector const & in_port_names,
                          PortNameVector const & out_port_names)
   : _current_frame(0)
+  , _input_queue(config::JACK_MAX_EVENTS)
 {
     ASSERT(!client_name.empty());
     ASSERT(!in_port_names.empty());
@@ -156,13 +157,31 @@ int JACKBackend::process_(jack_nframes_t nframes, void *arg)
 {
     JACKBackend *this_ = static_cast<JACKBackend*>(arg);
 
-    this_->_input_port = 0;
-    this_->_input_count = 0;
+    // read events from all input ports, and order them by frame
+    this_->fill_input_queue(nframes);
 
     int r = this_->process(nframes);
 
     this_->_current_frame += nframes;
     return r;
+}
+
+
+void JACKBackend::fill_input_queue(jack_nframes_t nframes)
+{
+    ASSERT(_input_queue.empty());
+
+    for (int port = 0; port != static_cast<int>(_in_ports.size()); ++port) {
+        void *port_buffer = jack_port_get_buffer(_in_ports[port], nframes);
+
+        for (int count = 0; count != static_cast<int>(jack_midi_get_event_count(port_buffer)); ++count) {
+            jack_midi_event_t jack_ev;
+            VERIFY(!jack_midi_event_get(&jack_ev, port_buffer, count));
+
+            MidiEvent ev = buffer_to_midi_event(jack_ev.buffer, jack_ev.size, port, _current_frame + jack_ev.time);
+            _input_queue.push(ev);
+        }
+    }
 }
 
 
@@ -175,33 +194,15 @@ void JACKBackend::clear_buffers(jack_nframes_t nframes)
 }
 
 
-bool JACKBackend::read_event(MidiEvent & ev, jack_nframes_t nframes)
+bool JACKBackend::read_event(MidiEvent & ev, jack_nframes_t /*nframes*/)
 {
-    while (_input_port < static_cast<int>(_in_ports.size()))
-    {
-        void *port_buffer = jack_port_get_buffer(_in_ports[_input_port], nframes);
-        int num_events = jack_midi_get_event_count(port_buffer);
-
-        if (_input_count < num_events) {
-            jack_midi_event_t jack_ev;
-            VERIFY(!jack_midi_event_get(&jack_ev, port_buffer, _input_count));
-
-            //std::cout << "in: " << jack_ev.time << std::endl;
-
-            ev = buffer_to_midi_event(jack_ev.buffer, jack_ev.size, _input_port, _current_frame + jack_ev.time);
-
-            if (++_input_count >= num_events) {
-                ++_input_port;
-                _input_count = 0;
-            }
-
-            return true;
-        }
-
-        ++_input_port;
+    if (!_input_queue.empty()) {
+        ev = _input_queue.top();
+        _input_queue.pop();
+        return true;
+    } else {
+        return false;
     }
-
-    return false;
 }
 
 

@@ -49,7 +49,7 @@ class JACKBufferedBackend
     virtual void finish() { }
 
   private:
-    virtual int process(jack_nframes_t);
+    virtual int process(jack_nframes_t frames);
 
     das::ringbuffer<MidiEvent> _in_rb;
     das::ringbuffer<MidiEvent> _out_rb;
