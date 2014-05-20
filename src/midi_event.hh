@@ -175,7 +175,7 @@ inline bool operator==(MidiEvent const & lhs, MidiEvent const & rhs)
                               MIDI_EVENT_SYSCM_SONGPOS));
     bool sysex = (lhs.type & MIDI_EVENT_SYSEX);
 
-    // return true if each field is either irrelevant or identical
+    // return true if each field is either identical or irrelevant
     return (
         lhs.port == rhs.port &&
         (!channel || lhs.channel == rhs.channel) &&

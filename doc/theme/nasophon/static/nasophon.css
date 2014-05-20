@@ -1,0 +1,222 @@
+@import url("default.css");
+
+body {
+    background-color: white;
+    margin-left: 1em;
+    margin-right: 1em;
+
+    width: 68em;
+    margin: 0 auto;
+    font-size: 95%;
+}
+
+div.related {
+    margin-bottom: 1.2em;
+    padding: 0.5em 0;
+    border-top: 1px solid #ccc;
+    margin-top: 0.5em;
+}
+
+div.related:first-child {
+    border-top: 0;
+    border-bottom: 1px solid #ccc;
+}
+
+div.sphinxsidebar {
+    background-color: #f4f4f4;
+    border-radius: 5px;
+    line-height: 110%;
+}
+
+div.sphinxsidebar ul,
+div.sphinxsidebar ul ul {
+    list-style: none;
+}
+
+div.sphinxsidebar li {
+    margin-bottom: 0.5em;
+}
+
+div.sphinxsidebar li > ul {
+    margin-top: 0.5em;
+}
+
+div.sphinxsidebar h3, div.sphinxsidebar h4 {
+    margin-top: 1.5em;
+}
+
+div.sphinxsidebarwrapper > h3:first-child {
+    margin-top: 0.2em;
+}
+
+div.sphinxsidebar a.current {
+    font-weight: bold;
+    color: #fff;
+    background: #52576a;
+    border: 3px solid #52576a;
+    border-radius: 3px;
+}
+
+div.sphinxsidebar input {
+    font-family: 'Lucida Grande',Arial,sans-serif;
+    border: 1px solid #999999;
+    font-size: smaller;
+    border-radius: 3px;
+}
+
+div.sphinxsidebar input[type=text] {
+    max-width: 150px;
+}
+
+div.body {
+    padding: 0 0.6em 0 2.2em;
+}
+
+
+div.body p {
+    line-height: 140%;
+}
+
+div.body h1 {
+    margin: 0 -0.4em 0 -0.6em;
+    border: 0;
+    color: #ffffff;
+    background: #52576a;
+    border-radius: 5px;
+    font-size: 150%;
+}
+
+div.body h1 a, div.body h1 a:visited {
+    color: #ffffff;
+}
+
+div.body h2 {
+    margin: 1.5em -0.45em 0 -0.7em;
+    border: 0;
+    color: #111111;
+    background: #eeeeee;
+    border-radius: 5px;
+    font-size: 130%;
+}
+
+div.body h3 {
+    font-weight: bold;
+    color: #444;
+    border: 0;
+    font-size: 115%;
+    padding-left: 1.15em;
+}
+
+div.body hr {
+    border: 0;
+    background-color: #ccc;
+    height: 1px;
+}
+
+div.body pre {
+    border-radius: 3px;
+    border: 1px solid #ac9;
+}
+
+div.body div.admonition, div.body div.impl-detail {
+    border-radius: 3px;
+}
+
+div.body div.impl-detail > p {
+    margin: 0;
+}
+
+div.body div.seealso {
+    border: 1px solid #dddd66;
+}
+
+div.body a {
+    color: #127;
+}
+
+div.body a:visited {
+    color: #127;
+}
+
+
+tt, pre {
+    font-family: monospace, sans-serif;
+    font-size: 96.5%;
+}
+
+div.body tt {
+    border-radius: 3px;
+}
+
+div.body tt.descname {
+    font-size: 100%;
+}
+
+div.body tt.xref, div.body a tt {
+}
+
+.deprecated {
+    border-radius: 3px;
+}
+
+table.docutils {
+    border: 1px solid #ddd;
+    min-width: 20%;
+    border-radius: 3px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+table.docutils td, table.docutils th {
+    border: 1px solid #ddd !important;
+    border-radius: 3px;
+}
+
+table p, table li {
+    text-align: left !important;
+}
+
+table.docutils th {
+    background-color: #eee;
+    padding: 0.3em 0.5em;
+}
+
+table.docutils td {
+    background-color: white;
+    padding: 0.3em 0.5em;
+}
+
+table.footnote, table.footnote td {
+    border: 0 !important;
+}
+
+div.footer {
+    line-height: 150%;
+    margin-top: -2em;
+    text-align: right;
+    width: auto;
+    margin-right: 10px;
+}
+
+.refcount {
+    color: #060;
+}
+
+.stableabi {
+    color: #229;
+}
+
+
+/* fix space below last line in multi-line table cells */
+td .line-block {
+    margin-bottom: 0;
+}
+
+
+dt:target, .highlighted {
+    background: transparent;
+}
+
+a.headerlink {
+    float: right;
+}

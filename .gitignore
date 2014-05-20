@@ -1,4 +1,5 @@
 /build
 /src/.sconsign.dblite
 /src/_mididings.so
+/doc/build
 *.o

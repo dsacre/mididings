@@ -47,62 +47,137 @@ def _make_threshold(f, patch_lower, patch_upper):
 
 
 @_arguments.accept({_arguments.nullable(_arguments.flatten(_util.port_number, tuple)): _UNIT_TYPES})
-def PortSplit(d):
-    return _make_split(PortFilter, d)
+def PortSplit(mapping):
+    """
+    PortSplit(mapping)
+
+    Split events by input port, with *mapping* being a dictionary of the form
+    ``{ports: patch, ...}``.
+    """
+    return _make_split(PortFilter, mapping)
 
 
 @_arguments.accept({_arguments.nullable(_arguments.flatten(_util.channel_number, tuple)): _UNIT_TYPES})
-def ChannelSplit(d):
-    return _make_split(ChannelFilter, d)
+def ChannelSplit(mapping):
+    """
+    ChannelSplit(mapping)
 
+    Split events by input channel, with *mapping* being a dictionary of
+    the form ``{channels: patch, ...}``.
+    """
+    return _make_split(ChannelFilter, mapping)
+
+
+@_overload.mark(
+    """
+    KeySplit(threshold, patch_lower, patch_upper)
+    KeySplit(mapping)
+
+    Split events by key. Non-note events are sent to all patches.
+
+    The first version splits at a single threshold. The second version allows
+    an arbitrary number of (possibly overlapping) note ranges, with *mapping*
+    being a dictionary of the form ``{note_range: patch, ...}``.
+    """
+)
+@_arguments.accept(_util.note_limit, _UNIT_TYPES, _UNIT_TYPES)
+def KeySplit(threshold, patch_lower, patch_upper):
+    return _make_threshold(KeyFilter(0, threshold), patch_lower, patch_upper)
 
 @_overload.mark
 @_arguments.accept({_arguments.nullable(_util.note_range): _UNIT_TYPES})
-def KeySplit(d):
-    return _make_split(KeyFilter, d)
-
-@_overload.mark
-@_arguments.accept(_util.note_limit, _UNIT_TYPES, _UNIT_TYPES)
-def KeySplit(note, patch_lower, patch_upper):
-    return _make_threshold(KeyFilter(0, note), patch_lower, patch_upper)
+def KeySplit(mapping):
+    return _make_split(KeyFilter, mapping)
 
 
-@_overload.mark
-@_arguments.accept({_arguments.nullable(_util.velocity_range): _UNIT_TYPES})
-def VelocitySplit(d):
-    return _make_split(VelocityFilter, d, unpack=True)
+@_overload.mark(
+    """
+    VelocitySplit(threshold, patch_lower, patch_upper)
+    VelocitySplit(mapping)
 
-@_overload.mark
+    Split events by note-on velocity. Non-note events are sent to all patches.
+
+    The first version splits at a single threshold. The second version allows
+    an arbitrary number of (possibly overlapping) value ranges, with
+    *mapping* being a dictionary of the form ``{(lower, upper): patch, ...}``.
+    """
+)
 @_arguments.accept(_util.velocity_limit, _UNIT_TYPES, _UNIT_TYPES)
 def VelocitySplit(threshold, patch_lower, patch_upper):
     return _make_threshold(VelocityFilter(0, threshold), patch_lower, patch_upper)
 
+@_overload.mark
+@_arguments.accept({_arguments.nullable(_util.velocity_range): _UNIT_TYPES})
+def VelocitySplit(mapping):
+    return _make_split(VelocityFilter, mapping, unpack=True)
+
 
 @_arguments.accept({_arguments.nullable(_arguments.flatten(_util.ctrl_number, tuple)): _UNIT_TYPES})
-def CtrlSplit(d):
-    return _make_split(CtrlFilter, d)
+def CtrlSplit(mapping):
+    """
+    CtrlSplit(mapping)
+
+    Split events by controller number, with *mapping* being a dictionary of
+    the form ``{ctrls: patch, ...}``.
+    Non-control-change events are discarded.
+    """
+    return _make_split(CtrlFilter, mapping)
 
 
-@_overload.mark
-@_arguments.accept({_arguments.nullable(_util.ctrl_range): _UNIT_TYPES})
-def CtrlValueSplit(d):
-    return _make_split(CtrlValueFilter, d, unpack=True)
+@_overload.mark(
+    """
+    CtrlValueSplit(threshold, patch_lower, patch_upper)
+    CtrlValueSplit(mapping)
 
-@_overload.mark
+    Split events by controller value.
+
+    The first version splits at a single threshold. The second version allows
+    an arbitrary number of (possibly overlapping) value ranges, with *mapping*
+    being a dictionary of the form ``{value: patch, ...}`` or
+    ``{(lower, upper): patch, ...}``.
+
+    Non-control-change events are discarded.
+
+    """
+)
 @_arguments.accept(_util.ctrl_limit, _UNIT_TYPES, _UNIT_TYPES)
 def CtrlValueSplit(threshold, patch_lower, patch_upper):
     return _make_threshold(CtrlValueFilter(0, threshold), patch_lower, patch_upper)
 
+@_overload.mark
+@_arguments.accept({_arguments.nullable(_util.ctrl_range): _UNIT_TYPES})
+def CtrlValueSplit(mapping):
+    return _make_split(CtrlValueFilter, mapping, unpack=True)
+
 
 @_arguments.accept({_arguments.nullable(_arguments.flatten(_util.program_number, tuple)): _UNIT_TYPES})
-def ProgramSplit(d):
-    return _make_split(ProgramFilter, d)
+def ProgramSplit(mapping):
+    """
+    ProgramSplit(mapping)
+
+    Split events by program number, with *mapping* being a dictionary of the
+    form ``{programs: patch, ...}``.
+    Non-program-change events are discarded.
+    """
+    return _make_split(ProgramFilter, mapping)
 
 
-@_overload.mark
+@_overload.mark(
+    """
+    SysExSplit(mapping)
+    SysExSplit(manufacturers=...)
+
+    Split events by sysex data or manufacturer id, with *mapping* being a
+    dictionary of the form ``{sysex: patch, ...}``, and *manufacturers* being
+    a dictionary of the form ``{manufacturer: patch, ...}``
+    (cf. :func:`SysExFilter()`).
+
+    Non-sysex events are discarded.
+    """
+)
 @_arguments.accept(dict)
-def SysExSplit(d):
-    return _make_split(SysExFilter, d)
+def SysExSplit(mapping):
+    return _make_split(SysExFilter, mapping)
 
 @_overload.mark
 @_arguments.accept(dict)

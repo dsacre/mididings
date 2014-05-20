@@ -17,6 +17,19 @@ import mididings.arguments as _arguments
 
 
 class Scene(object):
+    """
+    Scene(name, patch, init_patch=None, exit_patch=None)
+
+    Construct a Scene object to be used with the :func:`run()` function.
+
+    :param name: a string describing the scene.
+    :param patch: the patch defining the MIDI processing to take place for
+        incoming events.
+    :param init_patch: an optional patch that will be triggered when switching
+        to this scene.
+    :param exit_patch: an optional patch that will be triggered when switching
+        away from this scene.
+    """
     @_arguments.accept(None, _arguments.nullable(str), _UNIT_TYPES,
                        _arguments.nullable(_UNIT_TYPES), _arguments.nullable(_UNIT_TYPES))
     def __init__(self, name, patch, init_patch=None, exit_patch=None):
@@ -27,6 +40,15 @@ class Scene(object):
 
 
 class SceneGroup(object):
+    """
+    SceneGroup(name, subscenes)
+
+    Construct a SceneGroup object. This can be used to group multiple scenes
+    under a common name and program number.
+
+    :param name: a string describing the subscene.
+    :param subscenes: a list of :class:`Scene` objects or patches.
+    """
     @_arguments.accept(None, str, [(Scene,) + _UNIT_TYPES])
     def __init__(self, name, subscenes):
         self.name = name

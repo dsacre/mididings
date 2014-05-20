@@ -27,7 +27,9 @@ import mididings.unitrepr as _unitrepr
 @_unitrepr.accept(_util.port_number)
 def Port(port):
     """
-    Change port number.
+    Port(port)
+
+    Change the event's port number.
     """
     return _Unit(_mididings.Port(_util.actual(port)))
 
@@ -35,14 +37,19 @@ def Port(port):
 @_unitrepr.accept(_util.channel_number)
 def Channel(channel):
     """
-    Change channel number.
+    Channel(channel)
+
+    Change the event's channel number.
     """
     return _Unit(_mididings.Channel(_util.actual(channel)))
 
 
 @_overload.mark(
     """
-    Transpose note events.
+    Transpose(offset)
+    Transpose(octaves=...)
+
+    Transpose note events by the given number of semitones or octaves.
     """
 )
 @_unitrepr.accept(int)
@@ -50,15 +57,17 @@ def Transpose(offset):
     return _Unit(_mididings.Transpose(offset))
 
 @_overload.mark
-@_unitrepr.accept(int)
+@_arguments.accept(int)
 def Transpose(octaves):
-    return _Unit(_mididings.Transpose(octaves * 12))
+    return Transpose(octaves * 12)
 
 
 @_arguments.accept(_util.note_number)
 def Key(note):
     """
-    Change note number.
+    Key(note)
+
+    Change note events to a fixed note number.
     """
     return Filter(_constants.NOTE | _constants.POLY_AFTERTOUCH) % Split({
         _constants.NOTEON:  NoteOn(note, _constants.EVENT_VELOCITY),
@@ -69,7 +78,25 @@ def Key(note):
 
 @_overload.mark(
     """
-    Change note-on velocity.
+    Velocity(offset)
+    Velocity(multiply=...)
+    Velocity(fixed=...)
+    Velocity(curve=...)
+    Velocity(gamma=...)
+    Velocity(multiply, offset)
+
+    Change the velocity of note-on events:
+
+    * | *offset*: add the given value to the event's velocity.
+    * | *multiply*: multiply the event's velocity with the given value.
+    * | *fixed*: set the event's velocity to a fixed value.
+    * | *curve*: apply an exponential function:
+        ``f(x) = 127 * (exp(p*x/127)-1) / (exp(p)-1)``
+      | Positive values increase velocity, while negative values decrease it.
+    * | *gamma*: apply a simple power function:
+        ``f(x) = 127 * (x/127)**(1/p)``
+      | Values greater than 1 increase velocity, while values between 0 and 1
+        decrease it.
     """
 )
 @_unitrepr.accept(int)
@@ -104,7 +131,20 @@ def Velocity(multiply, offset):
 
 @_overload.mark(
     """
-    Apply a linear slope to note-on velocities.
+    VelocitySlope(notes, offset)
+    VelocitySlope(notes, multiply=...)
+    VelocitySlope(notes, fixed=...)
+    VelocitySlope(notes, curve=...)
+    VelocitySlope(notes, gamma=...)
+    VelocitySlope(notes, multiply, offset)
+
+    Change the velocity of note-on events, applying a linear slope between
+    different notes. This can be thought of as a :func:`~.Velocity()` unit with
+    different parameters for different note ranges, and is useful for example
+    to fade-in a sound over a region of the keyboard.
+
+    Both parameters must be sequences of the same length, with notes in
+    ascending order, and one velocity parameter corresponding to each note.
     """
 )
 @_unitrepr.accept([_util.note_limit], [int])
@@ -157,7 +197,11 @@ def _check_velocity_slope(notes, params):
 
 @_overload.mark(
     """
-    Limit velocities to a given range.
+    VelocityLimit(min, max)
+    VelocityLimit(min)
+    VelocityLimit(max=...)
+
+    Limit velocities of note-on events to the given range.
     """
 )
 @_arguments.accept(_util.velocity_limit, _util.velocity_limit)
@@ -188,7 +232,10 @@ def VelocityLimit(min):
 @_unitrepr.accept(_util.ctrl_number, _util.ctrl_number)
 def CtrlMap(ctrl_in, ctrl_out):
     """
-    Convert one controller to another.
+    CtrlMap(ctrl_in, ctrl_out)
+
+    Convert controller *ctrl_in* to *ctrl_out*, i.e. change the event's
+    control change number.
     """
     return _Unit(_mididings.CtrlMap(ctrl_in, ctrl_out))
 
@@ -196,7 +243,13 @@ def CtrlMap(ctrl_in, ctrl_out):
 @_unitrepr.accept(_util.ctrl_number, int, int, int, int)
 def CtrlRange(ctrl, min, max, in_min=0, in_max=127):
     """
-    Convert controller range.
+    CtrlRange(ctrl, min, max, in_min=0, in_max=127)
+
+    Linearly map control change values for controller *ctrl* from the interval
+    [*in_min*, *in_max*] to the interval [*min*, *max*].
+    Any input value less than or equal to *in_min* results in an output value
+    of *min*. Likewise, any value of *in_max* or greater results in an output
+    value of *max*.
     """
     if in_min > in_max:
         # swap ranges so that in_min is less than in_max
@@ -207,7 +260,14 @@ def CtrlRange(ctrl, min, max, in_min=0, in_max=127):
 
 @_overload.mark(
     """
-    Transform controller values.
+    CtrlCurve(ctrl, gamma)
+    CtrlCurve(ctrl, curve=...)
+    CtrlCurve(ctrl, offset=...)
+    CtrlCurve(ctrl, multiply=...)
+    CtrlCurve(ctrl, multiply, offset)
+
+    Transform control change values. See :func:`~.Velocity()` for a description
+    of the parameters.
     """
 )
 @_unitrepr.accept(_util.ctrl_number, (float, int))
@@ -237,7 +297,12 @@ def CtrlCurve(ctrl, multiply, offset):
 
 @_overload.mark(
     """
-    Modify pitchbend range.
+    PitchbendRange(min, max, in_min=-8192, in_max=8191)
+    PitchbendRange(down, up, range=...)
+
+    Change the pitchbend range to values between *min* and *max*, or to the
+    given number of semitones *down* and *up*. The latter requires the tone
+    generator's pitchbend range to be specified as *range*.
     """
 )
 @_unitrepr.accept(int, int, int, int)

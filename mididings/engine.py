@@ -231,7 +231,27 @@ class Engine(_mididings.Engine):
 
 
 
-@_overload.mark
+@_overload.mark(
+    """
+    run(patch)
+    run(scenes=..., control=None, pre=None, post=None)
+
+    Start the MIDI processing. This is usually the last function called by a
+    mididings script.
+    The first version just runs a single patch, while the second version
+    allows switching between multiple scenes.
+
+    :param scenes: A dictionary with program numbers as keys, and
+        :class:`Scene` objects, :class:`SceneGroup` objects or plain patches
+        as values.
+    :param control: An optional "control" patch, which is always active, and
+        runs in parallel to the current scene.
+    :param pre: An optional patch that allows common processing to take place
+        before every scene. Does not affect the control patch.
+    :param post: An optional patch that allows common processing to take place
+        after every scene. Does not affect the control patch.
+    """
+)
 @_arguments.accept(_UNIT_TYPES)
 def run(patch):
     """
@@ -285,51 +305,60 @@ def current_subscene():
 
 def scenes():
     """
-    Return a mapping from scene numbers to a tuple of the form
-    (scene_name, [subscene_name, ...]).
+    Return a dictionary of all scenes. Keys are scene numbers, values are
+    tuples containing the scene name and a (possibly empty) list of subscene
+    names.
     """
     return _TheEngine().scenes()
 
 def output_event(ev):
     """
-    Send an event directly to an output port.
+    Send an event directly to an output port, completely bypassing any other
+    event processing.
     """
     _TheEngine().output_event(ev)
 
 def in_ports():
     """
-    Return the list of input port names.
+    Return a list of the configured input port names.
     """
     return _setup._in_portnames
 
 def out_ports():
     """
-    Return the list of output port names.
+    Return a list of the configured output port names.
     """
     return _setup._out_portnames
 
 def time():
     """
-    Return a floating point number of seconds since some unspecified starting
-    point.
+    Return the time in seconds (floating point) since some unspecified
+    starting point. Unlike Python's :func:`time.time()`, this clock is
+    guaranteed to be monotonic.
     """
     return _TheEngine().time()
 
 def active():
     """
-    Return True if the engine is running, otherwise False.
+    Returns ``True`` if the mididings engine is active (the :func:`~.run()`
+    function is running).
     """
     return _TheEngine is not None and _TheEngine() is not None
 
 def restart():
     """
-    Restart mididings.
+    Restart the mididings script by terminating the current process, and then
+    running the same Python interpreter with the same arguments again.
+    This will not work properly if :func:`~.run()` is not the last call in
+    your script, or if you're running mididings in an interactive Python
+    interpreter.
     """
     _TheEngine().restart()
 
 def quit():
     """
-    Quit mididings.
+    Terminate mididings event processing (by making the :func:`~.run()`
+    function return).
     """
     _TheEngine().quit()
 

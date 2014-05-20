@@ -41,8 +41,9 @@ def _make_property(type, data, name=None, offset=False):
 
 class MidiEvent(_mididings.MidiEvent):
     """
-    The main MIDI event class.
-    All event data is part of the C++ base class.
+    MidiEvent(type, port=0, channel=0, data1=0, data2=0, sysex=None)
+
+    A MIDI event, as seen by Python code.
     """
     @_arguments.accept(None, _constants._EventType, _util.port_number, _util.channel_number,
                        int, int, _arguments.nullable(_util.sysex_data))

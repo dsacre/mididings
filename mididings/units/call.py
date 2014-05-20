@@ -107,12 +107,46 @@ def _call_partial(function, args, kwargs, require_event=False):
 
 @_unitrepr.accept(_collections.Callable, None, kwargs={ None: None })
 def Process(function, *args, **kwargs):
+    """
+    Process(function, *args, **kwargs)
+
+    Call a Python function. This will stall any other MIDI processing until the
+    function returns.
+
+    *function* must be a function (or any other callable object) that can be
+    called with :class:`~.MidiEvent` objects as its only argument.
+    Its return value may be:
+
+    * A single :class:`~.MidiEvent` that will then be passed on to the next
+      connected unit.
+    * A list of :class:`~.MidiEvent` objects, each of which will be passed on
+      to the next connected unit.
+    * ``None`` (or an empty list) to output no events from this unit.
+
+    Alternatively, *function* can also be a generator that yields
+    :class:`~.MidiEvent` objects.
+    """
     if _get_config('backend') == 'jack-rt' and not _get_config('silent'):
         print("WARNING: using Process() with the 'jack-rt' backend is probably a bad idea")
     return _CallBase(_call_partial(function, args, kwargs, True), False, False)
 
 
-@_overload.mark
+@_overload.mark(
+    """
+    Call(function, *args, **kwargs)
+    Call(thread=..., **kwargs)
+
+    Schedule a Python function for execution, and continue MIDI processing
+    immediately.
+
+    *function* must be a function (or any other callable object) that can be
+    called with :class:`~.MidiEvent` objects as its only argument.
+    Its return value will be ignored.
+
+    The *thread* parameter accepts the same arguments as *function*, but will
+    run the function in its own thread.
+    """
+)
 @_unitrepr.accept(_collections.Callable, None, kwargs={ None: None })
 def Call(function, *args, **kwargs):
     return _CallBase(_call_partial(function, args, kwargs), True, True)
@@ -125,4 +159,13 @@ def Call(thread, **kwargs):
 
 @_unitrepr.accept((str, _collections.Callable))
 def System(command):
+    """
+    Run an arbitrary shell command, without waiting for the command to
+    complete.
+
+    *command* can be a string, which will be passed verbatim to the shell.
+    It may also be a Python function with the signature
+    ``function(ev) -> str``, accepting a :class:`~.MidiEvent` object and
+    returning the command to be executed.
+    """
     return _System(command)

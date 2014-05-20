@@ -96,6 +96,13 @@ def reset():
     'silent':           bool,
 })
 def config(**kwargs):
+    """
+    config(**kwargs)
+
+    Change :ref:`global settings <main-config>`. This should usually be called
+    only once at the beginning of the script, before constructing any
+    processing units.
+    """
     _config_impl(**kwargs)
 
 
@@ -123,6 +130,12 @@ def get_config(var):
 
 
 def hook(*args):
+    """
+    hook(*args)
+
+    Register "hook" objects, that can be used to extend the functionality of
+    mididings.
+    """
     _hooks.extend(args)
 
 def get_hooks():

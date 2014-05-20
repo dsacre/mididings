@@ -28,15 +28,51 @@ class _InitExit(_Unit):
 
 @_unitrepr.accept(_UNIT_TYPES)
 def Init(patch):
+    """
+    Init(patch)
+
+    Add *patch* to the init patch of the scene containing this unit, so that
+    it will be executed when switching to this scene.
+    The patch is added in parallel to whatever is already in the init patch.
+
+    This unit does no event processing in the patch it is inserted in, and
+    discards all events.
+    """
     return _InitExit(init_patch=patch)
 
 
 @_unitrepr.accept(_UNIT_TYPES)
 def Exit(patch):
+    """
+    Exit(patch)
+
+    Add *patch* to the exit patch of the scene containing this unit, so that
+    it will be executed when leaving this scene, switching to a different one.
+    The patch is added in parallel to whatever is already in the exit patch.
+
+    This unit does no event processing in the patch it is inserted in, and
+    discards all events.
+    """
     return _InitExit(exit_patch=patch)
 
 
 def Output(port, channel, program=None, volume=None, pan=None, expression=None, ctrls={}):
+    """
+    Output(port, channel, program=None, volume=None, pan=None, expression=None, ctrls={})
+
+    Route incoming events to the specified *port* and *channel*.
+    When switching to the scene containing this unit, a program change and/or
+    arbitrary control changes can be sent.
+
+    To send a bank select (CC #0 and CC #32) before the program change,
+    *program* can be a tuple with two elements, where the first element is the
+    bank number, and the second is the program number.
+
+    Values for the commonly used controllers *volume* (#7), *pan* (#10) and
+    *expression* (#11) can be specified directly. For all other controllers,
+    the *ctrls* argument can contain a mapping from controller numbers to
+    their respective values.
+    """
     if isinstance(program, tuple):
         bank, program = program
     else:
@@ -68,6 +104,18 @@ def Output(port, channel, program=None, volume=None, pan=None, expression=None, 
 
 
 class OutputTemplate(object):
+    """
+    OutputTemplate(*args, **kwargs)
+
+    Create an object that when called will behave like :func:`~.Output()`,
+    with *args* and *kwargs* replacing some of its arguments.
+    That is, :class:`~.OutputTemplate()` is not a unit by itself, but returns
+    one when called.
+
+    This works just like ``functools.partial(Output, *args, **kwargs)``, but
+    with the added benefit that an :class:`~.OutputTemplate()` object also
+    supports operator ``>>`` like any unit.
+    """
     def __init__(self, *args, **kwargs):
         self.partial = _functools.partial(Output, *args, **kwargs)
         self.before = []

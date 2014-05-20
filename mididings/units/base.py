@@ -98,8 +98,8 @@ class _Fork(_Unit, list):
 
 
 class _Split(_Unit, dict):
-    def __init__(self, d):
-        dict.__init__(self, d)
+    def __init__(self, mapping):
+        dict.__init__(self, mapping)
 
     def __repr__(self):
         return _unitrepr.split_to_string(self)
@@ -253,11 +253,13 @@ def Fork(units, remove_duplicates=None):
 
 
 @_arguments.accept({_arguments.nullable(_arguments.reduce_bitmask([_constants._EventType])): _UNIT_TYPES})
-def Split(d):
+def Split(mapping):
     """
-    Split events by type.
+    Split(mapping)
+
+    Split by event type.
     """
-    return _Split(d)
+    return _Split(mapping)
 
 
 @_arguments.accept([_SELECTOR_TYPES])
@@ -276,11 +278,13 @@ def OrSelector(conditions):
     return _OrSelector(conditions)
 
 
-@_arguments.accept(_arguments.reduce_bitmask([_constants._EventType]), with_rest=True)
-@_unitrepr.store
+@_unitrepr.accept(_arguments.reduce_bitmask([_constants._EventType]), with_rest=True)
 def Filter(types, *rest):
     """
-    Filter by event type.
+    Filter(types, ...)
+
+    Filter by event type. Multiple types can be given as bitmasks, lists, or
+    separate parameters.
     """
     return _Filter(_mididings.TypeFilter(types))
 
@@ -288,7 +292,8 @@ def Filter(types, *rest):
 @_unitrepr.store
 def Pass():
     """
-    Pass all events.
+    Do nothing. This is sometimes useful/necessary as a placeholder, much like
+    the ``pass`` statement in Python.
     """
     return _Unit(_mididings.Pass(True))
 
@@ -296,6 +301,8 @@ def Pass():
 @_unitrepr.store
 def Discard():
     """
-    Discard all events.
+    Stop processing the incoming event. Note that it is rarely neccessary to
+    use this, as filters and splits already take care of removing unwanted
+    events.
     """
     return _Unit(_mididings.Pass(False))
