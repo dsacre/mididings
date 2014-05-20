@@ -105,3 +105,29 @@ class CallTestCase(MididingsTestCase):
         ev = self.make_event(NOTEON, off(0), off(0), 66, 23)
         self.check_patch(Call(foo, 42, baz=666), { ev: [ev] })
         self.assertTrue(event.wait(1.0))
+
+    def test_Call_method(self):
+        event = threading.Event()
+
+        class Foo(object):
+            def bar(myself, ev):
+                self.assertEqual(ev.type, NOTEON)
+                event.set()
+        obj = Foo()
+
+        ev = self.make_event(NOTEON)
+        self.check_patch(Call(obj.bar), { ev: [ev] })
+        self.assertTrue(event.wait(1.0))
+
+    def test_Call_callable(self):
+        event = threading.Event()
+
+        class Foo(object):
+            def __call__(myself):
+                self.assertEqual(ev.type, NOTEON)
+                event.set()
+        obj = Foo()
+
+        ev = self.make_event(NOTEON)
+        self.check_patch(Call(obj), { ev: [ev] })
+        self.assertTrue(event.wait(1.0))

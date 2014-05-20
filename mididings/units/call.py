@@ -59,8 +59,8 @@ class _CallBase(_Unit):
 class _CallThread(_CallBase):
     def __init__(self, function):
         def do_thread(ev):
-            # need to make a copy of the event.
-            # the underlying C++ object will become invalid when this function returns
+            # need to make a copy of the event. the underlying C++ object will
+            # become invalid once this function returns
             ev_copy = _copy.copy(ev)
             _thread.start_new_thread(function, (ev_copy,))
 
@@ -77,16 +77,31 @@ class _System(_CallBase):
 
 
 def _call_partial(function, args, kwargs, require_event=False):
-    argspec = _inspect.getargspec(function)
+    """
+    Add args and kwargs when calling function (similar to functools.partial).
+    Also, allow omission of the first argument (event) if require_event
+    is False.
+    """
+    try:
+        argspec = _inspect.getargspec(function)
+        ismethod = _inspect.ismethod(function)
+    except TypeError:
+        # support callable objects
+        argspec = _inspect.getargspec(function.__call__)
+        ismethod = _inspect.ismethod(function.__call__)
+
     if (not require_event and argspec[1] == None
-                and len(argspec[0]) - int(_inspect.ismethod(function)) == 0):
+                and len(argspec[0]) - int(ismethod) == 0):
+        # omit event argument when function has no positional arguments
         if len(kwargs):
             return lambda ev: function(**kwargs)
         else:
             return lambda ev: function()
     if len(args) or len(kwargs):
+        # return a function with args and kwargs applied
         return lambda ev: function(ev, *args, **kwargs)
     else:
+        # no additional arguments, no wrapper needed
         return function
 
 
