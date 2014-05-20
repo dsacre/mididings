@@ -10,9 +10,9 @@
 # (at your option) any later version.
 #
 
-from mididings import *
-from mididings.extra import PerChannel
+import mididings as _m
 import mididings.event as _event
+from mididings.extra.per_channel import PerChannel as _PerChannel
 
 
 class _SustainToNoteoff(object):
@@ -22,7 +22,7 @@ class _SustainToNoteoff(object):
         self.notes = set()
 
     def __call__(self, ev):
-        if ev.type == CTRL and ev.ctrl == self.ctrl:
+        if ev.type == _m.CTRL and ev.ctrl == self.ctrl:
             self.pedal = (ev.value >= 64)
             if self.pedal:
                 # pedal pressed
@@ -32,14 +32,14 @@ class _SustainToNoteoff(object):
                 r = [_event.NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.notes]
                 self.notes.clear()
                 return r
-        elif ev.type == NOTEON and self.pedal:
+        elif ev.type == _m.NOTEON and self.pedal:
             # note on while pedal is held
             if ev.note in self.notes:
                 self.notes.remove(ev.note)
                 return [_event.NoteOffEvent(ev.port, ev.channel, ev.note, 0), ev]
             else:
                 return ev
-        elif ev.type == NOTEOFF and self.pedal:
+        elif ev.type == _m.NOTEOFF and self.pedal:
             # delay note off until pedal released
             self.notes.add(ev.note)
             return None
@@ -56,7 +56,7 @@ class _SostenutoToNoteoff(object):
         self.sustained_notes = set()
 
     def __call__(self, ev):
-        if ev.type == CTRL and ev.ctrl == self.ctrl:
+        if ev.type == _m.CTRL and ev.ctrl == self.ctrl:
             self.pedal = (ev.value >= 64)
             if self.pedal:
                 # pedal pressed, remember currently held notes
@@ -67,10 +67,10 @@ class _SostenutoToNoteoff(object):
                 r = [_event.NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.sustained_notes if x not in self.held_notes]
                 self.sustained_notes.clear()
                 return r
-        elif ev.type == NOTEON:
+        elif ev.type == _m.NOTEON:
             self.held_notes.add(ev.note)
             return ev
-        elif ev.type == NOTEOFF:
+        elif ev.type == _m.NOTEOFF:
             self.held_notes.discard(ev.note)
 
             # send note off only if the note is not currently being sustained
@@ -85,8 +85,8 @@ class _SostenutoToNoteoff(object):
 
 def PedalToNoteoff(ctrl=64, sostenuto=False):
     if sostenuto:
-        proc = Process(PerChannel(lambda: _SostenutoToNoteoff(ctrl)))
+        proc = _m.Process(_PerChannel(lambda: _SostenutoToNoteoff(ctrl)))
     else:
-        proc = Process(PerChannel(lambda: _SustainToNoteoff(ctrl)))
+        proc = _m.Process(_PerChannel(lambda: _SustainToNoteoff(ctrl)))
 
-    return (Filter(NOTE) | CtrlFilter(ctrl)) % proc
+    return (_m.Filter(_m.NOTE) | _m.CtrlFilter(_m.ctrl)) % proc

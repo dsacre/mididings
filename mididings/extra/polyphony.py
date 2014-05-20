@@ -10,9 +10,9 @@
 # (at your option) any later version.
 #
 
-from mididings import *
-from mididings.extra import PerChannel
+import mididings as _m
 import mididings.event as _event
+from mididings.extra.per_channel import PerChannel as _PerChannel
 
 
 class _LimitPolyphony(object):
@@ -22,7 +22,7 @@ class _LimitPolyphony(object):
         self.notes = []
 
     def __call__(self, ev):
-        if ev.type == NOTEON:
+        if ev.type == _m.NOTEON:
             if len(self.notes) < self.max_polyphony:
                 # polyphony not exceeded, allow note
                 self.notes.append(ev.note)
@@ -38,7 +38,7 @@ class _LimitPolyphony(object):
                     # discard note
                     return None
 
-        elif ev.type == NOTEOFF:
+        elif ev.type == _m.NOTEOFF:
             if ev.note in self.notes:
                 self.notes.remove(ev.note)
                 return ev
@@ -51,7 +51,7 @@ class _MakeMonophonic(object):
         self.notes = []
 
     def __call__(self, ev):
-        if ev.type == NOTEON:
+        if ev.type == _m.NOTEON:
             if len(self.notes):
                 # send note off for previous note, and note on for current note
                 noteoff = _event.NoteOffEvent(ev.port, ev.channel, self.notes[-1][0], 0)
@@ -62,7 +62,7 @@ class _MakeMonophonic(object):
                 self.notes.append((ev.note, ev.velocity))
                 return ev
 
-        elif ev.type == NOTEOFF:
+        elif ev.type == _m.NOTEOFF:
             if len(self.notes) and ev.note == self.notes[-1][0]:
                 # note off for currently sounding note
                 if len(self.notes) == 1:
@@ -84,8 +84,10 @@ class _MakeMonophonic(object):
 
 
 def LimitPolyphony(max_polyphony, remove_oldest=True):
-    return Filter(NOTE) % Process(PerChannel(lambda: _LimitPolyphony(max_polyphony, remove_oldest)))
+    return (_m.Filter(_m.NOTE) %
+        _m.Process(_PerChannel(lambda: _LimitPolyphony(max_polyphony, remove_oldest))))
 
 
 def MakeMonophonic():
-    return Filter(NOTE) % Process(PerChannel(_MakeMonophonic))
+    return (_m.Filter(_m.NOTE) %
+        _m.Process(_PerChannel(_MakeMonophonic)))

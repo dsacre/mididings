@@ -10,7 +10,7 @@
 # (at your option) any later version.
 #
 
-from mididings import Call
+from mididings import Call as _Call
 import mididings.engine as _engine
 import mididings.setup as _setup
 import mididings.util as _util
@@ -133,4 +133,4 @@ class _SendOSC(object):
 
 
 def SendOSC(target, path, *args):
-    return Call(_SendOSC(target, path, args))
+    return _Call(_SendOSC(target, path, args))

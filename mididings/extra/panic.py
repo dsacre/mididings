@@ -10,7 +10,7 @@
 # (at your option) any later version.
 #
 
-from mididings import *
+import mididings as _m
 import mididings.engine as _engine
 import mididings.event as _event
 import mididings.util as _util
@@ -26,10 +26,11 @@ def _panic_bypass():
 
 def Panic(bypass=True):
     if bypass:
-        return Call(lambda ev: _panic_bypass()) >> Discard()
+        return _m.Call(lambda ev: _panic_bypass()) >> _m.Discard()
     else:
-        return Fork([
-            (Ctrl(p, _util.NoDataOffset(c), 123, 0) // Ctrl(p, _util.NoDataOffset(c), 64, 0))
+        return _m.Fork([
+            (_m.Ctrl(p, _util.NoDataOffset(c), 123, 0) //
+             _m.Ctrl(p, _util.NoDataOffset(c), 64, 0))
                 for p in _engine.out_ports()
                 for c in range(16)
         ])

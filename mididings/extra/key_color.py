@@ -10,7 +10,7 @@
 # (at your option) any later version.
 #
 
-from mididings import *
+import mididings as _m
 
 
 _BLACK = [1, 3, 6, 8, 10]
@@ -20,6 +20,6 @@ _WHITE_KEYS = [_n for _n in range(128) if _n%12 not in _BLACK]
 
 def KeyColorFilter(color):
     if color == 'black':
-        return KeyFilter(notes=_BLACK_KEYS)
+        return _m.KeyFilter(notes=_BLACK_KEYS)
     elif color == 'white':
-        return KeyFilter(notes=_WHITE_KEYS)
+        return _m.KeyFilter(notes=_WHITE_KEYS)

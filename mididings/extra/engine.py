@@ -10,12 +10,12 @@
 # (at your option) any later version.
 #
 
-from mididings import Call
+from mididings import Call as _Call
 import mididings.engine as _engine
 
 
 def Restart():
-    return Call(lambda ev: _engine.restart())
+    return _Call(lambda ev: _engine.restart())
 
 def Quit():
-    return Call(lambda ev: _engine.quit())
+    return _Call(lambda ev: _engine.quit())

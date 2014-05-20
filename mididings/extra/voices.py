@@ -10,10 +10,10 @@
 # (at your option) any later version.
 #
 
-from mididings import *
-from mididings.extra import PerChannel
+import mididings as _m
 import mididings.event as _event
 import mididings.engine as _engine
+from mididings.extra.per_channel import PerChannel as _PerChannel
 
 
 class _VoiceFilter(object):
@@ -28,10 +28,10 @@ class _VoiceFilter(object):
     def __call__(self, ev):
         t = _engine.time()
 
-        if ev.type == NOTEON:
+        if ev.type == _m.NOTEON:
             # store new note, its velocity, and its time
             self.notes[ev.note] = (ev.velocity, t)
-        elif ev.type == NOTEOFF:
+        elif ev.type == _m.NOTEOFF:
             # delete released note
             del self.notes[ev.note]
 
@@ -52,12 +52,12 @@ class _VoiceFilter(object):
         dt = (t - self.notes[self.current_note][1]) if self.current_note in self.notes else 0.0
 
         # change current note if...
-        if (n != self.current_note                          # note number changed and...
-            and (self.retrigger                             # we're always retriggering notes...
-                 or self.voice in (0, -1)                   # lowest/heighest voice are a bit of a special case...
-                 or self.current_note not in self.notes     # current note is no longer held...
-                 or (ev.type == NOTEON and dt < self.time)  # our previous note is very recent...
-                 or self.diverted and not d)):              # or the new note is "better" than previous one
+        if (n != self.current_note                              # note number changed and...
+            and (self.retrigger                                 # we're always retriggering notes...
+                 or self.voice in (0, -1)                       # lowest/heighest voice are a bit of a special case...
+                 or self.current_note not in self.notes         # current note is no longer held...
+                 or (ev.type == _m.NOTEON and dt < self.time)   # our previous note is very recent...
+                 or self.diverted and not d)):                  # or the new note is "better" than previous one
             # yield note-off for previous note (if any)
             if self.current_note:
                 yield _event.NoteOffEvent(ev.port, ev.channel, self.current_note, 0)
@@ -80,7 +80,7 @@ def VoiceFilter(voice='highest', time=0.1, retrigger=False):
     elif voice == 'lowest':
         voice = 0
 
-    return Filter(NOTE) % Process(PerChannel(
+    return _m.Filter(_m.NOTE) % _m.Process(_PerChannel(
         lambda: _VoiceFilter(voice, time, retrigger))
     )
 
@@ -89,12 +89,12 @@ def VoiceSplit(patches, fallback='highest', time=0.1, retrigger=False):
     vf = lambda n: VoiceFilter(n, time, retrigger)
 
     if fallback == 'lowest':
-        return Fork(
+        return _m.Fork(
             [ vf( 0) >> patches[ 0] ] +
             [ vf( n) >> patches[ n] for n in range(-len(patches) + 1, 0) ]
         )
     else: # highest
-        return Fork(
+        return _m.Fork(
             [ vf( n) >> patches[ n] for n in range(len(patches) - 1) ] +
             [ vf(-1) >> patches[-1] ]
         )

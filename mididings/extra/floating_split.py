@@ -10,7 +10,7 @@
 # (at your option) any later version.
 #
 
-from mididings import *
+import mididings as _m
 import mididings.util as _util
 import mididings.engine as _engine
 
@@ -61,13 +61,13 @@ class _FloatingKeySplitAnalyzer(object):
         # reference point, but confined by the given thresholds
         self.threshold = min(max((lower + upper + 1) // 2, self.threshold_lower), self.threshold_upper)
 
-        if ev.type == NOTEON:
+        if ev.type == _m.NOTEON:
             # add notes to the appropriate list
             if ev.note < self.threshold:
                 self.notes_lower[ev.note] = 0
             else:
                 self.notes_upper[ev.note] = 0
-        elif ev.type == NOTEOFF:
+        elif ev.type == _m.NOTEOFF:
             # mark notes for removal
             if ev.note in self.notes_lower:
                 self.notes_lower[ev.note] = now
@@ -100,12 +100,13 @@ def FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper,
     # create a single analyzer instance
     analyzer = _FloatingKeySplitAnalyzer(threshold_lower, threshold_upper, hold_time, margin_lower, margin_upper)
 
-    return Split({
+    return _m.Split({
         # separate filter instances are needed for both regions, in order to
         # be able to send note events to different patches
-        NOTE:   Process(analyzer) >> [
-                    Process(_FloatingKeySplitFilter(analyzer, 0)) >> patch_lower,
-                    Process(_FloatingKeySplitFilter(analyzer, 1)) >> patch_upper,
+        _m.NOTE:
+                _m.Process(analyzer) >> [
+                    _m.Process(_FloatingKeySplitFilter(analyzer, 0)) >> patch_lower,
+                    _m.Process(_FloatingKeySplitFilter(analyzer, 1)) >> patch_upper,
                 ],
         # non-note-events are sent to both patches
         None:   [ patch_lower, patch_upper ],

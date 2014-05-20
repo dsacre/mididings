@@ -10,10 +10,10 @@
 # (at your option) any later version.
 #
 
-from mididings import *
-from mididings.extra import PerChannel
+import mididings as _m
 import mididings.event as _event
 import mididings.util as _util
+from mididings.extra.per_channel import PerChannel as _PerChannel
 
 
 class _LatchNotes(object):
@@ -23,7 +23,7 @@ class _LatchNotes(object):
         self.notes = []
 
     def __call__(self, ev):
-        if ev.type == NOTEON:
+        if ev.type == _m.NOTEON:
             if ev.note == self.reset:
                 # reset all notes
                 r = [_event.NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.notes]
@@ -45,10 +45,11 @@ class _LatchNotes(object):
                 self.notes = [ev.note]
                 return r + [ev]
 
-        elif ev.type == NOTEOFF:
+        elif ev.type == _m.NOTEOFF:
             # ignore all note-off events
             return None
 
 
 def LatchNotes(polyphonic=False, reset=None):
-    return Filter(NOTE) % Process(PerChannel(lambda: _LatchNotes(polyphonic, reset)))
+    return (_m.Filter(_m.NOTE) %
+                _m.Process(_PerChannel(lambda: _LatchNotes(polyphonic, reset))))

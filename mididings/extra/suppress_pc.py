@@ -10,8 +10,8 @@
 # (at your option) any later version.
 #
 
-from mididings import *
-from mididings.extra import PerChannel
+import mididings as _m
+from mididings.extra.per_channel import PerChannel as _PerChannel
 
 
 class _SuppressPC(object):
@@ -26,4 +26,5 @@ class _SuppressPC(object):
 
 
 def SuppressPC():
-    return Filter(PROGRAM) % Process(PerChannel(_SuppressPC))
+    return (_m.Filter(_m.PROGRAM) %
+        _m.Process(_PerChannel(_SuppressPC)))

@@ -10,7 +10,7 @@
 # (at your option) any later version.
 #
 
-from mididings import *
+import mididings as _m
 import mididings.util as _util
 import mididings.misc as _misc
 
@@ -100,7 +100,7 @@ def Harmonize(tonic, scale, interval, non_harmonic='below'):
     iv = [(_INTERVALS.index(x) if x in _INTERVALS else x) for x in interval]
 
     # python version:
-#    f = [ Process(_Harmonizer(t, s, i, non_harmonic)) for i in iv ]
+#    f = [ _m.Process(_Harmonizer(t, s, i, non_harmonic)) for i in iv ]
 
     # pure mididings version:
     f = []
@@ -114,6 +114,6 @@ def Harmonize(tonic, scale, interval, non_harmonic='below'):
         # create one KeyFilter()/Transpose() pair for each offset
         for off, keys in groups:
             if off is not None:
-                f.append(KeyFilter(notes=[k[0] for k in keys]) >> Transpose(off))
+                f.append(_m.KeyFilter(notes=[k[0] for k in keys]) >> _m.Transpose(off))
 
-    return Filter(NOTE) % f
+    return _m.Filter(_m.NOTE) % f
