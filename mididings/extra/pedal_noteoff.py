@@ -89,4 +89,4 @@ def PedalToNoteoff(ctrl=64, sostenuto=False):
     else:
         proc = _m.Process(_PerChannel(lambda: _SustainToNoteoff(ctrl)))
 
-    return (_m.Filter(_m.NOTE) | _m.CtrlFilter(_m.ctrl)) % proc
+    return (_m.Filter(_m.NOTE) | _m.CtrlFilter(_m.CTRL)) % proc
