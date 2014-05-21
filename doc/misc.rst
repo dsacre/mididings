@@ -153,10 +153,19 @@ These constants are used by :ref:`units-generators` and the
 +----------------------------+
 
 
+.. _python:
+
+mididings and Python
+--------------------
+
+mididings is a little peculiar in the way it uses Python, so here's a couple
+of things you might need to know...
+
+
 .. _overload:
 
 Overloaded Functions
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 Python does not support overloaded functions per se, but mididings implements
 a mechanism that allows functions to have behave differently depending not
@@ -179,15 +188,6 @@ invocation.
 Other than that, the documentation follows common Python conventions for
 the notation of positional arguments, variable arguments and keyword
 arguments.
-
-
-.. _python:
-
-mididings and Python
---------------------
-
-mididings is a little peculiar in the way it uses Python, so here's a couple
-of things you might need to know...
 
 
 Everything is an Object
@@ -259,7 +259,8 @@ In short, remember that...
 - selectors (of more than one filter) must be in parentheses.
 - when in doubt, you can always use additional parentheses.
 
-Also note that operator overloading doesn't apply if both sides of the
-operator are builtin Python types like :class:`list` or :class:`dict`.
-In some cases it may be necessary to wrap those in
-:func:`Fork()` or :func:`Split()`.
+.. note::
+    Operator overloading doesn't apply if both sides of the
+    operator are builtin Python types like :class:`list` or :class:`dict`.
+    In some cases it may be necessary to wrap those in
+    :func:`Fork()` or :func:`Split()`.

@@ -134,29 +134,3 @@ Classes
         Scene("Verse", verse_patch),
         Scene("Chorus", chorus_patch),
     ])
-
-
-
-Units
------
-
-Units are the basic building blocks from which you can build your mididings
-patches.
-
-.. toctree::
-    :maxdepth: 2
-
-    units-filters
-    units-splits
-    units-modifiers
-    units-generators
-    units-call
-    units-scenes
-    units-misc
-
-.. note::
-    The descriptions of all units in this document don't actually explain
-    what the documented functions do, but rather what the objects they return do.
-    For example, the function ``Transpose(offset)`` does not transpose anything.
-    Instead it returns an object that, when inserted into a patch, will transpose
-    incoming events.

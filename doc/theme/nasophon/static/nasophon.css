@@ -130,6 +130,15 @@ div.body div.seealso {
     border: 1px solid #dddd66;
 }
 
+div.body div.note {
+    background-color: #ffc;
+    border: 1px solid #dd6;
+}
+
+div.body div.note tt {
+    background: transparent;
+}
+
 div.body a {
     color: #127;
 }
