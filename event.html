@@ -1,0 +1,287 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Module mididings.event &mdash; mididings  documentation</title>
+    
+    <link rel="stylesheet" href="_static/nasophon.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="mididings  documentation" href="index.html" />
+    <link rel="next" title="Module mididings.engine" href="engine.html" />
+    <link rel="prev" title="Module mididings.extra" href="extra.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="engine.html" title="Module mididings.engine"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="extra.html" title="Module mididings.extra"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-mididings.event"></span><div class="section" id="module-mididings-event">
+<span id="event"></span><h1>Module <a class="reference internal" href="#module-mididings.event" title="mididings.event"><tt class="xref py py-mod docutils literal"><span class="pre">mididings.event</span></tt></a><a class="headerlink" href="#module-mididings-event" title="Permalink to this headline">¶</a></h1>
+<p>This module defines classes and functions for dealing with MIDI events in
+Python code, e.g. when using <a class="reference internal" href="units.html#mididings.Process" title="mididings.Process"><tt class="xref py py-func docutils literal"><span class="pre">Process()</span></tt></a> or <a class="reference internal" href="units.html#mididings.Call" title="mididings.Call"><tt class="xref py py-func docutils literal"><span class="pre">Call()</span></tt></a>.</p>
+<dl class="class">
+<dt id="mididings.event.MidiEvent">
+<em class="property">class </em><tt class="descname">MidiEvent</tt><big>(</big><em>type</em>, <em>port=0</em>, <em>channel=0</em>, <em>data1=0</em>, <em>data2=0</em>, <em>sysex=None</em><big>)</big><a class="headerlink" href="#mididings.event.MidiEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>A MIDI event, as seen by Python code.</p>
+<p>Each event has these attributes:</p>
+<dl class="attribute">
+<dt id="mididings.event.MidiEvent.type">
+<tt class="descname">type</tt><a class="headerlink" href="#mididings.event.MidiEvent.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>The event type, one of the <a class="reference internal" href="misc.html#event-types"><em>Event Types</em></a> constants.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mididings.event.MidiEvent.port">
+<tt class="descname">port</tt><a class="headerlink" href="#mididings.event.MidiEvent.port" title="Permalink to this definition">¶</a></dt>
+<dd><p>The port number.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mididings.event.MidiEvent.channel">
+<tt class="descname">channel</tt><a class="headerlink" href="#mididings.event.MidiEvent.channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>The channel number.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mididings.event.MidiEvent.data1">
+<tt class="descname">data1</tt><a class="headerlink" href="#mididings.event.MidiEvent.data1" title="Permalink to this definition">¶</a></dt>
+<dd><p>The first data byte, meaning depends on event type.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mididings.event.MidiEvent.data2">
+<tt class="descname">data2</tt><a class="headerlink" href="#mididings.event.MidiEvent.data2" title="Permalink to this definition">¶</a></dt>
+<dd><p>The second data byte, meaning depends on event type.</p>
+</dd></dl>
+
+<p>The following attributes are only valid for certain event types, and
+accessing them will raise an error otherwise:</p>
+<dl class="attribute">
+<dt id="mididings.event.MidiEvent.note">
+<tt class="descname">note</tt><a class="headerlink" href="#mididings.event.MidiEvent.note" title="Permalink to this definition">¶</a></dt>
+<dd><p>The note number, stored in <a class="reference internal" href="#mididings.event.MidiEvent.data1" title="mididings.event.MidiEvent.data1"><tt class="xref py py-attr docutils literal"><span class="pre">data1</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mididings.event.MidiEvent.velocity">
+<tt class="descname">velocity</tt><a class="headerlink" href="#mididings.event.MidiEvent.velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>The velocity value, stored in <a class="reference internal" href="#mididings.event.MidiEvent.data2" title="mididings.event.MidiEvent.data2"><tt class="xref py py-attr docutils literal"><span class="pre">data2</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mididings.event.MidiEvent.ctrl">
+<tt class="descname">ctrl</tt><a class="headerlink" href="#mididings.event.MidiEvent.ctrl" title="Permalink to this definition">¶</a></dt>
+<dd><p>The controller number, stored in <a class="reference internal" href="#mididings.event.MidiEvent.data1" title="mididings.event.MidiEvent.data1"><tt class="xref py py-attr docutils literal"><span class="pre">data1</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mididings.event.MidiEvent.value">
+<tt class="descname">value</tt><a class="headerlink" href="#mididings.event.MidiEvent.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The controller value, stored in <a class="reference internal" href="#mididings.event.MidiEvent.data2" title="mididings.event.MidiEvent.data2"><tt class="xref py py-attr docutils literal"><span class="pre">data2</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mididings.event.MidiEvent.program">
+<tt class="descname">program</tt><a class="headerlink" href="#mididings.event.MidiEvent.program" title="Permalink to this definition">¶</a></dt>
+<dd><p>The program number, stored in <a class="reference internal" href="#mididings.event.MidiEvent.data2" title="mididings.event.MidiEvent.data2"><tt class="xref py py-attr docutils literal"><span class="pre">data2</span></tt></a>.
+Unlike <a class="reference internal" href="#mididings.event.MidiEvent.data2" title="mididings.event.MidiEvent.data2"><tt class="xref py py-attr docutils literal"><span class="pre">data2</span></tt></a>, this attribute properly observes the
+<a class="reference internal" href="main.html#data_offset" title="data_offset"><tt class="xref c c-data docutils literal"><span class="pre">data_offset</span></tt></a> setting.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mididings.event.MidiEvent.sysex">
+<tt class="descname">sysex</tt><a class="headerlink" href="#mididings.event.MidiEvent.sysex" title="Permalink to this definition">¶</a></dt>
+<dd><p>SysEx data.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>Several utility functions are defined to simplify the creation of
+event objects. Each of these functions returns a newly created object of
+type <a class="reference internal" href="#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a>:</p>
+<dl class="function">
+<dt id="mididings.event.NoteOnEvent">
+<tt class="descname">NoteOnEvent</tt><big>(</big><em>port</em>, <em>channel</em>, <em>note</em>, <em>velocity</em><big>)</big><a class="headerlink" href="#mididings.event.NoteOnEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new note-on event object.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.event.NoteOffEvent">
+<tt class="descname">NoteOffEvent</tt><big>(</big><em>port</em>, <em>channel</em>, <em>note</em>, <em>velocity=0</em><big>)</big><a class="headerlink" href="#mididings.event.NoteOffEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new note-off event object.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.event.CtrlEvent">
+<tt class="descname">CtrlEvent</tt><big>(</big><em>port</em>, <em>channel</em>, <em>ctrl</em>, <em>value</em><big>)</big><a class="headerlink" href="#mididings.event.CtrlEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new control change event object.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.event.PitchbendEvent">
+<tt class="descname">PitchbendEvent</tt><big>(</big><em>port</em>, <em>channel</em>, <em>value</em><big>)</big><a class="headerlink" href="#mididings.event.PitchbendEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new pitch bend event object.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.event.AftertouchEvent">
+<tt class="descname">AftertouchEvent</tt><big>(</big><em>port</em>, <em>channel</em>, <em>value</em><big>)</big><a class="headerlink" href="#mididings.event.AftertouchEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new aftertouch event object.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.event.PolyAftertouchEvent">
+<tt class="descname">PolyAftertouchEvent</tt><big>(</big><em>port</em>, <em>channel</em>, <em>note</em>, <em>value</em><big>)</big><a class="headerlink" href="#mididings.event.PolyAftertouchEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new polyphonic aftertouch event object.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.event.ProgramEvent">
+<tt class="descname">ProgramEvent</tt><big>(</big><em>port</em>, <em>channel</em>, <em>program</em><big>)</big><a class="headerlink" href="#mididings.event.ProgramEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new program change event object.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.event.SysExEvent">
+<tt class="descname">SysExEvent</tt><big>(</big><em>port</em>, <em>sysex</em><big>)</big><a class="headerlink" href="#mididings.event.SysExEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new sysex event object.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="start.html#anatomy-of-a-mididings-script">Anatomy of a mididings Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html#command-line-usage">Command Line Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="connect.html">Connections</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="connect.html#serial-and-parallel">Serial and Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="connect.html#filtering-and-splitting">Filtering and Splitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="connect.html#selective-processing">Selective Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Miscellaneous</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#note-names-and-ranges">Note Names and Ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#port-numbers-and-names">Port Numbers and Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#event-types">Event Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#event-attributes">Event Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#mididings-and-python">mididings and Python</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">Module <tt class="docutils literal"><span class="pre">mididings</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="main.html#global-configuration">Global Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="units.html"><tt class="docutils literal"><span class="pre">mididings</span></tt> Units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="units.html#filters">Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#splits">Splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#modifiers">Modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#generators">Generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#function-calls">Function Calls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#scene-switching">Scene Switching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#miscellaneous">Miscellaneous</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extra.html">Module <tt class="docutils literal"><span class="pre">mididings.extra</span></tt></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="extra.html"
+                        title="previous chapter">Module <tt class="docutils literal"><span class="pre">mididings.extra</span></tt></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="engine.html"
+                        title="next chapter">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="engine.html" title="Module mididings.engine"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="extra.html" title="Module mididings.extra"
+             >previous</a> |</li>
+        <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2008-2014, Dominic Sacré.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

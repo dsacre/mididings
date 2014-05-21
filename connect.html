@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Connections &mdash; mididings  documentation</title>
+    
+    <link rel="stylesheet" href="_static/nasophon.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="mididings  documentation" href="index.html" />
+    <link rel="next" title="Miscellaneous" href="misc.html" />
+    <link rel="prev" title="Getting Started" href="start.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="misc.html" title="Miscellaneous"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="start.html" title="Getting Started"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="connections">
+<span id="connect"></span><h1>Connections<a class="headerlink" href="#connections" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="serial-and-parallel">
+<h2>Serial and Parallel<a class="headerlink" href="#serial-and-parallel" title="Permalink to this headline">¶</a></h2>
+<dl class="dingsfun">
+<dt id="mididings.Chain">
+<tt class="descname">A &gt;&gt; B</tt><a class="headerlink" href="#mididings.Chain" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">Chain</tt><big>(</big><em>units</em><big>)</big></dt>
+<dd><p>Connect units in series. <tt class="docutils literal"><span class="pre">A&nbsp;&gt;&gt;&nbsp;B</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">Chain([A,&nbsp;B])</span></tt>.</p>
+<p>Incoming MIDI events will be processed by unit <strong>A</strong> first, then by unit
+<strong>B</strong>.  If an event is filtered out by unit <strong>A</strong>,
+it is not processed any further, and unit <strong>B</strong> will not be called.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># transpose one octave down, then set channel to 1</span>
+<span class="n">Transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="dingsfun">
+<dt id="mididings.Fork">
+<tt class="descname">[ A, B, ... ]</tt><a class="headerlink" href="#mididings.Fork" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">A // B</tt></dt>
+<dt>
+<tt class="descname">Fork</tt><big>(</big><em>units</em>, <em>remove_duplicates=True</em><big>)</big></dt>
+<dd><p>Connect units in parallel. <tt class="docutils literal"><span class="pre">[&nbsp;A,&nbsp;B&nbsp;]</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">A&nbsp;//&nbsp;B</span></tt> and
+<tt class="docutils literal"><span class="pre">Fork([A,&nbsp;B])</span></tt>.
+All units will be called with identical copies of incoming MIDI events.
+The output will be the sum of all the units&#8217; outputs.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># send events to both channels 1 and 2</span>
+<span class="p">[</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">]</span>
+<span class="c"># or:</span>
+<span class="n">Channel</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="dingsfun">
+<dt id="mididings.Unit.add">
+<tt class="descname">+A</tt><a class="headerlink" href="#mididings.Unit.add" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">A.add()</tt></dt>
+<dd><p>Apply <strong>A</strong> to a duplicate of each event and leave the original unchanged.
+This is a shortcut for <tt class="docutils literal"><span class="pre">[&nbsp;Pass(),&nbsp;A&nbsp;]</span></tt>.</p>
+</dd></dl>
+
+<p>Units are always called in the order they appear in a patch, using a
+&#8220;breadth-first&#8221; approach. For example, given the patch</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">Fork</span><span class="p">([</span> <span class="n">Port</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">),</span> <span class="n">Port</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">)</span> <span class="p">])</span> <span class="o">&gt;&gt;</span> <span class="n">Fork</span><span class="p">([</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">])</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Port('foo')</span></tt> will be called before <tt class="docutils literal"><span class="pre">Port('bar')</span></tt>, and the two events
+produced by the first <a class="reference internal" href="#mididings.Fork" title="mididings.Fork"><tt class="xref py py-func docutils literal"><span class="pre">Fork()</span></tt></a> are then passed on to the second
+<a class="reference internal" href="#mididings.Fork" title="mididings.Fork"><tt class="xref py py-func docutils literal"><span class="pre">Fork()</span></tt></a> individually.
+The four events resulting from this patch are thus emitted in the order
+&#8216;foo 1&#8217;, &#8216;foo 2&#8217;, &#8216;bar 1&#8217;, &#8216;bar 2&#8217;.</p>
+<p>Normally, mididings automatically removes identical events that are
+the immediate result of units being connected in parallel. For example,
+while <tt class="docutils literal"><span class="pre">[Pass(),</span> <span class="pre">Transpose(12)]</span></tt> results in two different events for each
+incoming note-on or note-off event, it does not produce duplicate
+controller or program change events, although both <a class="reference internal" href="units.html#mididings.Pass" title="mididings.Pass"><tt class="xref py py-func docutils literal"><span class="pre">Pass()</span></tt></a> and
+<a class="reference internal" href="units.html#mididings.Transpose" title="mididings.Transpose"><tt class="xref py py-func docutils literal"><span class="pre">Transpose()</span></tt></a> leave those events entirely unchanged.
+With <a class="reference internal" href="#mididings.Fork" title="mididings.Fork"><tt class="xref py py-func docutils literal"><span class="pre">Fork()</span></tt></a> it is also possible to disable the automatic removal
+of identical MIDI events by setting <em>remove_duplicates</em> to <tt class="docutils literal"><span class="pre">False</span></tt>.</p>
+</div>
+<div class="section" id="filtering-and-splitting">
+<h2>Filtering and Splitting<a class="headerlink" href="#filtering-and-splitting" title="Permalink to this headline">¶</a></h2>
+<dl class="dingsfun">
+<dt id="mididings.Filter">
+<tt class="descname">Filter</tt><big>(</big><em>types</em>, <em>...</em><big>)</big><a class="headerlink" href="#mididings.Filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter by event type. Types are represented by the constants described
+in section <a class="reference internal" href="misc.html#event-types"><em>Event Types</em></a>.
+Multiple types can be combined as bit masks, or given as lists or as
+separate parameters.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># allow only program and control changes to go through</span>
+<span class="n">Filter</span><span class="p">(</span><span class="n">PROGRAM</span><span class="p">,</span> <span class="n">CTRL</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See section <a class="reference internal" href="units.html#units-filters"><em>Filters</em></a> for units that allow filtering by different
+event properties.</p>
+</dd></dl>
+
+<dl class="dingsfun">
+<dt id="mididings.Filter.invert">
+<tt class="descname">~F</tt><a class="headerlink" href="#mididings.Filter.invert" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">F.invert()</tt></dt>
+<dd><p>Invert the filter <strong>F</strong>. Note that for filters which only affect certain
+kinds of events, other events will remain unaffected when the filter is
+inverted.
+For example, an inverted <em>KeyFilter</em> will match a different note range,
+but neither the original nor the inverted filter will have any effect on
+controllers or program changes.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># remove CC events with controller number 42</span>
+<span class="o">~</span><span class="n">CtrlFilter</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="dingsfun">
+<dt id="mididings.Filter.negate">
+<tt class="descname">-F</tt><a class="headerlink" href="#mididings.Filter.negate" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">F.negate()</tt></dt>
+<dd><p>Negate the filter <strong>F</strong>. Unlike <tt class="docutils literal"><span class="pre">~F</span></tt>, this matches exactly the events
+that <strong>F</strong> doesn&#8217;t.</p>
+</dd></dl>
+
+<dl class="dingsfun">
+<dt id="mididings.Split">
+<tt class="descname">{ T1: A, T2: B, ... }</tt><a class="headerlink" href="#mididings.Split" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">Split</tt><big>(</big><em>mapping</em><big>)</big></dt>
+<dd><p>Split by event type. <tt class="docutils literal"><span class="pre">{</span> <span class="pre">t1:</span> <span class="pre">a,</span> <span class="pre">t2:</span> <span class="pre">b</span> <span class="pre">}</span></tt> is equivalent to
+<tt class="docutils literal"><span class="pre">Split({</span> <span class="pre">T1:</span> <span class="pre">A,</span> <span class="pre">T2:</span> <span class="pre">B,</span> <span class="pre">...</span> <span class="pre">})</span></tt>, and both are merely a shorter way of
+saying <tt class="docutils literal"><span class="pre">[&nbsp;Filter(T1)&nbsp;&gt;&gt;&nbsp;A,&nbsp;Filter(T2)&nbsp;&gt;&gt;&nbsp;B&nbsp;]</span></tt>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># send note events to channel 1 and CC events to channel 2</span>
+<span class="p">{</span> <span class="n">NOTE</span><span class="p">:</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">CTRL</span><span class="p">:</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>See section <a class="reference internal" href="units.html#units-splits"><em>Splits</em></a> for units that allow splitting by different
+event properties.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="selective-processing">
+<h2>Selective Processing<a class="headerlink" href="#selective-processing" title="Permalink to this headline">¶</a></h2>
+<p>Every filter can act as a selector that restricts some processing steps to
+certain events:</p>
+<dl class="dingsfun">
+<dt id="mididings.Selector.apply">
+<tt class="descname">S % A</tt><a class="headerlink" href="#mididings.Selector.apply" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">S.apply(A)</tt></dt>
+<dd><p>Apply <strong>A</strong> only to events which match selector <strong>S</strong>, and leave events
+which don&#8217;t unchanged.
+If <strong>S</strong> is a single filter, this is equivalent to <tt class="docutils literal"><span class="pre">[&nbsp;S&nbsp;&gt;&gt;&nbsp;A,&nbsp;-S&nbsp;]</span></tt>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># transpose only events on channel 2</span>
+<span class="n">ChannelFilter</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="n">Transpose</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="dingsfun">
+<dt>
+<tt class="descname">S % (A, B)</tt></dt>
+<dt>
+<tt class="descname">S.apply(A, B)</tt></dt>
+<dd><p>Apply <strong>A</strong> to events which match selector <strong>S</strong>, and <strong>B</strong> to events
+which don&#8217;t.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># change notes between C3 and C5 to channel 1,</span>
+<span class="c"># and all other notes to channel 2:</span>
+<span class="n">KeyFilter</span><span class="p">(</span><span class="s">&#39;c3:c5&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">Channel</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<p>Multiple filters can be combined into more complex selectors:</p>
+<dl class="dingsfun">
+<dt id="mididings.AndSelector">
+<tt class="descname">(S1 &amp; S2 &amp; ...)</tt><a class="headerlink" href="#mididings.AndSelector" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">AndSelector</tt><big>(</big><em>conditions</em><big>)</big></dt>
+<dd><p>Build a selector for events that match all of the given filters or
+selectors. <tt class="docutils literal"><span class="pre">(S1&nbsp;&amp;&nbsp;S2)</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">AndSelector([S1,&nbsp;S2])</span></tt>.</p>
+</dd></dl>
+
+<dl class="dingsfun">
+<dt id="mididings.OrSelector">
+<tt class="descname">(S1 | S2 | ...)</tt><a class="headerlink" href="#mididings.OrSelector" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">OrSelector</tt><big>(</big><em>conditions</em><big>)</big></dt>
+<dd><p>Build a selector for events that match at least one of the given filters
+or selectors. <tt class="docutils literal"><span class="pre">(S1&nbsp;|&nbsp;S2)</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">OrSelector([S1,&nbsp;S2])</span></tt>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># change controllers 23 and 42 on channel 1 to channel 2:</span>
+<span class="p">(</span><span class="n">ChannelFilter</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CtrlFilter</span><span class="p">(</span><span class="mi">23</span><span class="p">)</span> <span class="o">|</span> <span class="n">CtrlFilter</span><span class="p">(</span><span class="mi">42</span><span class="p">)))</span> <span class="o">%</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="start.html#anatomy-of-a-mididings-script">Anatomy of a mididings Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html#command-line-usage">Command Line Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Connections</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#serial-and-parallel">Serial and Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filtering-and-splitting">Filtering and Splitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#selective-processing">Selective Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Miscellaneous</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#note-names-and-ranges">Note Names and Ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#port-numbers-and-names">Port Numbers and Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#event-types">Event Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#event-attributes">Event Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#mididings-and-python">mididings and Python</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">Module <tt class="docutils literal"><span class="pre">mididings</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="main.html#global-configuration">Global Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="units.html"><tt class="docutils literal"><span class="pre">mididings</span></tt> Units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="units.html#filters">Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#splits">Splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#modifiers">Modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#generators">Generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#function-calls">Function Calls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#scene-switching">Scene Switching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#miscellaneous">Miscellaneous</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extra.html">Module <tt class="docutils literal"><span class="pre">mididings.extra</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="start.html"
+                        title="previous chapter">Getting Started</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="misc.html"
+                        title="next chapter">Miscellaneous</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="misc.html" title="Miscellaneous"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="start.html" title="Getting Started"
+             >previous</a> |</li>
+        <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2008-2014, Dominic Sacré.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

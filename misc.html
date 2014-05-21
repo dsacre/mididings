@@ -1,0 +1,461 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Miscellaneous &mdash; mididings  documentation</title>
+    
+    <link rel="stylesheet" href="_static/nasophon.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="mididings  documentation" href="index.html" />
+    <link rel="next" title="Module mididings" href="main.html" />
+    <link rel="prev" title="Connections" href="connect.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="main.html" title="Module mididings"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="connect.html" title="Connections"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="miscellaneous">
+<span id="misc"></span><h1>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="note-names-and-ranges">
+<span id="notes"></span><h2>Note Names and Ranges<a class="headerlink" href="#note-names-and-ranges" title="Permalink to this headline">¶</a></h2>
+<p>Many mididings units accept notes and/or note ranges as parameters.
+Notes can be specified either as a MIDI note number or by their name,
+consisting of one letter, optionally <tt class="docutils literal"><span class="pre">'b'</span></tt> or <tt class="docutils literal"><span class="pre">'#'</span></tt>, and an octave number.
+Examples of valid note names are <tt class="docutils literal"><span class="pre">'c3'</span></tt>, <tt class="docutils literal"><span class="pre">'g#4'</span></tt>, or <tt class="docutils literal"><span class="pre">'eb2'</span></tt>.</p>
+<p>Note ranges can be specified either as a 2-tuple of note numbers or names,
+e.g. <tt class="docutils literal"><span class="pre">(48,</span> <span class="pre">60)</span></tt> or <tt class="docutils literal"><span class="pre">('c2',</span> <span class="pre">'c3')</span></tt>, or as two note names
+separated by a colon, e.g. <tt class="docutils literal"><span class="pre">'g#3:c6'</span></tt>.</p>
+<p>Like all ranges in Python, note ranges are semi-open (do not include
+their upper limit), so <tt class="docutils literal"><span class="pre">'g#3:c6'</span></tt> matches notes from g#3
+up to b5, but not c6.
+It&#8217;s also possible to omit either the upper or the lower limit, for
+example <tt class="docutils literal"><span class="pre">'c4:'</span></tt> matches all notes above (and including) c4,
+while <tt class="docutils literal"><span class="pre">':a2'</span></tt> matches all note up to (but not including) a2.</p>
+</div>
+<div class="section" id="port-numbers-and-names">
+<span id="ports"></span><h2>Port Numbers and Names<a class="headerlink" href="#port-numbers-and-names" title="Permalink to this headline">¶</a></h2>
+<p>Internally, ports are always referred to by their number.
+For instance, when an event is received on the second input port, and is
+not explicitly routed to another port, it will be sent to the second
+output port, regardless of port names.</p>
+<p>If you named your input and output ports using the <cite>in_ports</cite> and <cite>out_ports</cite>
+parameters to <a class="reference internal" href="main.html#mididings.config" title="mididings.config"><tt class="xref py py-func docutils literal"><span class="pre">config()</span></tt></a>, you can also refer to them by their names
+in all units that accept ports as parameters.</p>
+<p>To avoid ambiguities, port names should be unique
+(with the JACK backend they must be).</p>
+</div>
+<div class="section" id="event-types">
+<span id="id1"></span><h2>Event Types<a class="headerlink" href="#event-types" title="Permalink to this headline">¶</a></h2>
+<p>Every event has one of the following types:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Symbolic constant</th>
+<th class="head">MIDI event type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">NOTEON</span></tt></td>
+<td>Note-on event</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">NOTEOFF</span></tt></td>
+<td>Note-off event</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">CTRL</span></tt></td>
+<td>Control change event</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">PROGRAM</span></tt></td>
+<td>Program change event</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">PITCHBEND</span></tt></td>
+<td>Pitchbend event</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">AFTERTOUCH</span></tt></td>
+<td>Channel aftertouch event</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">POLY_AFTERTOUCH</span></tt></td>
+<td>Polyphonic aftertouch event</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSEX</span></tt></td>
+<td>System exclusive event</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSCM_QFRAME</span></tt></td>
+<td>MTC quarter frame</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSCM_SONGPOS</span></tt></td>
+<td>Song position pointer</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSCM_SONGSEL</span></tt></td>
+<td>Song select</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSCM_TUNEREQ</span></tt></td>
+<td>Tune request</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSRT_CLOCK</span></tt></td>
+<td>Timing clock</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSRT_START</span></tt></td>
+<td>Start sequence</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSRT_CONTINUE</span></tt></td>
+<td>Continue sequence</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSRT_STOP</span></tt></td>
+<td>Stop sequence</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSRT_SENSING</span></tt></td>
+<td>Active sensing</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSRT_RESET</span></tt></td>
+<td>System reset</td>
+</tr>
+</tbody>
+</table>
+<p>For use in filters, the following constants are also defined:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Symbolic constant</th>
+<th class="head">Matched MIDI event types</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">NOTE</span></tt></td>
+<td>Any note event (<tt class="xref py py-const docutils literal"><span class="pre">NOTEON</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">NOTEOFF</span></tt>)</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSCM</span></tt></td>
+<td>Any system common event (<tt class="xref py py-const docutils literal"><span class="pre">SYSCM_QFRAME</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSCM_SONGPOS</span></tt> |
+<tt class="xref py py-const docutils literal"><span class="pre">SYSCM_SONGSEL</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSCM_TUNEREQ</span></tt>)</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSRT</span></tt></td>
+<td>Any system realtime event (<tt class="xref py py-const docutils literal"><span class="pre">SYSRT_CLOCK</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSRT_START</span></tt> |
+<tt class="xref py py-const docutils literal"><span class="pre">SYSRT_CONTINUE</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSRT_STOP</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSRT_SENSING</span></tt> |
+<tt class="xref py py-const docutils literal"><span class="pre">SYSRT_RESET</span></tt>)</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSTEM</span></tt></td>
+<td>Any system (non-channel) event (<tt class="xref py py-const docutils literal"><span class="pre">SYSEX</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSCM</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSRT</span></tt>)</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">NONE</span></tt></td>
+<td>No event</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">ANY</span></tt></td>
+<td>Any event</td>
+</tr>
+</tbody>
+</table>
+<p>Event types are bit masks, so when building filters, they can be combined
+using <strong>|</strong> (bitwise or) and <strong>~</strong> (bitwise negation).</p>
+</div>
+<div class="section" id="event-attributes">
+<span id="id2"></span><h2>Event Attributes<a class="headerlink" href="#event-attributes" title="Permalink to this headline">¶</a></h2>
+<p>These constants are used by <a class="reference internal" href="units.html#units-generators"><em>Generators</em></a> and the
+<a class="reference internal" href="units.html#mididings.SceneSwitch" title="mididings.SceneSwitch"><tt class="xref py py-func docutils literal"><span class="pre">SceneSwitch()</span></tt></a> unit to refer to an event&#8217;s data attributes:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="100%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Symbolic constant</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">EVENT_PORT</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">EVENT_CHANNEL</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">EVENT_DATA1</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">EVENT_DATA2</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">EVENT_NOTE</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">EVENT_VELOCITY</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">EVENT_CTRL</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">EVENT_VALUE</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">EVENT_PROGRAM</span></tt></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="mididings-and-python">
+<span id="python"></span><h2>mididings and Python<a class="headerlink" href="#mididings-and-python" title="Permalink to this headline">¶</a></h2>
+<p>mididings is a little peculiar in the way it uses Python, so here&#8217;s a couple
+of things you might need to know...</p>
+<div class="section" id="overloaded-functions">
+<span id="overload"></span><h3>Overloaded Functions<a class="headerlink" href="#overloaded-functions" title="Permalink to this headline">¶</a></h3>
+<p>Python does not support overloaded functions per se, but mididings implements
+a mechanism that allows functions to have behave differently depending not
+only on the number of arguments, but also on the parameters&#8217; names.</p>
+<p>For example, while <tt class="docutils literal"><span class="pre">Velocity(offset=32)</span></tt> increases MIDI note velocities
+by 32, <tt class="docutils literal"><span class="pre">Velocity(fixed=32)</span></tt> changes velocities to a fixed value of 32.</p>
+<p>When multiple versions of a function accept the same number of parameters,
+it&#8217;s necessary to explicitly name the parameters of the version you&#8217;d like
+to use. Cases where parameter names are mandatory are indicated in this
+documentation by an equal sign followed by an ellipsis,
+as in <strong>Velocity</strong><em>(fixed=...)</em>.
+Most functions also have a &#8220;default&#8221; version that does not require specifying
+the names of parameters.
+In mididings it is usually possible to explicitly name parameters though,
+regardless of whether it&#8217;s actually required for a particular function
+invocation.</p>
+<p>Other than that, the documentation follows common Python conventions for
+the notation of positional arguments, variable arguments and keyword
+arguments.</p>
+</div>
+<div class="section" id="everything-is-an-object">
+<h3>Everything is an Object<a class="headerlink" href="#everything-is-an-object" title="Permalink to this headline">¶</a></h3>
+<p>Everything in mididings is a Python object, and can be assigned to
+variables, returned from functions, etc.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># add a fifth (7 semitones) above each note, and route all events</span>
+<span class="c"># to channel 2 (of course there are easier ways to do this)</span>
+<span class="k">def</span> <span class="nf">add_interval</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Pass</span><span class="p">()</span> <span class="o">//</span> <span class="n">Transpose</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+<span class="n">route</span> <span class="o">=</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">mypatch</span> <span class="o">=</span> <span class="n">add_interval</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">route</span>
+
+<span class="n">run</span><span class="p">(</span><span class="n">mypatch</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="line-break-and-indentation">
+<h3>Line Break and Indentation<a class="headerlink" href="#line-break-and-indentation" title="Permalink to this headline">¶</a></h3>
+<p>As in any other Python code, line breaks delimit statements, and indentation
+delimits blocks.
+However, as a rule of thumb, both line breaks and indentation are irrelevant
+as long as at least one parenthesis or bracket remains open.</p>
+<p>Many mididings patches consist of lists and dictionaries, so line breaks and
+indentation may not be an issue, but often it is convenient to put
+patches in parentheses in order to allow them to span multiple lines:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">mypatch</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Filter</span><span class="p">(</span><span class="o">~</span><span class="n">PROGRAM</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">Print</span><span class="p">(</span><span class="s">&quot;this line is getting kind of long&quot;</span><span class="p">)</span> <span class="o">&gt;&gt;</span>
+    <span class="n">Transpose</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">Velocity</span><span class="p">(</span><span class="n">curve</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="operator-precedence">
+<h3>Operator Precedence<a class="headerlink" href="#operator-precedence" title="Permalink to this headline">¶</a></h3>
+<p>Overloading operators in Python can not change their precedence.
+This is a list of all operators relevant to mididings, in order of
+their precedence (highest to lowest):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Operator</th>
+<th class="head">Meaning in mididings</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(...)</div>
+<div class="line">[A, B, ...]</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Binding (parentheses)</div>
+<div class="line">Connection in parallel (list)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">~F</div>
+<div class="line">-F</div>
+<div class="line">+F</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Filter inversion</div>
+<div class="line">Filter negation</div>
+<div class="line">Apply to duplicate</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">A // B</div>
+<div class="line">S % A</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Connection in parallel</div>
+<div class="line">Selector &#8220;then&#8221;</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>A &gt;&gt; B</td>
+<td>Connection in series</td>
+</tr>
+<tr class="row-even"><td>S1 &amp; S2</td>
+<td>Selector &#8220;and&#8221;</td>
+</tr>
+<tr class="row-odd"><td>S1 | S2</td>
+<td>Selector &#8220;or&#8221;</td>
+</tr>
+</tbody>
+</table>
+<p>In short, remember that...</p>
+<ul class="simple">
+<li>parallel connection binds stronger than serial.</li>
+<li>selectors (of more than one filter) must be in parentheses.</li>
+<li>when in doubt, you can always use additional parentheses.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Operator overloading doesn&#8217;t apply if both sides of the
+operator are builtin Python types like <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt>.
+In some cases it may be necessary to wrap those in
+<a class="reference internal" href="connect.html#mididings.Fork" title="mididings.Fork"><tt class="xref py py-func docutils literal"><span class="pre">Fork()</span></tt></a> or <a class="reference internal" href="connect.html#mididings.Split" title="mididings.Split"><tt class="xref py py-func docutils literal"><span class="pre">Split()</span></tt></a>.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="start.html#anatomy-of-a-mididings-script">Anatomy of a mididings Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html#command-line-usage">Command Line Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="connect.html">Connections</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="connect.html#serial-and-parallel">Serial and Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="connect.html#filtering-and-splitting">Filtering and Splitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="connect.html#selective-processing">Selective Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Miscellaneous</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#note-names-and-ranges">Note Names and Ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#port-numbers-and-names">Port Numbers and Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#event-types">Event Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#event-attributes">Event Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mididings-and-python">mididings and Python</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">Module <tt class="docutils literal"><span class="pre">mididings</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="main.html#global-configuration">Global Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="units.html"><tt class="docutils literal"><span class="pre">mididings</span></tt> Units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="units.html#filters">Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#splits">Splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#modifiers">Modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#generators">Generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#function-calls">Function Calls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#scene-switching">Scene Switching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#miscellaneous">Miscellaneous</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extra.html">Module <tt class="docutils literal"><span class="pre">mididings.extra</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="connect.html"
+                        title="previous chapter">Connections</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="main.html"
+                        title="next chapter">Module <tt class="docutils literal"><span class="pre">mididings</span></tt></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="main.html" title="Module mididings"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="connect.html" title="Connections"
+             >previous</a> |</li>
+        <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2008-2014, Dominic Sacré.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

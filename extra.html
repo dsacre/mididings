@@ -1,0 +1,237 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Module mididings.extra &mdash; mididings  documentation</title>
+    
+    <link rel="stylesheet" href="_static/nasophon.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="mididings  documentation" href="index.html" />
+    <link rel="next" title="Module mididings.event" href="event.html" />
+    <link rel="prev" title="mididings Units" href="units.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="event.html" title="Module mididings.event"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="units.html" title="mididings Units"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-mididings.extra">
+<span id="module-mididings-extra"></span><h1>Module <a class="reference internal" href="#module-mididings.extra" title="mididings.extra"><tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt></a><a class="headerlink" href="#module-mididings.extra" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="mididings.extra.Quit">
+<tt class="descname">Quit</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.Quit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.KeyColorFilter">
+<tt class="descname">KeyColorFilter</tt><big>(</big><em>color</em><big>)</big><a class="headerlink" href="#mididings.extra.KeyColorFilter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.Harmonize">
+<tt class="descname">Harmonize</tt><big>(</big><em>tonic</em>, <em>scale</em>, <em>interval</em>, <em>non_harmonic='below'</em><big>)</big><a class="headerlink" href="#mididings.extra.Harmonize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.Panic">
+<tt class="descname">Panic</tt><big>(</big><em>bypass=True</em><big>)</big><a class="headerlink" href="#mididings.extra.Panic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.PedalToNoteoff">
+<tt class="descname">PedalToNoteoff</tt><big>(</big><em>ctrl=64</em>, <em>sostenuto=False</em><big>)</big><a class="headerlink" href="#mididings.extra.PedalToNoteoff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.LimitPolyphony">
+<tt class="descname">LimitPolyphony</tt><big>(</big><em>max_polyphony</em>, <em>remove_oldest=True</em><big>)</big><a class="headerlink" href="#mididings.extra.LimitPolyphony" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.VoiceFilter">
+<tt class="descname">VoiceFilter</tt><big>(</big><em>voice='highest'</em>, <em>time=0.1</em>, <em>retrigger=False</em><big>)</big><a class="headerlink" href="#mididings.extra.VoiceFilter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.VoiceSplit">
+<tt class="descname">VoiceSplit</tt><big>(</big><em>patches</em>, <em>fallback='highest'</em>, <em>time=0.1</em>, <em>retrigger=False</em><big>)</big><a class="headerlink" href="#mididings.extra.VoiceSplit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.FloatingKeySplit">
+<tt class="descname">FloatingKeySplit</tt><big>(</big><em>threshold_lower</em>, <em>threshold_upper</em>, <em>patch_lower</em>, <em>patch_upper</em>, <em>hold_time=1.0</em>, <em>margin_lower=12</em>, <em>margin_upper=12</em><big>)</big><a class="headerlink" href="#mididings.extra.FloatingKeySplit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.Restart">
+<tt class="descname">Restart</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.Restart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.MakeMonophonic">
+<tt class="descname">MakeMonophonic</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.MakeMonophonic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.SuppressPC">
+<tt class="descname">SuppressPC</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.SuppressPC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="mididings.extra.MemorizeScene">
+<em class="property">class </em><tt class="descname">MemorizeScene</tt><big>(</big><em>memo_file</em><big>)</big><a class="headerlink" href="#mididings.extra.MemorizeScene" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mididings.extra.MemorizeScene.on_exit">
+<tt class="descname">on_exit</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.MemorizeScene.on_exit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mididings.extra.MemorizeScene.on_start">
+<tt class="descname">on_start</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.MemorizeScene.on_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.LatchNotes">
+<tt class="descname">LatchNotes</tt><big>(</big><em>polyphonic=False</em>, <em>reset=None</em><big>)</big><a class="headerlink" href="#mididings.extra.LatchNotes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="start.html#anatomy-of-a-mididings-script">Anatomy of a mididings Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html#command-line-usage">Command Line Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="connect.html">Connections</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="connect.html#serial-and-parallel">Serial and Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="connect.html#filtering-and-splitting">Filtering and Splitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="connect.html#selective-processing">Selective Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Miscellaneous</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#note-names-and-ranges">Note Names and Ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#port-numbers-and-names">Port Numbers and Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#event-types">Event Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#event-attributes">Event Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#mididings-and-python">mididings and Python</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">Module <tt class="docutils literal"><span class="pre">mididings</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="main.html#global-configuration">Global Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="units.html"><tt class="docutils literal"><span class="pre">mididings</span></tt> Units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="units.html#filters">Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#splits">Splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#modifiers">Modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#generators">Generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#function-calls">Function Calls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#scene-switching">Scene Switching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#miscellaneous">Miscellaneous</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Module <tt class="docutils literal"><span class="pre">mididings.extra</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="units.html"
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">mididings</span></tt> Units</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="event.html"
+                        title="next chapter">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="event.html" title="Module mididings.event"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="units.html" title="mididings Units"
+             >previous</a> |</li>
+        <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2008-2014, Dominic Sacré.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
