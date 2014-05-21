@@ -13,6 +13,7 @@
 import _mididings
 
 import mididings.units as _units
+import mididings.constants as _constants
 
 
 class Patch(_mididings.Patch):
@@ -45,6 +46,9 @@ class Patch(_mididings.Patch):
                 return Patch.Single(p.unit)
             elif isinstance(p.unit, _mididings.UnitEx):
                 return Patch.Extended(p.unit)
+
+        elif isinstance(p, _constants._EventType):
+            return Patch.Single(_mididings.TypeFilter(p))
 
         message = "type '%s' not allowed in patch. offending object is: %r" % (type(p).__name__, p)
         raise TypeError(message)

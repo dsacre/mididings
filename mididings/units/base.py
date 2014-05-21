@@ -232,8 +232,8 @@ class _InvertedFilter(_Filter):
 
 
 # the types we accept as part of a patch
-_UNIT_TYPES = (_Unit, list, dict)
-_SELECTOR_TYPES = (_Filter, _Selector)
+_UNIT_TYPES = (_Unit, list, dict, _constants._EventType)
+_SELECTOR_TYPES = (_Filter, _Selector, _constants._EventType)
 
 
 @_arguments.accept([_UNIT_TYPES])

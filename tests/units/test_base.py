@@ -79,6 +79,25 @@ class BaseTestCase(MididingsTestCase):
             self.make_event(PITCHBEND): (True, False),
         })
 
+    def test_Type(self):
+        self.check_patch(NOTE, {
+            self.make_event(NOTEON): True,
+            self.make_event(CTRL): False,
+        })
+
+        self.check_patch(~CTRL, {
+            self.make_event(CTRL): False,
+            self.make_event(NOTEON): True,
+            self.make_event(PROGRAM): True,
+        })
+
+        self.check_patch(~(NOTE|AFTERTOUCH), {
+            self.make_event(CTRL): True,
+            self.make_event(NOTEON): False,
+            self.make_event(AFTERTOUCH): False,
+            self.make_event(PROGRAM): True,
+        })
+
     def test_Split(self):
         ev1 = self.make_event(NOTEON, channel=1)
         ev2 = self.make_event(PROGRAM, channel=2)

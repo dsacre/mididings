@@ -130,7 +130,7 @@ class NamedBitMask(NamedFlag):
         )
     def __invert__(self):
         return type(self)(
-            ~int(self) & ((1 << 30) -1),
+            ~int(self) & ((1 << 30) - 1),
             ('~%s' if '|' not in self.name else '~(%s)') % self.name
         )
 
