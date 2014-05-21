@@ -56,34 +56,6 @@
             
   <div class="section" id="miscellaneous">
 <span id="misc"></span><h1>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="note-names-and-ranges">
-<span id="notes"></span><h2>Note Names and Ranges<a class="headerlink" href="#note-names-and-ranges" title="Permalink to this headline">¶</a></h2>
-<p>Many mididings units accept notes and/or note ranges as parameters.
-Notes can be specified either as a MIDI note number or by their name,
-consisting of one letter, optionally <tt class="docutils literal"><span class="pre">'b'</span></tt> or <tt class="docutils literal"><span class="pre">'#'</span></tt>, and an octave number.
-Examples of valid note names are <tt class="docutils literal"><span class="pre">'c3'</span></tt>, <tt class="docutils literal"><span class="pre">'g#4'</span></tt>, or <tt class="docutils literal"><span class="pre">'eb2'</span></tt>.</p>
-<p>Note ranges can be specified either as a 2-tuple of note numbers or names,
-e.g. <tt class="docutils literal"><span class="pre">(48,</span> <span class="pre">60)</span></tt> or <tt class="docutils literal"><span class="pre">('c2',</span> <span class="pre">'c3')</span></tt>, or as two note names
-separated by a colon, e.g. <tt class="docutils literal"><span class="pre">'g#3:c6'</span></tt>.</p>
-<p>Like all ranges in Python, note ranges are semi-open (do not include
-their upper limit), so <tt class="docutils literal"><span class="pre">'g#3:c6'</span></tt> matches notes from g#3
-up to b5, but not c6.
-It&#8217;s also possible to omit either the upper or the lower limit, for
-example <tt class="docutils literal"><span class="pre">'c4:'</span></tt> matches all notes above (and including) c4,
-while <tt class="docutils literal"><span class="pre">':a2'</span></tt> matches all note up to (but not including) a2.</p>
-</div>
-<div class="section" id="port-numbers-and-names">
-<span id="ports"></span><h2>Port Numbers and Names<a class="headerlink" href="#port-numbers-and-names" title="Permalink to this headline">¶</a></h2>
-<p>Internally, ports are always referred to by their number.
-For instance, when an event is received on the second input port, and is
-not explicitly routed to another port, it will be sent to the second
-output port, regardless of port names.</p>
-<p>If you named your input and output ports using the <cite>in_ports</cite> and <cite>out_ports</cite>
-parameters to <a class="reference internal" href="main.html#mididings.config" title="mididings.config"><tt class="xref py py-func docutils literal"><span class="pre">config()</span></tt></a>, you can also refer to them by their names
-in all units that accept ports as parameters.</p>
-<p>To avoid ambiguities, port names should be unique
-(with the JACK backend they must be).</p>
-</div>
 <div class="section" id="event-types">
 <span id="id1"></span><h2>Event Types<a class="headerlink" href="#event-types" title="Permalink to this headline">¶</a></h2>
 <p>Every event has one of the following types:</p>
@@ -225,6 +197,34 @@ using <strong>|</strong> (bitwise or) and <strong>~</strong> (bitwise negation).
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="note-names-and-ranges">
+<span id="notes"></span><h2>Note Names and Ranges<a class="headerlink" href="#note-names-and-ranges" title="Permalink to this headline">¶</a></h2>
+<p>Many mididings units accept notes and/or note ranges as parameters.
+Notes can be specified either as a MIDI note number or by their name,
+consisting of one letter, optionally <tt class="docutils literal"><span class="pre">'b'</span></tt> or <tt class="docutils literal"><span class="pre">'#'</span></tt>, and an octave number.
+Examples of valid note names are <tt class="docutils literal"><span class="pre">'c3'</span></tt>, <tt class="docutils literal"><span class="pre">'g#4'</span></tt>, or <tt class="docutils literal"><span class="pre">'eb2'</span></tt>.</p>
+<p>Note ranges can be specified either as a 2-tuple of note numbers or names,
+e.g. <tt class="docutils literal"><span class="pre">(48,</span> <span class="pre">60)</span></tt> or <tt class="docutils literal"><span class="pre">('c2',</span> <span class="pre">'c3')</span></tt>, or as two note names
+separated by a colon, e.g. <tt class="docutils literal"><span class="pre">'g#3:c6'</span></tt>.</p>
+<p>Like all ranges in Python, note ranges are semi-open (do not include
+their upper limit), so <tt class="docutils literal"><span class="pre">'g#3:c6'</span></tt> matches notes from g#3
+up to b5, but not c6.
+It&#8217;s also possible to omit either the upper or the lower limit, for
+example <tt class="docutils literal"><span class="pre">'c4:'</span></tt> matches all notes above (and including) c4,
+while <tt class="docutils literal"><span class="pre">':a2'</span></tt> matches all note up to (but not including) a2.</p>
+</div>
+<div class="section" id="port-names">
+<span id="ports"></span><h2>Port Names<a class="headerlink" href="#port-names" title="Permalink to this headline">¶</a></h2>
+<p>Internally, ports are always referred to by their number.
+For instance, when an event is received on the second input port, and is
+not explicitly routed to another port, it will be sent to the second
+output port, regardless of port names.</p>
+<p>If you named your input and output ports using the <cite>in_ports</cite> and <cite>out_ports</cite>
+parameters to <a class="reference internal" href="main.html#mididings.config" title="mididings.config"><tt class="xref py py-func docutils literal"><span class="pre">config()</span></tt></a>, you can also refer to them by their names
+in all units that accept ports as parameters.</p>
+<p>To avoid ambiguities, port names should be unique
+(with the JACK backend they must be).</p>
 </div>
 <div class="section" id="mididings-and-python">
 <span id="python"></span><h2>mididings and Python<a class="headerlink" href="#mididings-and-python" title="Permalink to this headline">¶</a></h2>
@@ -383,10 +383,10 @@ In some cases it may be necessary to wrap those in
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Miscellaneous</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#note-names-and-ranges">Note Names and Ranges</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#port-numbers-and-names">Port Numbers and Names</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#event-types">Event Types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#event-attributes">Event Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#note-names-and-ranges">Note Names and Ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#port-names">Port Names</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mididings-and-python">mididings and Python</a></li>
 </ul>
 </li>
