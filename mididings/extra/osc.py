@@ -22,6 +22,27 @@ import liblo as _liblo
 
 
 class OSCInterface(object):
+    """
+    Allow controlling mididings via OSC.
+
+    :param port:
+        the OSC port to listen on.
+
+    :param notify_ports:
+        a list of OSC ports to notify when the current scene changes.
+
+    These messages are currently understood:
+
+    - **/mididings/switch_scene ,i**: switch to the given scene number.
+    - **/mididings/switch_subscene ,i**: switchs to the given subscene number.
+    - **/mididings/prev_scene**: switch to the previous scene.
+    - **/mididings/next_scene**: switch to the next scene.
+    - **/mididings/prev_subscene**: switch to the previous subscene.
+    - **/mididings/next_subscene**: switch to the next subscene.
+    - **/mididings/panic**: send all-notes-off on all channels and on all
+      output ports.
+    - **/mididings/quit**: terminate mididings.
+    """
     def __init__(self, port=56418, notify_ports=[56419]):
         self.port = port
         if _misc.issequence(notify_ports):
@@ -133,4 +154,11 @@ class _SendOSC(object):
 
 
 def SendOSC(target, path, *args):
+    """
+    Send an OSC message.
+    Parameters are the same as for :func:`liblo.send()`.
+    Additionally, instead of a specific value, each data argument may also
+    be a Python function that takes a single :class:`~.MidiEvent` parameter,
+    and returns the value to be sent.
+    """
     return _Call(_SendOSC(target, path, args))

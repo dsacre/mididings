@@ -8,46 +8,6 @@ Miscellaneous
 =============
 
 
-.. _notes:
-
-Note Names and Ranges
----------------------
-
-Many mididings units accept notes and/or note ranges as parameters.
-Notes can be specified either as a MIDI note number or by their name,
-consisting of one letter, optionally ``'b'`` or ``'#'``, and an octave number.
-Examples of valid note names are ``'c3'``, ``'g#4'``, or ``'eb2'``.
-
-Note ranges can be specified either as a 2-tuple of note numbers or names,
-e.g. ``(48, 60)`` or ``('c2', 'c3')``, or as two note names
-separated by a colon, e.g. ``'g#3:c6'``.
-
-Like all ranges in Python, note ranges are semi-open (do not include
-their upper limit), so ``'g#3:c6'`` matches notes from g#3
-up to b5, but not c6.
-It's also possible to omit either the upper or the lower limit, for
-example ``'c4:'`` matches all notes above (and including) c4,
-while ``':a2'`` matches all note up to (but not including) a2.
-
-
-.. _ports:
-
-Port Numbers and Names
-----------------------
-
-Internally, ports are always referred to by their number.
-For instance, when an event is received on the second input port, and is
-not explicitly routed to another port, it will be sent to the second
-output port, regardless of port names.
-
-If you named your input and output ports using the `in_ports` and `out_ports`
-parameters to :func:`config()`, you can also refer to them by their names
-in all units that accept ports as parameters.
-
-To avoid ambiguities, port names should be unique
-(with the JACK backend they must be).
-
-
 .. _event-types:
 
 Event Types
@@ -151,6 +111,47 @@ These constants are used by :ref:`units-generators` and the
 +----------------------------+
 | :const:`EVENT_PROGRAM`     |
 +----------------------------+
+
+
+.. _notes:
+
+Note Names and Ranges
+---------------------
+
+Many mididings units accept notes and/or note ranges as parameters.
+Notes can be specified either as a MIDI note number or by their name,
+consisting of one letter, optionally ``'b'`` or ``'#'``, and an octave number.
+Examples of valid note names are ``'c3'``, ``'g#4'``, or ``'eb2'``.
+
+Note ranges can be specified either as a 2-tuple of note numbers or names,
+e.g. ``(48, 60)`` or ``('c2', 'c3')``, or as two note names
+separated by a colon, e.g. ``'g#3:c6'``.
+
+Like all ranges in Python, note ranges are semi-open (do not include
+their upper limit), so ``'g#3:c6'`` matches notes from g#3
+up to b5, but not c6.
+It's also possible to omit either the upper or the lower limit, for
+example ``'c4:'`` matches all notes above (and including) c4,
+while ``':a2'`` matches all note up to (but not including) a2.
+
+
+.. _ports:
+
+Port Names
+----------
+
+Internally, ports are always referred to by their number.
+For instance, when an event is received on the second input port, and is
+not explicitly routed to another port, it will be sent to the second
+output port, regardless of port names.
+
+If you named your input and output ports using the `in_ports` and `out_ports`
+parameters to :func:`config()`, you can also refer to them by their names
+in all units that accept ports as parameters.
+
+To avoid ambiguities, port names should be unique
+(with the JACK backend they must be).
+
 
 
 .. _python:

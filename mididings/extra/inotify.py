@@ -19,6 +19,23 @@ import pyinotify as _pyinotify
 
 
 class AutoRestart(object):
+    """
+    Automatically restart mididings when the script changes.
+
+    This restarts the entire mididings script, so MIDI processing is
+    interrupted, and mididings does not take care of reestablishing any
+    ALSA/JACK connections that were made manually.
+    If the new script contains errors that prevent it from running,
+    mididings exits and needs to be restarted manually once the errors
+    are fixed.
+
+    :param modules:
+        If true, all imported local Python modules are monitored for
+        changes as well.
+
+    :param filenames:
+        a list of additional files to be monitored.
+    """
     def __init__(self, modules=True, filenames=[]):
         self.modules = modules
         self.filenames = filenames

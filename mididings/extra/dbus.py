@@ -34,4 +34,10 @@ class _SendDBUS(object):
 
 
 def SendDBUS(service, path, interface, method, *args):
+    """
+    Send a DBUS message.
+    Instead of a specific value, each data argument may also be a Python
+    function that takes a single :class:`~.MidiEvent` parameter, and
+    returns the value to be sent.
+    """
     return _Call(_SendDBUS(service, path, interface, method, args))

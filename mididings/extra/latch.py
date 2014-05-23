@@ -51,5 +51,18 @@ class _LatchNotes(object):
 
 
 def LatchNotes(polyphonic=False, reset=None):
+    """
+    Makes notes latching, so they will keep playing when the key is released.
+
+    :param polyphonic:
+        If true, each note can be stopped individually by pressing the
+        corresponding key again.
+        Otherwise pressing a key will automatically turn off any previous
+        notes.
+
+    :param reset:
+        a note (name/number) that acts as a reset key, stopping all
+        currently playing notes.
+    """
     return (_m.Filter(_m.NOTE) %
                 _m.Process(_PerChannel(lambda: _LatchNotes(polyphonic, reset))))

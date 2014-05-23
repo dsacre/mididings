@@ -17,7 +17,8 @@ Contents:
     misc
     main
     units
-    extra
+    extra-units
+    extra-hooks
     event
     engine
     util

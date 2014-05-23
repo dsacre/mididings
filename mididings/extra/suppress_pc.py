@@ -26,5 +26,9 @@ class _SuppressPC(object):
 
 
 def SuppressPC():
+    """
+    Filter out program changes if the same program has already
+    been selected on the same port/channel.
+    """
     return (_m.Filter(_m.PROGRAM) %
         _m.Process(_PerChannel(_SuppressPC)))

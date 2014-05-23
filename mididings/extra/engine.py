@@ -15,7 +15,13 @@ import mididings.engine as _engine
 
 
 def Restart():
+    """
+    Call :func:`.engine.restart()`.
+    """
     return _Call(lambda ev: _engine.restart())
 
 def Quit():
+    """
+    Call :func:`.engine.quit()`.
+    """
     return _Call(lambda ev: _engine.quit())

@@ -17,7 +17,8 @@ import mididings.util as _util
 
 
 def _panic_bypass():
-    # send all notes off (CC #123) and sustain off (CC #64) to all output ports and on all channels
+    # send all notes off (CC #123) and sustain off (CC #64) to all output
+    # ports and on all channels
     for p in _engine.out_ports():
         for c in range(16):
             _engine.output_event(_event.CtrlEvent(p, _util.NoDataOffset(c), 123, 0))
@@ -25,6 +26,15 @@ def _panic_bypass():
 
 
 def Panic(bypass=True):
+    """
+    Generate all-notes-off (CC #123) and sustain off (CC #64) events on
+    all channels.
+
+    :param bypass:
+        If true, events will be sent directly on all output ports, instead of
+        originating from the :func:`Panic()` unit and being subject to further
+        processing.
+    """
     if bypass:
         return _m.Call(lambda ev: _panic_bypass()) >> _m.Discard()
     else:

@@ -340,7 +340,7 @@ def time():
 
 def active():
     """
-    Returns ``True`` if the mididings engine is active (the :func:`~.run()`
+    Return ``True`` if the mididings engine is active (the :func:`~.run()`
     function is running).
     """
     return _TheEngine is not None and _TheEngine() is not None
@@ -357,8 +357,7 @@ def restart():
 
 def quit():
     """
-    Terminate mididings event processing (by making the :func:`~.run()`
-    function return).
+    Terminate mididings by making the :func:`~.run()` function return.
     """
     _TheEngine().quit()
 

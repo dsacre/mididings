@@ -71,6 +71,35 @@ class _Harmonizer(object):
 
 
 def Harmonize(tonic, scale, interval, non_harmonic='below'):
+    """
+     A diatonic harmonizer.
+
+    :param tonic:
+        The tonic of the scale, as a note name.
+
+    :param scale:
+        The type/mode, of the scale, one of:
+        ``'major'``, ``'minor'``, ``'minor_harmonic'``, ``'ionian'``,
+        ``'dorian'``, ``'phrygian'``, ``'lydian'``, ``'mixolydian'``,
+        ``'aeolian'``, ``'locrian'``.
+
+    :param interval:
+        The number of steps to transpose the notes by
+        (as an integer), or one of these interval names:
+        ``'unison'``, ``'second'``, ``'third'``, ``'fourth'``, ``'fifth'``,
+        ``'sixth'``, ``'seventh'``, ``'octave'``, ``'ninth'``, ``'tenth'``,
+        ``'eleventh'``, ``'twelfth'``, ``'thirteenth'``.
+
+        It is also possible to pass a list of intervals, to create
+        multiple harmonized voices.
+
+    :param non_harmonic: What to do with out-of-scale notes:
+
+        - ``'below'``: Transpose by the same interval as the next on-scale
+        - ``'above'``: Transpose by the same interval as the next on-scale
+        - ``'skip'``: Ignore note.
+        - ``'same'``: Output note as is, without transposing it.
+    """
     t = _util.tonic_note_number(tonic)
 
     if _misc.issequence(scale):

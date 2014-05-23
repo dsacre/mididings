@@ -84,10 +84,31 @@ class _MakeMonophonic(object):
 
 
 def LimitPolyphony(max_polyphony, remove_oldest=True):
+    """
+    Limit the "MIDI polyphony".
+
+    :param max_polyphony:
+        The maximum number of simultaneous notes.
+
+    :param remove_oldest:
+        If true, the oldest notes will be stopped when the maximum polyphony
+        is exceeded.
+        If false, no new notes are accepted while *max_polyphony* notes
+        are already held.
+
+    Note that the actual polyphony of a connected synthesizer can still be
+    higher than the limit set here, e.g. due to a long release phase.
+    """
     return (_m.Filter(_m.NOTE) %
         _m.Process(_PerChannel(lambda: _LimitPolyphony(max_polyphony, remove_oldest))))
 
 
 def MakeMonophonic():
+    """
+    Make the MIDI signal monophonic, i.e. only one note can be played at
+    any given time.
+    When one note is released while another is still held (but silent),
+    the previous one will be retriggered.
+    """
     return (_m.Filter(_m.NOTE) %
         _m.Process(_PerChannel(_MakeMonophonic)))

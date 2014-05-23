@@ -97,6 +97,29 @@ class _FloatingKeySplitFilter(object):
 
 def FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper,
                      hold_time=1.0, margin_lower=12, margin_upper=12):
+    """
+    Create a floating split point that moves dynamically depending on what
+    you are playing, allowing a region of the keyboard to be shared between
+    two split zones.
+
+    :param threshold_lower:
+    :param threshold_upper:
+        The lowest and highest notes between which the split point is
+        allowed to move.
+
+    :param patch_lower:
+    :param patch_upper:
+        The patch to which notes below/above the split point will be sent.
+
+    :param hold_time:
+        How long released notes will still be taken into account when
+        determining the split point (in seconds).
+
+    :param margin_lower:
+    :param margin_upper:
+        How close you must get to the split point before it starts getting
+        pushed into the opposite direction (in semitones).
+    """
     # create a single analyzer instance
     analyzer = _FloatingKeySplitAnalyzer(threshold_lower, threshold_upper, hold_time, margin_lower, margin_upper)
 

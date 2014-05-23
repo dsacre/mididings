@@ -75,6 +75,24 @@ class _VoiceFilter(object):
 
 
 def VoiceFilter(voice='highest', time=0.1, retrigger=False):
+    """
+     Filter individual voices from a chord.
+
+    :param voice:
+        The voice to be filtered.
+
+        This can be ``'highest'``, ``'lowest'``, or an integer index
+        (positive or negative, the same way Python lists are indexed,
+        with 0 being the lowest voice and -1 the highest).
+
+    :param time:
+        The period in seconds for which a newly played note may still be
+        unassigned from the selected voice, when additional notes are played.
+
+    :param retrigger:
+        If true, a new note-on event will be sent when a note is reassigned
+        to the selected voice as a result of another note being released.
+    """
     if voice == 'highest':
         voice = -1
     elif voice == 'lowest':
@@ -86,6 +104,21 @@ def VoiceFilter(voice='highest', time=0.1, retrigger=False):
 
 
 def VoiceSplit(patches, fallback='highest', time=0.1, retrigger=False):
+    """
+    Create multiple :func:`VoiceFilter()` units to route each voice to
+    a different instrument.
+
+    :param patches:
+        A list of patches, one for each voice.
+
+    :param fallback:
+        Which note to double when the number of notes played is less than
+        the number of voices. Can be ``'highest'`` or ``'lowest'``.
+
+    Regardless of the number of voices specified, the lowest and highest
+    note played will always be routed to the first and last patch in
+    the list, respectively.
+    """
     vf = lambda n: VoiceFilter(n, time, retrigger)
 
     if fallback == 'lowest':

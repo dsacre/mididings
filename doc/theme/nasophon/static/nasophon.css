@@ -207,24 +207,21 @@ div.footer {
     margin-right: 10px;
 }
 
-.refcount {
-    color: #060;
-}
-
-.stableabi {
-    color: #229;
-}
-
 
 /* fix space below last line in multi-line table cells */
 td .line-block {
     margin-bottom: 0;
 }
 
-
-dt:target, .highlighted {
-    background: transparent;
+/* No line break before first line of parameter description */
+td.field-body strong+p {
+    display: inline;
 }
+
+
+/*dt:target, .highlighted {
+    background: transparent;
+}*/
 
 a.headerlink {
     float: right;

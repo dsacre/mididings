@@ -19,6 +19,12 @@ _WHITE_KEYS = [_n for _n in range(128) if _n%12 not in _BLACK]
 
 
 def KeyColorFilter(color):
+    """
+    Filter notes by key color.
+
+    :param color:
+        the key color, either ``'black'`` or ``'white'``.
+    """
     if color == 'black':
         return _m.KeyFilter(notes=_BLACK_KEYS)
     elif color == 'white':

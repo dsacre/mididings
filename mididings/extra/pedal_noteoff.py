@@ -84,6 +84,17 @@ class _SostenutoToNoteoff(object):
 
 
 def PedalToNoteoff(ctrl=64, sostenuto=False):
+    """
+    Convert sustain pedal control changes to note-off events,
+    by delaying note-offs until the pedal is released.
+
+    :param ctrl:
+        The pedal's controller number.
+
+    :param sostenuto:
+        If true act like a sostenuto pedal, instead of a regular sustain
+        pedal.
+    """
     if sostenuto:
         proc = _m.Process(_PerChannel(lambda: _SostenutoToNoteoff(ctrl)))
     else:
