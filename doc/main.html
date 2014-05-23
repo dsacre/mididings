@@ -178,6 +178,15 @@ The default is None, meaning not to wait at all.</p>
 <dd><p>Change <a class="reference internal" href="#main-config"><em>global settings</em></a>. This should usually be called
 only once at the beginning of the script, before constructing any
 processing units.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> &#8211; an arbitrary number of keyword arguments, matching the
+names and values described in section <a class="reference internal" href="#main-config"><em>Global Configuration</em></a>.</td>
+</tr>
+</tbody>
+</table>
 <div class="code highlight-python"><div class="highlight"><pre><span class="c"># set some configuration values</span>
 <span class="n">config</span><span class="p">(</span>
     <span class="n">client_name</span> <span class="o">=</span> <span class="s">&#39;test&#39;</span><span class="p">,</span>
@@ -192,7 +201,17 @@ processing units.</p>
 <dt id="mididings.hook">
 <tt class="descname">hook</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#mididings.hook" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register &#8220;hook&#8221; objects, that can be used to extend the functionality of
-mididings.</p>
+mididings.
+Hook classes that ship with mididings are described in section
+<a class="reference internal" href="extra-hooks.html#extra-hooks"><em>mididings.extra Hooks</em></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*args</strong> &#8211; an arbitrary number of hook objects.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">

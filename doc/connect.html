@@ -216,19 +216,19 @@ which don&#8217;t.</p>
 <dl class="dingsfun">
 <dt id="mididings.AndSelector">
 <tt class="descname">(S1 &amp; S2 &amp; ...)</tt><a class="headerlink" href="#mididings.AndSelector" title="Permalink to this definition">¶</a></dt>
-<dt>
-<tt class="descname">AndSelector</tt><big>(</big><em>conditions</em><big>)</big></dt>
+<dt id="mididings.And">
+<tt class="descname">And</tt><big>(</big><em>conditions</em><big>)</big><a class="headerlink" href="#mididings.And" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build a selector for events that match all of the given filters or
-selectors. <tt class="docutils literal"><span class="pre">(S1&nbsp;&amp;&nbsp;S2)</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">AndSelector([S1,&nbsp;S2])</span></tt>.</p>
+selectors. <tt class="docutils literal"><span class="pre">(S1&nbsp;&amp;&nbsp;S2)</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">And([S1,&nbsp;S2])</span></tt>.</p>
 </dd></dl>
 
 <dl class="dingsfun">
 <dt id="mididings.OrSelector">
 <tt class="descname">(S1 | S2 | ...)</tt><a class="headerlink" href="#mididings.OrSelector" title="Permalink to this definition">¶</a></dt>
-<dt>
-<tt class="descname">OrSelector</tt><big>(</big><em>conditions</em><big>)</big></dt>
+<dt id="mididings.Or">
+<tt class="descname">Or</tt><big>(</big><em>conditions</em><big>)</big><a class="headerlink" href="#mididings.Or" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build a selector for events that match at least one of the given filters
-or selectors. <tt class="docutils literal"><span class="pre">(S1&nbsp;|&nbsp;S2)</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">OrSelector([S1,&nbsp;S2])</span></tt>.</p>
+or selectors. <tt class="docutils literal"><span class="pre">(S1&nbsp;|&nbsp;S2)</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">Or([S1,&nbsp;S2])</span></tt>.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># change controllers 23 and 42 on channel 1 to channel 2:</span>
 <span class="p">(</span><span class="n">ChannelFilter</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CtrlFilter</span><span class="p">(</span><span class="mi">23</span><span class="p">)</span> <span class="o">|</span> <span class="n">CtrlFilter</span><span class="p">(</span><span class="mi">42</span><span class="p">)))</span> <span class="o">%</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
