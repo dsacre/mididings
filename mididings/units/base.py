@@ -263,7 +263,7 @@ def Split(mapping):
 
 
 @_arguments.accept([_SELECTOR_TYPES])
-def AndSelector(conditions):
+def And(conditions):
     """
     Conjunction of multiple filters.
     """
@@ -271,11 +271,16 @@ def AndSelector(conditions):
 
 
 @_arguments.accept([_SELECTOR_TYPES])
-def OrSelector(conditions):
+def Or(conditions):
     """
     Disjunction of multiple filters.
     """
     return _OrSelector(conditions)
+
+
+# for backward compatibility
+AndSelector = And
+OrSelector = Or
 
 
 @_unitrepr.accept(_arguments.reduce_bitmask([_constants._EventType]), with_rest=True)

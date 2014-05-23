@@ -142,16 +142,16 @@ certain events:
 Multiple filters can be combined into more complex selectors:
 
 .. dingsfun:: (S1 & S2 & ...) <AndSelector>
-              AndSelector(conditions)
+              And(conditions)
 
     Build a selector for events that match all of the given filters or
-    selectors. ``(S1 & S2)`` is equivalent to ``AndSelector([S1, S2])``.
+    selectors. ``(S1 & S2)`` is equivalent to ``And([S1, S2])``.
 
 .. dingsfun:: (S1 | S2 | ...) <OrSelector>
-              OrSelector(conditions)
+              Or(conditions)
 
     Build a selector for events that match at least one of the given filters
-    or selectors. ``(S1 | S2)`` is equivalent to ``OrSelector([S1, S2])``. ::
+    or selectors. ``(S1 | S2)`` is equivalent to ``Or([S1, S2])``. ::
 
         # change controllers 23 and 42 on channel 1 to channel 2:
         (ChannelFilter(1) & (CtrlFilter(23) | CtrlFilter(42))) % Channel(2)
