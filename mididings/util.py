@@ -72,7 +72,14 @@ _CONTROLLER_NAMES = {
 
 def note_number(note, allow_end=False):
     """
-    Convert note name/number to MIDI note number.
+    note_number(note)
+
+    Convert note name to note number.
+
+    :param note:
+        any valid :ref:`note description <notes>` (name or number).
+    :return:
+        MIDI note number.
     """
     if isinstance(note, int):
         r = note
@@ -103,7 +110,15 @@ def note_limit(note):
 
 def note_range(notes):
     """
-    Convert note range to tuple of MIDI note numbers.
+    Convert note range to note numbers.
+
+    :param notes:
+        any valid :ref:`note range <notes>`
+        (names or numbers, tuple or string).
+        If this is a single note, the range containing only that note is
+        returned.
+    :return:
+        tuple of two MIDI note numbers.
     """
     try:
         # single note
@@ -128,7 +143,12 @@ def note_range(notes):
 
 def note_name(note):
     """
-    Get note name from MIDI note number.
+    Get note name from note number.
+
+    :param note:
+        a MIDI note number.
+    :return:
+        note name as a string.
     """
     if not isinstance(note, int):
         raise TypeError("note must be an integer")
@@ -150,10 +170,6 @@ def controller_name(ctrl):
 
 
 def event_type(type):
-    """
-    Check and return event type.
-    """
-#    if not isinstance(type, _constants._EventType) or type not in (1 << x for x in range(_constants._NUM_EVENT_TYPES)):
     if type not in _constants._EVENT_TYPES:
         raise ValueError("invalid event type %r" % type)
     return type
@@ -161,7 +177,12 @@ def event_type(type):
 
 def port_number(port):
     """
-    Convert port number/name to actual port number.
+    Convert port description to port number.
+
+    :param port:
+        a :ref:`port name <ports>` or number.
+    :return:
+        the port's number.
     """
     if isinstance(port, int):
         if actual(port) < 0:
