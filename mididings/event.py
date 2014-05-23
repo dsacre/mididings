@@ -188,21 +188,34 @@ class MidiEvent(_mididings.MidiEvent):
         self._sysex_tmp = _util.sysex_to_sequence(sysex)
 
 
+    #: The event type, one of the :ref:`event-types` constants.
     type = property(_type_getter, _type_setter)
 
-    # port/channel attributes with data offset
+    #: The port number.
     port      = _make_property(_constants.ANY, 'port_', offset=True)
+    #: The channel number.
     channel   = _make_property(_constants.ANY, 'channel_', offset=True)
 
-    # event-type specific attributes
+    #: The note number, stored in :attr:`data1`.
     note      = _make_property(_constants.NOTE | _constants.POLY_AFTERTOUCH, 'data1', 'note')
+
+    #: The velocity value, stored in :attr:`data2`.
     velocity  = _make_property(_constants.NOTE, 'data2', 'velocity')
+
+    #: The controller number, stored in :attr:`data1`.
     ctrl      = _make_property(_constants.CTRL, 'data1', 'ctrl')
+
+    #: The controller value, stored in :attr:`data2`.
     value     = _make_property(_constants.CTRL | _constants.PITCHBEND |
                                _constants.AFTERTOUCH | _constants.POLY_AFTERTOUCH,
                                'data2', 'value')
+
+    #: The program number, stored in :attr:`data2`.
+    #: Unlike :attr:`data2`, this attribute observes the
+    #: :c:data:`data_offset` setting.
     program   = _make_property(_constants.PROGRAM, 'data2', 'program', offset=True)
 
+    #: SysEx data.
     sysex = property(_sysex_getter, _sysex_setter)
 
 

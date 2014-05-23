@@ -102,6 +102,9 @@ def config(**kwargs):
     Change :ref:`global settings <main-config>`. This should usually be called
     only once at the beginning of the script, before constructing any
     processing units.
+
+    :param \*\*kwargs: an arbitrary number of keyword arguments, matching the
+        names and values described in section :ref:`main-config`.
     """
     _config_impl(**kwargs)
 
@@ -135,6 +138,10 @@ def hook(*args):
 
     Register "hook" objects, that can be used to extend the functionality of
     mididings.
+    Hook classes that ship with mididings are described in section
+    :ref:`extra-hooks`.
+
+    :param \*args: an arbitrary number of hook objects.
     """
     _hooks.extend(args)
 

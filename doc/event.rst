@@ -13,17 +13,9 @@ Python code, e.g. when using :func:`~.Process()` or :func:`~.Call()`.
 
     Each event has these attributes:
 
-    .. attribute:: type
-
-        The event type, one of the :ref:`event-types` constants.
-
-    .. attribute:: port
-
-        The port number.
-
-    .. attribute:: channel
-
-        The channel number.
+    .. autoattribute:: type
+    .. autoattribute:: port
+    .. autoattribute:: channel
 
     .. attribute:: data1
 
@@ -36,31 +28,12 @@ Python code, e.g. when using :func:`~.Process()` or :func:`~.Call()`.
     The following attributes are only valid for certain event types, and
     accessing them will raise an error otherwise:
 
-    .. attribute:: note
-
-        The note number, stored in :attr:`data1`.
-
-    .. attribute:: velocity
-
-        The velocity value, stored in :attr:`data2`.
-
-    .. attribute:: ctrl
-
-        The controller number, stored in :attr:`data1`.
-
-    .. attribute:: value
-
-        The controller value, stored in :attr:`data2`.
-
-    .. attribute:: program
-
-        The program number, stored in :attr:`data2`.
-        Unlike :attr:`data2`, this attribute properly observes the
-        :c:data:`data_offset` setting.
-
-    .. attribute:: sysex
-
-        SysEx data.
+    .. autoattribute:: note
+    .. autoattribute:: velocity
+    .. autoattribute:: ctrl
+    .. autoattribute:: value
+    .. autoattribute:: program
+    .. autoattribute:: sysex
 
 
 Several utility functions are defined to simplify the creation of

@@ -6,6 +6,11 @@
 :mod:`mididings.extra` Hooks
 ============================
 
+Hooks extend the functionality of mididings.
+Instances of these classes can be registered using the :func:`~.hook()`
+function.
+
+
 .. autoclass:: MemorizeScene
     :no-members:
 

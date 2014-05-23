@@ -254,10 +254,6 @@ class Engine(_mididings.Engine):
 )
 @_arguments.accept(_UNIT_TYPES)
 def run(patch):
-    """
-    Create the engine and start event processing. This function does not
-    usually return until mididings exits.
-    """
     if isinstance(patch, dict) and all(not isinstance(k, _constants._EventType) for k in patch.keys()):
         # bypass the overload mechanism (just this once...) if there's no way
         # the given dict could be accepted as a split
@@ -270,10 +266,6 @@ def run(patch):
 @_overload.mark
 @_arguments.accept(_UNIT_TYPES, _arguments.nullable(_UNIT_TYPES), _arguments.nullable(_UNIT_TYPES), _arguments.nullable(_UNIT_TYPES))
 def run(scenes, control=None, pre=None, post=None):
-    """
-    Create the engine and start event processing. This function does not
-    usually return until mididings exits.
-    """
     e = Engine()
     e.setup(scenes, control, pre, post)
     e.run()
