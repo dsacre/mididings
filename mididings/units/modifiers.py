@@ -87,16 +87,16 @@ def Key(note):
 
     Change the velocity of note-on events:
 
-    * | *offset*: add the given value to the event's velocity.
-    * | *multiply*: multiply the event's velocity with the given value.
-    * | *fixed*: set the event's velocity to a fixed value.
-    * | *curve*: apply an exponential function:
-        ``f(x) = 127 * (exp(p*x/127)-1) / (exp(p)-1)``
-      | Positive values increase velocity, while negative values decrease it.
-    * | *gamma*: apply a simple power function:
-        ``f(x) = 127 * (x/127)**(1/p)``
-      | Values greater than 1 increase velocity, while values between 0 and 1
-        decrease it.
+    - *offset*: add the given value to the event's velocity.
+    - *multiply*: multiply the event's velocity with the given value.
+    - *fixed*: set the event's velocity to a fixed value.
+    - *curve*: apply an exponential function:
+      ``f(x) = 127 * (exp(p*x/127)-1) / (exp(p)-1)``
+      Positive values increase velocity, while negative values decrease it.
+    - *gamma*: apply a simple power function:
+      ``f(x) = 127 * (x/127)**(1/p)``
+      Values greater than 1 increase velocity, while values between 0 and 1
+      decrease it.
     """
 )
 @_unitrepr.accept(int)
