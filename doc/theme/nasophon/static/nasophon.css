@@ -218,10 +218,10 @@ td.field-body strong+p {
     display: inline;
 }
 
-
-/*dt:target, .highlighted {
-    background: transparent;
-}*/
+/* No blank lines within parameter lists */
+dd, dl {
+    margin-bottom: 0px;
+}
 
 a.headerlink {
     float: right;

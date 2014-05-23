@@ -110,21 +110,34 @@ def Process(function, *args, **kwargs):
     """
     Process(function, *args, **kwargs)
 
-    Call a Python function. This will stall any other MIDI processing until the
-    function returns.
+    Process the incoming MIDI event using a Python function, then continue
+    executing the mididings patch with the events returned from that
+    function.
 
-    *function* must be a function (or any other callable object) that can be
-    called with :class:`~.MidiEvent` objects as its only argument.
-    Its return value may be:
+    :param function:
+        a function, or any other callable object, that will be called with
+        a :class:`~.MidiEvent` object as its first argument.
 
-    * A single :class:`~.MidiEvent` that will then be passed on to the next
-      connected unit.
-    * A list of :class:`~.MidiEvent` objects, each of which will be passed on
-      to the next connected unit.
-    * ``None`` (or an empty list) to output no events from this unit.
+        The function's return value can be:
+          - a single :class:`~.MidiEvent` object.
+          - a list of :class:`~.MidiEvent` objects.
+          - ``None`` (or an empty list).
 
-    Alternatively, *function* can also be a generator that yields
-    :class:`~.MidiEvent` objects.
+        Instead of ``return``\ ing :class:`~.MidiEvent` objects, *function*
+        may also be a generator that ``yield``\ s :class:`~.MidiEvent`
+        objects.
+
+    :param \*args:
+        optional positional arguments that will be passed to *function*.
+
+    :param \*\*kwargs:
+        optional keyword arguments that will be passed to *function*.
+
+
+    Any other MIDI processing will be stalled until *function* returns,
+    so this should only be used with functions that don't block.
+    Use :func:`Call()` for tasks that may take longer and/or don't require
+    returning any MIDI events.
     """
     if _get_config('backend') == 'jack-rt' and not _get_config('silent'):
         print("WARNING: using Process() with the 'jack-rt' backend is probably a bad idea")
@@ -136,15 +149,24 @@ def Process(function, *args, **kwargs):
     Call(function, *args, **kwargs)
     Call(thread=..., **kwargs)
 
-    Schedule a Python function for execution, and continue MIDI processing
-    immediately.
+    Schedule a Python function for execution.
+    The incoming event is discarded.
 
-    *function* must be a function (or any other callable object) that can be
-    called with :class:`~.MidiEvent` objects as its only argument.
-    Its return value will be ignored.
+    :param function:
+        a function, or any other callable object.
+        If the function accepts arguments, its first argument will be a copy
+        of the :class:`~.MidiEvent` that triggered the function call.
 
-    The *thread* parameter accepts the same arguments as *function*, but will
-    run the function in its own thread.
+        The function's return value is ignored.
+
+    :param thread:
+        like *function*, but causes the function to be run in its own thread.
+
+    :param \*args:
+        optional positional arguments that will be passed to *function*.
+
+    :param \*\*kwargs:
+        optional keyword arguments that will be passed to *function*.
     """
 )
 @_unitrepr.accept(_collections.Callable, None, kwargs={ None: None })
@@ -160,12 +182,14 @@ def Call(thread, **kwargs):
 @_unitrepr.accept((str, _collections.Callable))
 def System(command):
     """
-    Run an arbitrary shell command, without waiting for the command to
-    complete.
+    Run an arbitrary shell command.
+    The incoming event is discarded.
 
-    *command* can be a string, which will be passed verbatim to the shell.
-    It may also be a Python function with the signature
-    ``function(ev) -> str``, accepting a :class:`~.MidiEvent` object and
-    returning the command to be executed.
+    :param command:
+        a string which will be passed verbatim to the shell.
+
+        Alternatively it may also be a Python function that accepts a
+        :class:`~.MidiEvent` argument and returns the command string to
+        be executed.
     """
     return _System(command)

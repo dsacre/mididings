@@ -79,7 +79,7 @@ For use in filters, the following constants are also defined:
 
 
 Event types are bit masks, so when building filters, they can be combined
-using **|** (bitwise or) and **~** (bitwise negation).
+using operators ``|`` (bitwise or) and ``~`` (bitwise negation).
 
 
 .. _event-attributes:
@@ -145,9 +145,9 @@ For instance, when an event is received on the second input port, and is
 not explicitly routed to another port, it will be sent to the second
 output port, regardless of port names.
 
-If you named your input and output ports using the `in_ports` and `out_ports`
-parameters to :func:`config()`, you can also refer to them by their names
-in all units that accept ports as parameters.
+If you named your input and output ports using the :c:data:`in_ports` and
+:c:data:`out_ports` parameters to :func:`config()`, you can also refer to
+them by their names in all units that accept ports as parameters.
 
 To avoid ambiguities, port names should be unique
 (with the JACK backend they must be).
@@ -181,7 +181,7 @@ to use. Cases where parameter names are mandatory are indicated in this
 documentation by an equal sign followed by an ellipsis,
 as in **Velocity**\ *(fixed=...)*.
 Most functions also have a "default" version that does not require specifying
-the names of parameters.
+the name of any parameter.
 In mididings it is usually possible to explicitly name parameters though,
 regardless of whether it's actually required for a particular function
 invocation.
