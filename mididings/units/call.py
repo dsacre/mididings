@@ -64,7 +64,7 @@ class _CallThread(_CallBase):
             ev_copy = _copy.copy(ev)
             _thread.start_new_thread(function, (ev_copy,))
 
-        _CallBase.__init__(self, do_thread, True, True)
+        _CallBase.__init__(self, do_thread, True, False)
 
 
 class _System(_CallBase):
@@ -73,7 +73,7 @@ class _System(_CallBase):
             args = command(ev) if hasattr(command, '__call__') else command
             _subprocess.Popen(args, shell=True)
 
-        _CallBase.__init__(self, do_system, True, True)
+        _CallBase.__init__(self, do_system, True, False)
 
 
 def _call_partial(function, args, kwargs, require_event=False):
@@ -149,7 +149,7 @@ def Process(function, *args, **kwargs):
 )
 @_unitrepr.accept(_collections.Callable, None, kwargs={ None: None })
 def Call(function, *args, **kwargs):
-    return _CallBase(_call_partial(function, args, kwargs), True, True)
+    return _CallBase(_call_partial(function, args, kwargs), True, False)
 
 @_overload.mark
 @_unitrepr.accept(_collections.Callable, kwargs={ None: None })
