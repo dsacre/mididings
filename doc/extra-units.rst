@@ -55,10 +55,10 @@ Splits
         FloatingKeySplit('c2', 'c3', Channel(1), Channel(2))
 
 
-.. _extra-misc:
+.. _extra-util:
 
-Miscellaneous
--------------
+Utilities
+---------
 
 .. autofunction:: PedalToNoteoff
 

@@ -10,7 +10,7 @@ Homepage: http://das.nasophon.de/mididings/
 Contents:
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 2
 
     start
     connect
@@ -18,7 +18,7 @@ Contents:
     main
     units
     extra-units
-    extra-hooks
+    extra
     event
     engine
     util
