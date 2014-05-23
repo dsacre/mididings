@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Module mididings.extra &mdash; mididings  documentation</title>
+    <title>mididings.extra Hooks &mdash; mididings  documentation</title>
     
     <link rel="stylesheet" href="_static/nasophon.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="mididings  documentation" href="index.html" />
     <link rel="next" title="Module mididings.event" href="event.html" />
-    <link rel="prev" title="mididings Units" href="units.html" /> 
+    <link rel="prev" title="mididings.extra Units" href="extra-units.html" /> 
   </head>
   <body>
     <div class="related">
@@ -43,7 +43,7 @@
           <a href="event.html" title="Module mididings.event"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="units.html" title="mididings Units"
+          <a href="extra-units.html" title="mididings.extra Units"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
       </ul>
@@ -54,87 +54,81 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="module-mididings.extra">
-<span id="module-mididings-extra"></span><h1>Module <a class="reference internal" href="#module-mididings.extra" title="mididings.extra"><tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt></a><a class="headerlink" href="#module-mididings.extra" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="mididings.extra.Quit">
-<tt class="descname">Quit</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.Quit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="mididings.extra.KeyColorFilter">
-<tt class="descname">KeyColorFilter</tt><big>(</big><em>color</em><big>)</big><a class="headerlink" href="#mididings.extra.KeyColorFilter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="mididings.extra.Harmonize">
-<tt class="descname">Harmonize</tt><big>(</big><em>tonic</em>, <em>scale</em>, <em>interval</em>, <em>non_harmonic='below'</em><big>)</big><a class="headerlink" href="#mididings.extra.Harmonize" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="mididings.extra.Panic">
-<tt class="descname">Panic</tt><big>(</big><em>bypass=True</em><big>)</big><a class="headerlink" href="#mididings.extra.Panic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="mididings.extra.PedalToNoteoff">
-<tt class="descname">PedalToNoteoff</tt><big>(</big><em>ctrl=64</em>, <em>sostenuto=False</em><big>)</big><a class="headerlink" href="#mididings.extra.PedalToNoteoff" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="mididings.extra.LimitPolyphony">
-<tt class="descname">LimitPolyphony</tt><big>(</big><em>max_polyphony</em>, <em>remove_oldest=True</em><big>)</big><a class="headerlink" href="#mididings.extra.LimitPolyphony" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="mididings.extra.VoiceFilter">
-<tt class="descname">VoiceFilter</tt><big>(</big><em>voice='highest'</em>, <em>time=0.1</em>, <em>retrigger=False</em><big>)</big><a class="headerlink" href="#mididings.extra.VoiceFilter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="mididings.extra.VoiceSplit">
-<tt class="descname">VoiceSplit</tt><big>(</big><em>patches</em>, <em>fallback='highest'</em>, <em>time=0.1</em>, <em>retrigger=False</em><big>)</big><a class="headerlink" href="#mididings.extra.VoiceSplit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="mididings.extra.FloatingKeySplit">
-<tt class="descname">FloatingKeySplit</tt><big>(</big><em>threshold_lower</em>, <em>threshold_upper</em>, <em>patch_lower</em>, <em>patch_upper</em>, <em>hold_time=1.0</em>, <em>margin_lower=12</em>, <em>margin_upper=12</em><big>)</big><a class="headerlink" href="#mididings.extra.FloatingKeySplit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="mididings.extra.Restart">
-<tt class="descname">Restart</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.Restart" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="mididings.extra.MakeMonophonic">
-<tt class="descname">MakeMonophonic</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.MakeMonophonic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="mididings.extra.SuppressPC">
-<tt class="descname">SuppressPC</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.SuppressPC" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+  <div class="section" id="mididings-extra-hooks">
+<span id="extra-hooks"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt> Hooks<a class="headerlink" href="#mididings-extra-hooks" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="mididings.extra.MemorizeScene">
 <em class="property">class </em><tt class="descname">MemorizeScene</tt><big>(</big><em>memo_file</em><big>)</big><a class="headerlink" href="#mididings.extra.MemorizeScene" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
-<dt id="mididings.extra.MemorizeScene.on_exit">
-<tt class="descname">on_exit</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.MemorizeScene.on_exit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="mididings.extra.MemorizeScene.on_start">
-<tt class="descname">on_start</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.MemorizeScene.on_start" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dd><p>Save the currently selected scene number to a file when terminating
+mididings, and restore it at the next startup.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>memo_file</strong> &#8211; the path of the file to be used to store the scene number.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="function">
-<dt id="mididings.extra.LatchNotes">
-<tt class="descname">LatchNotes</tt><big>(</big><em>polyphonic=False</em>, <em>reset=None</em><big>)</big><a class="headerlink" href="#mididings.extra.LatchNotes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="class">
+<dt id="mididings.extra.inotify.AutoRestart">
+<em class="property">class </em><tt class="descname">AutoRestart</tt><big>(</big><em>modules=True</em>, <em>filenames=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#mididings.extra.inotify.AutoRestart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically restart mididings when the script changes.</p>
+<p>This restarts the entire mididings script, so MIDI processing is
+interrupted, and mididings does not take care of reestablishing any
+ALSA/JACK connections that were made manually.
+If the new script contains errors that prevent it from running,
+mididings exits and needs to be restarted manually once the errors
+are fixed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>modules</strong> &#8211; If true, all imported local Python modules are monitored for
+changes as well.</li>
+<li><strong>filenames</strong> &#8211; a list of additional files to be monitored.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Defined in <tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra.inotify</span></tt>.
+Requires <a class="reference external" href="https://github.com/seb-m/pyinotify">pyinotify</a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mididings.extra.osc.OSCInterface">
+<em class="property">class </em><tt class="descname">OSCInterface</tt><big>(</big><em>port=56418, notify_ports=[56419]</em><big>)</big><a class="headerlink" href="#mididings.extra.osc.OSCInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allow controlling mididings via OSC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>port</strong> &#8211; the OSC port to listen on.</li>
+<li><strong>notify_ports</strong> &#8211; a list of OSC ports to notify when the current scene changes.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>These messages are currently understood:</p>
+<ul class="simple">
+<li><strong>/mididings/switch_scene ,i</strong>: switch to the given scene number.</li>
+<li><strong>/mididings/switch_subscene ,i</strong>: switchs to the given subscene number.</li>
+<li><strong>/mididings/prev_scene</strong>: switch to the previous scene.</li>
+<li><strong>/mididings/next_scene</strong>: switch to the next scene.</li>
+<li><strong>/mididings/prev_subscene</strong>: switch to the previous subscene.</li>
+<li><strong>/mididings/next_subscene</strong>: switch to the next subscene.</li>
+<li><strong>/mididings/panic</strong>: send all-notes-off on all channels and on all
+output ports.</li>
+<li><strong>/mididings/quit</strong>: terminate mididings.</li>
+</ul>
+<p>Defined in <tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra.osc</span></tt>.
+Requires <a class="reference external" href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</p>
+</dd></dl>
 
 </div>
 
@@ -159,10 +153,10 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Miscellaneous</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="misc.html#note-names-and-ranges">Note Names and Ranges</a></li>
-<li class="toctree-l2"><a class="reference internal" href="misc.html#port-numbers-and-names">Port Numbers and Names</a></li>
 <li class="toctree-l2"><a class="reference internal" href="misc.html#event-types">Event Types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="misc.html#event-attributes">Event Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#note-names-and-ranges">Note Names and Ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#port-names">Port Names</a></li>
 <li class="toctree-l2"><a class="reference internal" href="misc.html#mididings-and-python">mididings and Python</a></li>
 </ul>
 </li>
@@ -182,15 +176,22 @@
 <li class="toctree-l2"><a class="reference internal" href="units.html#miscellaneous">Miscellaneous</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Module <tt class="docutils literal"><span class="pre">mididings.extra</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="extra-units.html"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extra-units.html#voicing">Voicing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-units.html#splits">Splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-units.html#miscellaneous">Miscellaneous</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-units.html#messaging">Messaging</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href=""><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Hooks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="units.html"
-                        title="previous chapter"><tt class="docutils literal"><span class="pre">mididings</span></tt> Units</a></p>
+  <p class="topless"><a href="extra-units.html"
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Units</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="event.html"
                         title="next chapter">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></p>
@@ -224,7 +225,7 @@
           <a href="event.html" title="Module mididings.event"
              >next</a> |</li>
         <li class="right" >
-          <a href="units.html" title="mididings Units"
+          <a href="extra-units.html" title="mididings.extra Units"
              >previous</a> |</li>
         <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
       </ul>

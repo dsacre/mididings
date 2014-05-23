@@ -1,0 +1,467 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mididings.extra Units &mdash; mididings  documentation</title>
+    
+    <link rel="stylesheet" href="_static/nasophon.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="mididings  documentation" href="index.html" />
+    <link rel="next" title="mididings.extra Hooks" href="extra-hooks.html" />
+    <link rel="prev" title="mididings Units" href="units.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="extra-hooks.html" title="mididings.extra Hooks"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="units.html" title="mididings Units"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mididings-extra-units">
+<span id="extra-units"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt> Units<a class="headerlink" href="#mididings-extra-units" title="Permalink to this headline">¶</a></h1>
+<p>These units offer some more advanced/specific functionality than what&#8217;s
+provided in the core mididings module.
+Unless otherwise noted, they are made available by importing the
+<tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt> module.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Some of these units are implemented in Python using <a class="reference internal" href="units.html#mididings.Process" title="mididings.Process"><tt class="xref py py-func docutils literal"><span class="pre">Process()</span></tt></a>,
+and are thus not safe to use with the <tt class="docutils literal"><span class="pre">jack-rt</span></tt> backend.</p>
+</div>
+<div class="section" id="voicing">
+<span id="extra-voicing"></span><h2>Voicing<a class="headerlink" href="#voicing" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="mididings.extra.Harmonize">
+<tt class="descname">Harmonize</tt><big>(</big><em>tonic</em>, <em>scale</em>, <em>interval</em>, <em>non_harmonic='below'</em><big>)</big><a class="headerlink" href="#mididings.extra.Harmonize" title="Permalink to this definition">¶</a></dt>
+<dd><p>A diatonic harmonizer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tonic</strong> &#8211; The tonic of the scale, as a note name.</li>
+<li><strong>scale</strong> &#8211; The type/mode, of the scale, one of:
+<tt class="docutils literal"><span class="pre">'major'</span></tt>, <tt class="docutils literal"><span class="pre">'minor'</span></tt>, <tt class="docutils literal"><span class="pre">'minor_harmonic'</span></tt>, <tt class="docutils literal"><span class="pre">'ionian'</span></tt>,
+<tt class="docutils literal"><span class="pre">'dorian'</span></tt>, <tt class="docutils literal"><span class="pre">'phrygian'</span></tt>, <tt class="docutils literal"><span class="pre">'lydian'</span></tt>, <tt class="docutils literal"><span class="pre">'mixolydian'</span></tt>,
+<tt class="docutils literal"><span class="pre">'aeolian'</span></tt>, <tt class="docutils literal"><span class="pre">'locrian'</span></tt>.</li>
+<li><strong>interval</strong> &#8211; <p>The number of steps to transpose the notes by
+(as an integer), or one of these interval names:
+<tt class="docutils literal"><span class="pre">'unison'</span></tt>, <tt class="docutils literal"><span class="pre">'second'</span></tt>, <tt class="docutils literal"><span class="pre">'third'</span></tt>, <tt class="docutils literal"><span class="pre">'fourth'</span></tt>, <tt class="docutils literal"><span class="pre">'fifth'</span></tt>,
+<tt class="docutils literal"><span class="pre">'sixth'</span></tt>, <tt class="docutils literal"><span class="pre">'seventh'</span></tt>, <tt class="docutils literal"><span class="pre">'octave'</span></tt>, <tt class="docutils literal"><span class="pre">'ninth'</span></tt>, <tt class="docutils literal"><span class="pre">'tenth'</span></tt>,
+<tt class="docutils literal"><span class="pre">'eleventh'</span></tt>, <tt class="docutils literal"><span class="pre">'twelfth'</span></tt>, <tt class="docutils literal"><span class="pre">'thirteenth'</span></tt>.</p>
+<p>It is also possible to pass a list of intervals, to create
+multiple harmonized voices.</p>
+</li>
+<li><strong>non_harmonic</strong> &#8211; <p>What to do with out-of-scale notes:</p>
+<ul>
+<li><tt class="docutils literal"><span class="pre">'below'</span></tt>: Transpose by the same interval as the next on-scale</li>
+<li><tt class="docutils literal"><span class="pre">'above'</span></tt>: Transpose by the same interval as the next on-scale</li>
+<li><tt class="docutils literal"><span class="pre">'skip'</span></tt>: Ignore note.</li>
+<li><tt class="docutils literal"><span class="pre">'same'</span></tt>: Output note as is, without transposing it.</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># add a third above each note, based on the C# harmonic minor scale</span>
+<span class="n">Harmonize</span><span class="p">(</span><span class="s">&#39;c#&#39;</span><span class="p">,</span> <span class="s">&#39;minor_harmonic&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;unison&#39;</span><span class="p">,</span> <span class="s">&#39;third&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.VoiceFilter">
+<tt class="descname">VoiceFilter</tt><big>(</big><em>voice='highest'</em>, <em>time=0.1</em>, <em>retrigger=False</em><big>)</big><a class="headerlink" href="#mididings.extra.VoiceFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter individual voices from a chord.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>voice</strong> &#8211; <p>The voice to be filtered.</p>
+<p>This can be <tt class="docutils literal"><span class="pre">'highest'</span></tt>, <tt class="docutils literal"><span class="pre">'lowest'</span></tt>, or an integer index
+(positive or negative, the same way Python lists are indexed,
+with 0 being the lowest voice and -1 the highest).</p>
+</li>
+<li><strong>time</strong> &#8211; The period in seconds for which a newly played note may still be
+unassigned from the selected voice, when additional notes are played.</li>
+<li><strong>retrigger</strong> &#8211; If true, a new note-on event will be sent when a note is reassigned
+to the selected voice as a result of another note being released.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.VoiceSplit">
+<tt class="descname">VoiceSplit</tt><big>(</big><em>patches</em>, <em>fallback='highest'</em>, <em>time=0.1</em>, <em>retrigger=False</em><big>)</big><a class="headerlink" href="#mididings.extra.VoiceSplit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create multiple <a class="reference internal" href="#mididings.extra.VoiceFilter" title="mididings.extra.VoiceFilter"><tt class="xref py py-func docutils literal"><span class="pre">VoiceFilter()</span></tt></a> units to route each voice to
+a different instrument.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>patches</strong> &#8211; A list of patches, one for each voice.</li>
+<li><strong>fallback</strong> &#8211; Which note to double when the number of notes played is less than
+the number of voices. Can be <tt class="docutils literal"><span class="pre">'highest'</span></tt> or <tt class="docutils literal"><span class="pre">'lowest'</span></tt>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Regardless of the number of voices specified, the lowest and highest
+note played will always be routed to the first and last patch in
+the list, respectively.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#route up to three voices to different channels</span>
+<span class="n">VoiceSplit</span><span class="p">([</span><span class="n">Channel</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.LimitPolyphony">
+<tt class="descname">LimitPolyphony</tt><big>(</big><em>max_polyphony</em>, <em>remove_oldest=True</em><big>)</big><a class="headerlink" href="#mididings.extra.LimitPolyphony" title="Permalink to this definition">¶</a></dt>
+<dd><p>Limit the &#8220;MIDI polyphony&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_polyphony</strong> &#8211; The maximum number of simultaneous notes.</li>
+<li><strong>remove_oldest</strong> &#8211; If true, the oldest notes will be stopped when the maximum polyphony
+is exceeded.
+If false, no new notes are accepted while <em>max_polyphony</em> notes
+are already held.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the actual polyphony of a connected synthesizer can still be
+higher than the limit set here, e.g. due to a long release phase.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.MakeMonophonic">
+<tt class="descname">MakeMonophonic</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.MakeMonophonic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the MIDI signal monophonic, i.e. only one note can be played at
+any given time.
+When one note is released while another is still held (but silent),
+the previous one will be retriggered.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="splits">
+<span id="extra-splits"></span><h2>Splits<a class="headerlink" href="#splits" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="mididings.extra.FloatingKeySplit">
+<tt class="descname">FloatingKeySplit</tt><big>(</big><em>threshold_lower</em>, <em>threshold_upper</em>, <em>patch_lower</em>, <em>patch_upper</em>, <em>hold_time=1.0</em>, <em>margin_lower=12</em>, <em>margin_upper=12</em><big>)</big><a class="headerlink" href="#mididings.extra.FloatingKeySplit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a floating split point that moves dynamically depending on what
+you are playing, allowing a region of the keyboard to be shared between
+two split zones.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>threshold_lower</strong> &#8211; </li>
+<li><strong>threshold_upper</strong> &#8211; The lowest and highest notes between which the split point is
+allowed to move.</li>
+<li><strong>patch_lower</strong> &#8211; </li>
+<li><strong>patch_upper</strong> &#8211; The patch to which notes below/above the split point will be sent.</li>
+<li><strong>hold_time</strong> &#8211; How long released notes will still be taken into account when
+determining the split point (in seconds).</li>
+<li><strong>margin_lower</strong> &#8211; </li>
+<li><strong>margin_upper</strong> &#8211; How close you must get to the split point before it starts getting
+pushed into the opposite direction (in semitones).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># split the keyboard somewhere between C2 and C3</span>
+<span class="n">FloatingKeySplit</span><span class="p">(</span><span class="s">&#39;c2&#39;</span><span class="p">,</span> <span class="s">&#39;c3&#39;</span><span class="p">,</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="miscellaneous">
+<span id="extra-misc"></span><h2>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="mididings.extra.PedalToNoteoff">
+<tt class="descname">PedalToNoteoff</tt><big>(</big><em>ctrl=64</em>, <em>sostenuto=False</em><big>)</big><a class="headerlink" href="#mididings.extra.PedalToNoteoff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert sustain pedal control changes to note-off events,
+by delaying note-offs until the pedal is released.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ctrl</strong> &#8211; The pedal&#8217;s controller number.</li>
+<li><strong>sostenuto</strong> &#8211; If true act like a sostenuto pedal, instead of a regular sustain
+pedal.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.LatchNotes">
+<tt class="descname">LatchNotes</tt><big>(</big><em>polyphonic=False</em>, <em>reset=None</em><big>)</big><a class="headerlink" href="#mididings.extra.LatchNotes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes notes latching, so they will keep playing when the key is released.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>polyphonic</strong> &#8211; If true, each note can be stopped individually by pressing the
+corresponding key again.
+Otherwise pressing a key will automatically turn off any previous
+notes.</li>
+<li><strong>reset</strong> &#8211; a note (name/number) that acts as a reset key, stopping all
+currently playing notes.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.SuppressPC">
+<tt class="descname">SuppressPC</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.SuppressPC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter out program changes if the same program has already
+been selected on the same port/channel.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.KeyColorFilter">
+<tt class="descname">KeyColorFilter</tt><big>(</big><em>color</em><big>)</big><a class="headerlink" href="#mididings.extra.KeyColorFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter notes by key color.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>color</strong> &#8211; the key color, either <tt class="docutils literal"><span class="pre">'black'</span></tt> or <tt class="docutils literal"><span class="pre">'white'</span></tt>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.Panic">
+<tt class="descname">Panic</tt><big>(</big><em>bypass=True</em><big>)</big><a class="headerlink" href="#mididings.extra.Panic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate all-notes-off (CC #123) and sustain off (CC #64) events on
+all channels.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bypass</strong> &#8211; If true, events will be sent directly on all output ports, instead of
+originating from the <a class="reference internal" href="#mididings.extra.Panic" title="mididings.extra.Panic"><tt class="xref py py-func docutils literal"><span class="pre">Panic()</span></tt></a> unit and being subject to further
+processing.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.Restart">
+<tt class="descname">Restart</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.Restart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call <a class="reference internal" href="engine.html#mididings.engine.restart" title="mididings.engine.restart"><tt class="xref py py-func docutils literal"><span class="pre">engine.restart()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.Quit">
+<tt class="descname">Quit</tt><big>(</big><big>)</big><a class="headerlink" href="#mididings.extra.Quit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call <a class="reference internal" href="engine.html#mididings.engine.quit" title="mididings.engine.quit"><tt class="xref py py-func docutils literal"><span class="pre">engine.quit()</span></tt></a>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="messaging">
+<span id="extra-message"></span><h2>Messaging<a class="headerlink" href="#messaging" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="mididings.extra.osc.SendOSC">
+<tt class="descname">SendOSC</tt><big>(</big><em>target</em>, <em>path</em>, <em>*args</em><big>)</big><a class="headerlink" href="#mididings.extra.osc.SendOSC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an OSC message.
+Parameters are the same as for <tt class="xref py py-func docutils literal"><span class="pre">liblo.send()</span></tt>.
+Additionally, instead of a specific value, each data argument may also
+be a Python function that takes a single <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> parameter,
+and returns the value to be sent.</p>
+<p>Defined in <tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra.osc</span></tt>.
+Requires <a class="reference external" href="http://das.nasophon.de/pyliblo/">pyliblo</a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mididings.extra.dbus.SendDBUS">
+<tt class="descname">SendDBUS</tt><big>(</big><em>service</em>, <em>path</em>, <em>interface</em>, <em>method</em>, <em>*args</em><big>)</big><a class="headerlink" href="#mididings.extra.dbus.SendDBUS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a DBUS message.
+Instead of a specific value, each data argument may also be a Python
+function that takes a single <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> parameter, and
+returns the value to be sent.</p>
+<p>Defined in <tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra.dbus</span></tt>.
+Requires dbus-python.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># change FFADO output volume using a MIDI controller</span>
+<span class="n">CtrlFilter</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">SendDBUS</span><span class="p">(</span>
+    <span class="s">&#39;org.ffado.Control&#39;</span><span class="p">,</span>
+    <span class="s">&#39;/org/ffado/Control/DeviceManager/</span><span class="si">%s</span><span class="s">/Mixer/OUT0Gain&#39;</span> <span class="o">%</span> <span class="n">DEVICEID</span><span class="p">,</span>
+    <span class="s">&#39;org.ffado.Control.Element.Continuous&#39;</span><span class="p">,</span>
+    <span class="s">&#39;setValue&#39;</span><span class="p">,</span>
+    <span class="k">lambda</span> <span class="n">ev</span><span class="p">:</span> <span class="n">ev</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">17</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="start.html#anatomy-of-a-mididings-script">Anatomy of a mididings Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html#command-line-usage">Command Line Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="connect.html">Connections</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="connect.html#serial-and-parallel">Serial and Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="connect.html#filtering-and-splitting">Filtering and Splitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="connect.html#selective-processing">Selective Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Miscellaneous</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#event-types">Event Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#event-attributes">Event Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#note-names-and-ranges">Note Names and Ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#port-names">Port Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#mididings-and-python">mididings and Python</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">Module <tt class="docutils literal"><span class="pre">mididings</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="main.html#global-configuration">Global Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="units.html"><tt class="docutils literal"><span class="pre">mididings</span></tt> Units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="units.html#filters">Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#splits">Splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#modifiers">Modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#generators">Generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#function-calls">Function Calls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#scene-switching">Scene Switching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html#miscellaneous">Miscellaneous</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href=""><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#voicing">Voicing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#splits">Splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#messaging">Messaging</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extra-hooks.html"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="units.html"
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">mididings</span></tt> Units</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="extra-hooks.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Hooks</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="extra-hooks.html" title="mididings.extra Hooks"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="units.html" title="mididings Units"
+             >previous</a> |</li>
+        <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2008-2014, Dominic Sacré.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
