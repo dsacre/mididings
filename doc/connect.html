@@ -177,6 +177,21 @@ saying <tt class="docutils literal"><span class="pre">[&nbsp;Filter(T1)&nbsp;&gt
 </div>
 <p>See section <a class="reference internal" href="units.html#units-splits"><em>Splits</em></a> for units that allow splitting by different
 event properties.</p>
+<p>All split units are just combinations of multiple filters of the same
+type.
+Tuples can be used to pass multiple arguments to a split&#8217;s underlying
+filters (lists won&#8217;t work, as they are not hashable and thus can&#8217;t be
+used as keys in a dictionary).
+In addition to any filter arguments, splits also allow <tt class="docutils literal"><span class="pre">None</span></tt> to be
+used as a key. This acts as an <tt class="docutils literal"><span class="pre">else</span></tt> clause that is executed when
+none of the other conditions match:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ChannelSplit</span><span class="p">({</span>
+    <span class="mi">1</span><span class="p">:</span>      <span class="o">...</span><span class="p">,</span>    <span class="c"># if channel == 1</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="o">...</span><span class="p">,</span>    <span class="c"># if channel == 2 or channel == 3</span>
+    <span class="bp">None</span><span class="p">:</span>   <span class="o">...</span><span class="p">,</span>    <span class="c"># else</span>
+<span class="p">})</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
@@ -249,7 +264,6 @@ or selectors. <tt class="docutils literal"><span class="pre">(S1&nbsp;|&nbsp;S2)
 <li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="start.html#anatomy-of-a-mididings-script">Anatomy of a mididings Script</a></li>
 <li class="toctree-l2"><a class="reference internal" href="start.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="start.html#command-line-usage">Command Line Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Connections</a><ul>
@@ -285,14 +299,24 @@ or selectors. <tt class="docutils literal"><span class="pre">(S1&nbsp;|&nbsp;S2)
 <li class="toctree-l1"><a class="reference internal" href="extra-units.html"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Units</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#voicing">Voicing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#splits">Splits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extra-units.html#miscellaneous">Miscellaneous</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-units.html#utilities">Utilities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#messaging">Messaging</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="extra-hooks.html"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extra.html">Module <tt class="docutils literal"><span class="pre">mididings.extra</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extra.html#hooks">Hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra.html#general-midi">General MIDI</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">GUI and Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#mididings"><strong class="command">mididings</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#livedings"><strong class="command">livedings</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#send-midi"><strong class="command">send_midi</strong></a></li>
+</ul>
+</li>
 </ul>
 
   <h4>Previous topic</h4>

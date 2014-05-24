@@ -26,6 +26,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="mididings  documentation" href="index.html" />
+    <link rel="next" title="GUI and Command Line Tools" href="tools.html" />
     <link rel="prev" title="Module mididings.engine" href="engine.html" /> 
   </head>
   <body>
@@ -38,6 +39,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="tools.html" title="GUI and Command Line Tools"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="engine.html" title="Module mididings.engine"
              accesskey="P">previous</a> |</li>
@@ -54,20 +58,53 @@
 <span id="module-mididings-util"></span><h1>Module <a class="reference internal" href="#module-mididings.util" title="mididings.util"><tt class="xref py py-mod docutils literal"><span class="pre">mididings.util</span></tt></a><a class="headerlink" href="#module-mididings.util" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="mididings.util.note_number">
-<tt class="descname">note_number</tt><big>(</big><em>note</em>, <em>allow_end=False</em><big>)</big><a class="headerlink" href="#mididings.util.note_number" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert note name/number to MIDI note number.</p>
+<tt class="descname">note_number</tt><big>(</big><em>note</em><big>)</big><a class="headerlink" href="#mididings.util.note_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert note name to note number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>note</strong> &#8211; any valid <a class="reference internal" href="misc.html#notes"><em>note description</em></a> (name or number).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">MIDI note number.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="mididings.util.note_range">
 <tt class="descname">note_range</tt><big>(</big><em>notes</em><big>)</big><a class="headerlink" href="#mididings.util.note_range" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert note range to tuple of MIDI note numbers.</p>
+<dd><p>Convert note range to note numbers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>notes</strong> &#8211; any valid <a class="reference internal" href="misc.html#notes"><em>note range</em></a>
+(names or numbers, tuple or string).
+If this is a single note, the range containing only that note is
+returned.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">tuple of two MIDI note numbers.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="mididings.util.note_name">
 <tt class="descname">note_name</tt><big>(</big><em>note</em><big>)</big><a class="headerlink" href="#mididings.util.note_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get note name from MIDI note number.</p>
+<dd><p>Get note name from note number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>note</strong> &#8211; a MIDI note number.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">note name as a string.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -77,15 +114,19 @@
 </dd></dl>
 
 <dl class="function">
-<dt id="mididings.util.event_type">
-<tt class="descname">event_type</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#mididings.util.event_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check and return event type.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="mididings.util.port_number">
 <tt class="descname">port_number</tt><big>(</big><em>port</em><big>)</big><a class="headerlink" href="#mididings.util.port_number" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert port number/name to actual port number.</p>
+<dd><p>Convert port description to port number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>port</strong> &#8211; a <a class="reference internal" href="misc.html#ports"><em>port name</em></a> or number.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the port&#8217;s number.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
@@ -119,7 +160,6 @@
 <li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="start.html#anatomy-of-a-mididings-script">Anatomy of a mididings Script</a></li>
 <li class="toctree-l2"><a class="reference internal" href="start.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="start.html#command-line-usage">Command Line Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="connect.html">Connections</a><ul>
@@ -155,19 +195,32 @@
 <li class="toctree-l1"><a class="reference internal" href="extra-units.html"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Units</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#voicing">Voicing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#splits">Splits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extra-units.html#miscellaneous">Miscellaneous</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-units.html#utilities">Utilities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#messaging">Messaging</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="extra-hooks.html"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extra.html">Module <tt class="docutils literal"><span class="pre">mididings.extra</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extra.html#hooks">Hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra.html#general-midi">General MIDI</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">GUI and Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#mididings"><strong class="command">mididings</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#livedings"><strong class="command">livedings</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#send-midi"><strong class="command">send_midi</strong></a></li>
+</ul>
+</li>
 </ul>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="engine.html"
                         title="previous chapter">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tools.html"
+                        title="next chapter">GUI and Command Line Tools</a></p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -194,6 +247,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="tools.html" title="GUI and Command Line Tools"
+             >next</a> |</li>
         <li class="right" >
           <a href="engine.html" title="Module mididings.engine"
              >previous</a> |</li>

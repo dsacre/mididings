@@ -162,7 +162,7 @@
 </tbody>
 </table>
 <p>Event types are bit masks, so when building filters, they can be combined
-using <strong>|</strong> (bitwise or) and <strong>~</strong> (bitwise negation).</p>
+using operators <tt class="docutils literal"><span class="pre">|</span></tt> (bitwise or) and <tt class="docutils literal"><span class="pre">~</span></tt> (bitwise negation).</p>
 </div>
 <div class="section" id="event-attributes">
 <span id="id2"></span><h2>Event Attributes<a class="headerlink" href="#event-attributes" title="Permalink to this headline">¶</a></h2>
@@ -220,9 +220,9 @@ while <tt class="docutils literal"><span class="pre">':a2'</span></tt> matches a
 For instance, when an event is received on the second input port, and is
 not explicitly routed to another port, it will be sent to the second
 output port, regardless of port names.</p>
-<p>If you named your input and output ports using the <cite>in_ports</cite> and <cite>out_ports</cite>
-parameters to <a class="reference internal" href="main.html#mididings.config" title="mididings.config"><tt class="xref py py-func docutils literal"><span class="pre">config()</span></tt></a>, you can also refer to them by their names
-in all units that accept ports as parameters.</p>
+<p>If you named your input and output ports using the <a class="reference internal" href="main.html#in_ports" title="in_ports"><tt class="xref c c-data docutils literal"><span class="pre">in_ports</span></tt></a> and
+<a class="reference internal" href="main.html#out_ports" title="out_ports"><tt class="xref c c-data docutils literal"><span class="pre">out_ports</span></tt></a> parameters to <a class="reference internal" href="main.html#mididings.config" title="mididings.config"><tt class="xref py py-func docutils literal"><span class="pre">config()</span></tt></a>, you can also refer to
+them by their names in all units that accept ports as parameters.</p>
 <p>To avoid ambiguities, port names should be unique
 (with the JACK backend they must be).</p>
 </div>
@@ -243,7 +243,7 @@ to use. Cases where parameter names are mandatory are indicated in this
 documentation by an equal sign followed by an ellipsis,
 as in <strong>Velocity</strong><em>(fixed=...)</em>.
 Most functions also have a &#8220;default&#8221; version that does not require specifying
-the names of parameters.
+the name of any parameter.
 In mididings it is usually possible to explicitly name parameters though,
 regardless of whether it&#8217;s actually required for a particular function
 invocation.</p>
@@ -373,7 +373,6 @@ In some cases it may be necessary to wrap those in
 <li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="start.html#anatomy-of-a-mididings-script">Anatomy of a mididings Script</a></li>
 <li class="toctree-l2"><a class="reference internal" href="start.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="start.html#command-line-usage">Command Line Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="connect.html">Connections</a><ul>
@@ -409,14 +408,24 @@ In some cases it may be necessary to wrap those in
 <li class="toctree-l1"><a class="reference internal" href="extra-units.html"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Units</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#voicing">Voicing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#splits">Splits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extra-units.html#miscellaneous">Miscellaneous</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-units.html#utilities">Utilities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#messaging">Messaging</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="extra-hooks.html"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extra.html">Module <tt class="docutils literal"><span class="pre">mididings.extra</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extra.html#hooks">Hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra.html#general-midi">General MIDI</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">GUI and Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#mididings"><strong class="command">mididings</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#livedings"><strong class="command">livedings</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#send-midi"><strong class="command">send_midi</strong></a></li>
+</ul>
+</li>
 </ul>
 
   <h4>Previous topic</h4>

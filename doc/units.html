@@ -191,32 +191,6 @@ also be a list or tuple of values. The following filters are equivalent:</p>
 </div>
 <div class="section" id="splits">
 <span id="units-splits"></span><h2>Splits<a class="headerlink" href="#splits" title="Permalink to this headline">¶</a></h2>
-<p>Splits are combinations of multiple filters of the same type. This:</p>
-<div class="highlight-python"><pre>KeySplit({
-    note_range: patch,
-    ...
-})</pre>
-</div>
-<p>is roughly equivalent to:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">Fork</span><span class="p">([</span>
-    <span class="n">KeyFilter</span><span class="p">(</span><span class="n">note_range</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">patch</span><span class="p">,</span>
-    <span class="o">...</span>
-<span class="p">])</span>
-</pre></div>
-</div>
-<p>Tuples can be used to pass multiple arguments to a split&#8217;s underlying filters
-(lists won&#8217;t work, as they are not hashable and can&#8217;t be used as keys in a
-dictionary).
-In addition to the appropriate filter parameters, all splits with dictionary
-arguments also allow <tt class="docutils literal"><span class="pre">None</span></tt> to be used as a key. This acts as an <tt class="docutils literal"><span class="pre">else</span></tt>
-clause that is executed when none of the other conditions match:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">ChannelSplit</span><span class="p">({</span>
-    <span class="mi">1</span><span class="p">:</span>      <span class="o">...</span><span class="p">,</span>    <span class="c"># if channel == 1</span>
-    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="o">...</span><span class="p">,</span>    <span class="c"># if channel == 2 or channel == 3</span>
-    <span class="bp">None</span><span class="p">:</span>   <span class="o">...</span><span class="p">,</span>    <span class="c"># else</span>
-<span class="p">})</span>
-</pre></div>
-</div>
 <dl class="function">
 <dt>
 <tt class="descname">Split</tt><big>(</big><em>mapping</em><big>)</big></dt>
@@ -343,32 +317,17 @@ a dictionary of the form <tt class="docutils literal"><span class="pre">{manufac
 <dt>
 <tt class="descname">Velocity</tt><big>(</big><em>multiply</em>, <em>offset</em><big>)</big></dt>
 <dd><p>Change the velocity of note-on events:</p>
-<ul>
-<li><div class="first line-block">
-<div class="line"><em>offset</em>: add the given value to the event&#8217;s velocity.</div>
-</div>
-</li>
-<li><div class="first line-block">
-<div class="line"><em>multiply</em>: multiply the event&#8217;s velocity with the given value.</div>
-</div>
-</li>
-<li><div class="first line-block">
-<div class="line"><em>fixed</em>: set the event&#8217;s velocity to a fixed value.</div>
-</div>
-</li>
-<li><div class="first line-block">
-<div class="line"><em>curve</em>: apply an exponential function:
-<tt class="docutils literal"><span class="pre">f(x)</span> <span class="pre">=</span> <span class="pre">127</span> <span class="pre">*</span> <span class="pre">(exp(p*x/127)-1)</span> <span class="pre">/</span> <span class="pre">(exp(p)-1)</span></tt></div>
-<div class="line">Positive values increase velocity, while negative values decrease it.</div>
-</div>
-</li>
-<li><div class="first line-block">
-<div class="line"><em>gamma</em>: apply a simple power function:
-<tt class="docutils literal"><span class="pre">f(x)</span> <span class="pre">=</span> <span class="pre">127</span> <span class="pre">*</span> <span class="pre">(x/127)**(1/p)</span></tt></div>
-<div class="line">Values greater than 1 increase velocity, while values between 0 and 1
-decrease it.</div>
-</div>
-</li>
+<ul class="simple">
+<li><em>offset</em>: add the given value to the event&#8217;s velocity.</li>
+<li><em>multiply</em>: multiply the event&#8217;s velocity with the given value.</li>
+<li><em>fixed</em>: set the event&#8217;s velocity to a fixed value.</li>
+<li><em>curve</em>: apply an exponential function:
+<tt class="docutils literal"><span class="pre">f(x)</span> <span class="pre">=</span> <span class="pre">127</span> <span class="pre">*</span> <span class="pre">(exp(p*x/127)-1)</span> <span class="pre">/</span> <span class="pre">(exp(p)-1)</span></tt>
+Positive values increase velocity, while negative values decrease it.</li>
+<li><em>gamma</em>: apply a simple power function:
+<tt class="docutils literal"><span class="pre">f(x)</span> <span class="pre">=</span> <span class="pre">127</span> <span class="pre">*</span> <span class="pre">(x/127)**(1/p)</span></tt>
+Values greater than 1 increase velocity, while values between 0 and 1
+decrease it.</li>
 </ul>
 <img alt="velocity" src="_images/velocity.png" />
 <p>Within mididings, velocity values may be (temporarily) greater than 127 or
@@ -565,20 +524,40 @@ System common and system realtime events can only be created this way.</p>
 <dl class="function">
 <dt id="mididings.Process">
 <tt class="descname">Process</tt><big>(</big><em>function</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mididings.Process" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call a Python function. This will stall any other MIDI processing until the
-function returns.</p>
-<p><em>function</em> must be a function (or any other callable object) that can be
-called with <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> objects as its only argument.
-Its return value may be:</p>
-<ul class="simple">
-<li>A single <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> that will then be passed on to the next
-connected unit.</li>
-<li>A list of <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> objects, each of which will be passed on
-to the next connected unit.</li>
-<li><tt class="docutils literal"><span class="pre">None</span></tt> (or an empty list) to output no events from this unit.</li>
+<dd><p>Process the incoming MIDI event using a Python function, then continue
+executing the mididings patch with the events returned from that
+function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>function</strong> &#8211; <p>a function, or any other callable object, that will be called with
+a <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> object as its first argument.</p>
+<dl class="docutils">
+<dt>The function&#8217;s return value can be:</dt>
+<dd><ul class="first last">
+<li>a single <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> object.</li>
+<li>a list of <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> objects.</li>
+<li><tt class="docutils literal"><span class="pre">None</span></tt> (or an empty list).</li>
 </ul>
-<p>Alternatively, <em>function</em> can also be a generator that yields
-<a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> objects.</p>
+</dd>
+</dl>
+<p>Instead of <tt class="docutils literal"><span class="pre">return</span></tt>ing <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> objects, <em>function</em>
+may also be a generator that <tt class="docutils literal"><span class="pre">yield</span></tt>s <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a>
+objects.</p>
+</li>
+<li><strong>*args</strong> &#8211; optional positional arguments that will be passed to <em>function</em>.</li>
+<li><strong>**kwargs</strong> &#8211; optional keyword arguments that will be passed to <em>function</em>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Any other MIDI processing will be stalled until <em>function</em> returns,
+so this should only be used with functions that don&#8217;t block.
+Use <a class="reference internal" href="#mididings.Call" title="mididings.Call"><tt class="xref py py-func docutils literal"><span class="pre">Call()</span></tt></a> for tasks that may take longer and/or don&#8217;t require
+returning any MIDI events.</p>
 <div class="code highlight-python"><div class="highlight"><pre><span class="c"># invert velocities of all note-on events</span>
 <span class="k">def</span> <span class="nf">invert_velocity</span><span class="p">(</span><span class="n">ev</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">NOTEON</span><span class="p">:</span>
@@ -595,24 +574,45 @@ to the next connected unit.</li>
 <tt class="descname">Call</tt><big>(</big><em>function</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mididings.Call" title="Permalink to this definition">¶</a></dt>
 <dt>
 <tt class="descname">Call</tt><big>(</big><em>thread=...</em>, <em>**kwargs</em><big>)</big></dt>
-<dd><p>Schedule a Python function for execution, and continue MIDI processing
-immediately.</p>
-<p><em>function</em> must be a function (or any other callable object) that can be
-called with <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> objects as its only argument.
-Its return value will be ignored.</p>
-<p>The <em>thread</em> parameter accepts the same arguments as <em>function</em>, but will
-run the function in its own thread.</p>
+<dd><p>Schedule a Python function for execution.
+The incoming event is discarded.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>function</strong> &#8211; <p>a function, or any other callable object.
+If the function accepts arguments, its first argument will be a copy
+of the <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> that triggered the function call.</p>
+<p>The function&#8217;s return value is ignored.</p>
+</li>
+<li><strong>thread</strong> &#8211; like <em>function</em>, but causes the function to be run in its own thread.</li>
+<li><strong>*args</strong> &#8211; optional positional arguments that will be passed to <em>function</em>.</li>
+<li><strong>**kwargs</strong> &#8211; optional keyword arguments that will be passed to <em>function</em>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="mididings.System">
 <tt class="descname">System</tt><big>(</big><em>command</em><big>)</big><a class="headerlink" href="#mididings.System" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run an arbitrary shell command, without waiting for the command to
-complete.</p>
-<p><em>command</em> can be a string, which will be passed verbatim to the shell.
-It may also be a Python function with the signature
-<tt class="docutils literal"><span class="pre">function(ev)</span> <span class="pre">-&gt;</span> <span class="pre">str</span></tt>, accepting a <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> object and
-returning the command to be executed.</p>
+<dd><p>Run an arbitrary shell command.
+The incoming event is discarded.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>command</strong> &#8211; <p>a string which will be passed verbatim to the shell.</p>
+<p>Alternatively it may also be a Python function that accepts a
+<a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> argument and returns the command string to
+be executed.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -733,18 +733,32 @@ supports operator <tt class="docutils literal"><span class="pre">&gt;&gt;</span>
 <tt class="descname">Print</tt><big>(</big><em>name=None</em>, <em>portnames=None</em><big>)</big><a class="headerlink" href="#mididings.Print" title="Permalink to this definition">¶</a></dt>
 <dt>
 <tt class="descname">Print</tt><big>(</big><em>string=...</em><big>)</big></dt>
-<dd><p>Print event data.
-<em>name</em> is an optional string that will be printed before each event, in
-order to distinguish between multiple <a class="reference internal" href="#mididings.Print" title="mididings.Print"><tt class="xref py py-func docutils literal"><span class="pre">Print()</span></tt></a> units in the same
-patch.
-If <em>portnames</em> is <tt class="docutils literal"><span class="pre">'in'</span></tt> or <tt class="docutils literal"><span class="pre">'out'</span></tt>, the output will include the name
-of the input or output port corresponding to the event&#8217;s port value,
-respectively, rather than just its number.</p>
-<p>The second form of this unit prints a string.
-The <em>string</em> argument may also be a Python function with the signature
-<tt class="docutils literal"><span class="pre">function(ev)</span> <span class="pre">-&gt;</span> <span class="pre">str</span></tt>, accepting a <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> object and
-returning the string to be printed, thus allowing for custom output
-formatting.</p>
+<dd><p>Print event data or strings to the console.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; an optional identifier that will be printed before any event data,
+in order to distinguish between multiple <a class="reference internal" href="#mididings.Print" title="mididings.Print"><tt class="xref py py-func docutils literal"><span class="pre">Print()</span></tt></a> units
+in the same patch.</li>
+<li><strong>portnames</strong> &#8211; <p>determines which port names will be printed:</p>
+<ul>
+<li><tt class="docutils literal"><span class="pre">'in'</span></tt>: the input port name corresponding to the event&#8217;s
+port number.</li>
+<li><tt class="docutils literal"><span class="pre">'out'</span></tt>: the output port name corresponding to the event&#8217;s
+port number.</li>
+<li><tt class="docutils literal"><span class="pre">None</span></tt>: port number only.</li>
+</ul>
+</li>
+<li><strong>string</strong> &#8211; print a fixed string.
+Alternatively <em>string</em> may also be a Python function that accepts
+a <a class="reference internal" href="event.html#mididings.event.MidiEvent" title="mididings.event.MidiEvent"><tt class="xref py py-class docutils literal"><span class="pre">MidiEvent</span></tt></a> argument and returns the string to be printed.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <div class="code highlight-python"><pre># a simple command-line MIDI event monitor
 $ mididings "Print()"</pre>
 </div>
@@ -792,7 +806,6 @@ the range 0-127.</p>
 <li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="start.html#anatomy-of-a-mididings-script">Anatomy of a mididings Script</a></li>
 <li class="toctree-l2"><a class="reference internal" href="start.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="start.html#command-line-usage">Command Line Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="connect.html">Connections</a><ul>
@@ -828,14 +841,24 @@ the range 0-127.</p>
 <li class="toctree-l1"><a class="reference internal" href="extra-units.html"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Units</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#voicing">Voicing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#splits">Splits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extra-units.html#miscellaneous">Miscellaneous</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-units.html#utilities">Utilities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#messaging">Messaging</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="extra-hooks.html"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extra.html">Module <tt class="docutils literal"><span class="pre">mididings.extra</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extra.html#hooks">Hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra.html#general-midi">General MIDI</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">GUI and Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#mididings"><strong class="command">mididings</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#livedings"><strong class="command">livedings</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#send-midi"><strong class="command">send_midi</strong></a></li>
+</ul>
+</li>
 </ul>
 
   <h4>Previous topic</h4>

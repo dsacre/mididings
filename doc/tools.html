@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Search &mdash; mididings  documentation</title>
+    <title>GUI and Command Line Tools &mdash; mididings  documentation</title>
     
     <link rel="stylesheet" href="_static/nasophon.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,15 +25,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/searchtools.js"></script>
     <link rel="top" title="mididings  documentation" href="index.html" />
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
-   
-
+    <link rel="prev" title="Module mididings.util" href="util.html" /> 
   </head>
   <body>
     <div class="related">
@@ -45,6 +38,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="util.html" title="Module mididings.util"
+             accesskey="P">previous</a> |</li>
         <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -54,29 +50,58 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <h1 id="search-documentation">Search</h1>
-  <div id="fallback" class="admonition warning">
-  <script type="text/javascript">$('#fallback').hide();</script>
-  <p>
-    Please activate JavaScript to enable the search
-    functionality.
-  </p>
-  </div>
-  <p>
-    From here you can search these documents. Enter your search
-    words into the box below and click "search". Note that the search
-    function will automatically search for all of the words. Pages
-    containing fewer words won't appear in the result list.
-  </p>
-  <form action="" method="get">
-    <input type="text" name="q" value="" />
-    <input type="submit" value="search" />
-    <span id="search-progress" style="padding-left: 10px"></span>
-  </form>
-  
-  <div id="search-results">
-  
-  </div>
+  <div class="section" id="gui-and-command-line-tools">
+<span id="tools"></span><h1>GUI and Command Line Tools<a class="headerlink" href="#gui-and-command-line-tools" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="mididings">
+<span id="id1"></span><h2><strong class="command">mididings</strong><a class="headerlink" href="#mididings" title="Permalink to this headline">¶</a></h2>
+<p>With the mididings command line application, simple patches can
+be specified directly in your favorite shell, so sometimes there&#8217;s no
+need to write full-fledged Python scripts:</p>
+<div class="highlight-python"><pre>$ mididings "Transpose(3) &gt;&gt; Channel(2)"</pre>
+</div>
+<p>See <tt class="docutils literal"><span class="pre">mididings</span> <span class="pre">--help</span></tt> for a list of all command line options.</p>
+<p>It&#8217;s also worth mentioning that mididings can easily be used in an
+interactive Python session:</p>
+<div class="highlight-python"><pre>$ python -i -c "from mididings import *"
+&gt;&gt;&gt; run(Transpose(3) &gt;&gt; Channel(2))</pre>
+</div>
+</div>
+<div class="section" id="livedings">
+<h2><strong class="command">livedings</strong><a class="headerlink" href="#livedings" title="Permalink to this headline">¶</a></h2>
+<p>livedings is a graphical frontend for mididings that allows
+you to monitor and trigger scene changes.
+It runs as a separate application that uses OSC to communicate with
+mididings.
+To use it, enable the <a class="reference internal" href="extra.html#mididings.extra.osc.OSCInterface" title="mididings.extra.osc.OSCInterface"><tt class="xref py py-class docutils literal"><span class="pre">OSCInterface</span></tt></a> hook in your mididings script:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mididings.extra.osc</span> <span class="kn">import</span> <span class="n">OSCInterface</span>
+
+<span class="n">hook</span><span class="p">(</span><span class="n">OSCInterface</span><span class="p">())</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>Then run livedings:</p>
+<div class="highlight-python"><pre>$ livedings</pre>
+</div>
+<p>By default, livedings uses the standard Tk theme. Specify the <tt class="docutils literal"><span class="pre">-T</span></tt>
+option to switch to a custom theme with higher contrast and larger fonts.
+See <tt class="docutils literal"><span class="pre">livedings</span> <span class="pre">--help</span></tt> for more options.</p>
+<p>The buttons at the bottom of the screen can be used to switch to the
+previous/next scene, previous/next subscene, and to send all-notes-off
+messages (panic) on all output ports. It&#8217;s also possible to use the
+arrow keys to switch scenes (up/down) and subscenes (left/right).</p>
+</div>
+<div class="section" id="send-midi">
+<h2><strong class="command">send_midi</strong><a class="headerlink" href="#send-midi" title="Permalink to this headline">¶</a></h2>
+<p>send_midi is a simple utility to send MIDI events to any ALSA or
+JACK MIDI clients, using a terse command line format:</p>
+<div class="highlight-python"><pre>$ send_midi LinuxSampler:0 NOTEON,1,60,127 CTRL,2,7,66
+$ send_midi -J mididings:in_.* PROGRAM,1,42
+$ send_midi 14:0 SYSEX,F0,23,42,F7</pre>
+</div>
+<p>See <tt class="docutils literal"><span class="pre">send_midi</span> <span class="pre">--help</span></tt> for a list of all command line options.</p>
+</div>
+</div>
+
 
           </div>
         </div>
@@ -84,7 +109,7 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="start.html#anatomy-of-a-mididings-script">Anatomy of a mididings Script</a></li>
 <li class="toctree-l2"><a class="reference internal" href="start.html#examples">Examples</a></li>
@@ -135,14 +160,30 @@
 <li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
-<li class="toctree-l1"><a class="reference internal" href="tools.html">GUI and Command Line Tools</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tools.html#mididings"><strong class="command">mididings</strong></a></li>
-<li class="toctree-l2"><a class="reference internal" href="tools.html#livedings"><strong class="command">livedings</strong></a></li>
-<li class="toctree-l2"><a class="reference internal" href="tools.html#send-midi"><strong class="command">send_midi</strong></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">GUI and Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mididings"><strong class="command">mididings</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#livedings"><strong class="command">livedings</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#send-midi"><strong class="command">send_midi</strong></a></li>
 </ul>
 </li>
 </ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="util.html"
+                        title="previous chapter">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -156,6 +197,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="util.html" title="Module mididings.util"
+             >previous</a> |</li>
         <li><a href="index.html">mididings  documentation</a> &raquo;</li> 
       </ul>
     </div>

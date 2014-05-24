@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>mididings.extra Hooks &mdash; mididings  documentation</title>
+    <title>Module mididings.extra &mdash; mididings  documentation</title>
     
     <link rel="stylesheet" href="_static/nasophon.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -54,8 +54,10 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="mididings-extra-hooks">
-<span id="extra-hooks"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt> Hooks<a class="headerlink" href="#mididings-extra-hooks" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-mididings-extra">
+<span id="extra"></span><h1>Module <tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt><a class="headerlink" href="#module-mididings-extra" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="hooks">
+<span id="extra-hooks"></span><h2>Hooks<a class="headerlink" href="#hooks" title="Permalink to this headline">¶</a></h2>
 <p>Hooks extend the functionality of mididings.
 Instances of these classes can be registered using the <a class="reference internal" href="main.html#mididings.hook" title="mididings.hook"><tt class="xref py py-func docutils literal"><span class="pre">hook()</span></tt></a>
 function.</p>
@@ -134,6 +136,175 @@ Requires <a class="reference external" href="http://das.nasophon.de/pyliblo/">py
 </dd></dl>
 
 </div>
+<div class="section" id="general-midi">
+<span id="extra-gm"></span><h2>General MIDI<a class="headerlink" href="#general-midi" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra.gm</span></tt> module contains constants for program and
+controller numbers defined in the General MIDI standard.</p>
+<div class="section" id="programs">
+<h3>Programs<a class="headerlink" href="#programs" title="Permalink to this headline">¶</a></h3>
+<table class="hlist"><tr><td><ul class="simple">
+<li>ACOUSTIC_GRAND_PIANO</li>
+<li>BRIGHT_ACOUSTIC_PIANO</li>
+<li>ELECTRIC_GRAND_PIANO</li>
+<li>HONKY_TONK_PIANO</li>
+<li>ELECTRIC_PIANO_1</li>
+<li>ELECTRIC_PIANO_2</li>
+<li>HARPSICHORD</li>
+<li>CLAVINET</li>
+<li>CELESTA</li>
+<li>GLOCKENSPIEL</li>
+<li>MUSIC_BOX</li>
+<li>VIBRAPHONE</li>
+<li>MARIMBA</li>
+<li>XYLOPHONE</li>
+<li>TUBULAR_BELLS</li>
+<li>DULCIMER</li>
+<li>DRAWBAR_ORGAN</li>
+<li>PERCUSSIVE_ORGAN</li>
+<li>ROCK_ORGAN</li>
+<li>CHURCH_ORGAN</li>
+<li>REED_ORGAN</li>
+<li>ACCORDION</li>
+<li>HARMONICA</li>
+<li>TANGO_ACCORDION</li>
+<li>ACOUSTIC_GUITAR_NYLON</li>
+<li>ACOUSTIC_GUITAR_STEEL</li>
+<li>ELECTRIC_GUITAR_JAZZ</li>
+<li>ELECTRIC_GUITAR_CLEAN</li>
+<li>ELECTRIC_GUITAR_MUTED</li>
+<li>OVERDRIVEN_GUITAR</li>
+<li>DISTORTION_GUITAR</li>
+<li>GUITAR_HARMONICS</li>
+<li>ACOUSTIC_BASS</li>
+<li>ELECTRIC_BASS_FINGER</li>
+<li>ELECTRIC_BASS_PICK</li>
+<li>FRETLESS_BASS</li>
+<li>SLAP_BASS_1</li>
+<li>SLAP_BASS_2</li>
+<li>SYNTH_BASS_1</li>
+<li>SYNTH_BASS_2</li>
+<li>VIOLIN</li>
+<li>VIOLA</li>
+<li>CELLO</li>
+<li>CONTRABASS</li>
+<li>TREMOLO_STRINGS</li>
+<li>PIZZICATO_STRINGS</li>
+<li>ORCHESTRAL_HARP</li>
+<li>TIMPANI</li>
+<li>STRING_ENSEMBLE_1</li>
+<li>STRING_ENSEMBLE_2</li>
+<li>SYNTH_STRINGS_1</li>
+<li>SYNTH_STRINGS_2</li>
+<li>CHOIR_AAHS</li>
+<li>VOICE_OOHS</li>
+<li>SYNTH_VOICE</li>
+<li>ORCHESTRA_HIT</li>
+<li>TRUMPET</li>
+<li>TROMBONE</li>
+<li>TUBA</li>
+<li>MUTED_TRUMPET</li>
+<li>FRENCH_HORN</li>
+<li>BRASS_SECTION</li>
+<li>SYNTHBRASS_1</li>
+<li>SYNTHBRASS_2</li>
+</ul>
+</td><td><ul class="simple">
+<li>SOPRANO_SAX</li>
+<li>ALTO_SAX</li>
+<li>TENOR_SAX</li>
+<li>BARITONE_SAX</li>
+<li>OBOE</li>
+<li>ENGLISH_HORN</li>
+<li>BASSOON</li>
+<li>CLARINET</li>
+<li>PICCOLO</li>
+<li>FLUTE</li>
+<li>RECORDER</li>
+<li>PAN_FLUTE</li>
+<li>BLOWN_BOTTLE</li>
+<li>SHAKUHACHI</li>
+<li>WHISTLE</li>
+<li>OCARINA</li>
+<li>LEAD_1_SQUARE</li>
+<li>LEAD_2_SAWTOOTH</li>
+<li>LEAD_3_CALLIOPE</li>
+<li>LEAD_4_CHIFF</li>
+<li>LEAD_5_CHARANG</li>
+<li>LEAD_6_VOICE</li>
+<li>LEAD_7_FIFTHS</li>
+<li>LEAD_8_BASS_LEAD</li>
+<li>PAD_1_NEW_AGE</li>
+<li>PAD_2_WARM</li>
+<li>PAD_3_POLYSYNTH</li>
+<li>PAD_4_CHOIR</li>
+<li>PAD_5_BOWED</li>
+<li>PAD_6_METALLIC</li>
+<li>PAD_7_HALO</li>
+<li>PAD_8_SWEEP</li>
+<li>FX_1_RAIN</li>
+<li>FX_2_SOUNDTRACK</li>
+<li>FX_3_CRYSTAL</li>
+<li>FX_4_ATMOSPHERE</li>
+<li>FX_5_BRIGHTNESS</li>
+<li>FX_6_GOBLINS</li>
+<li>FX_7_ECHOES</li>
+<li>FX_8_SCI_FI</li>
+<li>SITAR</li>
+<li>BANJO</li>
+<li>SHAMISEN</li>
+<li>KOTO</li>
+<li>KALIMBA</li>
+<li>BAGPIPE</li>
+<li>FIDDLE</li>
+<li>SHANAI</li>
+<li>TINKLE_BELL</li>
+<li>AGOGO</li>
+<li>STEEL_DRUMS</li>
+<li>WOODBLOCK</li>
+<li>TAIKO_DRUM</li>
+<li>MELODIC_TOM</li>
+<li>SYNTH_DRUM</li>
+<li>REVERSE_CYMBAL</li>
+<li>GUITAR_FRET_NOISE</li>
+<li>BREATH_NOISE</li>
+<li>SEASHORE</li>
+<li>BIRD_TWEET</li>
+<li>TELEPHONE_RING</li>
+<li>HELICOPTER</li>
+<li>APPLAUSE</li>
+<li>GUNSHOT</li>
+</ul>
+</td></tr></table>
+</div>
+<div class="section" id="controllers">
+<h3>Controllers<a class="headerlink" href="#controllers" title="Permalink to this headline">¶</a></h3>
+<table class="hlist"><tr><td><ul class="simple">
+<li>CTRL_BANK_SELECT_MSB</li>
+<li>CTRL_MODULATION</li>
+<li>CTRL_DATA_ENTRY_MSB</li>
+<li>CTRL_VOLUME</li>
+<li>CTRL_PAN</li>
+<li>CTRL_EXPRESSION</li>
+<li>CTRL_BANK_SELECT_LSB</li>
+<li>CTRL_DATA_ENTRY_LSB</li>
+<li>CTRL_SUSTAIN</li>
+<li>CTRL_PORTAMENTO</li>
+</ul>
+</td><td><ul class="simple">
+<li>CTRL_SOSTENUTO</li>
+<li>CTRL_SOFT_PEDAL</li>
+<li>CTRL_LEGATO_PEDAL</li>
+<li>CTRL_NRPN_LSB</li>
+<li>CTRL_NRPN_MSB</li>
+<li>CTRL_RPN_LSB</li>
+<li>CTRL_RPN_MSB</li>
+<li>CTRL_RESET_ALL_CONTROLLERS</li>
+<li>CTRL_ALL_NOTES_OFF</li>
+</ul>
+</td></tr></table>
+</div>
+</div>
+</div>
 
 
           </div>
@@ -146,7 +317,6 @@ Requires <a class="reference external" href="http://das.nasophon.de/pyliblo/">py
 <li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="start.html#anatomy-of-a-mididings-script">Anatomy of a mididings Script</a></li>
 <li class="toctree-l2"><a class="reference internal" href="start.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="start.html#command-line-usage">Command Line Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="connect.html">Connections</a><ul>
@@ -182,14 +352,24 @@ Requires <a class="reference external" href="http://das.nasophon.de/pyliblo/">py
 <li class="toctree-l1"><a class="reference internal" href="extra-units.html"><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Units</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#voicing">Voicing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#splits">Splits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extra-units.html#miscellaneous">Miscellaneous</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-units.html#utilities">Utilities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-units.html#messaging">Messaging</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href=""><tt class="docutils literal"><span class="pre">mididings.extra</span></tt> Hooks</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Module <tt class="docutils literal"><span class="pre">mididings.extra</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#hooks">Hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#general-midi">General MIDI</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">GUI and Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#mididings"><strong class="command">mididings</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#livedings"><strong class="command">livedings</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#send-midi"><strong class="command">send_midi</strong></a></li>
+</ul>
+</li>
 </ul>
 
   <h4>Previous topic</h4>
