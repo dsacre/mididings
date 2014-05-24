@@ -49,13 +49,32 @@ div.sphinxsidebarwrapper > h3:first-child {
     margin-top: 0.2em;
 }
 
+div.sphinxsidebarwrapper {
+    padding: 10px 10px 0px 10px;
+}
+
+div.sphinxsidebarwrapper > ul {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+div.sphinxsidebar li.current {
+    background: #fff;
+    width: auto;
+    border-radius: 3px;
+    padding-bottom: 1px;
+}
+
 div.sphinxsidebar a.current {
     font-weight: bold;
     color: #fff;
     background: #52576a;
     border: 3px solid #52576a;
     border-radius: 3px;
+    width: auto;
+    display: block;
 }
+
 
 div.sphinxsidebar input {
     font-family: 'Lucida Grande',Arial,sans-serif;
