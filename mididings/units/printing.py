@@ -98,19 +98,26 @@ class _PrintString(_CallBase):
     Print(name=None, portnames=None)
     Print(string=...)
 
-    Print event data.
-    *name* is an optional string that will be printed before each event, in
-    order to distinguish between multiple :func:`~.Print()` units in the same
-    patch.
-    If *portnames* is ``'in'`` or ``'out'``, the output will include the name
-    of the input or output port corresponding to the event's port value,
-    respectively, rather than just its number.
+    Print event data or strings to the console.
 
-    The second form of this unit prints a string.
-    The *string* argument may also be a Python function with the signature
-    ``function(ev) -> str``, accepting a :class:`~.MidiEvent` object and
-    returning the string to be printed, thus allowing for custom output
-    formatting.
+    :param name:
+        an optional identifier that will be printed before any event data,
+        in order to distinguish between multiple :func:`Print()` units
+        in the same patch.
+
+    :param portnames:
+        determines which port names will be printed:
+
+        - ``'in'``: the input port name corresponding to the event's
+          port number.
+        - ``'out'``: the output port name corresponding to the event's
+          port number.
+        - ``None``: port number only.
+
+    :param string:
+        print a fixed string.
+        Alternatively *string* may also be a Python function that accepts
+        a :class:`~.MidiEvent` argument and returns the string to be printed.
     """
 )
 @_unitrepr.accept((str, type(None)), ('in', 'out', None))
