@@ -62,14 +62,8 @@ if __name__ == '__main__':
     usage       = "Usage: send_midi [options] dest_port event [...]"
     description = "Sends one or more MIDI events via ALSA or JACK."
     version     = "mididings %s" % _mididings.__version__
-    epilog      = "Examples:\n" \
-                  "send_midi LinuxSampler:0 NOTEON,1,60,127\n" \
-                  "send_midi -J mididings:in_.* PROGRAM,1,42\n" \
-                  "send_midi 14:0 SYSEX,F0,23,42,F7"
 
-    parser = optparse.OptionParser(usage=usage, description=description, epilog=epilog, version=version)
-    # leave epilog formatting intact
-    parser.format_epilog = lambda formatter: '\n%s\n' % epilog
+    parser = optparse.OptionParser(usage=usage, description=description, version=version)
 
     parser.add_option('-A', '--alsa', dest='backend', action='store_const',
                       const='alsa', default='alsa', help="use ALSA (default)")
