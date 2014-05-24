@@ -113,6 +113,23 @@ Filtering and Splitting
     See section :ref:`units-splits` for units that allow splitting by different
     event properties.
 
+
+    All split units are just combinations of multiple filters of the same
+    type.
+    Tuples can be used to pass multiple arguments to a split's underlying
+    filters (lists won't work, as they are not hashable and thus can't be
+    used as keys in a dictionary).
+    In addition to any filter arguments, splits also allow ``None`` to be
+    used as a key. This acts as an ``else`` clause that is executed when
+    none of the other conditions match::
+
+        ChannelSplit({
+            1:      ...,    # if channel == 1
+            (2, 3): ...,    # if channel == 2 or channel == 3
+            None:   ...,    # else
+        })
+
+
 Selective Processing
 --------------------
 
