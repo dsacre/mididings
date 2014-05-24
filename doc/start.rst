@@ -177,24 +177,3 @@ on the currently active scene.
     The use of init patches can often be significantly simplified
     by embedding them into the regular patches, in particular using the
     :func:`Output()` unit and the :class:`OutputTemplate` class.
-
-
-
-.. _commandline:
-
-Command Line Usage
-------------------
-
-With the :command:`mididings` command line application, simple patches can
-also be specified directly in your favorite shell, so sometimes there's no
-need to write full-fledged Python scripts::
-
-    $ mididings "Transpose(3) >> Channel(2)"
-
-See ``mididings --help`` for more options.
-
-It's also worth mentioning that mididings can easily be used in an
-interactive Python session::
-
-    $ python -i -c "from mididings import *"
-    >>> run(Transpose(3) >> Channel(2))

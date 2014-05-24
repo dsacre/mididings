@@ -22,6 +22,7 @@ Contents:
     event
     engine
     util
+    tools
 
 
 Indices and Tables
