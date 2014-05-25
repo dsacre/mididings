@@ -10,6 +10,7 @@ Units are the basic building blocks from which you can build your mididings
 patches.
 
 .. note::
+
     This document doesn't describe what the documented functions do,
     but rather what the objects they return do.
     For example, the ``Transpose()`` function does not actually
@@ -34,7 +35,7 @@ Filters
 
 .. autofunction:: KeyFilter
 
-    .. code::
+    ::
 
         # match a note range
         KeyFilter('c1:a3')
@@ -47,7 +48,7 @@ Filters
 
 .. autofunction:: CtrlFilter
 
-    .. code::
+    ::
 
         # remove all sustain pedal messages
         ~CtrlFilter(64)
@@ -58,7 +59,7 @@ Filters
 
 .. autofunction:: SysExFilter
 
-    .. code::
+    ::
 
         # match SysEx messages starting with 'F0 07 15 42'
         SysExFilter('\xf0\x07\x15\x42')
@@ -124,7 +125,7 @@ Modifiers
     the :func:`Sanitize()` unit, velocities greater than 127 will automatically
     be reduced to 127, and events with a velocity less than 1 will be removed.
 
-    .. code::
+    ::
 
         # increase velocity of note-on events, making the keyboard feel softer
         Velocity(curve=1.0)
@@ -134,7 +135,7 @@ Modifiers
     .. image:: velocityslope.png
        :alt: velocity slope
 
-    .. code::
+    ::
 
         # apply a velocity slope as seen in the graphic above
         VelocitySlope(notes=('b1','g2','g#3','d4'), offset=(-64, 32, 32, 0))
@@ -143,7 +144,7 @@ Modifiers
 
 .. autofunction:: CtrlMap
 
-    .. code::
+    ::
 
         # convert sustain pedal to sostenuto
         CtrlMap(64, 66)
@@ -154,7 +155,7 @@ Modifiers
 
 .. autofunction:: PitchbendRange
 
-    .. code::
+    ::
 
         # set up the pitchbend wheel to bend a full octave down, but only
         # one whole step up, assuming the synth is set to a symmetric range of
@@ -211,7 +212,7 @@ Function Calls
 
 .. autofunction:: Process
 
-    .. code::
+    ::
 
         # invert velocities of all note-on events
         def invert_velocity(ev):
@@ -284,12 +285,12 @@ Miscellaneous
 
 .. autofunction:: Print
 
-    .. code::
+    ::
 
         # a simple command-line MIDI event monitor
         $ mididings "Print()"
 
-    .. code::
+    ::
 
         # print a graph of note-on velocities
         Filter(NOTEON) % Print(string=lambda ev: '#' * ev.velocity)

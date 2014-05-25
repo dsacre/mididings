@@ -261,6 +261,7 @@ In short, remember that...
 - when in doubt, you can always use additional parentheses.
 
 .. note::
+
     Operator overloading doesn't apply if both sides of the
     operator are builtin Python types like :class:`list` or :class:`dict`.
     In some cases it may be necessary to wrap those in

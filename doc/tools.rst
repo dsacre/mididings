@@ -40,7 +40,7 @@ To use it, enable the :class:`~.OSCInterface` hook in your mididings script::
 
 Then run livedings::
 
-$ livedings
+    $ livedings
 
 By default, livedings uses the standard Tk theme. Specify the ``-T``
 option to switch to a custom theme with higher contrast and larger fonts.

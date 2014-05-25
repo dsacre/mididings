@@ -174,6 +174,7 @@ The control patch can be used for any event processing that does not depend
 on the currently active scene.
 
 .. note::
+
     The use of init patches can often be significantly simplified
     by embedding them into the regular patches, in particular using the
     :func:`Output()` unit and the :class:`OutputTemplate` class.

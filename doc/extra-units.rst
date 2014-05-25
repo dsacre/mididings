@@ -12,6 +12,7 @@ Unless otherwise noted, they are made available by importing the
 :mod:`mididings.extra` module.
 
 .. note::
+
     Some of these units are implemented in Python using :func:`~.Process()`,
     and are thus not safe to use with the ``jack-rt`` backend.
 

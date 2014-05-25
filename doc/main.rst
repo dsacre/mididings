@@ -57,7 +57,7 @@ described below:
         (clientname:portname) of each external port. ALSA clients and ports can
         be referred to using either their names or numbers.
 
-    .. code::
+    ::
 
         # create two input ports
         in_ports = 2
@@ -103,7 +103,7 @@ Functions
 
 .. autofunction:: config
 
-    .. code::
+    ::
 
         # set some configuration values
         config(
@@ -126,7 +126,7 @@ Classes
 
 .. autoclass:: SceneGroup
 
-.. code::
+::
 
     # define one scene (song) with 3 subscenes (parts)
     SceneGroup("Example Song", [
