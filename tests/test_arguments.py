@@ -233,11 +233,10 @@ class ArgumentsTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             bar({'foo': 23, 666: 42})
 
-    def test_with_rest(self):
-        @arguments.accept(arguments.sequenceof(int), with_rest=True)
-        def foo(a, *rest):
+    def test_add_varargs(self):
+        @arguments.accept(arguments.sequenceof(int), add_varargs=True)
+        def foo(a):
             self.assertTrue(misc.issequenceof(a, int))
-            self.assertTupleEqual(rest, ())
 
         foo(123)
         foo(123, 456, 789)
@@ -249,8 +248,8 @@ class ArgumentsTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             foo(123, [456, 789])
 
-        @arguments.accept(int, [int], with_rest=True)
-        def bar(a, b, *rest):
+        @arguments.accept(int, [int], add_varargs=True)
+        def bar(a, b):
             self.assertEqual(a, 123)
             self.assertTupleEqual(b, (456, 789))
 

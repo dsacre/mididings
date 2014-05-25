@@ -236,8 +236,8 @@ _UNIT_TYPES = (_Unit, list, dict, _constants._EventType)
 _SELECTOR_TYPES = (_Filter, _Selector, _constants._EventType)
 
 
-@_arguments.accept([_UNIT_TYPES], with_rest=True)
-def Chain(units, *rest):
+@_arguments.accept([_UNIT_TYPES], add_varargs=True)
+def Chain(units):
     """
     Units connected in series.
     """
@@ -248,9 +248,9 @@ def Chain(units, *rest):
     return _Chain(units)
 
 
-@_arguments.accept([_UNIT_TYPES], with_rest=True,
+@_arguments.accept([_UNIT_TYPES], add_varargs=True,
                    kwargs={'remove_duplicates': (True, False, None)})
-def Fork(units, *rest, **kwargs):
+def Fork(units, **kwargs):
     """
     Units connected in parallel.
     """
@@ -294,8 +294,8 @@ AndSelector = And
 OrSelector = Or
 
 
-@_unitrepr.accept(_arguments.reduce_bitmask([_constants._EventType]), with_rest=True)
-def Filter(types, *rest):
+@_unitrepr.accept(_arguments.reduce_bitmask([_constants._EventType]), add_varargs=True)
+def Filter(types):
     """
     Filter(types, ...)
 

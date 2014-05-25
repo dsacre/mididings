@@ -22,8 +22,8 @@ import mididings.unitrepr as _unitrepr
 import functools as _functools
 
 
-@_unitrepr.accept(_arguments.flatten(_util.port_number), with_rest=True)
-def PortFilter(ports, *rest):
+@_unitrepr.accept(_arguments.flatten(_util.port_number), add_varargs=True)
+def PortFilter(ports):
     """
     PortFilter(ports, ...)
 
@@ -33,8 +33,8 @@ def PortFilter(ports, *rest):
     return _Filter(_mididings.PortFilter(map(_util.actual, ports)))
 
 
-@_unitrepr.accept(_arguments.flatten(_util.channel_number), with_rest=True)
-def ChannelFilter(channels, *rest):
+@_unitrepr.accept(_arguments.flatten(_util.channel_number), add_varargs=True)
+def ChannelFilter(channels):
     """
     ChannelFilter(channels, ...)
 
@@ -114,8 +114,8 @@ def VelocityFilter(lower, upper):
     return _Filter(_mididings.VelocityFilter(lower, upper))
 
 
-@_unitrepr.accept(_arguments.flatten(_util.ctrl_number), with_rest=True)
-def CtrlFilter(ctrls, *rest):
+@_unitrepr.accept(_arguments.flatten(_util.ctrl_number), add_varargs=True)
+def CtrlFilter(ctrls):
     """
     CtrlFilter(ctrls, ...)
 
@@ -157,8 +157,8 @@ def CtrlValueFilter(lower, upper):
     return _Filter(_mididings.CtrlValueFilter(lower, upper))
 
 
-@_unitrepr.accept(_arguments.flatten(_util.program_number), with_rest=True)
-def ProgramFilter(programs, *rest):
+@_unitrepr.accept(_arguments.flatten(_util.program_number), add_varargs=True)
+def ProgramFilter(programs):
     """
     ProgramFilter(programs, ...)
 

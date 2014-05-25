@@ -30,10 +30,10 @@ class accept(object):
     arguments, one additional constraint must be specified, and will be applied
     to each of those arguments.
 
-    If the optional keyword argument with_rest is True, all variable arguments
-    are instead combined with the last regular positional argument into a
-    single list. This list is then passed to the original function as a single
-    argument.
+    If the optional keyword argument add_varargs is True, the decorated
+    function will accept variable arguments, which are combined with the last
+    regular positional argument into a single tuple. This tuple is then passed
+    to the original function as a single argument.
 
     The kwargs dictionary, itself passed as an optional keyword argument,
     maps keyword arguments to the corresponding constraints. None can be used
@@ -41,7 +41,7 @@ class accept(object):
     with any name.
     """
     def __init__(self, *constraints, **kwargs):
-        self.with_rest = kwargs['with_rest'] if 'with_rest' in kwargs else False
+        self.add_varargs = kwargs['add_varargs'] if 'add_varargs' in kwargs else False
         kwargs_constraints = kwargs['kwargs'] if 'kwargs' in kwargs else {}
 
         # build all constraints
@@ -51,20 +51,34 @@ class accept(object):
     def __call__(self, f):
         argspec = misc.getargspec(f)
         self.arg_names = argspec[0]
-        self.have_varargs = (argspec[1] is not None) and not self.with_rest
+        self.have_varargs = (argspec[1] is not None) and not self.add_varargs
 
         assert ((len(self.constraints) == len(self.arg_names) and not self.have_varargs)
              or (len(self.constraints) == len(self.arg_names) + 1 and self.have_varargs))
 
-        return decorator.decorator(self.wrapper, f)
+        if self.add_varargs:
+            # add varargs to the signature and use decorator.FunctionMaker
+            # directly to create the decorated function
+            orig_signature = inspect.getargspec(f)
+            assert orig_signature.varargs is None
+            signature = orig_signature._replace(varargs='args')
+            evaldict = self.wrapper.__globals__.copy()
+            evaldict['_call_'] = self.wrapper
+            evaldict['_func_'] = f
+            return decorator.FunctionMaker.create(
+                '%s%s' % (f.__name__, inspect.formatargspec(*signature)),
+                'return _call_(_func_, %(shortsignature)s)',
+                evaldict, undecorated=f, __wrapped__=f)
+        else:
+            return decorator.decorator(self.wrapper, f)
 
     def wrapper(self, f, *args, **kwargs):
         mod_args = []
         mod_kwargs = {}
 
         for constraint, arg_name, arg in zip(self.constraints, self.arg_names, args):
-            if self.with_rest and arg_name == self.arg_names[-1]:
-                # with_rest is True and this is the last argument:
+            if self.add_varargs and arg_name == self.arg_names[-1]:
+                # add_varargs is True and this is the last argument:
                 # combine with varargs
                 index = len(self.arg_names)
                 if isinstance(arg, types.GeneratorType):
