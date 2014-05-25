@@ -13,7 +13,6 @@
 from mididings import misc
 
 import inspect
-import sys
 import collections
 import types
 import functools
@@ -95,8 +94,7 @@ class accept(object):
 def _try_apply_constraint(constraint, arg, func_name, arg_name):
     try:
         return constraint(arg)
-    except (TypeError, ValueError):
-        ex = sys.exc_info()[1]
+    except (TypeError, ValueError) as ex:
         typestr = "type" if isinstance(ex, TypeError) else "value"
         argstr = ("for parameter '%s'" % arg_name) if arg_name else "in varargs"
 
@@ -220,8 +218,7 @@ class sequenceof(_constraint):
         try:
             t = type(arg) if not isinstance(arg, types.GeneratorType) else list
             return t(self.what(value) for value in arg)
-        except (TypeError, ValueError):
-            ex = sys.exc_info()[1]
+        except (TypeError, ValueError) as ex:
             message = "illegal item in sequence: %s" % str(ex)
             raise type(ex)(message)
 
@@ -246,8 +243,7 @@ class tupleof(_constraint):
         try:
             t = type(arg) if not isinstance(arg, types.GeneratorType) else list
             return t(what(value) for what, value in zip(self.what, arg))
-        except (TypeError, ValueError):
-            ex = sys.exc_info()[1]
+        except (TypeError, ValueError) as ex:
             message = "illegal item in sequence: %s" % str(ex)
             raise type(ex)(message)
 
@@ -269,14 +265,12 @@ class mappingof(_constraint):
             raise TypeError("not a dictionary")
         try:
             keys = (self.fromwhat(key) for key in arg.keys())
-        except (TypeError, ValueError):
-            ex = sys.exc_info()[1]
+        except (TypeError, ValueError) as ex:
             message = "illegal key in dictionary: %s" % str(ex)
             raise type(ex)(message)
         try:
             values = (self.towhat(value) for value in arg.values())
-        except (TypeError, ValueError):
-            ex = sys.exc_info()[1]
+        except (TypeError, ValueError) as ex:
             message = "illegal value in dictionary: %s" % str(ex)
             raise type(ex)(message)
         return dict(zip(keys, values))
@@ -298,8 +292,7 @@ class flatten(_constraint):
         try:
             r = [self.what(value) for value in misc.flatten(arg)]
             return r if self.return_type is None else self.return_type(r)
-        except (TypeError, ValueError):
-            ex = sys.exc_info()[1]
+        except (TypeError, ValueError) as ex:
             message = "illegal item in sequence: %s" % str(ex)
             raise type(ex)(message)
 
@@ -335,8 +328,7 @@ class either(_constraint):
         for n, what in enumerate(self.alternatives):
             try:
                 return what(arg)
-            except (TypeError, ValueError):
-                ex = sys.exc_info()[1]
+            except (TypeError, ValueError) as ex:
                 exstr = str(ex).replace('\n', '\n    ')
                 errors.append("    #%d %s: %s: %s" % (n + 1, what, type(ex).__name__, exstr))
         message = "none of the alternatives matched:\n" + '\n'.join(errors)
