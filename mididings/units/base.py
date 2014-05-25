@@ -236,19 +236,30 @@ _UNIT_TYPES = (_Unit, list, dict, _constants._EventType)
 _SELECTOR_TYPES = (_Filter, _Selector, _constants._EventType)
 
 
-@_arguments.accept([_UNIT_TYPES])
-def Chain(units):
+@_arguments.accept([_UNIT_TYPES], with_rest=True)
+def Chain(units, *rest):
     """
     Units connected in series.
     """
+    # handle a single list argument differently for backward compatibility
+    if len(units) == 1 and type(units[0]) == list:
+        units = units[0]
+
     return _Chain(units)
 
 
-@_arguments.accept([_UNIT_TYPES], (True, False, None))
-def Fork(units, remove_duplicates=None):
+@_arguments.accept([_UNIT_TYPES], with_rest=True,
+                   kwargs={'remove_duplicates': (True, False, None)})
+def Fork(units, *rest, **kwargs):
     """
     Units connected in parallel.
     """
+    remove_duplicates = kwargs['remove_duplicates'] if 'remove_duplicates' in kwargs else None
+
+    # handle a single list argument differently for backward compatibility
+    if len(units) == 1 and type(units[0]) == list:
+        units = units[0]
+
     return _Fork(units, remove_duplicates)
 
 

@@ -31,9 +31,12 @@ class PatchTestCase(MididingsTestCase):
         self.run_patch(p, self.make_event())
         self.assertEqual(order, [1, 2, 3, 4, 5, 6, 7, 8, 9])
 
+        def fork_dup(*args):
+            return Fork(*args, remove_duplicates=False)
+
         order = []
-        p = (Fork([ me(1), me(2) ], False) >> me(3) >>
-             Fork([ me(4), me(5) >> Fork([ me(6), me(7) ], False) >> me(8) ], False) >> me(9))
+        p = (fork_dup([ me(1), me(2) ]) >> me(3) >>
+             fork_dup([ me(4), me(5) >> fork_dup([ me(6), me(7) ]) >> me(8) ]) >> me(9))
 
         self.run_patch(p, self.make_event())
         self.assertEqual(order, [1, 2, 3, 3, 4, 5, 6, 7, 8, 8, 4, 5, 6, 7, 8, 8, 9, 9, 9, 9, 9, 9])

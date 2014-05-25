@@ -34,6 +34,7 @@ class accept(object):
     are instead combined with the last regular positional argument into a
     single list. This list is then passed to the original function as a single
     argument.
+
     The kwargs dictionary, itself passed as an optional keyword argument,
     maps keyword arguments to the corresponding constraints. None can be used
     as a key in this dictionary to specify constraints for keyword arguments
@@ -63,9 +64,13 @@ class accept(object):
 
         for constraint, arg_name, arg in zip(self.constraints, self.arg_names, args):
             if self.with_rest and arg_name == self.arg_names[-1]:
-                # with_rest is True and this is the last argument: combine with varargs
+                # with_rest is True and this is the last argument:
+                # combine with varargs
                 index = len(self.arg_names)
-                arg = (arg,) + args[index:]
+                if isinstance(arg, types.GeneratorType):
+                    arg = tuple(arg) + args[index:]
+                else:
+                    arg = (arg,) + args[index:]
 
             a = _try_apply_constraint(constraint, arg, f.__name__, arg_name)
             mod_args.append(a)
