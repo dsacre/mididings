@@ -34,7 +34,7 @@ class OSCInterface(object):
     These messages are currently understood:
 
     - **/mididings/switch_scene ,i**: switch to the given scene number.
-    - **/mididings/switch_subscene ,i**: switchs to the given subscene number.
+    - **/mididings/switch_subscene ,i**: switch to the given subscene number.
     - **/mididings/prev_scene**: switch to the previous scene.
     - **/mididings/next_scene**: switch to the next scene.
     - **/mididings/prev_subscene**: switch to the previous subscene.
@@ -70,7 +70,8 @@ class OSCInterface(object):
     def send_config(self):
         for p in self.notify_ports:
             # send data offset
-            _liblo.send(p, '/mididings/data_offset', _setup.get_config('data_offset'))
+            _liblo.send(p, '/mididings/data_offset',
+                        _setup.get_config('data_offset'))
 
             # send list of scenes
             _liblo.send(p, '/mididings/begin_scenes')
@@ -83,7 +84,8 @@ class OSCInterface(object):
     def query_cb(self, path, args):
         self.send_config()
         for p in self.notify_ports:
-            _liblo.send(p, '/mididings/current_scene', _engine.current_scene(), _engine.current_subscene())
+            _liblo.send(p, '/mididings/current_scene',
+                        _engine.current_scene(), _engine.current_subscene())
 
     @_liblo.make_method('/mididings/switch_scene', 'i')
     @_liblo.make_method('/mididings/switch_scene', 'ii')

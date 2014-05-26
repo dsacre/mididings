@@ -103,7 +103,8 @@ class curious_alloc
         (void)n;
         ASSERT(n == 1);
 
-        if (std::less<T*>()(p, pool_) || std::greater_equal<T*>()(p, pool_ + N)) {
+        if (std::less<T*>()(p, pool_) ||
+            std::greater_equal<T*>()(p, pool_ + N)) {
             // address is not within pool address range, must have been
             // allocated using fallback allocator
             fallback_.deallocate(p, n);
@@ -145,15 +146,28 @@ private:
 };
 
 
-template <typename R> std::size_t curious_alloc_base<R>::max_utilization_ = 0;
-template <typename R> std::size_t curious_alloc_base<R>::fallback_count_ = 0;
+template <typename R>
+std::size_t curious_alloc_base<R>::max_utilization_ = 0;
 
-template <typename T, std::size_t N, typename R> unsigned char curious_alloc<T, N, R>::pool_array_[N * sizeof(T)];
-template <typename T, std::size_t N, typename R> T* curious_alloc<T, N, R>::pool_ = reinterpret_cast<T*>(&curious_alloc<T, N, R>::pool_array_);
-template <typename T, std::size_t N, typename R> std::size_t curious_alloc<T, N, R>::count_ = 0;
-template <typename T, std::size_t N, typename R> std::size_t curious_alloc<T, N, R>::index_ = 0;
+template <typename R>
+std::size_t curious_alloc_base<R>::fallback_count_ = 0;
 
-template <typename T, std::size_t N, typename R> std::allocator<T> curious_alloc<T, N, R>::fallback_ = std::allocator<T>();
+
+template <typename T, std::size_t N, typename R>
+unsigned char curious_alloc<T, N, R>::pool_array_[N * sizeof(T)];
+
+template <typename T, std::size_t N, typename R>
+T* curious_alloc<T, N, R>::pool_ =
+    reinterpret_cast<T*>(&curious_alloc<T, N, R>::pool_array_);
+
+template <typename T, std::size_t N, typename R>
+std::size_t curious_alloc<T, N, R>::count_ = 0;
+
+template <typename T, std::size_t N, typename R>
+std::size_t curious_alloc<T, N, R>::index_ = 0;
+
+template <typename T, std::size_t N, typename R>
+std::allocator<T> curious_alloc<T, N, R>::fallback_ = std::allocator<T>();
 
 
 } // mididings

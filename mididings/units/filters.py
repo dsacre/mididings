@@ -53,8 +53,8 @@ def ChannelFilter(channels):
     KeyFilter(upper=...)
     KeyFilter(notes=...)
 
-    Filter note events by key (note number or note range). All other events are
-    let through.
+    Filter note events by key (note number or note range). All other events
+    are let through.
     The last form expects its argument to be a list of individual note names
     or numbers.
     """

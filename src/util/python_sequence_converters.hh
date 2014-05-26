@@ -50,7 +50,8 @@ struct from_sequence_converter
                 boost::python::decref(item);
             }
 
-            // propagate exceptions that occured inside a generator back to Python
+            // propagate exceptions that occured inside a generator back
+            // to Python
             if (PyErr_Occurred()) {
                 throw boost::python::error_already_set();
             }

@@ -39,13 +39,15 @@ class PythonCaller
     PythonCaller(EngineCallback engine_callback);
     ~PythonCaller();
 
-    // calls python function immediately
+    // call python function immediately
     template <typename B>
-    typename B::Range call_now(B & buf, typename B::Iterator it, boost::python::object const & fun);
+    typename B::Range call_now(B & buf, typename B::Iterator it,
+                               boost::python::object const & fun);
 
-    // queues python function to be called asynchronously
+    // queue python function to be called asynchronously
     template <typename B>
-    typename B::Range call_deferred(B & buf, typename B::Iterator it, boost::python::object const & fun, bool keep);
+    typename B::Range call_deferred(B & buf, typename B::Iterator it,
+                               boost::python::object const & fun, bool keep);
 
   private:
 

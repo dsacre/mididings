@@ -29,7 +29,8 @@ void Patch::Chain::process(B & buf, typename B::Range & range) const
     DEBUG_PRINT(Patch::debug_range("Chain in", buf, range));
 
     // iterate over all modules in this chain
-    for (ModuleVector::const_iterator module = _modules.begin(); module != _modules.end(); ++module)
+    for (ModuleVector::const_iterator module = _modules.begin();
+            module != _modules.end(); ++module)
     {
         // run all events through the next module in the chain
         (*module)->process(buf, range);
@@ -51,7 +52,8 @@ void Patch::Fork::process(B & buffer, typename B::Range & range) const
 
     // make a copy of all incoming events, allocated on the stack
     std::size_t num_events = range.size();
-    MidiEvent *in_events = static_cast<MidiEvent*>(::alloca(num_events * sizeof(MidiEvent)));
+    MidiEvent *in_events = static_cast<MidiEvent*>(
+                                ::alloca(num_events * sizeof(MidiEvent)));
     MidiEvent *p = in_events;
     for (typename B::iterator it = range.begin(); it != range.end(); ++it, ++p) {
         new (p) MidiEvent(*it);
@@ -71,7 +73,8 @@ void Patch::Fork::process(B & buffer, typename B::Range & range) const
         typename B::Range ev_range(range.end());
 
         // iterate over all modules in this fork
-        for (ModuleVector::const_iterator module = _modules.begin(); module != _modules.end(); ++module)
+        for (ModuleVector::const_iterator module = _modules.begin();
+                module != _modules.end(); ++module)
         {
             // insert one event
             typename B::Iterator it = buffer.insert(ev_range.end(), *ev);
@@ -91,11 +94,13 @@ void Patch::Fork::process(B & buffer, typename B::Range & range) const
 
             if (_remove_duplicates) {
                 // for all events returned in this iteration...
-                for (typename B::Iterator it = proc_range.begin(); it != proc_range.end(); ) {
+                for (typename B::Iterator it = proc_range.begin();
+                        it != proc_range.end(); ) {
                     // look for previous occurrences that were returned for the
                     // same input event, but from a different module
-                    if (std::find(ev_range.begin(), proc_range.begin(), *it) != proc_range.begin()) {
-                        // found previous identical event, remove the latest one
+                    if (std::find(ev_range.begin(), proc_range.begin(), *it)
+                            != proc_range.begin()) {
+                        // found previous identical event, remove latest one
                         it = buffer.erase(it);
                     } else {
                         ++it;
@@ -182,14 +187,16 @@ void Patch::process(B & buffer, typename B::Range & range) const
 
 
 template <typename B>
-std::string Patch::debug_range(std::string const & str, B const & buffer, typename B::Range const & range)
+std::string Patch::debug_range(std::string const & str, B const & buffer,
+                               typename B::Range const & range)
 {
     std::ostringstream os;
     os << str << ": "
        << std::distance(buffer.begin(), range.begin()) << " "
        << std::distance(range.begin(), range.end());
     for (typename B::Iterator it = range.begin(); it != range.end(); ++it) {
-        os << " [" << it->type << " " << it->port << " " << it->channel << " " << it->data1 << " " << it->data2 << "]";
+        os << " [" << it->type << " " << it->port << " " << it->channel
+           << " " << it->data1 << " " << it->data2 << "]";
     }
     return os.str();
 }
@@ -197,14 +204,22 @@ std::string Patch::debug_range(std::string const & str, B const & buffer, typena
 
 
 // force template instantiations
-template void Patch::Chain::process<Patch::EventBufferRT>(EventBufferRT &, EventBufferRT::Range &) const;
-template void Patch::Chain::process<Patch::EventBuffer>(EventBuffer &, EventBuffer::Range &) const;
-template void Patch::Fork::process<Patch::EventBufferRT>(EventBufferRT &, EventBufferRT::Range &) const;
-template void Patch::Fork::process<Patch::EventBuffer>(EventBuffer &, EventBuffer::Range &) const;
-template void Patch::Single::process<Patch::EventBufferRT>(EventBufferRT &, EventBufferRT::Range &) const;
-template void Patch::Single::process<Patch::EventBuffer>(EventBuffer &, EventBuffer::Range &) const;
-template void Patch::Extended::process<Patch::EventBufferRT>(EventBufferRT &, EventBufferRT::Range &) const;
-template void Patch::Extended::process<Patch::EventBuffer>(EventBuffer &, EventBuffer::Range &) const;
+template void Patch::Chain::process<Patch::EventBufferRT>(
+                                EventBufferRT &, EventBufferRT::Range &) const;
+template void Patch::Chain::process<Patch::EventBuffer>(
+                                EventBuffer &, EventBuffer::Range &) const;
+template void Patch::Fork::process<Patch::EventBufferRT>(
+                                EventBufferRT &, EventBufferRT::Range &) const;
+template void Patch::Fork::process<Patch::EventBuffer>(
+                                EventBuffer &, EventBuffer::Range &) const;
+template void Patch::Single::process<Patch::EventBufferRT>(
+                                EventBufferRT &, EventBufferRT::Range &) const;
+template void Patch::Single::process<Patch::EventBuffer>(
+                                EventBuffer &, EventBuffer::Range &) const;
+template void Patch::Extended::process<Patch::EventBufferRT>(
+                                EventBufferRT &, EventBufferRT::Range &) const;
+template void Patch::Extended::process<Patch::EventBuffer>(
+                                EventBuffer &, EventBuffer::Range &) const;
 
 template void Patch::process(EventBufferRT &, EventBufferRT::Range &) const;
 template void Patch::process(EventBuffer &, EventBuffer::Range &) const;

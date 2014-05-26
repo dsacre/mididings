@@ -20,6 +20,7 @@
 #include <boost/bind.hpp>
 
 #include <iostream>
+#include <algorithm>
 #include <unistd.h>
 #include <time.h>
 #include <sys/time.h>
@@ -66,8 +67,9 @@ Engine::~Engine()
 }
 
 
-void Engine::connect_ports(backend::PortConnectionMap const & in_port_connections,
-                           backend::PortConnectionMap const & out_port_connections)
+void Engine::connect_ports(
+    backend::PortConnectionMap const & in_port_connections,
+    backend::PortConnectionMap const & out_port_connections)
 {
     if (_backend) {
         _backend->connect_ports(in_port_connections, out_port_connections);
@@ -75,7 +77,8 @@ void Engine::connect_ports(backend::PortConnectionMap const & in_port_connection
 }
 
 
-void Engine::add_scene(int i, PatchPtr patch, PatchPtr init_patch, PatchPtr exit_patch)
+void Engine::add_scene(int i, PatchPtr patch,
+                       PatchPtr init_patch, PatchPtr exit_patch)
 {
     if (!has_scene(i)) {
         _scenes[i] = std::vector<ScenePtr>();
@@ -85,7 +88,8 @@ void Engine::add_scene(int i, PatchPtr patch, PatchPtr init_patch, PatchPtr exit
 }
 
 
-void Engine::set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch)
+void Engine::set_processing(PatchPtr ctrl_patch,
+                            PatchPtr pre_patch, PatchPtr post_patch)
 {
     ASSERT(!_ctrl_patch);
     ASSERT(!_pre_patch);
@@ -148,7 +152,8 @@ void Engine::run_cycle()
 
 #ifdef ENABLE_BENCHMARK
         gettimeofday(&tv2, NULL);
-        std::cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec) << std::endl;
+        std::cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 +
+                     (tv2.tv_usec - tv1.tv_usec) << std::endl;
 #endif
 
         _backend->output_events(_buffer.begin(), _buffer.end());
@@ -242,12 +247,14 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
     }
     // sustain pressed
     // TODO: handle half-pedal correctly
-    else if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == 64 && ev.ctrl.value == 127) {
+    else if (ev.type == MIDI_EVENT_CTRL &&
+             ev.ctrl.param == 64 && ev.ctrl.value == 127) {
         _sustain_patches.insert(std::make_pair(make_sustainkey(ev), _current_patch));
         return _current_patch;
     }
     // sustain released
-    else if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == 64 && ev.ctrl.value == 0) {
+    else if (ev.type == MIDI_EVENT_CTRL &&
+            ev.ctrl.param == 64 && ev.ctrl.value == 0) {
         SustainPatchMap::const_iterator i = _sustain_patches.find(make_sustainkey(ev));
         if (i != _sustain_patches.end()) {
             Patch *p = i->second;
@@ -296,7 +303,9 @@ void Engine::process_scene_switch(B & buffer)
     SceneMap::const_iterator scene_it = _scenes.find(scene_num);
 
     // check if scene and subscene exist
-    if (scene_it != _scenes.end() && static_cast<int>(scene_it->second.size()) > subscene_num) {
+    if (scene_it != _scenes.end() &&
+        static_cast<int>(scene_it->second.size()) > subscene_num)
+    {
         // found something...
         ScenePtr scene = scene_it->second[subscene_num];
 
@@ -351,13 +360,18 @@ bool Engine::sanitize_event(MidiEvent & ev) const
 {
     // FIXME: std::cout is not RT-safe!
 
-    if (ev.port < 0 || (_backend && ev.port >= static_cast<int>(_backend->num_out_ports()))) {
-        if (_verbose) std::cout << "invalid output port, event discarded" << std::endl;
+    if (ev.port < 0 || (_backend &&
+            ev.port >= static_cast<int>(_backend->num_out_ports()))) {
+        if (_verbose) {
+            std::cout << "invalid output port, event discarded" << std::endl;
+        }
         return false;
     }
 
     if (ev.channel < 0 || ev.channel > 15) {
-        if (_verbose) std::cout << "invalid channel, event discarded" << std::endl;
+        if (_verbose) {
+            std::cout << "invalid channel, event discarded" << std::endl;
+        }
         return false;
     }
 
@@ -365,38 +379,49 @@ bool Engine::sanitize_event(MidiEvent & ev) const
         case MIDI_EVENT_NOTEON:
         case MIDI_EVENT_NOTEOFF:
             if (ev.note.note < 0 || ev.note.note > 127) {
-                if (_verbose) std::cout << "invalid note number, event discarded" << std::endl;
+                if (_verbose) {
+                    std::cout << "invalid note number, event discarded"
+                              << std::endl;
+                }
                 return false;
             }
-            if (ev.note.velocity < 0) ev.note.velocity = 0;
-            if (ev.note.velocity > 127) ev.note.velocity = 127;
-            if (ev.type == MIDI_EVENT_NOTEON && ev.note.velocity < 1) return false;
+            ev.note.velocity = std::max(0, std::min(127, ev.note.velocity));
+
+            if (ev.type == MIDI_EVENT_NOTEON && ev.note.velocity < 1) {
+                return false;
+            }
             return true;
         case MIDI_EVENT_CTRL:
             if (ev.ctrl.param < 0 || ev.ctrl.param > 127) {
-                if (_verbose) std::cout << "invalid controller number, event discarded" << std::endl;
+                if (_verbose) {
+                    std::cout << "invalid controller number, event discarded"
+                              << std::endl;
+                }
                 return false;
             }
-            if (ev.ctrl.value < 0) ev.ctrl.value = 0;
-            if (ev.ctrl.value > 127) ev.ctrl.value = 127;
+            ev.ctrl.value = std::max(0, std::min(127, ev.note.velocity));
             return true;
         case MIDI_EVENT_PITCHBEND:
-            if (ev.ctrl.value < -8192) ev.ctrl.value = -8192;
-            if (ev.ctrl.value >  8191) ev.ctrl.value =  8191;
+            ev.ctrl.value = std::max(-8192, std::min(8191, ev.ctrl.value));
             return true;
         case MIDI_EVENT_AFTERTOUCH:
-            if (ev.ctrl.value < 0) ev.ctrl.value = 0;
-            if (ev.ctrl.value > 127) ev.ctrl.value = 127;
+            ev.ctrl.value = std::max(0, std::min(127, ev.note.velocity));
             return true;
         case MIDI_EVENT_PROGRAM:
             if (ev.ctrl.value < 0 || ev.ctrl.value > 127) {
-                if (_verbose) std::cout << "invalid program number, event discarded" << std::endl;
+                if (_verbose) {
+                    std::cout << "invalid program number, event discarded"
+                              << std::endl;
+                }
                 return false;
             }
             return true;
         case MIDI_EVENT_SYSEX:
-            if (ev.sysex->size() < 2 || (*ev.sysex)[0] != 0xf0 || (*ev.sysex)[ev.sysex->size()-1] != 0xf7) {
-                if (_verbose) std::cout << "invalid sysex, event discarded" << std::endl;
+            if (ev.sysex->size() < 2 || (*ev.sysex)[0] != 0xf0
+                    || (*ev.sysex)[ev.sysex->size()-1] != 0xf7) {
+                if (_verbose) {
+                    std::cout << "invalid sysex, event discarded" << std::endl;
+                }
                 return false;
             }
             return true;
@@ -415,7 +440,9 @@ bool Engine::sanitize_event(MidiEvent & ev) const
         case MIDI_EVENT_DUMMY:
             return false;
         default:
-            if (_verbose) std::cout << "unknown event type, event discarded" << std::endl;
+            if (_verbose) {
+                std::cout << "unknown event type, event discarded" << std::endl;
+            }
             return false;
     }
 }

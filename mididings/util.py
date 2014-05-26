@@ -92,7 +92,8 @@ def note_number(note, allow_end=False):
         try:
             name = note[:i]
             octave = int(note[i:])
-            r = _NOTE_NUMBERS[name] + (octave + _setup.get_config('octave_offset')) * 12
+            r = (_NOTE_NUMBERS[name] +
+                    (octave + _setup.get_config('octave_offset')) * 12)
         except Exception:
             raise ValueError("invalid note name '%s'" % note)
     else:
@@ -136,7 +137,8 @@ def note_range(notes):
                 upper = note_limit(nn[1]) if nn[1] else 0
                 return lower, upper
             else:
-                raise TypeError("note range must be a tuple of integers or a string")
+                raise TypeError("note range must be a tuple"
+                                " of integers or a string")
         except (ValueError, IndexError):
             raise ValueError("invalid note range %r" % notes)
 
@@ -152,7 +154,8 @@ def note_name(note):
     """
     if not isinstance(note, int):
         raise TypeError("note must be an integer")
-    return _NOTE_NAMES[note % 12] + str((note // 12) - _setup.get_config('octave_offset'))
+    return _NOTE_NAMES[note % 12] + str(
+                (note // 12) - _setup.get_config('octave_offset'))
 
 
 def tonic_note_number(key):
@@ -192,7 +195,8 @@ def port_number(port):
         in_ports = _setup._in_portnames
         out_ports = _setup._out_portnames
 
-        if port in in_ports and port in out_ports and in_ports.index(port) != out_ports.index(port):
+        if (port in in_ports and port in out_ports and
+                in_ports.index(port) != out_ports.index(port)):
             raise ValueError("port name '%s' is ambiguous" % port)
         elif port in in_ports:
             return offset(in_ports.index(port))
@@ -308,7 +312,8 @@ def sysex_manufacturer(manufacturer):
     if len(manid) not in (1, 3):
         raise ValueError("manufacturer id must be either one or three bytes")
     elif len(manid) == 3 and manid[0] != 0x00:
-        raise ValueError("three-byte manufacturer id must start with null byte")
+        raise ValueError("three-byte manufacturer id must"
+                         " start with null byte")
     elif any(c > 0x7f for c in manid):
         raise ValueError("manufacturer id out of range")
     return manid

@@ -37,7 +37,8 @@ def parse_event(string, data_offset):
         if not typestr.startswith('SYS'):
             ev.channel_ = int(args.pop(0)) - data_offset
 
-        if typestr in ('NOTEON', 'NOTEOFF', 'CTRL', 'POLY_AFTERTOUCH', 'SYSCM_SONGPOS'):
+        if typestr in ('NOTEON', 'NOTEOFF', 'CTRL',
+                       'POLY_AFTERTOUCH', 'SYSCM_SONGPOS'):
             ev.data1 = int(args.pop(0))
             ev.data2 = int(args.pop(0))
         elif typestr in ('AFTERTOUCH', 'PITCHBEND'):
@@ -50,10 +51,12 @@ def parse_event(string, data_offset):
             ev.sysex_ = bytearray(int(x, 16) for x in args)
             del args[:]
     except IndexError:
-        raise ValueError("too few parameters specified for MIDI event type '%s'" % typestr)
+        raise ValueError("too few parameters specified for"
+                         " MIDI event type '%s'" % typestr)
 
     if len(args) != 0:
-        raise ValueError("too many parameters specified for MIDI event type '%s'" % typestr)
+        raise ValueError("too many parameters specified for"
+                         " MIDI event type '%s'" % typestr)
 
     return ev
 
@@ -63,14 +66,18 @@ if __name__ == '__main__':
     description = "Sends one or more MIDI events via ALSA or JACK."
     version     = "mididings %s" % _mididings.__version__
 
-    parser = optparse.OptionParser(usage=usage, description=description, version=version)
+    parser = optparse.OptionParser(
+                    usage=usage, description=description, version=version)
 
-    parser.add_option('-A', '--alsa', dest='backend', action='store_const',
-                      const='alsa', default='alsa', help="use ALSA (default)")
-    parser.add_option('-J', '--jack', dest='backend', action='store_const',
-                      const='jack-rt', help="use JACK")
-    parser.add_option('-0', '--zero-based', dest='data_offset', action='store_const',
-                      const=0, default=1, help="channel and program numbers start at zero")
+    parser.add_option('-A', '--alsa', dest='backend',
+                      action='store_const', const='alsa', default='alsa',
+                      help="use ALSA (default)")
+    parser.add_option('-J', '--jack', dest='backend',
+                      action='store_const', const='jack-rt',
+                      help="use JACK")
+    parser.add_option('-0', '--zero-based', dest='data_offset',
+                      action='store_const', const=0, default=1,
+                      help="channel and program numbers start at zero")
 
     options, args = parser.parse_args()
 

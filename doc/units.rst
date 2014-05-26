@@ -258,16 +258,16 @@ Scene Switching
 
     ::
 
-        # route all events to output 'synth', channel 1, and set the volume to 100
+        # route all events to output 'synth', channel 1, and set volume to 100
         Output('synth', 1, volume=100)
 
 .. autoclass:: OutputTemplate
 
     ::
 
-        # define an instrument by specifying its output port, channel, program
-        # number and transposition, then use the same instrument in two different
-        # patches at different volumes
+        # define an instrument by specifying its output port, channel,
+        # program number and transposition, then use the same instrument
+        # in two different patches at different volumes
         synth = Transpose(12) >> OutputTemplate('synth', 1, 42)
 
         patch1 = synth(64)

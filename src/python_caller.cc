@@ -42,9 +42,11 @@ PythonCaller::PythonCaller(EngineCallback engine_callback)
 #if BOOST_VERSION >= 105000
     boost::thread::attributes attr;
     attr.set_stack_size(config::ASYNC_THREAD_STACK_SIZE);
-    _thread.reset(new boost::thread(attr, boost::bind(&PythonCaller::async_thread, this)));
+    _thread.reset(new boost::thread(attr,
+                        boost::bind(&PythonCaller::async_thread, this)));
 #else
-    _thread.reset(new boost::thread(boost::bind(&PythonCaller::async_thread, this)));
+    _thread.reset(new boost::thread(
+                        boost::bind(&PythonCaller::async_thread, this)));
 #endif
 }
 
@@ -57,12 +59,14 @@ PythonCaller::~PythonCaller()
     _quit = true;
     _cond.notify_one();
 
-    _thread->timed_join(boost::posix_time::milliseconds(config::ASYNC_JOIN_TIMEOUT));
+    _thread->timed_join(
+        boost::posix_time::milliseconds(config::ASYNC_JOIN_TIMEOUT));
 }
 
 
 template <typename B>
-typename B::Range PythonCaller::call_now(B & buffer, typename B::Iterator it, bp::object const & fun)
+typename B::Range PythonCaller::call_now(B & buffer, typename B::Iterator it,
+                                         bp::object const & fun)
 {
     das::python::scoped_gil_lock gil;
 
@@ -100,7 +104,8 @@ typename B::Range PythonCaller::call_now(B & buffer, typename B::Iterator it, bp
 
 
 template <typename B>
-typename B::Range PythonCaller::call_deferred(B & buffer, typename B::Iterator it, bp::object const & fun, bool keep)
+typename B::Range PythonCaller::call_deferred(B & buffer,
+                typename B::Iterator it, bp::object const & fun, bool keep)
 {
     AsyncCallInfo c = { &fun, *it };
 
@@ -144,7 +149,8 @@ void PythonCaller::async_thread()
         else {
             // wait until woken up again
             boost::mutex::scoped_lock lock(mutex);
-            _cond.timed_wait(lock, boost::posix_time::milliseconds(config::ASYNC_CALLBACK_INTERVAL));
+            _cond.timed_wait(lock, boost::posix_time::milliseconds(
+                                        config::ASYNC_CALLBACK_INTERVAL));
         }
 
         _engine_callback();
@@ -154,14 +160,18 @@ void PythonCaller::async_thread()
 
 
 // force template instantiations
-template Patch::EventBufferRT::Range PythonCaller::call_now
-            (Patch::EventBufferRT &, Patch::EventBufferRT::Iterator, boost::python::object const &);
-template Patch::EventBuffer::Range PythonCaller::call_now
-            (Patch::EventBuffer &, Patch::EventBuffer::Iterator, boost::python::object const &);
-template Patch::EventBufferRT::Range PythonCaller::call_deferred
-            (Patch::EventBufferRT &, Patch::EventBufferRT::Iterator, boost::python::object const &, bool);
-template Patch::EventBuffer::Range PythonCaller::call_deferred
-            (Patch::EventBuffer &, Patch::EventBuffer::Iterator, boost::python::object const &, bool);
+template Patch::EventBufferRT::Range PythonCaller::call_now(
+                        Patch::EventBufferRT &, Patch::EventBufferRT::Iterator,
+                        boost::python::object const &);
+template Patch::EventBuffer::Range PythonCaller::call_now(
+                        Patch::EventBuffer &, Patch::EventBuffer::Iterator,
+                        boost::python::object const &);
+template Patch::EventBufferRT::Range PythonCaller::call_deferred(
+                        Patch::EventBufferRT &, Patch::EventBufferRT::Iterator,
+                        boost::python::object const &, bool);
+template Patch::EventBuffer::Range PythonCaller::call_deferred(
+                        Patch::EventBuffer &, Patch::EventBuffer::Iterator,
+                        boost::python::object const &, bool);
 
 
 } // mididings

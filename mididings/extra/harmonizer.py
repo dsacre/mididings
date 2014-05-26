@@ -21,10 +21,12 @@ from operator import itemgetter as _itemgetter
 _MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11]
 _HARMONIC_MINOR_SCALE = [0, 2, 3, 5, 7, 8, 11]
 
-_MODES = ['ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian']
+_MODES = ['ionian', 'dorian', 'phrygian', 'lydian',
+          'mixolydian', 'aeolian', 'locrian']
 
-_INTERVALS = ['unison', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'octave',
-             'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth']
+_INTERVALS = ['unison', 'second', 'third', 'fourth', 'fifth',
+              'sixth', 'seventh', 'octave', 'ninth', 'tenth',
+              'eleventh', 'twelfth', 'thirteenth']
 
 
 class _Harmonizer(object):
@@ -119,8 +121,8 @@ def Harmonize(tonic, scale, interval, non_harmonic='below'):
             scale = _MAJOR_SCALE
 
     # shift scale to the correct mode
-    s = [x - scale[shift] for x in scale[shift:]] + \
-        [x + 12 - scale[shift] for x in scale[:shift]]
+    s = ([x - scale[shift] for x in scale[shift:]] +
+         [x + 12 - scale[shift] for x in scale[:shift]])
 
     if not _misc.issequence(interval):
         interval = [interval]
@@ -138,11 +140,13 @@ def Harmonize(tonic, scale, interval, non_harmonic='below'):
         # get offset for each key
         offsets = [(x, h.note_offset(x)) for x in range(128)]
         # group by offset
-        groups = _itertools.groupby(sorted(offsets, key=_itemgetter(1)), key=_itemgetter(1))
+        groups = _itertools.groupby(sorted(offsets, key=_itemgetter(1)),
+                                    key=_itemgetter(1))
 
         # create one KeyFilter()/Transpose() pair for each offset
         for off, keys in groups:
             if off is not None:
-                f.append(_m.KeyFilter(notes=[k[0] for k in keys]) >> _m.Transpose(off))
+                f.append(_m.KeyFilter(notes=[k[0] for k in keys]) >>
+                         _m.Transpose(off))
 
     return _m.Filter(_m.NOTE) % f

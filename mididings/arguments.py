@@ -22,39 +22,43 @@ import decorator
 
 class accept(object):
     """
-    A decorator that applies type checks and other constraints to the arguments
-    of the decorated function.
+    A decorator that applies type checks and other constraints to the
+    arguments of the decorated function.
 
     Constraints must be given in the order of the function's positional
-    arguments, one constraint per argument. If the function accepts variable
-    arguments, one additional constraint must be specified, and will be applied
-    to each of those arguments.
+    arguments, one constraint per argument. If the function accepts
+    variable arguments, one additional constraint must be specified, and
+    will be applied to each of those arguments.
 
     If the optional keyword argument add_varargs is True, the decorated
-    function will accept variable arguments, which are combined with the last
-    regular positional argument into a single tuple. This tuple is then passed
-    to the original function as a single argument.
+    function will accept variable arguments, which are combined with the
+    last regular positional argument into a single tuple. This tuple is
+    then passed to the original function as a single argument.
 
     The kwargs dictionary, itself passed as an optional keyword argument,
-    maps keyword arguments to the corresponding constraints. None can be used
-    as a key in this dictionary to specify constraints for keyword arguments
-    with any name.
+    maps keyword arguments to the corresponding constraints. None can be
+    used as a key in this dictionary to specify constraints for keyword
+    arguments with any name.
     """
     def __init__(self, *constraints, **kwargs):
-        self.add_varargs = kwargs['add_varargs'] if 'add_varargs' in kwargs else False
+        self.add_varargs = (kwargs['add_varargs']
+                            if 'add_varargs' in kwargs else False)
         kwargs_constraints = kwargs['kwargs'] if 'kwargs' in kwargs else {}
 
         # build all constraints
         self.constraints = [_make_constraint(c) for c in constraints]
-        self.kwargs_constraints = dict((k, _make_constraint(v)) for k, v in kwargs_constraints.items())
+        self.kwargs_constraints = dict((k, _make_constraint(v))
+                                        for k, v in kwargs_constraints.items())
 
     def __call__(self, f):
         argspec = misc.getargspec(f)
         self.arg_names = argspec[0]
         self.have_varargs = (argspec[1] is not None) and not self.add_varargs
 
-        assert ((len(self.constraints) == len(self.arg_names) and not self.have_varargs)
-             or (len(self.constraints) == len(self.arg_names) + 1 and self.have_varargs))
+        assert ((len(self.constraints) == len(self.arg_names)
+                    and not self.have_varargs)
+             or (len(self.constraints) == len(self.arg_names) + 1
+                    and self.have_varargs))
 
         if self.add_varargs:
             # add varargs to the signature and use decorator.FunctionMaker
@@ -76,7 +80,8 @@ class accept(object):
         mod_args = []
         mod_kwargs = {}
 
-        for constraint, arg_name, arg in zip(self.constraints, self.arg_names, args):
+        for constraint, arg_name, arg in zip(self.constraints,
+                                             self.arg_names, args):
             if self.add_varargs and arg_name == self.arg_names[-1]:
                 # add_varargs is True and this is the last argument:
                 # combine with varargs
@@ -86,7 +91,7 @@ class accept(object):
                 else:
                     arg = (arg,) + args[index:]
 
-            a = _try_apply_constraint(constraint, arg, f.__name__, arg_name)
+            a = _apply_constraint(constraint, arg, f.__name__, arg_name)
             mod_args.append(a)
 
         if self.have_varargs:
@@ -94,31 +99,35 @@ class accept(object):
             constraint = self.constraints[index]
 
             for arg in args[index:]:
-                a = _try_apply_constraint(constraint, arg, f.__name__, None)
+                a = _apply_constraint(constraint, arg, f.__name__, None)
                 mod_args.append(a)
 
         for k, v in kwargs.items():
             if k in self.kwargs_constraints:
-                a = _try_apply_constraint(self.kwargs_constraints[k], v, f.__name__, k)
+                a = _apply_constraint(self.kwargs_constraints[k],
+                                      v, f.__name__, k)
             elif None in self.kwargs_constraints:
-                a = _try_apply_constraint(self.kwargs_constraints[None], v, f.__name__, k)
+                a = _apply_constraint(self.kwargs_constraints[None],
+                                      v, f.__name__, k)
             else:
-                message = "%s() got an unexpected keyword argument '%s'" % (f.__name__, k)
-                raise TypeError(message)
+                raise TypeError(
+                        "%s() got an unexpected keyword argument '%s'" %
+                        (f.__name__, k))
             mod_kwargs[k] = a
 
         return f(*mod_args, **mod_kwargs)
 
 
-def _try_apply_constraint(constraint, arg, func_name, arg_name):
+def _apply_constraint(constraint, arg, func_name, arg_name):
     try:
         return constraint(arg)
     except (TypeError, ValueError) as ex:
         typestr = "type" if isinstance(ex, TypeError) else "value"
-        argstr = ("for parameter '%s'" % arg_name) if arg_name else "in varargs"
+        argstr = (("for parameter '%s'" % arg_name)
+                        if arg_name else "in varargs")
 
-        message = "invalid %s %s of %s():\n%s" % (typestr, argstr, func_name, str(ex))
-        raise type(ex)(message)
+        raise type(ex)("invalid %s %s of %s():\n%s" %
+                       (typestr, argstr, func_name, str(ex)))
 
 
 def _make_constraint(c):
@@ -174,15 +183,15 @@ class _type_constraint(_constraint):
         if not self.multiple:
             # single type, check if instance
             if not isinstance(arg, self.types):
-                message = "expected %s, got %s" % (self.types.__name__, type(arg).__name__)
-                raise TypeError(message)
+                raise TypeError("expected %s, got %s" %
+                                (self.types.__name__, type(arg).__name__))
             return arg
         else:
             # multiple types, check if instance
             if not isinstance(arg, self.types):
                 argtypes = ", ".join(c.__name__ for c in self.types)
-                message = "expected one of (%s), got %s" % (argtypes, type(arg).__name__)
-                raise TypeError(message)
+                raise TypeError("expected one of (%s), got %s" %
+                                (argtypes, type(arg).__name__))
             return arg
 
     def __repr__(self):
@@ -199,8 +208,7 @@ class _value_constraint(_constraint):
     def __call__(self, arg):
         if arg not in self.values:
             args = ", ".join(repr(c) for c in self.values)
-            message = "expected one of (%s), got %r" % (args, arg)
-            raise ValueError(message)
+            raise ValueError("expected one of (%s), got %r" % (args, arg))
         return arg
 
     def __repr__(self):
@@ -238,8 +246,7 @@ class sequenceof(_constraint):
             t = type(arg) if not isinstance(arg, types.GeneratorType) else list
             return t(self.what(value) for value in arg)
         except (TypeError, ValueError) as ex:
-            message = "illegal item in sequence: %s" % str(ex)
-            raise type(ex)(message)
+            raise type(ex)("illegal item in sequence: %s" % str(ex))
 
     def __repr__(self):
         return repr([self.what])
@@ -257,14 +264,13 @@ class tupleof(_constraint):
         if not misc.issequence(arg):
             raise TypeError("not a sequence")
         if len(arg) != len(self.what):
-            message = "expected sequence of %d items, got %d" % (len(self.what), len(arg))
-            raise ValueError(message)
+            raise ValueError("expected sequence of %d items, got %d" %
+                             (len(self.what), len(arg)))
         try:
             t = type(arg) if not isinstance(arg, types.GeneratorType) else list
             return t(what(value) for what, value in zip(self.what, arg))
         except (TypeError, ValueError) as ex:
-            message = "illegal item in sequence: %s" % str(ex)
-            raise type(ex)(message)
+            raise type(ex)("illegal item in sequence: %s" % str(ex))
 
     def __repr__(self):
         return repr(self.what)
@@ -285,13 +291,11 @@ class mappingof(_constraint):
         try:
             keys = (self.fromwhat(key) for key in arg.keys())
         except (TypeError, ValueError) as ex:
-            message = "illegal key in dictionary: %s" % str(ex)
-            raise type(ex)(message)
+            raise type(ex)("illegal key in dictionary: %s" % str(ex))
         try:
             values = (self.towhat(value) for value in arg.values())
         except (TypeError, ValueError) as ex:
-            message = "illegal value in dictionary: %s" % str(ex)
-            raise type(ex)(message)
+            raise type(ex)("illegal value in dictionary: %s" % str(ex))
         return dict(zip(keys, values))
 
     def __repr__(self):
@@ -312,8 +316,7 @@ class flatten(_constraint):
             r = [self.what(value) for value in misc.flatten(arg)]
             return r if self.return_type is None else self.return_type(r)
         except (TypeError, ValueError) as ex:
-            message = "illegal item in sequence: %s" % str(ex)
-            raise type(ex)(message)
+            raise type(ex)("illegal item in sequence: %s" % str(ex))
 
     def __repr__(self):
         return 'flatten(%r)' % self.what
@@ -349,9 +352,10 @@ class either(_constraint):
                 return what(arg)
             except (TypeError, ValueError) as ex:
                 exstr = str(ex).replace('\n', '\n    ')
-                errors.append("    #%d %s: %s: %s" % (n + 1, what, type(ex).__name__, exstr))
-        message = "none of the alternatives matched:\n" + '\n'.join(errors)
-        raise TypeError(message)
+                errors.append("    #%d %s: %s: %s" %
+                                (n + 1, what, type(ex).__name__, exstr))
+        raise TypeError("none of the alternatives matched:\n" +
+                        '\n'.join(errors))
 
     def __repr__(self):
         return 'either(%s)' % (', '.join(repr(c) for c in self.alternatives))
@@ -380,8 +384,8 @@ class condition(_constraint):
 
     def __call__(self, arg):
         if not self.function(arg):
-            message = "condition not met: %s" % _function_repr(self.function)
-            raise ValueError(message)
+            raise ValueError("condition not met: %s" %
+                             _function_repr(self.function))
         return arg
 
     def __repr__(self):

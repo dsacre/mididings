@@ -63,8 +63,13 @@ class JACKBackend
 
     void fill_input_queue(jack_nframes_t nframes);
 
-    void connect_ports_impl(PortConnectionMap const & port_connections, std::vector<jack_port_t *> const & ports, bool out);
-    int connect_matching_ports(std::string const & port_name, std::string const & pattern, PortNameVector const & external_ports, bool out);
+    void connect_ports_impl(PortConnectionMap const & port_connections,
+                            std::vector<jack_port_t *> const & ports,
+                            bool out);
+    int connect_matching_ports(std::string const & port_name,
+                            std::string const & pattern,
+                            PortNameVector const & external_ports,
+                            bool out);
 
 
     template <typename T, typename Container, typename Compare>
@@ -92,7 +97,7 @@ class JACKBackend
     };
 
     // queue of incoming MIDI events, ordered by frame
-    reservable_priority_queue<MidiEvent, std::vector<MidiEvent>, compare_frame> _input_queue;
+    reservable_priority_queue<MidiEvent, std::vector<MidiEvent>, compare_frame > _input_queue;
 };
 
 

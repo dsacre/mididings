@@ -87,9 +87,11 @@ class deprecated(object):
         # XXX: avoid circular import
         from mididings.setup import get_config
 
-        if not (hasattr(f, '_already_used') and f._already_used) and not get_config('silent'):
+        if (not (hasattr(f, '_already_used') and f._already_used) and
+                not get_config('silent')):
             if self.replacement:
-                print("%s() is deprecated, please use %s() instead" % (f.__name__, self.replacement))
+                print("%s() is deprecated, please use %s() instead" %
+                        (f.__name__, self.replacement))
             else:
                 print("%s() is deprecated" % f.__name__)
             f._already_used = True
@@ -151,7 +153,8 @@ class bytestring(object):
     def __init__(self, data):
         self.data = data
     def __repr__(self):
-        return '\'%s\'' % ''.join('\\x' + hex(x)[2:].zfill(2) for x in self.data)
+        return '\'%s\'' % ''.join('\\x' + hex(x)[2:].zfill(2)
+                                    for x in self.data)
 
 
 def get_terminal_size():

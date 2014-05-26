@@ -28,8 +28,10 @@ namespace python {
  * both T and shared_ptr<T>.
  *
  * \tparam T    the data type to convert to, must be default-constructible.
- * \tparam P    the type to register a converter for, should be T or shared_ptr<T>.
- * \tparam C    the class that performs the conversion from a Python object to type T.
+ * \tparam P    the type to register a converter for, should be T
+ *              or shared_ptr<T>.
+ * \tparam C    the class that performs the conversion from a Python object
+ *              to type T.
  *
  * Class C must implement two static methods:
  * - bool convertible(PyObject *)
@@ -39,7 +41,8 @@ template <typename T, typename P, typename C>
 struct from_python_converter
 {
     from_python_converter() {
-        boost::python::converter::registry::push_back(&convertible, &construct<P>, boost::python::type_id<P>());
+        boost::python::converter::registry::push_back(
+                    &convertible, &construct<P>, boost::python::type_id<P>());
     }
 
     static void *convertible(PyObject *obj) {
@@ -49,8 +52,10 @@ struct from_python_converter
 
     template <typename U>
     static typename boost::disable_if<is_shared_ptr<U>, void>::type
-    construct(PyObject *obj, boost::python::converter::rvalue_from_python_stage1_data *data) {
-        void *storage = (reinterpret_cast<boost::python::converter::rvalue_from_python_storage<T>*>(data))->storage.bytes;
+    construct(PyObject *obj,
+            boost::python::converter::rvalue_from_python_stage1_data *data) {
+        void *storage = (reinterpret_cast<boost::python::converter::
+                        rvalue_from_python_storage<T>*>(data))->storage.bytes;
 
         T *p = new (storage) T();
 
@@ -61,8 +66,10 @@ struct from_python_converter
 
     template <typename U>
     static typename boost::enable_if<is_shared_ptr<U>, void>::type
-    construct(PyObject *obj, boost::python::converter::rvalue_from_python_stage1_data *data) {
-        void *storage = (reinterpret_cast<boost::python::converter::rvalue_from_python_storage<P>*>(data))->storage.bytes;
+    construct(PyObject *obj,
+            boost::python::converter::rvalue_from_python_stage1_data *data) {
+        void *storage = (reinterpret_cast<boost::python::converter::
+                        rvalue_from_python_storage<P>*>(data))->storage.bytes;
 
         T *p = new T();
         new (storage) P(p);

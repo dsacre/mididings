@@ -64,11 +64,13 @@ class AutoRestart(object):
                         # only watch file if it's in the same directory as the
                         # main script
                         if f.startswith(base_dir):
-                            self.wm.add_watch(f, _pyinotify.IN_MODIFY, self._process_IN_MODIFY)
+                            self.wm.add_watch(f, _pyinotify.IN_MODIFY,
+                                              self._process_IN_MODIFY)
 
         # add watches for additional files
         for f in self.filenames:
-            self.wm.add_watch(f, _pyinotify.IN_MODIFY, self._process_IN_MODIFY)
+            self.wm.add_watch(f, _pyinotify.IN_MODIFY,
+                              self._process_IN_MODIFY)
 
         self.notifier.start()
 

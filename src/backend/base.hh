@@ -43,19 +43,23 @@ typedef std::map<std::string, std::vector<std::string> > PortConnectionMap;
 
 std::vector<std::string> const & available();
 
-boost::shared_ptr<class BackendBase> create(std::string const & backend_name,
-                                            std::string const & client_name,
-                                            PortNameVector const & in_ports,
-                                            PortNameVector const & out_ports);
+boost::shared_ptr<class BackendBase> create(
+        std::string const & backend_name,
+        std::string const & client_name,
+        PortNameVector const & in_ports,
+        PortNameVector const & out_ports);
 
 
 // convert normalized MIDI data to one MidiEvent
-MidiEvent buffer_to_midi_event(unsigned char const *data, std::size_t len,
-                               int port, uint64_t frame);
+MidiEvent buffer_to_midi_event(
+        unsigned char const *data, std::size_t len,
+        int port, uint64_t frame);
 
 // convert MidiEvent object to normalized MIDI data
-std::size_t midi_event_to_buffer(MidiEvent const & ev, unsigned char *data,
-                                 std::size_t & len, int & port, uint64_t & frame);
+std::size_t midi_event_to_buffer(
+        MidiEvent const & ev, unsigned char *data,
+        std::size_t & len, int & port,
+        uint64_t & frame);
 
 
 
@@ -69,10 +73,11 @@ class BackendBase
     BackendBase() { }
     virtual ~BackendBase() { }
 
-    virtual void connect_ports(PortConnectionMap const &, PortConnectionMap const &) { }
+    virtual void connect_ports(PortConnectionMap const &,
+                               PortConnectionMap const &) { }
 
-    // start MIDI processing, run init function.
-    // depending on the backend, cycle may be called once (and not return) or periodically.
+    // start MIDI processing, run init function. depending on the backend,
+    // cycle may be called once (and not return) or periodically.
     virtual void start(InitFunction init, CycleFunction cycle) = 0;
 
     // stop MIDI processing.

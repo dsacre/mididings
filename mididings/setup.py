@@ -78,12 +78,16 @@ def reset():
     'backend':          tuple(_VALID_BACKENDS),
     'client_name':      str,
     'in_ports':         _arguments.either(
-                            _arguments.each(int, _arguments.condition(lambda x: x > 0)),
-                            _arguments.sequenceof(_arguments.either(str, [str])),
+                            _arguments.each(int,
+                                _arguments.condition(lambda x: x > 0)),
+                            _arguments.sequenceof(
+                                _arguments.either(str, [str])),
                         ),
     'out_ports':        _arguments.either(
-                            _arguments.each(int, _arguments.condition(lambda x: x > 0)),
-                            _arguments.sequenceof(_arguments.either(str, [str])),
+                            _arguments.each(int,
+                                _arguments.condition(lambda x: x > 0)),
+                            _arguments.sequenceof(
+                                _arguments.either(str, [str])),
                         ),
     'data_offset':      (0, 1),
     'octave_offset':    int,
@@ -99,12 +103,12 @@ def config(**kwargs):
     """
     config(**kwargs)
 
-    Change :ref:`global settings <main-config>`. This should usually be called
-    only once at the beginning of the script, before constructing any
-    processing units.
+    Change :ref:`global settings <main-config>`. This should usually be
+    called only once at the beginning of the script, before constructing
+    any processing units.
 
-    :param \*\*kwargs: an arbitrary number of keyword arguments, matching the
-        names and values described in section :ref:`main-config`.
+    :param \*\*kwargs: an arbitrary number of keyword arguments, matching
+        the names and values described in section :ref:`main-config`.
     """
     _config_impl(**kwargs)
 
@@ -124,8 +128,10 @@ def _config_updated():
     global _in_port_connections, _out_port_connections
     _in_portnames = _parse_portnames(get_config('in_ports'), False)
     _out_portnames = _parse_portnames(get_config('out_ports'), True)
-    _in_port_connections = _parse_port_connections(get_config('in_ports'), False)
-    _out_port_connections = _parse_port_connections(get_config('out_ports'), True)
+    _in_port_connections = _parse_port_connections(
+                                get_config('in_ports'), False)
+    _out_port_connections = _parse_port_connections(
+                                get_config('out_ports'), True)
 
 
 def get_config(var):
@@ -136,8 +142,8 @@ def hook(*args):
     """
     hook(*args)
 
-    Register "hook" objects, that can be used to extend the functionality of
-    mididings.
+    Register "hook" objects, that can be used to extend the functionality
+    of mididings.
     Hook classes that ship with mididings are described in section
     :ref:`extra-hooks`.
 

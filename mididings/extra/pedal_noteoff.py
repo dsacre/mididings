@@ -29,14 +29,16 @@ class _SustainToNoteoff(object):
                 return None
             else:
                 # pedal released, send note offs for all sustained notes
-                r = [_event.NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.notes]
+                r = [_event.NoteOffEvent(ev.port, ev.channel, x, 0)
+                        for x in self.notes]
                 self.notes.clear()
                 return r
         elif ev.type == _m.NOTEON and self.pedal:
             # note on while pedal is held
             if ev.note in self.notes:
                 self.notes.remove(ev.note)
-                return [_event.NoteOffEvent(ev.port, ev.channel, ev.note, 0), ev]
+                return [_event.NoteOffEvent(ev.port, ev.channel, ev.note, 0),
+                        ev]
             else:
                 return ev
         elif ev.type == _m.NOTEOFF and self.pedal:
@@ -64,7 +66,9 @@ class _SostenutoToNoteoff(object):
                 return None
             else:
                 # pedal released, send note offs for all sustained notes
-                r = [_event.NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.sustained_notes if x not in self.held_notes]
+                r = [_event.NoteOffEvent(ev.port, ev.channel, x, 0)
+                        for x in self.sustained_notes
+                            if x not in self.held_notes]
                 self.sustained_notes.clear()
                 return r
         elif ev.type == _m.NOTEON:

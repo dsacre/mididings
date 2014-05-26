@@ -38,7 +38,8 @@ JACKBackend::JACKBackend(std::string const & client_name,
     ASSERT(!out_port_names.empty());
 
     // create JACK client
-    if ((_client = jack_client_open(client_name.c_str(), JackNoStartServer, NULL)) == NULL) {
+    _client = jack_client_open(client_name.c_str(), JackNoStartServer, NULL);
+    if (_client == NULL) {
         throw Error("can't connect to jack server");
     }
 
@@ -46,7 +47,9 @@ JACKBackend::JACKBackend(std::string const & client_name,
 
     // create input ports
     BOOST_FOREACH (std::string const & port_name, in_port_names) {
-        jack_port_t *p = jack_port_register(_client, port_name.c_str(), JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
+        jack_port_t *p = jack_port_register(_client, port_name.c_str(),
+                                            JACK_DEFAULT_MIDI_TYPE,
+                                            JackPortIsInput, 0);
         if (p == NULL) {
             throw Error("error creating input port");
         }
@@ -55,7 +58,9 @@ JACKBackend::JACKBackend(std::string const & client_name,
 
     // create output ports
     BOOST_FOREACH (std::string const & port_name, out_port_names) {
-        jack_port_t *p = jack_port_register(_client, port_name.c_str(), JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
+        jack_port_t *p = jack_port_register(_client, port_name.c_str(),
+                                            JACK_DEFAULT_MIDI_TYPE,
+                                            JackPortIsOutput, 0);
         if (p == NULL) {
             throw Error("error creating output port");
         }
@@ -75,20 +80,26 @@ JACKBackend::~JACKBackend()
 }
 
 
-void JACKBackend::connect_ports(PortConnectionMap const & in_port_connections,
-                                PortConnectionMap const & out_port_connections)
+void JACKBackend::connect_ports(
+        PortConnectionMap const & in_port_connections,
+        PortConnectionMap const & out_port_connections)
 {
     connect_ports_impl(in_port_connections, _in_ports, false);
     connect_ports_impl(out_port_connections, _out_ports, true);
 }
 
 
-void JACKBackend::connect_ports_impl(PortConnectionMap const & port_connections, std::vector<jack_port_t *> const & ports, bool out)
+void JACKBackend::connect_ports_impl(
+        PortConnectionMap const & port_connections,
+        std::vector<jack_port_t *> const & ports,
+        bool out)
 {
     if (port_connections.empty()) return;
 
     // get all JACK MIDI ports we could connect to
-    char const **external_ports_array = jack_get_ports(_client, NULL, JACK_DEFAULT_MIDI_TYPE, out ? JackPortIsInput : JackPortIsOutput);
+    char const **external_ports_array = jack_get_ports(
+                                _client, NULL, JACK_DEFAULT_MIDI_TYPE,
+                                out ? JackPortIsInput : JackPortIsOutput);
     if (!external_ports_array) return;
 
     // find end of array
@@ -105,7 +116,8 @@ void JACKBackend::connect_ports_impl(PortConnectionMap const & port_connections,
         std::string short_name = jack_port_short_name(port);
         std::string port_name = jack_port_name(port);
 
-        PortConnectionMap::const_iterator element = port_connections.find(short_name);
+        PortConnectionMap::const_iterator element =
+                port_connections.find(short_name);
 
         // break if no connections are defined for this port
         if (element == port_connections.end()) break;
@@ -113,15 +125,21 @@ void JACKBackend::connect_ports_impl(PortConnectionMap const & port_connections,
         // for each regex pattern defined for this port...
         BOOST_FOREACH (std::string const & pattern, element->second) {
             // connect to all ports that match the pattern
-            if (connect_matching_ports(port_name, pattern, external_ports, out) == 0) {
-                std::cerr << "warning: regular expression '" << pattern << "' didn't match any JACK MIDI ports" << std::endl;
+            if (connect_matching_ports(port_name, pattern,
+                                       external_ports, out) == 0) {
+                std::cerr << "warning: regular expression '" << pattern
+                          << "' didn't match any JACK MIDI ports" << std::endl;
             }
         }
     }
 }
 
 
-int JACKBackend::connect_matching_ports(std::string const & port_name, std::string const & pattern, PortNameVector const & external_ports, bool out)
+int JACKBackend::connect_matching_ports(
+        std::string const & port_name,
+        std::string const & pattern,
+        PortNameVector const & external_ports,
+        bool out)
 {
     try {
         // compile pattern into regex object
@@ -133,13 +151,17 @@ int JACKBackend::connect_matching_ports(std::string const & port_name, std::stri
             // check if port name matches regex
             if (regex.match(external_port)) {
                 // connect output to input port
-                std::string const & output_port = out ? port_name : external_port;
-                std::string const & input_port = out ? external_port : port_name;
+                std::string const & output_port =
+                        out ? port_name : external_port;
+                std::string const & input_port =
+                        out ? external_port : port_name;
 
-                int error = jack_connect(_client, output_port.c_str(), input_port.c_str());
+                int error = jack_connect(_client, output_port.c_str(),
+                                                  input_port.c_str());
 
                 if (error && error != EEXIST) {
-                    std::cerr << "could not connect " << output_port << " to " << input_port << std::endl;
+                    std::cerr << "could not connect " << output_port
+                              << " to " << input_port << std::endl;
                 }
 
                 ++count;
@@ -148,7 +170,9 @@ int JACKBackend::connect_matching_ports(std::string const & port_name, std::stri
         return count;
     }
     catch (das::regex::compile_error & ex) {
-        throw std::runtime_error(das::make_string() << "failed to parse regular expression '" << pattern << "': " << ex.what());
+        throw std::runtime_error(das::make_string()
+                << "failed to parse regular expression '"
+                << pattern << "': " << ex.what());
     }
 }
 
@@ -171,14 +195,15 @@ void JACKBackend::fill_input_queue(jack_nframes_t nframes)
 {
     ASSERT(_input_queue.empty());
 
-    for (int port = 0; port != static_cast<int>(_in_ports.size()); ++port) {
+    for (unsigned int port = 0; port != _in_ports.size(); ++port) {
         void *port_buffer = jack_port_get_buffer(_in_ports[port], nframes);
 
-        for (int count = 0; count != static_cast<int>(jack_midi_get_event_count(port_buffer)); ++count) {
+        for (unsigned int n = 0; n != jack_midi_get_event_count(port_buffer); ++n) {
             jack_midi_event_t jack_ev;
-            VERIFY(!jack_midi_event_get(&jack_ev, port_buffer, count));
+            VERIFY(!jack_midi_event_get(&jack_ev, port_buffer, n));
 
-            MidiEvent ev = buffer_to_midi_event(jack_ev.buffer, jack_ev.size, port, _current_frame + jack_ev.time);
+            MidiEvent ev = buffer_to_midi_event(jack_ev.buffer, jack_ev.size,
+                                                port, _current_frame + jack_ev.time);
             _input_queue.push(ev);
         }
     }
@@ -227,7 +252,8 @@ bool JACKBackend::write_event(MidiEvent const & ev, jack_nframes_t nframes)
         // event received within current period, zero delay
         f = frame - _current_frame;
     } else if (frame >= _current_frame - nframes) {
-        // event received during last period, exactly one period delay (minimize jitter)
+        // event received during last period, exactly one period delay
+        // (minimize jitter)
         f = frame - _current_frame + nframes;
     } else {
         // event is older, send as soon as possible (minimize latency)

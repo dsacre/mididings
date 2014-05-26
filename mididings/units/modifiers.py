@@ -69,11 +69,15 @@ def Key(note):
 
     Change note events to a fixed note number.
     """
-    return Filter(_constants.NOTE | _constants.POLY_AFTERTOUCH) % Split({
-        _constants.NOTEON:  NoteOn(note, _constants.EVENT_VELOCITY),
-        _constants.NOTEOFF: NoteOff(note, _constants.EVENT_VELOCITY),
-        _constants.POLY_AFTERTOUCH: PolyAftertouch(note, _constants.EVENT_VALUE),
-    })
+    return (Filter(_constants.NOTE | _constants.POLY_AFTERTOUCH) %
+        Split({
+            _constants.NOTEON:
+                NoteOn(note, _constants.EVENT_VELOCITY),
+            _constants.NOTEOFF:
+                NoteOff(note, _constants.EVENT_VELOCITY),
+            _constants.POLY_AFTERTOUCH:
+                PolyAftertouch(note, _constants.EVENT_VALUE),
+        }))
 
 
 @_overload.mark(
@@ -101,27 +105,32 @@ def Key(note):
 )
 @_unitrepr.accept(int)
 def Velocity(offset):
-    return _Unit(_mididings.Velocity(offset, _mididings.TransformMode.OFFSET))
+    return _Unit(_mididings.Velocity(
+                    offset, _mididings.TransformMode.OFFSET))
 
 @_overload.mark
 @_unitrepr.accept((float, int))
 def Velocity(multiply):
-    return _Unit(_mididings.Velocity(multiply, _mididings.TransformMode.MULTIPLY))
+    return _Unit(_mididings.Velocity(
+                    multiply, _mididings.TransformMode.MULTIPLY))
 
 @_overload.mark
 @_unitrepr.accept(_util.velocity_value)
 def Velocity(fixed):
-    return _Unit(_mididings.Velocity(fixed, _mididings.TransformMode.FIXED))
+    return _Unit(_mididings.Velocity(
+                    fixed, _mididings.TransformMode.FIXED))
 
 @_overload.mark
 @_unitrepr.accept((float, int))
 def Velocity(gamma):
-    return _Unit(_mididings.Velocity(gamma, _mididings.TransformMode.GAMMA))
+    return _Unit(_mididings.Velocity(
+                    gamma, _mididings.TransformMode.GAMMA))
 
 @_overload.mark
 @_unitrepr.accept((float, int))
 def Velocity(curve):
-    return _Unit(_mididings.Velocity(curve, _mididings.TransformMode.CURVE))
+    return _Unit(_mididings.Velocity(
+                    curve, _mididings.TransformMode.CURVE))
 
 @_overload.mark
 @_unitrepr.accept((float, int), int)
@@ -139,9 +148,9 @@ def Velocity(multiply, offset):
     VelocitySlope(notes, multiply, offset)
 
     Change the velocity of note-on events, applying a linear slope between
-    different notes. This can be thought of as a :func:`~.Velocity()` unit with
-    different parameters for different note ranges, and is useful for example
-    to fade-in a sound over a region of the keyboard.
+    different notes. This can be thought of as a :func:`~.Velocity()` unit
+    with different parameters for different note ranges, and is useful for
+    example to fade-in a sound over a region of the keyboard.
 
     Both parameters must be sequences of the same length, with notes in
     ascending order, and one velocity parameter corresponding to each note.
@@ -150,46 +159,55 @@ def Velocity(multiply, offset):
 @_unitrepr.accept([_util.note_limit], [int])
 def VelocitySlope(notes, offset):
     _check_velocity_slope(notes, offset)
-    return _Unit(_mididings.VelocitySlope(notes, offset, _mididings.TransformMode.OFFSET))
+    return _Unit(_mididings.VelocitySlope(
+                    notes, offset, _mididings.TransformMode.OFFSET))
 
 @_overload.mark
 @_unitrepr.accept([_util.note_limit], [(float, int)])
 def VelocitySlope(notes, multiply):
     _check_velocity_slope(notes, multiply)
-    return _Unit(_mididings.VelocitySlope(notes, multiply, _mididings.TransformMode.MULTIPLY))
+    return _Unit(_mididings.VelocitySlope(
+                    notes, multiply, _mididings.TransformMode.MULTIPLY))
 
 @_overload.mark
 @_unitrepr.accept([_util.note_limit], [_util.velocity_value])
 def VelocitySlope(notes, fixed):
     _check_velocity_slope(notes, fixed)
-    return _Unit(_mididings.VelocitySlope(notes, fixed, _mididings.TransformMode.FIXED))
+    return _Unit(_mididings.VelocitySlope(
+                    notes, fixed, _mididings.TransformMode.FIXED))
 
 @_overload.mark
 @_unitrepr.accept([_util.note_limit], [(float, int)])
 def VelocitySlope(notes, gamma):
     _check_velocity_slope(notes, gamma)
-    return _Unit(_mididings.VelocitySlope(notes, gamma, _mididings.TransformMode.GAMMA))
+    return _Unit(_mididings.VelocitySlope(
+                    notes, gamma, _mididings.TransformMode.GAMMA))
 
 @_overload.mark
 @_unitrepr.accept([_util.note_limit], [(float, int)])
 def VelocitySlope(notes, curve):
     _check_velocity_slope(notes, curve)
-    return _Unit(_mididings.VelocitySlope(notes, curve, _mididings.TransformMode.CURVE))
+    return _Unit(_mididings.VelocitySlope(
+                    notes, curve, _mididings.TransformMode.CURVE))
 
 @_overload.mark
 @_unitrepr.accept([_util.note_limit], [(float, int)], [int])
 def VelocitySlope(notes, multiply, offset):
-    return VelocitySlope(notes, multiply=multiply) >> VelocitySlope(notes, offset=offset)
+    return (VelocitySlope(notes, multiply=multiply)
+            >> VelocitySlope(notes, offset=offset))
 
 
 def _check_velocity_slope(notes, params):
     message = None
     if len(notes) != len(params):
-        message = "invalid parameters to VelocitySlope(): notes and velocity values must be sequences of the same length"
+        message = ("invalid parameters to VelocitySlope(): notes and velocity"
+                   "values must be sequences of the same length")
     elif len(notes) < 2:
-        message = "invalid parameters to VelocitySlope(): need at least two notes"
+        message = ("invalid parameters to VelocitySlope(): need at least"
+                   "two notes")
     elif sorted(notes) != list(notes):
-        message = "invalid parameters to VelocitySlope(): notes must be in ascending order"
+        message = ("invalid parameters to VelocitySlope(): notes must be in"
+                   "ascending order")
 
     if message is not None:
         raise ValueError(message)
@@ -266,33 +284,38 @@ def CtrlRange(ctrl, min, max, in_min=0, in_max=127):
     CtrlCurve(ctrl, multiply=...)
     CtrlCurve(ctrl, multiply, offset)
 
-    Transform control change values. See :func:`~.Velocity()` for a description
-    of the parameters.
+    Transform control change values. See :func:`~.Velocity()` for a
+    description of the parameters.
     """
 )
 @_unitrepr.accept(_util.ctrl_number, (float, int))
 def CtrlCurve(ctrl, gamma):
-    return _Unit(_mididings.CtrlCurve(ctrl, gamma, _mididings.TransformMode.GAMMA))
+    return _Unit(_mididings.CtrlCurve(
+                        ctrl, gamma, _mididings.TransformMode.GAMMA))
 
 @_overload.mark
 @_unitrepr.accept(_util.ctrl_number, (float, int))
 def CtrlCurve(ctrl, curve):
-    return _Unit(_mididings.CtrlCurve(ctrl, curve, _mididings.TransformMode.CURVE))
+    return _Unit(_mididings.CtrlCurve(
+                        ctrl, curve, _mididings.TransformMode.CURVE))
 
 @_overload.mark
 @_unitrepr.accept(_util.ctrl_number, int)
 def CtrlCurve(ctrl, offset):
-    return _Unit(_mididings.CtrlCurve(ctrl, offset, _mididings.TransformMode.OFFSET))
+    return _Unit(_mididings.CtrlCurve(
+                        ctrl, offset, _mididings.TransformMode.OFFSET))
 
 @_overload.mark
 @_unitrepr.accept(_util.ctrl_number, (float, int))
 def CtrlCurve(ctrl, multiply):
-    return _Unit(_mididings.CtrlCurve(ctrl, multiply, _mididings.TransformMode.MULTIPLY))
+    return _Unit(_mididings.CtrlCurve(
+                        ctrl, multiply, _mididings.TransformMode.MULTIPLY))
 
 @_overload.mark
 @_unitrepr.accept(_util.ctrl_number, (float, int), int)
 def CtrlCurve(ctrl, multiply, offset):
-    return CtrlCurve(ctrl, multiply=multiply) >> CtrlCurve(ctrl, offset=offset)
+    return (CtrlCurve(ctrl, multiply=multiply)
+            >> CtrlCurve(ctrl, offset=offset))
 
 
 @_overload.mark(
@@ -312,4 +335,5 @@ def PitchbendRange(min, max, in_min=-8192, in_max=8191):
 @_overload.mark
 @_unitrepr.accept(int, int, int)
 def PitchbendRange(down, up, range):
-    return PitchbendRange(int(float(down)/range*8192), int(float(up)/range*8191))
+    return PitchbendRange(int(float(down)/range*8192),
+                          int(float(up)/range*8191))

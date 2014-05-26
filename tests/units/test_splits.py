@@ -69,7 +69,8 @@ class SplitsTestCase(MididingsTestCase):
         self.check_patch(p, {
             ev1: [self.modify_event(ev1, channel=off(7))],
             ev2: [self.modify_event(ev2, channel=off(3))],
-            ev3: [self.modify_event(ev3, channel=off(3)), self.modify_event(ev3, channel=off(7))],
+            ev3: [self.modify_event(ev3, channel=off(3)),
+                  self.modify_event(ev3, channel=off(7))],
         })
 
         p = KeySplit({

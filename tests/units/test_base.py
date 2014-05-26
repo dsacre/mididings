@@ -71,7 +71,8 @@ class BaseTestCase(MididingsTestCase):
             self.make_event(PROGRAM): (False, True),
         })
 
-        self.check_filter(Filter(types=[CTRL, [PROGRAM], AFTERTOUCH|PITCHBEND]), {
+        self.check_filter(
+                Filter(types=[CTRL, [PROGRAM], AFTERTOUCH|PITCHBEND]), {
             self.make_event(NOTEON): (False, True),
             self.make_event(CTRL): (True, False),
             self.make_event(PROGRAM): (True, False),
@@ -139,7 +140,8 @@ class BaseTestCase(MididingsTestCase):
             self.make_event(CTRL, ctrl=42, value=123): False,
         })
 
-        p = (Filter(NOTE) | (CtrlFilter(42) & CtrlValueFilter(123))) % Discard()
+        p = (Filter(NOTE) |
+             (CtrlFilter(42) & CtrlValueFilter(123))) % Discard()
         self.check_patch(p, {
             self.make_event(NOTEON): False,
             self.make_event(CTRL, ctrl=23, value=42): True,

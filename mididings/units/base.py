@@ -254,7 +254,8 @@ def Fork(units, **kwargs):
     """
     Units connected in parallel.
     """
-    remove_duplicates = kwargs['remove_duplicates'] if 'remove_duplicates' in kwargs else None
+    remove_duplicates = (kwargs['remove_duplicates']
+                            if 'remove_duplicates' in kwargs else None)
 
     # handle a single list argument differently for backward compatibility
     if len(units) == 1 and type(units[0]) == list:
@@ -263,7 +264,10 @@ def Fork(units, **kwargs):
     return _Fork(units, remove_duplicates)
 
 
-@_arguments.accept({_arguments.nullable(_arguments.reduce_bitmask([_constants._EventType])): _UNIT_TYPES})
+@_arguments.accept({
+    _arguments.nullable(_arguments.reduce_bitmask([_constants._EventType])):
+        _UNIT_TYPES
+})
 def Split(mapping):
     """
     Split(mapping)
@@ -294,7 +298,8 @@ AndSelector = And
 OrSelector = Or
 
 
-@_unitrepr.accept(_arguments.reduce_bitmask([_constants._EventType]), add_varargs=True)
+@_unitrepr.accept(_arguments.reduce_bitmask([_constants._EventType]),
+                  add_varargs=True)
 def Filter(types):
     """
     Filter(types, ...)

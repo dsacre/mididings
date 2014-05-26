@@ -26,7 +26,8 @@ class _LatchNotes(object):
         if ev.type == _m.NOTEON:
             if ev.note == self.reset:
                 # reset all notes
-                r = [_event.NoteOffEvent(ev.port, ev.channel, x, 0) for x in self.notes]
+                r = [_event.NoteOffEvent(ev.port, ev.channel, x, 0)
+                        for x in self.notes]
                 self.notes = []
                 return r
 
@@ -41,7 +42,11 @@ class _LatchNotes(object):
                     return _event.NoteOffEvent(ev.port, ev.channel, ev.note, 0)
             else:
                 # turn off previous note, play new note
-                r = [_event.NoteOffEvent(ev.port, ev.channel, self.notes[0], 0)] if len(self.notes) else []
+                if len(self.notes):
+                    r = [_event.NoteOffEvent(
+                                    ev.port, ev.channel, self.notes[0], 0)]
+                else:
+                    r = []
                 self.notes = [ev.note]
                 return r + [ev]
 
@@ -52,7 +57,8 @@ class _LatchNotes(object):
 
 def LatchNotes(polyphonic=False, reset=None):
     """
-    Makes notes latching, so they will keep playing when the key is released.
+    Makes notes latching, so they will keep playing when the key is
+    released.
 
     :param polyphonic:
         If true, each note can be stopped individually by pressing the
@@ -65,4 +71,5 @@ def LatchNotes(polyphonic=False, reset=None):
         currently playing notes.
     """
     return (_m.Filter(_m.NOTE) %
-                _m.Process(_PerChannel(lambda: _LatchNotes(polyphonic, reset))))
+                _m.Process(_PerChannel(
+                    lambda: _LatchNotes(polyphonic, reset))))

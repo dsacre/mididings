@@ -49,7 +49,8 @@ class Engine(_mididings.Engine):
         )
         _mididings.Engine.__init__(self, *engine_args)
 
-        self.connect_ports(_setup._in_port_connections, _setup._out_port_connections)
+        self.connect_ports(_setup._in_port_connections,
+                           _setup._out_port_connections)
 
         self._scenes = {}
 
@@ -68,7 +69,8 @@ class Engine(_mididings.Engine):
                     init_patch = _patch.Patch(sceneobj.init_patch)
                     exit_patch = _patch.Patch(sceneobj.exit_patch)
                     # add scene to base class object
-                    self.add_scene(_util.actual(number), patch, init_patch, exit_patch)
+                    self.add_scene(_util.actual(number),
+                                   patch, init_patch, exit_patch)
             else:
                 sceneobj = _scene._parse_scene(scene)
                 self._scenes[number] = (sceneobj.name, [])
@@ -78,7 +80,8 @@ class Engine(_mididings.Engine):
                 init_patch = _patch.Patch(sceneobj.init_patch)
                 exit_patch = _patch.Patch(sceneobj.exit_patch)
                 # add scene to base class object
-                self.add_scene(_util.actual(number), patch, init_patch, exit_patch)
+                self.add_scene(_util.actual(number),
+                               patch, init_patch, exit_patch)
 
         # build and setup control, pre, and post patches
         control_patch = _patch.Patch(control) if control else None
@@ -96,18 +99,21 @@ class Engine(_mididings.Engine):
     def run(self):
         self._quit = _threading.Event()
 
-        # delay before actually sending any midi data (give qjackctl patchbay time to react...)
+        # delay before actually sending any midi data (give qjackctl
+        # patchbay time to react...)
         self._start_delay()
 
         self._call_hooks('on_start')
 
-        initial_scene, initial_subscene = self._parse_scene_number(_setup.get_config('initial_scene'))
+        initial_scene, initial_subscene = \
+            self._parse_scene_number(_setup.get_config('initial_scene'))
 
         # start the actual event processing
         self.start(initial_scene, initial_subscene)
 
         try:
-            # wait() with no timeout also blocks KeyboardInterrupt, but a very long timeout doesn't. weird...
+            # wait() with no timeout also blocks KeyboardInterrupt, but
+            # a very long timeout doesn't. weird...
             while not self._quit.isSet():
                 self._quit.wait(86400)
         except KeyboardInterrupt:
@@ -129,7 +135,8 @@ class Engine(_mididings.Engine):
         if number in self._scenes:
             # single scene number, no subscene
             return (_util.actual(number), -1)
-        elif _misc.issequence(number) and len(number) > 1 and number[0] in self._scenes:
+        elif (_misc.issequence(number) and
+                len(number) > 1 and number[0] in self._scenes):
             # scene/subscene numbers as tuple...
             if _util.actual(number[1]) < len(self._scenes[number[0]][1]):
                 # both scene and subscene numbers are valid
@@ -140,7 +147,7 @@ class Engine(_mididings.Engine):
         return (-1, -1)
 
     def scene_switch_callback(self, scene, subscene):
-        # the scene and subscene parameters are the actual numbers without offset!
+        # scene and subscene parameters are the actual numbers without offset!
         if scene == -1:
             # no scene specified, use current
             scene = _mididings.Engine.current_scene(self)
@@ -156,10 +163,12 @@ class Engine(_mididings.Engine):
         subscene = _util.offset(subscene)
 
         found = (scene in self._scenes and
-                 (not subscene_index or subscene_index < len(self._scenes[scene][1])))
+                 (not subscene_index or
+                    subscene_index < len(self._scenes[scene][1])))
 
         # get string representation of scene/subscene number
-        if subscene_index or (scene in self._scenes and len(self._scenes[scene][1])):
+        if (subscene_index or
+                (scene in self._scenes and len(self._scenes[scene][1]))):
             number = "%d.%d" % (scene, subscene)
         else:
             number = str(scene)
@@ -169,11 +178,13 @@ class Engine(_mididings.Engine):
                 # get scene/subscene name
                 scene_data = self._scenes[scene]
                 if scene_data[1]:
-                    name = "%s - %s" % (scene_data[0], scene_data[1][subscene_index])
+                    name = "%s - %s" % (scene_data[0],
+                                        scene_data[1][subscene_index])
                 else:
                     name = scene_data[0]
 
-                scene_desc = ("%s: %s" % (number, name)) if name else str(number)
+                scene_desc = (("%s: %s" % (number, name)) if name
+                                else str(number))
                 print("switching to scene %s" % scene_desc)
             else:
                 print("no such scene: %s" % number)
@@ -254,7 +265,9 @@ class Engine(_mididings.Engine):
 )
 @_arguments.accept(_UNIT_TYPES)
 def run(patch):
-    if isinstance(patch, dict) and all(not isinstance(k, _constants._EventType) for k in patch.keys()):
+    if (isinstance(patch, dict) and
+            all(not isinstance(k, _constants._EventType)
+                for k in patch.keys())):
         # bypass the overload mechanism (just this once...) if there's no way
         # the given dict could be accepted as a split
         run(scenes=patch)
@@ -264,7 +277,12 @@ def run(patch):
         e.run()
 
 @_overload.mark
-@_arguments.accept(_UNIT_TYPES, _arguments.nullable(_UNIT_TYPES), _arguments.nullable(_UNIT_TYPES), _arguments.nullable(_UNIT_TYPES))
+@_arguments.accept(
+    _UNIT_TYPES,
+    _arguments.nullable(_UNIT_TYPES),
+    _arguments.nullable(_UNIT_TYPES),
+    _arguments.nullable(_UNIT_TYPES)
+)
 def run(scenes, control=None, pre=None, post=None):
     e = Engine()
     e.setup(scenes, control, pre, post)
@@ -378,9 +396,11 @@ def process_file(infile, outfile, patch):
     for smf_ev in smf_in.events:
         if smf_ev.midi_buffer[0] == 0xff:
             # event is metadata. copy to output unmodified
-            smf_out.add_event(smf.Event(smf_ev.midi_buffer), smf_ev.track_number, pulses=smf_ev.time_pulses)
+            smf_out.add_event(smf.Event(smf_ev.midi_buffer),
+                              smf_ev.track_number, pulses=smf_ev.time_pulses)
         else:
-            ev = _mididings.buffer_to_midi_event(smf_ev.midi_buffer, smf_ev.track_number, smf_ev.time_pulses)
+            ev = _mididings.buffer_to_midi_event(smf_ev.midi_buffer,
+                              smf_ev.track_number, smf_ev.time_pulses)
 
             # use base class version of process_event() to bypass calling
             # ev._finalize(), which would fail since ev is of type

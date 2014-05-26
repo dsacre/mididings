@@ -11,8 +11,9 @@
 #
 
 from mididings.units.base import Chain, Fork, _UNIT_TYPES
-from mididings.units.filters import PortFilter, ChannelFilter, KeyFilter, VelocityFilter
-from mididings.units.filters import CtrlFilter, CtrlValueFilter, ProgramFilter, SysExFilter
+from mididings.units.filters import (
+        PortFilter, ChannelFilter, KeyFilter, VelocityFilter,
+        CtrlFilter, CtrlValueFilter, ProgramFilter, SysExFilter)
 
 import mididings.overload as _overload
 import mididings.arguments as _arguments
@@ -21,7 +22,8 @@ import mididings.util as _util
 
 def _make_split(t, d, unpack=False):
     if unpack:
-        # if dictionary key is a tuple, unpack and pass as individual parameters to ctor
+        # if dictionary key is a tuple, unpack and pass as individual
+        # parameters to ctor
         t = lambda p, t=t: t(*(p if isinstance(p, tuple) else (p,)))
 
     # build dict with all items from d, except d[None]
@@ -46,7 +48,10 @@ def _make_threshold(f, patch_lower, patch_upper):
 
 
 
-@_arguments.accept({_arguments.nullable(_arguments.flatten(_util.port_number, tuple)): _UNIT_TYPES})
+@_arguments.accept({
+    _arguments.nullable(_arguments.flatten(_util.port_number, tuple)):
+        _UNIT_TYPES
+})
 def PortSplit(mapping):
     """
     PortSplit(mapping)
@@ -57,7 +62,10 @@ def PortSplit(mapping):
     return _make_split(PortFilter, mapping)
 
 
-@_arguments.accept({_arguments.nullable(_arguments.flatten(_util.channel_number, tuple)): _UNIT_TYPES})
+@_arguments.accept({
+    _arguments.nullable(_arguments.flatten(_util.channel_number, tuple)):
+        _UNIT_TYPES
+})
 def ChannelSplit(mapping):
     """
     ChannelSplit(mapping)
@@ -82,7 +90,8 @@ def ChannelSplit(mapping):
 )
 @_arguments.accept(_util.note_limit, _UNIT_TYPES, _UNIT_TYPES)
 def KeySplit(threshold, patch_lower, patch_upper):
-    return _make_threshold(KeyFilter(0, threshold), patch_lower, patch_upper)
+    return _make_threshold(KeyFilter(0, threshold),
+                           patch_lower, patch_upper)
 
 @_overload.mark
 @_arguments.accept({_arguments.nullable(_util.note_range): _UNIT_TYPES})
@@ -104,7 +113,8 @@ def KeySplit(mapping):
 )
 @_arguments.accept(_util.velocity_limit, _UNIT_TYPES, _UNIT_TYPES)
 def VelocitySplit(threshold, patch_lower, patch_upper):
-    return _make_threshold(VelocityFilter(0, threshold), patch_lower, patch_upper)
+    return _make_threshold(VelocityFilter(0, threshold),
+                           patch_lower, patch_upper)
 
 @_overload.mark
 @_arguments.accept({_arguments.nullable(_util.velocity_range): _UNIT_TYPES})
@@ -112,7 +122,10 @@ def VelocitySplit(mapping):
     return _make_split(VelocityFilter, mapping, unpack=True)
 
 
-@_arguments.accept({_arguments.nullable(_arguments.flatten(_util.ctrl_number, tuple)): _UNIT_TYPES})
+@_arguments.accept({
+    _arguments.nullable(_arguments.flatten(_util.ctrl_number, tuple)):
+        _UNIT_TYPES
+})
 def CtrlSplit(mapping):
     """
     CtrlSplit(mapping)
@@ -142,7 +155,8 @@ def CtrlSplit(mapping):
 )
 @_arguments.accept(_util.ctrl_limit, _UNIT_TYPES, _UNIT_TYPES)
 def CtrlValueSplit(threshold, patch_lower, patch_upper):
-    return _make_threshold(CtrlValueFilter(0, threshold), patch_lower, patch_upper)
+    return _make_threshold(CtrlValueFilter(0, threshold),
+                           patch_lower, patch_upper)
 
 @_overload.mark
 @_arguments.accept({_arguments.nullable(_util.ctrl_range): _UNIT_TYPES})
@@ -150,7 +164,10 @@ def CtrlValueSplit(mapping):
     return _make_split(CtrlValueFilter, mapping, unpack=True)
 
 
-@_arguments.accept({_arguments.nullable(_arguments.flatten(_util.program_number, tuple)): _UNIT_TYPES})
+@_arguments.accept({
+    _arguments.nullable(_arguments.flatten(_util.program_number, tuple)):
+        _UNIT_TYPES
+})
 def ProgramSplit(mapping):
     """
     ProgramSplit(mapping)

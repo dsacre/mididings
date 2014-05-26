@@ -58,24 +58,32 @@ Every event has one of the following types:
 
 For use in filters, the following constants are also defined:
 
-+---------------------------+-----------------------------------------------------------------------------------+
-| Symbolic constant         | Matched MIDI event types                                                          |
-+===========================+===================================================================================+
-| :const:`NOTE`             | Any note event (:const:`NOTEON` | :const:`NOTEOFF`)                               |
-+---------------------------+-----------------------------------------------------------------------------------+
-| :const:`SYSCM`            | Any system common event (:const:`SYSCM_QFRAME` | :const:`SYSCM_SONGPOS` |         |
-|                           | :const:`SYSCM_SONGSEL` | :const:`SYSCM_TUNEREQ`)                                  |
-+---------------------------+-----------------------------------------------------------------------------------+
-| :const:`SYSRT`            | Any system realtime event (:const:`SYSRT_CLOCK` | :const:`SYSRT_START` |          |
-|                           | :const:`SYSRT_CONTINUE` | :const:`SYSRT_STOP` | :const:`SYSRT_SENSING` |          |
-|                           | :const:`SYSRT_RESET`)                                                             |
-+---------------------------+-----------------------------------------------------------------------------------+
-| :const:`SYSTEM`           | Any system (non-channel) event (:const:`SYSEX` | :const:`SYSCM` | :const:`SYSRT`) |
-+---------------------------+-----------------------------------------------------------------------------------+
-| :const:`NONE`             | No event                                                                          |
-+---------------------------+-----------------------------------------------------------------------------------+
-| :const:`ANY`              | Any event                                                                         |
-+---------------------------+-----------------------------------------------------------------------------------+
++---------------------------+-------------------------------------------------+
+| Symbolic constant         | Matched MIDI event types                        |
++===========================+=================================================+
+| :const:`NOTE`             | Any note event                                  |
+|                           | (:const:`NOTEON` | :const:`NOTEOFF`)            |
++---------------------------+-------------------------------------------------+
+| :const:`SYSCM`            | Any system common event                         |
+|                           | (:const:`SYSCM_QFRAME` |                        |
+|                           | :const:`SYSCM_SONGPOS` |                        |
+|                           | :const:`SYSCM_SONGSEL` |                        |
+|                           | :const:`SYSCM_TUNEREQ`)                         |
++---------------------------+-------------------------------------------------+
+| :const:`SYSRT`            | Any system realtime event                       |
+|                           | (:const:`SYSRT_CLOCK` | :const:`SYSRT_START` |  |
+|                           | :const:`SYSRT_CONTINUE` | :const:`SYSRT_STOP` | |
+|                           | :const:`SYSRT_SENSING` |                        |
+|                           | :const:`SYSRT_RESET`)                           |
++---------------------------+-------------------------------------------------+
+| :const:`SYSTEM`           | Any system (non-channel) event                  |
+|                           | (:const:`SYSEX` | :const:`SYSCM` |              |
+|                           | :const:`SYSRT`)                                 |
++---------------------------+-------------------------------------------------+
+| :const:`NONE`             | No event                                        |
++---------------------------+-------------------------------------------------+
+| :const:`ANY`              | Any event                                       |
++---------------------------+-------------------------------------------------+
 
 
 Event types are bit masks, so when building filters, they can be combined

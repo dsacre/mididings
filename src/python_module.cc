@@ -56,15 +56,31 @@ namespace mididings {
 #ifdef ENABLE_DEBUG_STATS
 
 void unload() {
-    std::cout << "MidiEvent alloc: " << curious_alloc_base<MidiEvent>::max_utilization() << " " << curious_alloc_base<MidiEvent>::fallback_count() << std::endl;
+    std::cout << "MidiEvent alloc: "
+              << curious_alloc_base<MidiEvent>::max_utilization() << " "
+              << curious_alloc_base<MidiEvent>::fallback_count() << std::endl;
 
-    std::cout << "Engine: " << das::counted_objects<Engine>::allocated() << " " << das::counted_objects<Engine>::deallocated() << std::endl;
-    std::cout << "Patch: " << das::counted_objects<Patch>::allocated() << " " << das::counted_objects<Patch>::deallocated() << std::endl;
-    std::cout << "Patch::Module: " << das::counted_objects<Patch::Module>::allocated() << " " << das::counted_objects<Patch::Module>::deallocated() << std::endl;
-    std::cout << "units::Unit: " << das::counted_objects<units::Unit>::allocated() << " " << das::counted_objects<units::Unit>::deallocated() << std::endl;
-    std::cout << "units::UnitEx: " << das::counted_objects<units::UnitEx>::allocated() << " " << das::counted_objects<units::UnitEx>::deallocated() << std::endl;
-    std::cout << "MidiEvent: " << das::counted_objects<MidiEvent>::allocated() << " " << das::counted_objects<MidiEvent>::deallocated() << std::endl;
-    std::cout << "SysExData: " << das::counted_objects<SysExData>::allocated() << " " << das::counted_objects<SysExData>::deallocated() << std::endl;
+    std::cout << "Engine: "
+              << das::counted_objects<Engine>::allocated() << " "
+              << das::counted_objects<Engine>::deallocated() << std::endl;
+    std::cout << "Patch: "
+              << das::counted_objects<Patch>::allocated() << " "
+              << das::counted_objects<Patch>::deallocated() << std::endl;
+    std::cout << "Patch::Module: "
+              << das::counted_objects<Patch::Module>::allocated() << " "
+              << das::counted_objects<Patch::Module>::deallocated() << std::endl;
+    std::cout << "units::Unit: "
+              << das::counted_objects<units::Unit>::allocated() << " "
+              << das::counted_objects<units::Unit>::deallocated() << std::endl;
+    std::cout << "units::UnitEx: "
+              << das::counted_objects<units::UnitEx>::allocated() << " "
+              << das::counted_objects<units::UnitEx>::deallocated() << std::endl;
+    std::cout << "MidiEvent: "
+              << das::counted_objects<MidiEvent>::allocated() << " "
+              << das::counted_objects<MidiEvent>::deallocated() << std::endl;
+    std::cout << "SysExData: "
+              << das::counted_objects<SysExData>::allocated() << " "
+              << das::counted_objects<SysExData>::deallocated() << std::endl;
 }
 
 #endif // ENABLE_DEBUG_STATS
@@ -87,7 +103,8 @@ class EngineWrap
     void scene_switch_callback(int scene, int subscene) {
         das::python::scoped_gil_lock gil;
         try {
-            boost::python::call_method<void>(_self, "scene_switch_callback", scene, subscene);
+            boost::python::call_method<void>(_self,
+                                "scene_switch_callback", scene, subscene);
         } catch (boost::python::error_already_set &) {
             PyErr_Print();
         }
@@ -98,8 +115,10 @@ class EngineWrap
 };
 
 
-MidiEvent buffer_to_midi_event(std::vector<unsigned char> const & buffer, int port, uint64_t frame) {
-    return backend::buffer_to_midi_event(&buffer.front(), buffer.size(), port, frame);
+MidiEvent buffer_to_midi_event(std::vector<unsigned char> const & buffer,
+                               int port, uint64_t frame) {
+    return backend::buffer_to_midi_event(
+                            &buffer.front(), buffer.size(), port, frame);
 }
 
 boost::python::tuple midi_event_to_buffer(MidiEvent const & ev) {
@@ -135,7 +154,8 @@ BOOST_PYTHON_MODULE(_mididings)
 
 
     // list of supported backends
-    def("available_backends", &backend::available, bp::return_value_policy<bp::return_by_value>());
+    def("available_backends", &backend::available,
+        bp::return_value_policy<bp::return_by_value>());
 
     def("buffer_to_midi_event", buffer_to_midi_event);
     def("midi_event_to_buffer", midi_event_to_buffer);
@@ -146,8 +166,12 @@ BOOST_PYTHON_MODULE(_mididings)
 
 
     // main engine class, derived from in python
-    class_<Engine, EngineWrap, noncopyable>("Engine", init<std::string const &, std::string const &,
-                                                       std::vector<std::string> const &, std::vector<std::string> const &, bool>())
+    class_<Engine, EngineWrap, noncopyable>(
+        "Engine",
+        init<std::string const &, std::string const &,
+             std::vector<std::string> const &,
+             std::vector<std::string> const &,
+             bool>())
         .def("connect_ports", &Engine::connect_ports)
         .def("add_scene", &Engine::add_scene)
         .def("set_processing", &Engine::set_processing)
@@ -163,13 +187,19 @@ BOOST_PYTHON_MODULE(_mididings)
 
     // patch class, derived from in python
     {
-        bp::scope patch_scope = class_<Patch, noncopyable>("Patch", init<Patch::ModulePtr>());
+        bp::scope patch_scope = class_<Patch, noncopyable>(
+            "Patch", init<Patch::ModulePtr>());
 
-        class_<Patch::Module, noncopyable>("Module", bp::no_init);
-        class_<Patch::Chain, bases<Patch::Module>, noncopyable>("Chain", init<Patch::ModuleVector>());
-        class_<Patch::Fork, bases<Patch::Module>, noncopyable>("Fork", init<Patch::ModuleVector, bool>());
-        class_<Patch::Single, bases<Patch::Module>, noncopyable>("Single", init<boost::shared_ptr<Unit> >());
-        class_<Patch::Extended, bases<Patch::Module>, noncopyable>("Extended", init<boost::shared_ptr<UnitEx> >());
+        class_<Patch::Module, noncopyable>(
+            "Module", bp::no_init);
+        class_<Patch::Chain, bases<Patch::Module>, noncopyable>(
+            "Chain", init<Patch::ModuleVector>());
+        class_<Patch::Fork, bases<Patch::Module>, noncopyable>(
+            "Fork", init<Patch::ModuleVector, bool>());
+        class_<Patch::Single, bases<Patch::Module>, noncopyable>(
+            "Single", init<boost::shared_ptr<Unit> >());
+        class_<Patch::Extended, bases<Patch::Module>, noncopyable>(
+            "Extended", init<boost::shared_ptr<UnitEx> >());
     }
 
 
@@ -222,42 +252,69 @@ BOOST_PYTHON_MODULE(_mididings)
     class_<Filter, bases<Unit>, noncopyable>("Filter", bp::no_init);
 
     // base
-    class_<Pass, bases<Unit>, noncopyable>("Pass", init<bool>());
-    class_<TypeFilter, bases<Filter>, noncopyable>("TypeFilter", init<MidiEventType>());
-    class_<InvertedFilter, bases<Filter>, noncopyable>("InvertedFilter", init<boost::shared_ptr<Filter>, bool>());
+    class_<Pass, bases<Unit>, noncopyable>(
+        "Pass", init<bool>());
+    class_<TypeFilter, bases<Filter>, noncopyable>(
+        "TypeFilter", init<MidiEventType>());
+    class_<InvertedFilter, bases<Filter>, noncopyable>(
+        "InvertedFilter", init<boost::shared_ptr<Filter>, bool>());
 
     // filters
-    class_<PortFilter, bases<Filter>, noncopyable>("PortFilter", init<std::vector<int> const &>());
-    class_<ChannelFilter, bases<Filter>, noncopyable>("ChannelFilter", init<std::vector<int> const &>());
-    class_<KeyFilter, bases<Filter>, noncopyable>("KeyFilter", init<int, int, std::vector<int> const &>());
-    class_<VelocityFilter, bases<Filter>, noncopyable>("VelocityFilter", init<int, int>());
-    class_<CtrlFilter, bases<Filter>, noncopyable>("CtrlFilter", init<std::vector<int> const &>());
-    class_<CtrlValueFilter, bases<Filter>, noncopyable>("CtrlValueFilter", init<int, int>());
-    class_<ProgramFilter, bases<Filter>, noncopyable>("ProgramFilter", init<std::vector<int> const &>());
-    class_<SysExFilter, bases<Filter>, noncopyable>("SysExFilter", init<SysExDataConstPtr const &, bool>());
+    class_<PortFilter, bases<Filter>, noncopyable>(
+        "PortFilter", init<std::vector<int> const &>());
+    class_<ChannelFilter, bases<Filter>, noncopyable>(
+        "ChannelFilter", init<std::vector<int> const &>());
+    class_<KeyFilter, bases<Filter>, noncopyable>(
+        "KeyFilter", init<int, int, std::vector<int> const &>());
+    class_<VelocityFilter, bases<Filter>, noncopyable>(
+        "VelocityFilter", init<int, int>());
+    class_<CtrlFilter, bases<Filter>, noncopyable>(
+        "CtrlFilter", init<std::vector<int> const &>());
+    class_<CtrlValueFilter, bases<Filter>, noncopyable>(
+        "CtrlValueFilter", init<int, int>());
+    class_<ProgramFilter, bases<Filter>, noncopyable>(
+        "ProgramFilter", init<std::vector<int> const &>());
+    class_<SysExFilter, bases<Filter>, noncopyable>(
+        "SysExFilter", init<SysExDataConstPtr const &, bool>());
 
     // modifiers
-    class_<Port, bases<Unit>, noncopyable>("Port", init<int>());
-    class_<Channel, bases<Unit>, noncopyable>("Channel", init<int>());
-    class_<Transpose, bases<Unit>, noncopyable>("Transpose", init<int>());
-    class_<Velocity, bases<Unit>, noncopyable>("Velocity", init<float, TransformMode>());
-    class_<VelocitySlope, bases<Unit>, noncopyable>("VelocitySlope", init<std::vector<int> const &, std::vector<float> const &, TransformMode>());
-    class_<CtrlMap, bases<Unit>, noncopyable>("CtrlMap", init<int, int>());
-    class_<CtrlRange, bases<Unit>, noncopyable>("CtrlRange", init<int, int, int, int, int>());
-    class_<CtrlCurve, bases<Unit>, noncopyable>("CtrlCurve", init<int, float, TransformMode>());
-    class_<PitchbendRange, bases<Unit>, noncopyable>("PitchbendRange", init<int, int, int, int>());
+    class_<Port, bases<Unit>, noncopyable>(
+        "Port", init<int>());
+    class_<Channel, bases<Unit>, noncopyable>(
+        "Channel", init<int>());
+    class_<Transpose, bases<Unit>, noncopyable>(
+        "Transpose", init<int>());
+    class_<Velocity, bases<Unit>, noncopyable>(
+        "Velocity", init<float, TransformMode>());
+    class_<VelocitySlope, bases<Unit>, noncopyable>(
+        "VelocitySlope", init<std::vector<int> const &,
+                              std::vector<float> const &, TransformMode>());
+    class_<CtrlMap, bases<Unit>, noncopyable>(
+        "CtrlMap", init<int, int>());
+    class_<CtrlRange, bases<Unit>, noncopyable>(
+        "CtrlRange", init<int, int, int, int, int>());
+    class_<CtrlCurve, bases<Unit>, noncopyable>(
+        "CtrlCurve", init<int, float, TransformMode>());
+    class_<PitchbendRange, bases<Unit>, noncopyable>(
+        "PitchbendRange", init<int, int, int, int>());
 
     // generators
-    class_<Generator, bases<Unit>, noncopyable>("Generator", init<MidiEventType, int, int, int, int>());
-    class_<SysExGenerator, bases<Unit>, noncopyable>("SysExGenerator", init<int, SysExDataConstPtr const &>());
+    class_<Generator, bases<Unit>, noncopyable>(
+        "Generator", init<MidiEventType, int, int, int, int>());
+    class_<SysExGenerator, bases<Unit>, noncopyable>(
+        "SysExGenerator", init<int, SysExDataConstPtr const &>());
 
     // engine
-    class_<Sanitize, bases<UnitEx>, noncopyable>("Sanitize", init<>());
-    class_<SceneSwitch, bases<UnitEx>, noncopyable>("SceneSwitch", init<int, int>());
-    class_<SubSceneSwitch, bases<UnitEx>, noncopyable>("SubSceneSwitch", init<int, int, bool>());
+    class_<Sanitize, bases<UnitEx>, noncopyable>(
+        "Sanitize", init<>());
+    class_<SceneSwitch, bases<UnitEx>, noncopyable>(
+        "SceneSwitch", init<int, int>());
+    class_<SubSceneSwitch, bases<UnitEx>, noncopyable>(
+        "SubSceneSwitch", init<int, int, bool>());
 
     // call
-    class_<Call, bases<UnitEx>, noncopyable>("Call", init<bp::object, bool, bool>());
+    class_<Call, bases<UnitEx>, noncopyable>(
+        "Call", init<bp::object, bool, bool>());
 
 
     enum_<TransformMode>("TransformMode")

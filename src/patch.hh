@@ -44,7 +44,11 @@ class Patch
 {
   private:
 
-    typedef std::list<MidiEvent, curious_alloc<MidiEvent, config::MAX_EVENTS> > EventListRT;
+    typedef std::list<
+        MidiEvent,
+        curious_alloc<MidiEvent, config::MAX_EVENTS>
+    > EventListRT;
+
     typedef std::list<MidiEvent> EventList;
 
     // deriving from a standard container. get over it.
@@ -99,8 +103,10 @@ class Patch
         Module() { }
         virtual ~Module() { }
 
-        virtual void process(EventBufferRT & buffer, EventBufferRT::Range & range) const = 0;
-        virtual void process(EventBuffer & buffer, EventBuffer::Range & range) const = 0;
+        virtual void process(EventBufferRT & buffer,
+                             EventBufferRT::Range & range) const = 0;
+        virtual void process(EventBuffer & buffer,
+                             EventBuffer::Range & range) const = 0;
     };
 
     typedef boost::shared_ptr<Module> ModulePtr;
@@ -118,12 +124,14 @@ class Patch
       : public Module
     {
       public:
-        virtual void process(EventBufferRT & buffer, EventBufferRT::Range & range) const {
+        virtual void process(EventBufferRT & buffer,
+                             EventBufferRT::Range & range) const {
             Derived const & d = *static_cast<Derived const*>(this);
             d.template process<EventBufferRT>(buffer, range);
         }
 
-        virtual void process(EventBuffer & buffer, EventBuffer::Range & range) const {
+        virtual void process(EventBuffer & buffer,
+                             EventBuffer::Range & range) const {
             Derived const & d = *static_cast<Derived const*>(this);
             d.template process<EventBuffer>(buffer, range);
         }
@@ -245,10 +253,12 @@ class Patch
 
 
     /**
-     * Replaces event with one or more events, returns the range containing the new events.
+     * Replaces event with one or more events, returns the range containing
+     * the new events.
      */
     template <typename B, typename IterT>
-    static inline typename B::Range replace_event(B & buffer, typename B::Iterator it, IterT begin, IterT end) {
+    static inline typename B::Range
+    replace_event(B & buffer, typename B::Iterator it, IterT begin, IterT end) {
         it = buffer.erase(it);
 
         typename B::Iterator first = buffer.insert(it, *begin);
@@ -261,7 +271,8 @@ class Patch
      * Leaves event unchanged, returns a range containing the single event.
      */
     template <typename B>
-    static inline typename B::Range keep_event(B & /*buffer*/, typename B::Iterator it) {
+    static inline typename B::Range
+    keep_event(B & /*buffer*/, typename B::Iterator it) {
         typename B::Range ret(it, 1);
         return ret;
     }
@@ -270,7 +281,8 @@ class Patch
      * Removes event, returns empty range.
      */
     template <typename B>
-    static inline typename B::Range delete_event(B & buffer, typename B::Iterator it) {
+    static inline typename B::Range
+    delete_event(B & buffer, typename B::Iterator it) {
         it = buffer.erase(it);
         return typename B::Range(it);
     }
@@ -279,7 +291,8 @@ class Patch
   private:
 
     template <typename B>
-    static std::string debug_range(std::string const & str, B const & buffer, typename B::Range const & range);
+    static std::string debug_range(std::string const & str, B const & buffer,
+                                   typename B::Range const & range);
 
 
     ModulePtr const _module;

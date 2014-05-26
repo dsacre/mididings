@@ -71,8 +71,10 @@ class Engine
     void connect_ports(backend::PortConnectionMap const & in_port_connections,
                        backend::PortConnectionMap const & out_port_connections);
 
-    void add_scene(int i, PatchPtr patch, PatchPtr init_patch, PatchPtr exit_patch);
-    void set_processing(PatchPtr ctrl_patch, PatchPtr pre_patch, PatchPtr post_patch);
+    void add_scene(int i, PatchPtr patch,
+                   PatchPtr init_patch, PatchPtr exit_patch);
+    void set_processing(PatchPtr ctrl_patch,
+                        PatchPtr pre_patch, PatchPtr post_patch);
 
     void start(int initial_scene, int initial_subscene);
 

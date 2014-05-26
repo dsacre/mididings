@@ -29,10 +29,12 @@ class Dings(object):
         if options.start_delay:
             self.config(start_delay=options.start_delay)
         if options.in_ports or options.in_connections:
-            in_ports = self.make_port_definitions(options.in_connections, options.in_ports)
+            in_ports = self.make_port_definitions(
+                            options.in_connections, options.in_ports)
             self.config(in_ports=in_ports)
         if options.out_ports or options.out_connections:
-            out_ports = self.make_port_definitions(options.out_connections, options.out_ports)
+            out_ports = self.make_port_definitions(
+                            options.out_connections, options.out_ports)
             self.config(out_ports=out_ports)
 
         self.dings_dict = mididings.__dict__.copy()
@@ -54,16 +56,19 @@ class Dings(object):
         return [(None, c) for c in connections]
 
     def run_file(self, filename):
-        # add filename's directory to sys.path to allow import from the same directory
+        # add filename's directory to sys.path to allow import from the same
+        # directory
         d = os.path.dirname(filename)
         if not d:
             d = '.'
         sys.path.insert(0, d)
         # just a kludge to make AutoRestart() work
-        sys.modules['__mididings_main__'] = type('MididingsMain', (), {'__file__': os.path.abspath(filename)})
+        sys.modules['__mididings_main__'] = type(
+                'MididingsMain', (), {'__file__': os.path.abspath(filename)})
 
         if sys.version_info >= (3,):
-            exec(compile(open(filename).read(), filename, 'exec'), self.dings_dict)
+            exec(compile(open(filename).read(), filename, 'exec'),
+                 self.dings_dict)
         else:
             execfile(filename, self.dings_dict)
 
@@ -75,22 +80,32 @@ class Dings(object):
 
 
 if __name__ == '__main__':
-    usage   = "Usage: mididings [options] \"patch\"\n" \
-              "       mididings [options] -f filename.py"
-    epilog  = "The -I and -O options may be specified multiple times, once for each port.\n\n" \
-              "The -f option executes a regular mididings Python script. Command line arguments " \
-              "override config settings in that file."
+    usage   = ("Usage: mididings [options] 'patch'\n"
+               "       mididings [options] -f filename.py")
+    epilog  = ("The -I and -O options may be specified multiple times, "
+               "once for each port.\n\n"
+               "The -f option executes a regular mididings Python script. "
+               "Command line arguments override config settings in that "
+               "script.")
     version = "mididings %s" % mididings.__version__
 
     parser = optparse.OptionParser(usage=usage, epilog=epilog, version=version)
-    parser.add_option('-b', dest='backend', help="name of backend to use")
-    parser.add_option('-c', dest='client_name', help="ALSA or JACK client name")
-    parser.add_option('-i', dest='in_ports', type=int, help="number of input ports")
-    parser.add_option('-o', dest='out_ports', type=int, help="number of output ports")
-    parser.add_option('-I', dest='in_connections', type=str, action='append', help='input port connection (regular expression)')
-    parser.add_option('-O', dest='out_connections', type=str, action='append', help='output port connection (regular expression)')
-    parser.add_option('-d', dest='start_delay', type=float, help="delay (in seconds) before starting MIDI processing")
-    parser.add_option('-f', dest='filename', help="file name of script to run")
+    parser.add_option('-b', dest='backend',
+                      help="name of backend to use")
+    parser.add_option('-c', dest='client_name',
+                      help="ALSA or JACK client name")
+    parser.add_option('-i', dest='in_ports', type=int,
+                      help="number of input ports")
+    parser.add_option('-o', dest='out_ports', type=int,
+                      help="number of output ports")
+    parser.add_option('-I', dest='in_connections', type=str, action='append',
+                      help='input port connection (regular expression)')
+    parser.add_option('-O', dest='out_connections', type=str, action='append',
+                      help='output port connection (regular expression)')
+    parser.add_option('-d', dest='start_delay', type=float,
+                      help="delay (in seconds) before starting processing")
+    parser.add_option('-f', dest='filename',
+                      help="file name of script to run")
 
     options, args = parser.parse_args(sys.argv[1:])
 

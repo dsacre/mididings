@@ -47,6 +47,7 @@ class MemorizeScene(object):
     def on_exit(self):
         try:
             f = open(self.memo_file, 'w')
-            f.write("%d %d\n" % (_engine.current_scene(), _engine.current_subscene()))
+            f.write("%d %d\n" % (_engine.current_scene(),
+                                 _engine.current_subscene()))
         except IOError as ex:
             print("couldn't store current scene:\n%s" % str(ex))

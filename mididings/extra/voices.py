@@ -21,9 +21,13 @@ class _VoiceFilter(object):
         self.voice = voice
         self.time = time
         self.retrigger = retrigger
-        self.notes = {}                     # all notes currently being played
-        self.current_note = None            # note number this voice is playing
-        self.diverted = False               # whether we had to fall back to a different voice
+
+        # all notes currently being played
+        self.notes = {}
+        # note number this voice is playing
+        self.current_note = None
+        # if we had to fall back to a different voice
+        self.diverted = False
 
     def __call__(self, ev):
         t = _engine.time()
@@ -42,34 +46,51 @@ class _VoiceFilter(object):
                 n = sorted_notes[self.voice]
                 d = False
             except IndexError:
-                # use the next best note: lowest for negative index, otherwise highest
+                # use the next best note:
+                # lowest for negative index, otherwise highest
                 n = sorted_notes[0 if self.voice < 0 else -1]
                 d = True
         else:
             n = None
             d = False
 
-        dt = (t - self.notes[self.current_note][1]) if self.current_note in self.notes else 0.0
+        dt = ((t - self.notes[self.current_note][1])
+                if self.current_note in self.notes else 0.0)
 
         # change current note if...
-        if (n != self.current_note                              # note number changed and...
-            and (self.retrigger                                 # we're always retriggering notes...
-                 or self.voice in (0, -1)                       # lowest/heighest voice are a bit of a special case...
-                 or self.current_note not in self.notes         # current note is no longer held...
-                 or (ev.type == _m.NOTEON and dt < self.time)   # our previous note is very recent...
-                 or self.diverted and not d)):                  # or the new note is "better" than previous one
+        if (
+            # note number changed and...
+            n != self.current_note and (
+                # we're always retriggering notes
+                self.retrigger or
+                # lowest/heighest voice are a bit of a special case
+                self.voice in (0, -1) or
+                # current note is no longer held
+                self.current_note not in self.notes or
+                # our previous note is very recent
+                (ev.type == _m.NOTEON and dt < self.time) or
+                # the new note is "better" than previous one
+                self.diverted and not d
+        )):
             # yield note-off for previous note (if any)
             if self.current_note:
-                yield _event.NoteOffEvent(ev.port, ev.channel, self.current_note, 0)
+                yield _event.NoteOffEvent(
+                        v.port, ev.channel, self.current_note, 0)
                 self.current_note = None
 
             dt = (t - self.notes[n][1]) if n in self.notes else 0.0
 
             # yield note-on for new note (if any)
-            if n is not None and (ev.note == n              # if this is the note being played right now...
-                              or self.retrigger             # we're retriggering notes whenever a key is pressed or released...
-                              or dt < self.time):           # or our previous note is very recent
-                yield _event.NoteOnEvent(ev.port, ev.channel, n, self.notes[n][0])
+            if n is not None and (
+                # this is the note being played right now
+                ev.note == n or
+                # we're retriggering whenever a key is pressed or released
+                self.retrigger or
+                # our previous note is very recent
+                dt < self.time
+            ):
+                yield _event.NoteOnEvent(
+                        ev.port, ev.channel, n, self.notes[n][0])
                 self.current_note = n
                 self.diverted = d
 

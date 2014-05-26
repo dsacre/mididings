@@ -24,9 +24,10 @@ namespace mididings {
 namespace backend {
 
 
-JACKRealtimeBackend::JACKRealtimeBackend(std::string const & client_name,
-                                         PortNameVector const & in_port_names,
-                                         PortNameVector const & out_port_names)
+JACKRealtimeBackend::JACKRealtimeBackend(
+        std::string const & client_name,
+        PortNameVector const & in_port_names,
+        PortNameVector const & out_port_names)
   : JACKBackend(client_name, in_port_names, out_port_names)
   , _out_rb(config::JACK_MAX_EVENTS)
 {
@@ -97,7 +98,8 @@ void JACKRealtimeBackend::finish()
     boost::mutex mutex;
     boost::mutex::scoped_lock lock(mutex);
 
-    _cond.timed_wait(lock, boost::posix_time::milliseconds(config::JACK_REALTIME_FINISH_TIMEOUT));
+    _cond.timed_wait(lock, boost::posix_time::milliseconds(
+                                config::JACK_REALTIME_FINISH_TIMEOUT));
 }
 
 

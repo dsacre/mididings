@@ -40,18 +40,25 @@ enum MidiEventTypeEnum
     MIDI_EVENT_SYSCM_SONGPOS    = 1 << 9,
     MIDI_EVENT_SYSCM_SONGSEL    = 1 << 10,
     MIDI_EVENT_SYSCM_TUNEREQ    = 1 << 11,
-    MIDI_EVENT_SYSCM            = MIDI_EVENT_SYSCM_QFRAME | MIDI_EVENT_SYSCM_SONGPOS |
-                                  MIDI_EVENT_SYSCM_SONGSEL | MIDI_EVENT_SYSCM_TUNEREQ,
+    MIDI_EVENT_SYSCM            = MIDI_EVENT_SYSCM_QFRAME |
+                                  MIDI_EVENT_SYSCM_SONGPOS |
+                                  MIDI_EVENT_SYSCM_SONGSEL |
+                                  MIDI_EVENT_SYSCM_TUNEREQ,
     MIDI_EVENT_SYSRT_CLOCK      = 1 << 12,
     MIDI_EVENT_SYSRT_START      = 1 << 13,
     MIDI_EVENT_SYSRT_CONTINUE   = 1 << 14,
     MIDI_EVENT_SYSRT_STOP       = 1 << 15,
     MIDI_EVENT_SYSRT_SENSING    = 1 << 16,
     MIDI_EVENT_SYSRT_RESET      = 1 << 17,
-    MIDI_EVENT_SYSRT            = MIDI_EVENT_SYSRT_CLOCK | MIDI_EVENT_SYSRT_START |
-                                  MIDI_EVENT_SYSRT_CONTINUE | MIDI_EVENT_SYSRT_STOP |
-                                  MIDI_EVENT_SYSRT_SENSING | MIDI_EVENT_SYSRT_RESET,
-    MIDI_EVENT_SYSTEM           = MIDI_EVENT_SYSEX | MIDI_EVENT_SYSCM | MIDI_EVENT_SYSRT,
+    MIDI_EVENT_SYSRT            = MIDI_EVENT_SYSRT_CLOCK |
+                                  MIDI_EVENT_SYSRT_START |
+                                  MIDI_EVENT_SYSRT_CONTINUE |
+                                  MIDI_EVENT_SYSRT_STOP |
+                                  MIDI_EVENT_SYSRT_SENSING |
+                                  MIDI_EVENT_SYSRT_RESET,
+    MIDI_EVENT_SYSTEM           = MIDI_EVENT_SYSEX |
+                                  MIDI_EVENT_SYSCM |
+                                  MIDI_EVENT_SYSRT,
     MIDI_EVENT_DUMMY            = 1 << 29,
     MIDI_EVENT_ANY              = (1 << 30) - 1,
 };
@@ -167,21 +174,24 @@ inline bool operator==(MidiEvent const & lhs, MidiEvent const & rhs)
     }
 
     // check which fields are relevant for the given event type
-    bool channel = !(lhs.type & (MIDI_EVENT_SYSTEM | MIDI_EVENT_DUMMY));
-    bool data1 = (lhs.type & (MIDI_EVENT_NOTE | MIDI_EVENT_CTRL | MIDI_EVENT_POLY_AFTERTOUCH |
-                              MIDI_EVENT_SYSCM_QFRAME | MIDI_EVENT_SYSCM_SONGPOS | MIDI_EVENT_SYSCM_SONGSEL));
-    bool data2 = (lhs.type & (MIDI_EVENT_NOTE | MIDI_EVENT_CTRL | MIDI_EVENT_PITCHBEND |
-                              MIDI_EVENT_AFTERTOUCH | MIDI_EVENT_POLY_AFTERTOUCH | MIDI_EVENT_PROGRAM |
-                              MIDI_EVENT_SYSCM_SONGPOS));
-    bool sysex = (lhs.type & MIDI_EVENT_SYSEX);
+    bool have_channel = !(lhs.type & (MIDI_EVENT_SYSTEM | MIDI_EVENT_DUMMY));
+    bool have_data1 = (lhs.type & (
+            MIDI_EVENT_NOTE | MIDI_EVENT_CTRL |
+            MIDI_EVENT_POLY_AFTERTOUCH | MIDI_EVENT_SYSCM_QFRAME |
+            MIDI_EVENT_SYSCM_SONGPOS | MIDI_EVENT_SYSCM_SONGSEL));
+    bool have_data2 = (lhs.type & (
+            MIDI_EVENT_NOTE | MIDI_EVENT_CTRL | MIDI_EVENT_PITCHBEND |
+            MIDI_EVENT_AFTERTOUCH | MIDI_EVENT_POLY_AFTERTOUCH |
+            MIDI_EVENT_PROGRAM | MIDI_EVENT_SYSCM_SONGPOS));
+    bool have_sysex = (lhs.type & MIDI_EVENT_SYSEX);
 
     // return true if each field is either identical or irrelevant
     return (
         lhs.port == rhs.port &&
-        (!channel || lhs.channel == rhs.channel) &&
-        (!data1 || lhs.data1 == rhs.data1) &&
-        (!data2 || lhs.data2 == rhs.data2) &&
-        (!sysex || (lhs.sysex && rhs.sysex && *lhs.sysex == *rhs.sysex)) &&
+        (!have_channel || lhs.channel == rhs.channel) &&
+        (!have_data1 || lhs.data1 == rhs.data1) &&
+        (!have_data2 || lhs.data2 == rhs.data2) &&
+        (!have_sysex || (lhs.sysex && rhs.sysex && *lhs.sysex == *rhs.sysex)) &&
         lhs.frame == rhs.frame
     );
 }

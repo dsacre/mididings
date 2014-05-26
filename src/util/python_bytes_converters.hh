@@ -52,7 +52,8 @@ struct to_bytes_converter
   : to_python_converter<T, P, to_bytes_converter<T, P> >
 {
     static PyObject *convert(T const & vec) {
-        return PyBytes_FromStringAndSize(reinterpret_cast<char const *>(&vec.front()), vec.size());
+        return PyBytes_FromStringAndSize(
+                    reinterpret_cast<char const *>(&vec.front()), vec.size());
     }
 
     static PyTypeObject const *get_pytype() {
@@ -93,7 +94,8 @@ struct to_bytearray_converter
   : to_python_converter<T, P, to_bytearray_converter<T, P> >
 {
     static PyObject *convert(T const & vec) {
-        return PyByteArray_FromStringAndSize(reinterpret_cast<char const *>(&vec.front()), vec.size());
+        return PyByteArray_FromStringAndSize(
+                    reinterpret_cast<char const *>(&vec.front()), vec.size());
     }
 
     static PyTypeObject const *get_pytype() {

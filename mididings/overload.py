@@ -18,8 +18,8 @@ import functools
 
 def call(args, kwargs, funcs, name=None):
     """
-    Search funcs for a function with parameters such that args and kwargs can
-    be applied, and call the first suitable function that is found.
+    Search funcs for a function with parameters such that args and kwargs
+    can be applied, and call the first suitable function that is found.
     """
     for f in funcs:
         n = len(args)
@@ -34,11 +34,12 @@ def call(args, kwargs, funcs, name=None):
         npos = max(len(names) - ndef, n)
         defargs = names[npos:]
 
-        # check if the number of positional arguments fits, and if the remaining
-        # parameters can be filled with keyword and default arguments.
+        # check if the number of positional arguments fits, and if the
+        # remaining parameters can be filled with keyword and default
+        # arguments.
         # alternatively, a suitable function with varargs is also accepted.
-        if ((n <= len(names) and set(kwargs) | set(defargs) == set(names[n:])) or
-            (n >= len(names) and varargs is not None)):
+        if ((n <= len(names) and set(kwargs) | set(defargs) == set(names[n:]))
+                or (n >= len(names) and varargs is not None)):
             # call f with all original arguments
             return f(*args, **kwargs)
 
@@ -55,9 +56,11 @@ def call(args, kwargs, funcs, name=None):
     argx = ['*'] * len(args)
     kwargx = ['*'] * len(kwargs)
     formatvalue = lambda v: '=%s' % v
-    args_used = inspect.formatargspec(argx + list(kwargs.keys()), defaults=kwargx, formatvalue=formatvalue)
+    args_used = inspect.formatargspec(argx + list(kwargs.keys()),
+                                      defaults=kwargx, formatvalue=formatvalue)
 
-    message = "no suitable overload found for %s%s, candidates are:\n%s" % (name, args_used, '\n'.join(candidates))
+    message = ("no suitable overload found for %s%s, candidates are:\n%s" %
+                    (name, args_used, '\n'.join(candidates)))
     raise TypeError(message)
 
 
@@ -78,7 +81,7 @@ class _Overload(object):
         return call(args, kwargs, self.funcs, self.name)
 
 
-# mapping of all overloaded function names to the corresponding _Overload object
+# mapping of all overloaded function names to corresponding _Overload objects
 _registry = {}
 
 

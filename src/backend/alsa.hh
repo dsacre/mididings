@@ -55,11 +55,13 @@ class ALSABackend
 
   private:
     struct ClientPortInfo {
-        ClientPortInfo(int client_id_, int port_id_, std::string const & client_name_, std::string const & port_name_)
-          : client_id(client_id_),
-            port_id(port_id_),
-            client_name(client_name_),
-            port_name(port_name_)
+        ClientPortInfo(int client_id, int port_id,
+                       std::string const & client_name,
+                       std::string const & port_name)
+          : client_id(client_id),
+            port_id(port_id),
+            client_name(client_name),
+            port_name(port_name)
         { }
 
         int client_id;
@@ -73,24 +75,36 @@ class ALSABackend
     typedef std::vector<int> PortIdVector;
     typedef std::map<int, int> RevPortIdMap;
 
-    void connect_ports_impl(PortConnectionMap const & port_connections, PortIdVector const & ports, bool out);
-    int connect_matching_ports(int port, std::string const & port_name, std::string const & pattern,
-                               ClientPortInfoVector const & external_ports, bool out);
+    void connect_ports_impl(
+            PortConnectionMap const & port_connections,
+            PortIdVector const & ports,
+            bool out);
+    int connect_matching_ports(
+            int port, std::string const & port_name,
+            std::string const & pattern,
+            ClientPortInfoVector const & external_ports,
+            bool out);
     ClientPortInfoVector get_external_ports(bool out);
 
-    void alsa_to_midi_event(MidiEvent & ev, snd_seq_event_t const & alsa_ev);
-    void alsa_to_midi_event_sysex(MidiEvent & ev, snd_seq_event_t const & alsa_ev);
-    void alsa_to_midi_event_generic(MidiEvent & ev, snd_seq_event_t const & alsa_ev);
+    void alsa_to_midi_event(MidiEvent & ev,
+                            snd_seq_event_t const & alsa_ev);
+    void alsa_to_midi_event_sysex(MidiEvent & ev,
+                            snd_seq_event_t const & alsa_ev);
+    void alsa_to_midi_event_generic(MidiEvent & ev,
+                            snd_seq_event_t const & alsa_ev);
 
-    void midi_event_to_alsa(snd_seq_event_t & alsa_ev, MidiEvent const & ev, std::size_t & count);
-    void midi_event_to_alsa_sysex(snd_seq_event_t & alsa_ev, MidiEvent const & ev, std::size_t & count);
-    void midi_event_to_alsa_generic(snd_seq_event_t & alsa_ev, MidiEvent const & ev);
+    void midi_event_to_alsa(snd_seq_event_t & alsa_ev,
+                            MidiEvent const & ev, std::size_t & count);
+    void midi_event_to_alsa_sysex(snd_seq_event_t & alsa_ev,
+                            MidiEvent const & ev, std::size_t & count);
+    void midi_event_to_alsa_generic(snd_seq_event_t & alsa_ev,
+                            MidiEvent const & ev);
 
     snd_seq_t *_seq;
 
-    PortIdVector _in_ports;         // alsa input port IDs
-    RevPortIdMap _in_ports_rev;     // reverse mapping (input port ID -> port #)
-    PortIdVector _out_ports;        // alsa output port IDs
+    PortIdVector _in_ports;     // alsa input port IDs
+    RevPortIdMap _in_ports_rev; // reverse mapping (input port ID -> port #)
+    PortIdVector _out_ports;    // alsa output port IDs
 
     snd_midi_event_t *_parser;
 

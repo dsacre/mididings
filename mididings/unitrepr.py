@@ -28,7 +28,8 @@ def store(f, *args, **kwargs):
     """
     unit = f(*args, **kwargs)
 
-    # store the unit's name, the function object, and the value of each argument
+    # store the unit's name, the function object, and the value of
+    # each argument
     unit._name = f.name if isinstance(f, overload._Overload) else f.__name__
     unit._function = f
     unit._args = args

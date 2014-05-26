@@ -140,7 +140,8 @@ def Process(function, *args, **kwargs):
     returning any MIDI events.
     """
     if _get_config('backend') == 'jack-rt' and not _get_config('silent'):
-        print("WARNING: using Process() with the 'jack-rt' backend is probably a bad idea")
+        print("WARNING: using Process() with the 'jack-rt' backend"
+              " is probably a bad idea")
     return _CallBase(_call_partial(function, args, kwargs, True), False, False)
 
 

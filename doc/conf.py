@@ -41,7 +41,8 @@ def process_docstring(app, what, name, obj, options, lines):
     while len(lines) and py_ext_sig_re.match(lines[0]) is not None:
         del lines[0]
 
-def process_signature(app, what, name, obj, options, signature, return_annotation):
+def process_signature(app, what, name, obj,
+                      options, signature, return_annotation):
     """
     Replace function signature with those specified in the docstring.
     """
@@ -74,7 +75,8 @@ class DingsFunction(PyModulelevel):
         if m:
             op = m.group(1)
             name = m.group(2)
-            modname = self.options.get('module', self.env.temp_data.get('py:module'))
+            modname = self.options.get('module',
+                                       self.env.temp_data.get('py:module'))
 
             signode['module'] = modname
             signode['class'] = ''

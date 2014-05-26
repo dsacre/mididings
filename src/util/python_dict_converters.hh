@@ -36,8 +36,10 @@ struct from_dict_converter
         Py_ssize_t pos = 0;
 
         while (PyDict_Next(obj, &pos, &key_ptr, &value_ptr)) {
-            typename T::key_type key = boost::python::extract<typename T::key_type>(key_ptr);
-            typename T::mapped_type value = boost::python::extract<typename T::mapped_type>(value_ptr);
+            typename T::key_type key =
+                    boost::python::extract<typename T::key_type>(key_ptr);
+            typename T::mapped_type value =
+                    boost::python::extract<typename T::mapped_type>(value_ptr);
 
             map[key] = value;
         }

@@ -35,7 +35,8 @@ class CallTestCase(MididingsTestCase):
             return ev
 
         self.check_patch(Process(foo), {
-            self.make_event(NOTEON, off(0), off(0), 66, 23): [self.make_event(CTRL, off(4), off(5), 23, 42)],
+            self.make_event(NOTEON, off(0), off(0), 66, 23):
+                [self.make_event(CTRL, off(4), off(5), 23, 42)],
         })
 
     def test_Process_return(self):

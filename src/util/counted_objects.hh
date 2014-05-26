@@ -38,8 +38,10 @@ class counted_objects
 };
 
 
-template <typename T> boost::detail::atomic_count counted_objects<T>::alloc_(0);
-template <typename T> boost::detail::atomic_count counted_objects<T>::dealloc_(0);
+template <typename T>
+boost::detail::atomic_count counted_objects<T>::alloc_(0);
+template <typename T>
+boost::detail::atomic_count counted_objects<T>::dealloc_(0);
 
 
 } // namespace das

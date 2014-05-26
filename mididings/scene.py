@@ -25,13 +25,14 @@ class Scene(object):
     :param name: a string describing the scene.
     :param patch: the patch defining the MIDI processing to take place for
         incoming events.
-    :param init_patch: an optional patch that will be triggered when switching
-        to this scene.
-    :param exit_patch: an optional patch that will be triggered when switching
-        away from this scene.
+    :param init_patch: an optional patch that will be triggered when
+        switching to this scene.
+    :param exit_patch: an optional patch that will be triggered when
+        switching away from this scene.
     """
     @_arguments.accept(None, _arguments.nullable(str), _UNIT_TYPES,
-                       _arguments.nullable(_UNIT_TYPES), _arguments.nullable(_UNIT_TYPES))
+                       _arguments.nullable(_UNIT_TYPES),
+                       _arguments.nullable(_UNIT_TYPES))
     def __init__(self, name, patch, init_patch=None, exit_patch=None):
         self.name = name if name else ''
         self.patch = patch
@@ -64,8 +65,8 @@ def _parse_scene(scene):
     else:
         scene = Scene(None, scene, None)
 
-    # add any initializations defined in the processing patch (via Init() etc.)
-    # to the init patch
+    # add any initializations defined in the processing patch
+    # (via Init() etc.) to the init patch
     scene.init_patch += _patch.get_init_patches(scene.patch)
     scene.exit_patch += _patch.get_exit_patches(scene.patch)
 

@@ -28,8 +28,10 @@ namespace python {
  * both T and shared_ptr<T>.
  *
  * \tparam T    the data type to convert from.
- * \tparam P    the type to register a converter for, should be T or shared_ptr<T>.
- * \tparam C    the class that performs the conversion from a type T to a Python object.
+ * \tparam P    the type to register a converter for, should be T
+ *              or shared_ptr<T>.
+ * \tparam C    the class that performs the conversion from a type T to
+ *              a Python object.
  *
  * Class C must implement two static methods:
  * - PyObject *convert(T const &)

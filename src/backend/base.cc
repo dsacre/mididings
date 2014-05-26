@@ -50,10 +50,11 @@ std::vector<std::string> const & available()
 }
 
 
-boost::shared_ptr<BackendBase> create(std::string const & backend_name,
-                                      std::string const & client_name,
-                                      PortNameVector const & in_ports,
-                                      PortNameVector const & out_ports)
+boost::shared_ptr<BackendBase> create(
+        std::string const & backend_name,
+        std::string const & client_name,
+        PortNameVector const & in_ports,
+        PortNameVector const & out_ports)
 {
     if (backend_name == "dummy") {
         // return empty shared pointer
@@ -61,15 +62,18 @@ boost::shared_ptr<BackendBase> create(std::string const & backend_name,
     }
 #ifdef ENABLE_ALSA_SEQ
     else if (backend_name == "alsa") {
-        return boost::shared_ptr<BackendBase>(new ALSABackend(client_name, in_ports, out_ports));
+        return boost::shared_ptr<BackendBase>(
+                    new ALSABackend(client_name, in_ports, out_ports));
     }
 #endif
 #ifdef ENABLE_JACK_MIDI
     else if (backend_name == "jack") {
-        return boost::shared_ptr<BackendBase>(new JACKBufferedBackend(client_name, in_ports, out_ports));
+        return boost::shared_ptr<BackendBase>(
+                    new JACKBufferedBackend(client_name, in_ports, out_ports));
     }
     else if (backend_name == "jack-rt") {
-        return boost::shared_ptr<BackendBase>(new JACKRealtimeBackend(client_name, in_ports, out_ports));
+        return boost::shared_ptr<BackendBase>(
+                    new JACKRealtimeBackend(client_name, in_ports, out_ports));
     }
 #endif
     else {
@@ -78,7 +82,9 @@ boost::shared_ptr<BackendBase> create(std::string const & backend_name,
 }
 
 
-MidiEvent buffer_to_midi_event(unsigned char const *data, std::size_t len, int port, uint64_t frame)
+MidiEvent buffer_to_midi_event(
+        unsigned char const *data,
+        std::size_t len, int port, uint64_t frame)
 {
     MidiEvent ev;
 
@@ -186,7 +192,9 @@ MidiEvent buffer_to_midi_event(unsigned char const *data, std::size_t len, int p
 }
 
 
-std::size_t midi_event_to_buffer(MidiEvent const & ev, unsigned char *data, std::size_t & len, int & port, uint64_t & frame)
+std::size_t midi_event_to_buffer(
+        MidiEvent const & ev, unsigned char *data,
+        std::size_t & len, int & port, uint64_t & frame)
 {
     frame = ev.frame;
     port = ev.port;

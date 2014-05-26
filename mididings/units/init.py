@@ -56,7 +56,8 @@ def Exit(patch):
     return _InitExit(exit_patch=patch)
 
 
-def Output(port, channel, program=None, volume=None, pan=None, expression=None, ctrls={}):
+def Output(port, channel, program=None,
+           volume=None, pan=None, expression=None, ctrls={}):
     """
     Output(port, channel, program=None, volume=None, pan=None, expression=None, ctrls={})
 
@@ -122,7 +123,9 @@ class OutputTemplate(object):
         self.after = []
 
     def __call__(self, *args, **kwargs):
-        return Chain(self.before) >> self.partial(*args, **kwargs) >> Chain(self.after)
+        return (Chain(self.before)
+                >> self.partial(*args, **kwargs)
+                >> Chain(self.after))
 
     def __rshift__(self, other):
         if not isinstance(other, _UNIT_TYPES):

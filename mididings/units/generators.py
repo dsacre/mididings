@@ -20,8 +20,10 @@ import mididings.overload as _overload
 import mididings.unitrepr as _unitrepr
 
 
-@_unitrepr.accept(_util.event_type, _util.port_number_ref, _util.channel_number_ref, int, int)
-def Generator(type, port=_constants.EVENT_PORT, channel=_constants.EVENT_CHANNEL, data1=0, data2=0):
+@_unitrepr.accept(_util.event_type, _util.port_number_ref,
+                  _util.channel_number_ref, int, int)
+def Generator(type, port=_constants.EVENT_PORT,
+              channel=_constants.EVENT_CHANNEL, data1=0, data2=0):
     """
     Generator(type, port, channel, data1=0, data2=0)
 
@@ -38,7 +40,8 @@ def Generator(type, port=_constants.EVENT_PORT, channel=_constants.EVENT_CHANNEL
 
 
 @_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
-@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.note_number_ref, _util.velocity_value_ref)
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref,
+                  _util.note_number_ref, _util.velocity_value_ref)
 def NoteOn(port, channel, note, velocity):
     """
     NoteOn(note, velocity)
@@ -56,7 +59,8 @@ def NoteOn(port, channel, note, velocity):
 
 
 @_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
-@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.note_number_ref, _util.velocity_value_ref)
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref,
+                  _util.note_number_ref, _util.velocity_value_ref)
 def NoteOff(port, channel, note, velocity=0):
     """
     NoteOff(note, velocity=0)
@@ -74,7 +78,8 @@ def NoteOff(port, channel, note, velocity=0):
 
 
 @_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
-@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.ctrl_number_ref, _util.ctrl_value_ref)
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref,
+                  _util.ctrl_number_ref, _util.ctrl_value_ref)
 def Ctrl(port, channel, ctrl, value):
     """
     Ctrl(ctrl, value)
@@ -128,7 +133,8 @@ def Aftertouch(port, channel, value):
 
 
 @_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
-@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.note_number_ref, int)
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref,
+                  _util.note_number_ref, int)
 def PolyAftertouch(port, channel, note, value):
     """
     PolyAftertouch(note, value)
@@ -146,7 +152,8 @@ def PolyAftertouch(port, channel, note, value):
 
 
 @_overload.partial((_constants.EVENT_PORT, _constants.EVENT_CHANNEL))
-@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref, _util.program_number_ref)
+@_unitrepr.accept(_util.port_number_ref, _util.channel_number_ref,
+                  _util.program_number_ref)
 def Program(port, channel, program):
     """
     Program(program)

@@ -111,7 +111,8 @@ class VelocitySlope
   : public Unit
 {
   public:
-    VelocitySlope(std::vector<int> notes, std::vector<float> params, TransformMode mode)
+    VelocitySlope(std::vector<int> notes,
+                  std::vector<float> params, TransformMode mode)
       : _notes(notes)
       , _params(params)
       , _mode(mode)
@@ -131,7 +132,8 @@ class VelocitySlope
 
             ev.note.velocity = apply_transform(
                 ev.note.velocity,
-                map_range(ev.note.note, _notes[n], _notes[n + 1], _params[n], _params[n + 1]),
+                map_range(ev.note.note, _notes[n], _notes[n + 1],
+                                        _params[n], _params[n + 1]),
                 _mode
             );
         }
@@ -185,7 +187,8 @@ class CtrlRange
     virtual bool process(MidiEvent & ev) const
     {
         if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _ctrl) {
-            ev.ctrl.value = map_range(ev.ctrl.value, _in_min, _in_max, _min, _max);
+            ev.ctrl.value = map_range(ev.ctrl.value, _in_min, _in_max,
+                                                     _min, _max);
         }
         return true;
     }

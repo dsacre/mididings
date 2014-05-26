@@ -17,10 +17,11 @@ import mididings.engine as _engine
 
 class _FloatingKeySplitAnalyzer(object):
     """
-    Analyzer class that determines the current split point based on the given
-    parameters and the notes being played.
+    Analyzer class that determines the current split point based on the
+    given parameters and the notes being played.
     """
-    def __init__(self, threshold_lower, threshold_upper, hold_time, margin_lower, margin_upper):
+    def __init__(self, threshold_lower, threshold_upper,
+                 hold_time, margin_lower, margin_upper):
         self.threshold_lower = _util.note_number(threshold_lower)
         self.threshold_upper = _util.note_number(threshold_upper)
         self.margin_lower = margin_lower
@@ -59,7 +60,9 @@ class _FloatingKeySplitAnalyzer(object):
 
         # calculate new threshold as the center between upper and lower
         # reference point, but confined by the given thresholds
-        self.threshold = min(max((lower + upper + 1) // 2, self.threshold_lower), self.threshold_upper)
+        self.threshold = min(max((lower + upper + 1) // 2,
+                                 self.threshold_lower),
+                             self.threshold_upper)
 
         if ev.type == _m.NOTEON:
             # add notes to the appropriate list
@@ -95,8 +98,10 @@ class _FloatingKeySplitFilter(object):
             return None
 
 
-def FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper,
-                     hold_time=1.0, margin_lower=12, margin_upper=12):
+def FloatingKeySplit(threshold_lower, threshold_upper,
+                     patch_lower, patch_upper,
+                     hold_time=1.0,
+                     margin_lower=12, margin_upper=12):
     """
     Create a floating split point that moves dynamically depending on what
     you are playing, allowing a region of the keyboard to be shared between
@@ -121,15 +126,18 @@ def FloatingKeySplit(threshold_lower, threshold_upper, patch_lower, patch_upper,
         pushed into the opposite direction (in semitones).
     """
     # create a single analyzer instance
-    analyzer = _FloatingKeySplitAnalyzer(threshold_lower, threshold_upper, hold_time, margin_lower, margin_upper)
+    analyzer = _FloatingKeySplitAnalyzer(threshold_lower, threshold_upper,
+                                         hold_time, margin_lower, margin_upper)
 
     return _m.Split({
         # separate filter instances are needed for both regions, in order to
         # be able to send note events to different patches
         _m.NOTE:
                 _m.Process(analyzer) >> [
-                    _m.Process(_FloatingKeySplitFilter(analyzer, 0)) >> patch_lower,
-                    _m.Process(_FloatingKeySplitFilter(analyzer, 1)) >> patch_upper,
+                    _m.Process(_FloatingKeySplitFilter(analyzer, 0))
+                        >> patch_lower,
+                    _m.Process(_FloatingKeySplitFilter(analyzer, 1))
+                        >> patch_upper,
                 ],
         # non-note-events are sent to both patches
         None:   [ patch_lower, patch_upper ],

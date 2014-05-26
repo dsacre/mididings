@@ -44,8 +44,13 @@ class UnitEx
     UnitEx() { }
     virtual ~UnitEx() { }
 
-    virtual Patch::EventBufferRT::Range process(Patch::EventBufferRT & buffer, Patch::EventBufferRT::Iterator it) const = 0;
-    virtual Patch::EventBuffer::Range process(Patch::EventBuffer & buffer, Patch::EventBuffer::Iterator it) const = 0;
+    virtual Patch::EventBufferRT::Range
+    process(Patch::EventBufferRT & buffer,
+            Patch::EventBufferRT::Iterator it) const = 0;
+
+    virtual Patch::EventBuffer::Range
+    process(Patch::EventBuffer & buffer,
+            Patch::EventBuffer::Iterator it) const = 0;
 };
 
 
@@ -54,12 +59,16 @@ class UnitExImpl
   : public UnitEx
 {
   public:
-    virtual Patch::EventBufferRT::Range process(Patch::EventBufferRT & buffer, Patch::EventBufferRT::Iterator it) const {
+    virtual Patch::EventBufferRT::Range
+    process(Patch::EventBufferRT & buffer,
+            Patch::EventBufferRT::Iterator it) const {
         Derived const & d = *static_cast<Derived const*>(this);
         return d.template process<Patch::EventBufferRT>(buffer, it);
     }
 
-    virtual Patch::EventBuffer::Range process(Patch::EventBuffer & buffer, Patch::EventBuffer::Iterator it) const {
+    virtual Patch::EventBuffer::Range
+    process(Patch::EventBuffer & buffer,
+            Patch::EventBuffer::Iterator it) const {
         Derived const & d = *static_cast<Derived const*>(this);
         return d.template process<Patch::EventBuffer>(buffer, it);
     }

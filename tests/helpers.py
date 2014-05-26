@@ -71,11 +71,13 @@ class MididingsTestCase(unittest.TestCase):
                     self.assertEqual(r[0], ev)
                 # check if the result is as expected
                 self.assertEqual(bool(len(r)), expected,
-                        "\nscenes=%s\nev=%s\nexpected=%s" % (repr(scenes), repr(ev), repr(expected)))
+                        "\nscenes=%s\nev=%s\nexpected=%s" %
+                            (repr(scenes), repr(ev), repr(expected)))
             else:
                 # list: check if the result is exactly as expected
                 self.assertEqual(r, expected,
-                        "\nscenes=%s\nev=%s\nr=%s\nexpected=%s" % (repr(scenes), repr(ev), repr(r), repr(expected)))
+                        "\nscenes=%s\nev=%s\nr=%s\nexpected=%s" %
+                            (repr(scenes), repr(ev), repr(r), repr(expected)))
 
     def check_filter(self, filt, d):
         """
@@ -86,7 +88,8 @@ class MididingsTestCase(unittest.TestCase):
         filter.
         """
         for ev, expected in d.items():
-            for f, p in zip((filt, ~filt, -filt), [expected[0], expected[1], not expected[0]]):
+            for f, p in zip((filt, ~filt, -filt),
+                            (expected[0], expected[1], not expected[0])):
                 self.check_patch(f, {ev: p})
 
     def check_sequence(self, scenes, events):
@@ -132,8 +135,8 @@ class MididingsTestCase(unittest.TestCase):
         # allow input to be a single event, as well as a sequence of events
         if not misc.issequence(events):
             events = [events]
-        # process each event, append each list of output events to the returned
-        # list of lists
+        # process each event, append each list of output events to the
+        # returned list of lists
         for ev in events:
             ret = e.process_event(ev)[:]
             for rev in ret:
@@ -165,7 +168,8 @@ class MididingsTestCase(unittest.TestCase):
         Create a new MIDI event. Attributes can be specified in args or
         kwargs, unspecified attributes are filled with random values.
         """
-        type, port, channel, data1, data2, sysex = itertools.islice(itertools.chain(args, itertools.repeat(None)), 6)
+        type, port, channel, data1, data2, sysex = \
+            itertools.islice(itertools.chain(args, itertools.repeat(None)), 6)
 
         for k, v in kwargs.items():
             if k == 'type': type = v
@@ -178,9 +182,11 @@ class MididingsTestCase(unittest.TestCase):
 
         if type is None:
             if channel is None:
-                type = random.choice(list(set(constants._EVENT_TYPES.values()) - set([DUMMY])))
+                type = random.choice(list(set(constants._EVENT_TYPES.values())
+                                        - set([DUMMY])))
             else:
-                type = random.choice([NOTEON, NOTEOFF, CTRL, PITCHBEND, AFTERTOUCH, POLY_AFTERTOUCH, PROGRAM])
+                type = random.choice([NOTEON, NOTEOFF, CTRL, PITCHBEND,
+                                      AFTERTOUCH, POLY_AFTERTOUCH, PROGRAM])
         elif type == NOTE:
             type = random.choice([NOTEON, NOTEOFF])
         elif misc.issequence(type):
@@ -198,7 +204,8 @@ class MididingsTestCase(unittest.TestCase):
                      else random.randrange(0, 128))
 
         if type == SYSEX and sysex is None:
-            sysex = [0xf0] + [random.randrange(0, 128) for n in range(random.randrange(1024))] + [0xf7]
+            sysex = [0xf0] + [random.randrange(0, 128)
+                              for n in range(random.randrange(1024))] + [0xf7]
 
         return MidiEvent(type, port, channel, data1, data2, sysex)
 

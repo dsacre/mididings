@@ -26,8 +26,11 @@ class PatchTestCase(MididingsTestCase):
             return Process(lambda ev: me_impl(ev, n))
 
         order = []
-        p = ([ me(1), me(2) ] >> me(3) >>
-             [ me(4), me(5) >> [ me(6), me(7) ] >> me(8) ] >> me(9))
+        p = ([ me(1), me(2) ] >>
+            me(3) >> [
+                me(4),
+                me(5) >> [ me(6), me(7) ] >> me(8)
+            ] >> me(9))
         self.run_patch(p, self.make_event())
         self.assertEqual(order, [1, 2, 3, 4, 5, 6, 7, 8, 9])
 
@@ -35,8 +38,12 @@ class PatchTestCase(MididingsTestCase):
             return Fork(*args, remove_duplicates=False)
 
         order = []
-        p = (fork_dup([ me(1), me(2) ]) >> me(3) >>
-             fork_dup([ me(4), me(5) >> fork_dup([ me(6), me(7) ]) >> me(8) ]) >> me(9))
+        p = (fork_dup([ me(1), me(2) ]) >>
+            me(3) >> fork_dup([
+                me(4),
+                me(5) >> fork_dup([ me(6), me(7) ]) >> me(8)
+            ]) >> me(9))
 
         self.run_patch(p, self.make_event())
-        self.assertEqual(order, [1, 2, 3, 3, 4, 5, 6, 7, 8, 8, 4, 5, 6, 7, 8, 8, 9, 9, 9, 9, 9, 9])
+        self.assertEqual(order, [1, 2, 3, 3, 4, 5, 6, 7, 8, 8,
+                                 4, 5, 6, 7, 8, 8, 9, 9, 9, 9, 9, 9])

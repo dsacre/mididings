@@ -207,7 +207,8 @@ class EventTestCase(MididingsTestCase):
         for t in constants._EVENT_TYPES.values():
             a = self.make_event(type=t, port=off(0))
             b = self.make_event(type=t, port=off(1))
-            c = self.make_event(type=a.type, port=a.port, channel=a.channel, data1=a.data1, data2=a.data2, sysex=a.sysex_)
+            c = self.make_event(type=a.type, port=a.port, channel=a.channel,
+                                data1=a.data1, data2=a.data2, sysex=a.sysex_)
 
             self.assertNotEqual(a, b)
             self.assertFalse(a == b)
@@ -221,8 +222,8 @@ class EventTestCase(MididingsTestCase):
     def test_to_string(self, off):
         for t in constants._EVENT_TYPES.values():
             ev = self.make_event(t)
-            self.assertTrue(isinstance(ev.to_string(), str))
-            self.assertTrue(isinstance(ev.to_string(['foo', 'bar'], 3, 80), str))
+            self.assertIsInstance(ev.to_string(), str)
+            self.assertIsInstance(ev.to_string(['foo', 'bar'], 3, 80), str)
 
     @data_offsets
     def test_rebuild_repr(self, off):

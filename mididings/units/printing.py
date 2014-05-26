@@ -52,8 +52,8 @@ class _Printer(object):
         # lazy import to avoid problems with circular imports
         from mididings import engine
 
-        # get list of port names to be used
-        # (delayed 'til first use, because the engine doesn't yet exist during __init__)
+        # get list of port names to be used (delayed 'til first use,
+        # because the engine doesn't yet exist during __init__)
         if self.ports is None:
             if self.portnames == 'in':
                 self.ports = engine.in_ports()
@@ -79,7 +79,8 @@ class _Printer(object):
             eventmax = _misc.get_terminal_size()[1] - len(namestr)
         else:
             eventmax = 0
-        eventstr = ev.to_string(self.ports, _Print.max_portname_length, eventmax)
+        eventstr = ev.to_string(self.ports, _Print.max_portname_length,
+                                eventmax)
 
         print('%s%s' % (namestr, eventstr))
 
@@ -89,7 +90,8 @@ class _PrintString(_CallBase):
         self.string = string
         _CallBase.__init__(self, self.do_print, True, True)
     def do_print(self, ev):
-        string = self.string(ev) if hasattr(self.string, '__call__') else self.string
+        string = (self.string(ev) if hasattr(self.string, '__call__')
+                                else self.string)
         print(string)
 
 

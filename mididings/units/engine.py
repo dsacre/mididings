@@ -47,8 +47,8 @@ def Sanitize():
     be a program change) will be used.
 
     *offset* can be a positive or negative value that will be added to the
-    current scene number, allowing you to go forward or backward in the list of
-    scenes.
+    current scene number, allowing you to go forward or backward in the list
+    of scenes.
     """
 )
 @_unitrepr.accept(_util.scene_number_ref)
@@ -75,8 +75,8 @@ def SceneSwitch(offset):
     be a program change) will be used.
 
     *offset* can be a positive or negative value that will be added to the
-    current subscene number, allowing you to go forward or backward in the list
-    of subscenes. If *wrap* is ``True`` you can loop through subscenes.
+    current subscene number, allowing you to go forward or backward in the
+    list of subscenes. If *wrap* is ``True`` you can loop through subscenes.
     """
 )
 @_unitrepr.accept(_util.subscene_number_ref)

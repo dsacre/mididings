@@ -28,9 +28,10 @@ namespace mididings {
 namespace backend {
 
 
-JACKBufferedBackend::JACKBufferedBackend(std::string const & client_name,
-                                         PortNameVector const & in_port_names,
-                                         PortNameVector const & out_port_names)
+JACKBufferedBackend::JACKBufferedBackend(
+        std::string const & client_name,
+        PortNameVector const & in_port_names,
+        PortNameVector const & out_port_names)
   : JACKBackend(client_name, in_port_names, out_port_names)
   , _in_rb(config::JACK_MAX_EVENTS)
   , _out_rb(config::JACK_MAX_EVENTS)
@@ -56,7 +57,8 @@ void JACKBufferedBackend::start(InitFunction init, CycleFunction cycle)
     _in_rb.reset();
 
     // start processing thread
-    boost::function<void ()> func = (boost::lambda::bind(init), boost::lambda::bind(cycle));
+    boost::function<void ()> func = (boost::lambda::bind(init),
+                                     boost::lambda::bind(cycle));
 #if BOOST_VERSION >= 105000
     boost::thread::attributes attr;
     attr.set_stack_size(config::JACK_BUFFERED_THREAD_STACK_SIZE);

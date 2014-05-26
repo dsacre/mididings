@@ -94,7 +94,8 @@ def lib_dirs():
     Attempt to return the compiler's library search paths.
     """
     try:
-        status, output = getstatusoutput(sysconfig.get_config_var('CC') + ' -print-search-dirs')
+        status, output = getstatusoutput(
+                    sysconfig.get_config_var('CC') + ' -print-search-dirs')
         for line in output.splitlines():
             if 'libraries: =' in line:
                 libdirs = line.split('=', 1)[1]
@@ -109,7 +110,8 @@ def boost_lib_name(name, add_suffixes=[]):
     Try to figure out the correct boost library name (with or without "-mt"
     suffix, or with any of the given additional suffixes).
     """
-    libdirs = ['/usr/lib', '/usr/local/lib', '/usr/lib64', '/usr/local/lib64'] + lib_dirs()
+    libdirs = ['/usr/lib', '/usr/local/lib',
+               '/usr/lib64', '/usr/local/lib64'] + lib_dirs()
     for suffix in add_suffixes + ['', '-mt']:
         for libdir in libdirs:
             libname = 'lib%s%s.so' % (name, suffix)

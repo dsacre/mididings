@@ -269,7 +269,8 @@ class ArgumentsTestCase(unittest.TestCase):
             foo([123, ['blah', 789]])
 
     def test_each(self):
-        @arguments.accept(arguments.each(int, arguments.condition(lambda x: x > 0)))
+        @arguments.accept(arguments.each(
+            int, arguments.condition(lambda x: x > 0)))
         def foo(a): pass
 
         foo(1)
@@ -327,18 +328,43 @@ class ArgumentsTestCase(unittest.TestCase):
             bar(-23)
 
     def test_repr(self):
-        self.assertEqual(repr(arguments._make_constraint(int)), 'int')
-        self.assertEqual(repr(arguments._make_constraint(arguments.nullable(int))), 'nullable(int)')
-        self.assertEqual(repr(arguments._make_constraint([int])), '[int]')
-        self.assertEqual(repr(arguments._make_constraint((23, 42))), '(23, 42)')
-        self.assertEqual(repr(arguments._make_constraint((int, float, str))), '(int, float, str)')
-        self.assertEqual(repr(arguments._make_constraint([int, float, str])), '[int, float, str]')
-        self.assertEqual(repr(arguments._make_constraint({int: str})), '{int: str}')
-        self.assertEqual(repr(arguments._make_constraint(arguments.flatten(int))), 'flatten(int)')
-        self.assertEqual(repr(arguments._make_constraint(arguments.each(int, float))), 'each(int, float)')
-        self.assertEqual(repr(arguments._make_constraint(arguments.either(int, str))), 'either(int, str)')
-        self.assertEqual(repr(arguments._make_constraint(lambda x: x / 2)), 'lambda x: x / 2')
-        self.assertEqual(repr(arguments._make_constraint(arguments.condition(lambda x: x < 3))), 'condition(lambda x: x < 3)')
+        self.assertEqual(
+            repr(arguments._make_constraint(int)),
+            'int')
+        self.assertEqual(
+            repr(arguments._make_constraint(arguments.nullable(int))),
+            'nullable(int)')
+        self.assertEqual(
+            repr(arguments._make_constraint([int])),
+            '[int]')
+        self.assertEqual(
+            repr(arguments._make_constraint((23, 42))),
+            '(23, 42)')
+        self.assertEqual(
+            repr(arguments._make_constraint((int, float, str))),
+            '(int, float, str)')
+        self.assertEqual(
+            repr(arguments._make_constraint([int, float, str])),
+            '[int, float, str]')
+        self.assertEqual(
+            repr(arguments._make_constraint({int: str})),
+            '{int: str}')
+        self.assertEqual(
+            repr(arguments._make_constraint(arguments.flatten(int))),
+            'flatten(int)')
+        self.assertEqual(
+            repr(arguments._make_constraint(arguments.each(int, float))),
+            'each(int, float)')
+        self.assertEqual(
+            repr(arguments._make_constraint(arguments.either(int, str))),
+            'either(int, str)')
+        self.assertEqual(
+            repr(arguments._make_constraint(lambda x: x / 2)),
+            'lambda x: x / 2')
+        self.assertEqual(
+            repr(arguments._make_constraint(
+                arguments.condition(lambda x: x < 3))),
+            'condition(lambda x: x < 3)')
 
         def foo(x): x
 
