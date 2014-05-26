@@ -30,7 +30,7 @@ import mididings.event
 
 def data_offsets(f):
     """
-    Runs the test f twice, with data offsets 0 and 1
+    Run the test f twice, with data offsets 0 and 1
     """
     def data_offset_wrapper(self):
         for offset in (0, 1):
@@ -38,6 +38,7 @@ def data_offsets(f):
                 return n + offset
             config(data_offset = offset)
             f(self, off)
+    data_offset_wrapper.__name__ = f.__name__
     return data_offset_wrapper
 
 
