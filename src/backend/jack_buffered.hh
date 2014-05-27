@@ -51,6 +51,8 @@ class JACKBufferedBackend
   private:
     virtual int process(jack_nframes_t frames);
 
+    void process_thread(InitFunction init, CycleFunction cycle);
+
     das::ringbuffer<MidiEvent> _in_rb;
     das::ringbuffer<MidiEvent> _out_rb;
 

@@ -97,7 +97,7 @@ class JACKBackend
     };
 
     // queue of incoming MIDI events, ordered by frame
-    reservable_priority_queue<MidiEvent, std::vector<MidiEvent>, compare_frame > _input_queue;
+    reservable_priority_queue<MidiEvent, std::vector<MidiEvent>, compare_frame> _input_queue;
 };
 
 

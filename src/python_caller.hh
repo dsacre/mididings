@@ -34,7 +34,7 @@ class PythonCaller
 {
   public:
 
-    typedef boost::function<void ()> EngineCallback;
+    typedef boost::function<void()> EngineCallback;
 
     PythonCaller(EngineCallback engine_callback);
     ~PythonCaller();

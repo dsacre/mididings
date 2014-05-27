@@ -67,8 +67,8 @@ class BackendBase
   : boost::noncopyable
 {
   public:
-    typedef boost::function<void ()> InitFunction;
-    typedef boost::function<void ()> CycleFunction;
+    typedef boost::function<void()> InitFunction;
+    typedef boost::function<void()> CycleFunction;
 
     BackendBase() { }
     virtual ~BackendBase() { }

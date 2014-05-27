@@ -18,8 +18,6 @@
 #include <algorithm>
 
 #include <boost/version.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 
 #include "util/debug.hh"
 
@@ -40,25 +38,15 @@ JACKBufferedBackend::JACKBufferedBackend(
 }
 
 
-void JACKBufferedBackend::stop()
-{
-    if (_thread) {
-        _quit = true;
-        _cond.notify_one();
-
-        _thread->join();
-    }
-}
-
-
 void JACKBufferedBackend::start(InitFunction init, CycleFunction cycle)
 {
     // clear input event buffer
     _in_rb.reset();
 
+    boost::function<void()> func = boost::bind(
+                    &JACKBufferedBackend::process_thread, this, init, cycle);
+
     // start processing thread
-    boost::function<void ()> func = (boost::lambda::bind(init),
-                                     boost::lambda::bind(cycle));
 #if BOOST_VERSION >= 105000
     boost::thread::attributes attr;
     attr.set_stack_size(config::JACK_BUFFERED_THREAD_STACK_SIZE);
@@ -76,6 +64,24 @@ void JACKBufferedBackend::start(InitFunction init, CycleFunction cycle)
         rtprio = std::max(rtprio, 1);
         jack_acquire_real_time_scheduling(_thread->native_handle(), rtprio);
     }
+}
+
+
+void JACKBufferedBackend::stop()
+{
+    if (_thread) {
+        _quit = true;
+        _cond.notify_one();
+
+        _thread->join();
+    }
+}
+
+
+void JACKBufferedBackend::process_thread(InitFunction init, CycleFunction cycle)
+{
+    init();
+    cycle();
 }
 
 

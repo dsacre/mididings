@@ -212,7 +212,7 @@ void JACKBackend::fill_input_queue(jack_nframes_t nframes)
 
 void JACKBackend::clear_buffers(jack_nframes_t nframes)
 {
-    for (int n = 0; n < static_cast<int>(_out_ports.size()); ++n) {
+    for (unsigned int n = 0; n < _out_ports.size(); ++n) {
         void *port_buffer = jack_port_get_buffer(_out_ports[n], nframes);
         jack_midi_clear_buffer(port_buffer);
     }
@@ -260,7 +260,6 @@ bool JACKBackend::write_event(MidiEvent const & ev, jack_nframes_t nframes)
         f = 0;
     }
 
-    //std::cout << "out: " << f << std::endl;
     if (!jack_midi_event_write(port_buffer, f, data, len)) {
         return true;
     } else {

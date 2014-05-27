@@ -20,8 +20,6 @@
 
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 
 #include "util/string.hh"
 #include "util/debug.hh"
@@ -262,10 +260,8 @@ void ALSABackend::start(InitFunction init, CycleFunction cycle)
 
     // start processing thread.
     // cycle doesn't return until the program is shut down
-    _thread.reset(new boost::thread((
-        boost::lambda::bind(init),
-        boost::lambda::bind(cycle)
-    )));
+    _thread.reset(new boost::thread(
+                boost::bind(&ALSABackend::process_thread, this, init, cycle)));
 }
 
 
@@ -286,6 +282,13 @@ void ALSABackend::stop()
         // wait for event processing thread to terminate
         _thread->join();
     }
+}
+
+
+void ALSABackend::process_thread(InitFunction init, CycleFunction cycle)
+{
+    init();
+    cycle();
 }
 
 

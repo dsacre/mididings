@@ -86,6 +86,8 @@ class ALSABackend
             bool out);
     ClientPortInfoVector get_external_ports(bool out);
 
+    void process_thread(InitFunction init, CycleFunction cycle);
+
     void alsa_to_midi_event(MidiEvent & ev,
                             snd_seq_event_t const & alsa_ev);
     void alsa_to_midi_event_sysex(MidiEvent & ev,
