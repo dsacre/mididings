@@ -47,6 +47,8 @@
 
 #ifdef ENABLE_DEBUG_STATS
 #include <iostream>
+#include <iomanip>
+#include "util/string.hh"
 #endif
 
 
@@ -55,32 +57,33 @@ namespace mididings {
 
 #ifdef ENABLE_DEBUG_STATS
 
-void unload() {
-    std::cout << "MidiEvent alloc: "
-              << curious_alloc_base<MidiEvent>::max_utilization() << " "
-              << curious_alloc_base<MidiEvent>::fallback_count() << std::endl;
+template <typename T>
+std::string alloc_stats(std::string const & name) {
+    std::size_t allocated = das::counted_objects<T>::allocated();
+    std::size_t deallocated = das::counted_objects<T>::deallocated();
+    std::size_t leaks = allocated - deallocated;
+    return das::make_string() << std::left << std::setw(20) << (name + ":")
+                              << std::setw(8) << allocated << " " << leaks;
+}
 
-    std::cout << "Engine: "
-              << das::counted_objects<Engine>::allocated() << " "
-              << das::counted_objects<Engine>::deallocated() << std::endl;
-    std::cout << "Patch: "
-              << das::counted_objects<Patch>::allocated() << " "
-              << das::counted_objects<Patch>::deallocated() << std::endl;
-    std::cout << "Patch::Module: "
-              << das::counted_objects<Patch::Module>::allocated() << " "
-              << das::counted_objects<Patch::Module>::deallocated() << std::endl;
-    std::cout << "units::Unit: "
-              << das::counted_objects<units::Unit>::allocated() << " "
-              << das::counted_objects<units::Unit>::deallocated() << std::endl;
-    std::cout << "units::UnitEx: "
-              << das::counted_objects<units::UnitEx>::allocated() << " "
-              << das::counted_objects<units::UnitEx>::deallocated() << std::endl;
-    std::cout << "MidiEvent: "
-              << das::counted_objects<MidiEvent>::allocated() << " "
-              << das::counted_objects<MidiEvent>::deallocated() << std::endl;
-    std::cout << "SysExData: "
-              << das::counted_objects<SysExData>::allocated() << " "
-              << das::counted_objects<SysExData>::deallocated() << std::endl;
+template <typename T>
+std::string curious_alloc_stats(std::string const & name) {
+    return das::make_string() << std::left << std::setw(20) << (name + ": ")
+                              << std::setw(8)
+                              << curious_alloc_base<T>::max_utilization() << " "
+                              << curious_alloc_base<T>::fallback_count();
+}
+
+void unload() {
+    std::cerr << '\n'
+              << alloc_stats<Engine>("Engine") << '\n'
+              << alloc_stats<Patch>("Patch") << '\n'
+              << alloc_stats<Patch::Module>("Patch::Module") << '\n'
+              << alloc_stats<units::Unit>("units::Unit") << '\n'
+              << alloc_stats<units::UnitEx>("units::UnitEx") << '\n'
+              << alloc_stats<MidiEvent>("MidiEvent") << '\n'
+              << alloc_stats<SysExData>("SysExData") << '\n'
+              << curious_alloc_stats<MidiEvent>("MidiEvent alloc") << std::endl;
 }
 
 #endif // ENABLE_DEBUG_STATS
