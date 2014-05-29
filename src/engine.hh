@@ -21,6 +21,10 @@
 #include <map>
 #include <tr1/unordered_map>
 
+#ifdef ENABLE_BENCHMARK
+#include <chrono>
+#endif
+
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/noncopyable.hpp>
@@ -68,8 +72,9 @@ class Engine
 
     virtual ~Engine();
 
-    void connect_ports(backend::PortConnectionMap const & in_port_connections,
-                       backend::PortConnectionMap const & out_port_connections);
+    void connect_ports(
+            backend::PortConnectionMap const & in_port_connections,
+            backend::PortConnectionMap const & out_port_connections);
 
     void add_scene(int i, PatchPtr patch,
                    PatchPtr init_patch, PatchPtr exit_patch);
@@ -160,6 +165,31 @@ class Engine
     boost::mutex _process_mutex;
 
     boost::scoped_ptr<PythonCaller> _python_caller;
+
+#ifdef ENABLE_BENCHMARK
+  public:
+    typedef std::chrono::high_resolution_clock hrclock;
+
+    static int num_cycles() {
+        return num_cycles_;
+    }
+
+    static int cycle_duration_mean() {
+        if (!num_cycles_) return 0;
+        return std::chrono::duration_cast<std::chrono::microseconds>(
+                                cycles_duration_total_ / num_cycles_).count();
+    }
+
+    static int cycle_duration_max() {
+        return std::chrono::duration_cast<std::chrono::microseconds>(
+                                cycles_duration_max_).count();
+    }
+
+  private:
+    static hrclock::duration cycles_duration_total_;
+    static hrclock::duration cycles_duration_max_;
+    static int num_cycles_;
+#endif
 };
 
 

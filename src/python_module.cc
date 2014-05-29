@@ -70,11 +70,22 @@ template <typename T>
 std::string curious_alloc_stats(std::string const & name) {
     return das::make_string() << std::left << std::setw(20) << (name + ": ")
                               << std::setw(8)
-                              << curious_alloc_base<T>::max_utilization() << " "
+                              << curious_alloc_base<T>::max_utilization()
+                              << " "
                               << curious_alloc_base<T>::fallback_count();
 }
 
 void unload() {
+#ifdef ENABLE_BENCHMARK
+    std::cerr << '\n'
+              << std::left << std::setw(20) << "number of cycles:"
+              << Engine::num_cycles() << '\n'
+              << std::left << std::setw(20) << "mean duration:"
+              << Engine::cycle_duration_mean() << " µs" << '\n'
+              << std::left << std::setw(20) << "max duration:"
+              << Engine::cycle_duration_max() << " µs" << std::endl;
+#endif
+
     std::cerr << '\n'
               << alloc_stats<Engine>("Engine") << '\n'
               << alloc_stats<Patch>("Patch") << '\n'
@@ -83,7 +94,8 @@ void unload() {
               << alloc_stats<units::UnitEx>("units::UnitEx") << '\n'
               << alloc_stats<MidiEvent>("MidiEvent") << '\n'
               << alloc_stats<SysExData>("SysExData") << '\n'
-              << curious_alloc_stats<MidiEvent>("MidiEvent alloc") << std::endl;
+              << curious_alloc_stats<MidiEvent>("MidiEvent alloc")
+              << std::endl;
 }
 
 #endif // ENABLE_DEBUG_STATS

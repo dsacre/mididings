@@ -31,6 +31,13 @@
 namespace mididings {
 
 
+#ifdef ENABLE_BENCHMARK
+Engine::hrclock::duration Engine::cycles_duration_total_(0);
+Engine::hrclock::duration Engine::cycles_duration_max_(0);
+int Engine::num_cycles_(0);
+#endif
+
+
 Engine::Engine(std::string const & backend_name,
                std::string const & client_name,
                backend::PortNameVector const & in_ports,
@@ -136,8 +143,7 @@ void Engine::run_cycle()
     while (_backend->input_event(ev))
     {
 #ifdef ENABLE_BENCHMARK
-        timeval tv1, tv2;
-        gettimeofday(&tv1, NULL);
+        hrclock::time_point t1 = hrclock::now();
 #endif
 
         boost::mutex::scoped_lock lock(_process_mutex);
@@ -151,9 +157,13 @@ void Engine::run_cycle()
         process_scene_switch(_buffer);
 
 #ifdef ENABLE_BENCHMARK
-        gettimeofday(&tv2, NULL);
-        std::cout << (tv2.tv_sec - tv1.tv_sec) * 1000000 +
-                     (tv2.tv_usec - tv1.tv_usec) << std::endl;
+        hrclock::time_point t2 = hrclock::now();
+        auto dt = t2 - t1;
+        cycles_duration_total_ += dt;
+        if (dt > cycles_duration_max_) {
+            cycles_duration_max_ = dt;
+        }
+        ++num_cycles_;
 #endif
 
         _backend->output_events(_buffer.begin(), _buffer.end());
@@ -233,12 +243,14 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
 {
     // note on: store current patch
     if (ev.type == MIDI_EVENT_NOTEON) {
-        _noteon_patches.insert(std::make_pair(make_notekey(ev), _current_patch));
+        _noteon_patches.insert(std::make_pair(make_notekey(ev),
+                                              _current_patch));
         return _current_patch;
     }
     // note off: retrieve and remove stored patch
     else if (ev.type == MIDI_EVENT_NOTEOFF) {
-        NotePatchMap::const_iterator i = _noteon_patches.find(make_notekey(ev));
+        NotePatchMap::const_iterator i =
+                            _noteon_patches.find(make_notekey(ev));
         if (i != _noteon_patches.end()) {
             Patch *p = i->second;
             _noteon_patches.erase(i);
@@ -249,13 +261,15 @@ Patch * Engine::get_matching_patch(MidiEvent const & ev)
     // TODO: handle half-pedal correctly
     else if (ev.type == MIDI_EVENT_CTRL &&
              ev.ctrl.param == 64 && ev.ctrl.value == 127) {
-        _sustain_patches.insert(std::make_pair(make_sustainkey(ev), _current_patch));
+        _sustain_patches.insert(std::make_pair(make_sustainkey(ev),
+                                               _current_patch));
         return _current_patch;
     }
     // sustain released
     else if (ev.type == MIDI_EVENT_CTRL &&
             ev.ctrl.param == 64 && ev.ctrl.value == 0) {
-        SustainPatchMap::const_iterator i = _sustain_patches.find(make_sustainkey(ev));
+        SustainPatchMap::const_iterator i =
+                                _sustain_patches.find(make_sustainkey(ev));
         if (i != _sustain_patches.end()) {
             Patch *p = i->second;
             _sustain_patches.erase(i);
@@ -312,10 +326,12 @@ void Engine::process_scene_switch(B & buffer)
         // if the previous (still current) scene has an exit patch, we need
         // to run that first
         if (_current_scene != -1) {
-            ScenePtr prev_scene = _scenes.find(_current_scene)->second[_current_subscene];
+            ScenePtr prev_scene = _scenes.find(_current_scene)
+                                                ->second[_current_subscene];
 
             if (prev_scene->exit_patch) {
-                typename B::Iterator it = buffer.insert(buffer.end(), dummy_ev);
+                typename B::Iterator it = buffer.insert(buffer.end(),
+                                                        dummy_ev);
                 typename B::Range r(it, buffer.end());
 
                 // run event through exit patch
@@ -330,7 +346,8 @@ void Engine::process_scene_switch(B & buffer)
 
         // check if the scene has an init patch
         if (scene->init_patch) {
-            typename B::Iterator it = buffer.insert(buffer.end(), dummy_ev);
+            typename B::Iterator it = buffer.insert(buffer.end(),
+                                                    dummy_ev);
             typename B::Range r(it, buffer.end());
 
             // run event through init patch
@@ -363,14 +380,16 @@ bool Engine::sanitize_event(MidiEvent & ev) const
     if (ev.port < 0 || (_backend &&
             ev.port >= static_cast<int>(_backend->num_out_ports()))) {
         if (_verbose) {
-            std::cout << "invalid output port, event discarded" << std::endl;
+            std::cout << "invalid output port, event discarded"
+                      << std::endl;
         }
         return false;
     }
 
     if (ev.channel < 0 || ev.channel > 15) {
         if (_verbose) {
-            std::cout << "invalid channel, event discarded" << std::endl;
+            std::cout << "invalid channel, event discarded"
+                      << std::endl;
         }
         return false;
     }
@@ -420,7 +439,8 @@ bool Engine::sanitize_event(MidiEvent & ev) const
             if (ev.sysex->size() < 2 || (*ev.sysex)[0] != 0xf0
                     || (*ev.sysex)[ev.sysex->size()-1] != 0xf7) {
                 if (_verbose) {
-                    std::cout << "invalid sysex, event discarded" << std::endl;
+                    std::cout << "invalid sysex, event discarded"
+                              << std::endl;
                 }
                 return false;
             }
@@ -441,7 +461,8 @@ bool Engine::sanitize_event(MidiEvent & ev) const
             return false;
         default:
             if (_verbose) {
-                std::cout << "unknown event type, event discarded" << std::endl;
+                std::cout << "unknown event type, event discarded"
+                          << std::endl;
             }
             return false;
     }
