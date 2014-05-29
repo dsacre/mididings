@@ -125,17 +125,27 @@ class curious_alloc
         return 1;
     }
 
+#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
+    template <class U, class... Args>
+    void construct(U *p, Args &&... args) {
+        ::new (static_cast<void *>(p)) U(std::forward<Args>(args)...);
+    }
+
+    template <class U>
+    void destroy(U *p) {
+        p->~T();
+    }
+#else
     void construct(pointer p, T const & val) {
-        new (static_cast<void *>(p)) T(val);
+        ::new (static_cast<void *>(p)) T(val);
     }
-    void construct(pointer p) {
-        new (static_cast<void *>(p)) T();
-    }
+
     void destroy(pointer p) {
         p->~T();
     }
+#endif
 
-private:
+  private:
     static unsigned char pool_array_[N * sizeof(T)];
     static T* pool_;
     static std::size_t count_;
