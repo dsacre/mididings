@@ -280,7 +280,7 @@ class MidiEvent(_mididings.MidiEvent):
 
 
 @_arguments.accept(_util.port_number, _util.channel_number,
-                   _util.note_number, _util.velocity_value)
+                   _util.note_number, int)
 def NoteOnEvent(port, channel, note, velocity):
     """
     Create a new note-on event object.
@@ -288,7 +288,7 @@ def NoteOnEvent(port, channel, note, velocity):
     return MidiEvent(_constants.NOTEON, port, channel, note, velocity)
 
 @_arguments.accept(_util.port_number, _util.channel_number,
-                   _util.note_number, _util.velocity_value)
+                   _util.note_number, int)
 def NoteOffEvent(port, channel, note, velocity=0):
     """
     Create a new note-off event object.
@@ -296,7 +296,7 @@ def NoteOffEvent(port, channel, note, velocity=0):
     return MidiEvent(_constants.NOTEOFF, port, channel, note, velocity)
 
 @_arguments.accept(_util.port_number, _util.channel_number,
-                   _util.ctrl_number, _util.ctrl_value)
+                   _util.ctrl_number, int)
 def CtrlEvent(port, channel, ctrl, value):
     """
     Create a new control change event object.
