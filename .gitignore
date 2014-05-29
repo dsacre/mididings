@@ -3,3 +3,4 @@
 /src/_mididings.so
 /doc/build
 *.o
+/core
