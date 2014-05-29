@@ -75,7 +75,7 @@ class _VoiceFilter(object):
             # yield note-off for previous note (if any)
             if self.current_note:
                 yield _event.NoteOffEvent(
-                        v.port, ev.channel, self.current_note, 0)
+                            ev.port, ev.channel, self.current_note, 0)
                 self.current_note = None
 
             dt = (t - self.notes[n][1]) if n in self.notes else 0.0
@@ -90,7 +90,7 @@ class _VoiceFilter(object):
                 dt < self.time
             ):
                 yield _event.NoteOnEvent(
-                        ev.port, ev.channel, n, self.notes[n][0])
+                            ev.port, ev.channel, n, self.notes[n][0])
                 self.current_note = n
                 self.diverted = d
 
