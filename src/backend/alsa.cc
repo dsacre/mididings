@@ -113,22 +113,35 @@ void ALSABackend::connect_ports(
 
 void ALSABackend::connect_ports_impl(
         PortConnectionMap const & port_connections,
-        PortIdVector const & ports,
+        PortIdVector const & port_ids,
         bool out)
 {
     if (port_connections.empty()) return;
 
     // get all ALSA sequencer ports we could connect to
-    ClientPortInfoVector external_ports = get_external_ports(!out);
+    ClientPortInfoVector ext_ports = get_external_ports(!out);
 
-    // for each of our ports...
-    BOOST_FOREACH (int port, ports) {
+    // get our own client name and id
+    snd_seq_client_info_t *client_info;
+    snd_seq_client_info_alloca(&client_info);
+    snd_seq_get_client_info(_seq, client_info);
+
+    std::string client_name = snd_seq_client_info_get_name(client_info);
+    int client_id = snd_seq_client_info_get_client(client_info);
+
+
+    // for each of our own ports...
+    BOOST_FOREACH (int port_id, port_ids) {
+        // get our own port name
         snd_seq_port_info_t *port_info;
         snd_seq_port_info_alloca(&port_info);
 
-        snd_seq_get_port_info(_seq, port, port_info);
+        snd_seq_get_port_info(_seq, port_id, port_info);
         std::string port_name = snd_seq_port_info_get_name(port_info);
 
+        ClientPortInfo own_port(client_id, port_id, client_name, port_name);
+
+        // connections defined for that port
         PortConnectionMap::const_iterator element =
                                     port_connections.find(port_name);
 
@@ -138,8 +151,8 @@ void ALSABackend::connect_ports_impl(
         // for each regex pattern defined for this port...
         BOOST_FOREACH (std::string const & pattern, element->second) {
             // connect to all ports that match the pattern
-            if (connect_matching_ports(port, port_name,
-                                       pattern, external_ports, out) == 0) {
+            if (connect_matching_ports(own_port, ext_ports,
+                                       pattern, out) == 0) {
                 std::cerr << "warning: regular expression '" << pattern
                           << "' didn't match any ALSA sequencer ports"
                           << std::endl;
@@ -150,79 +163,77 @@ void ALSABackend::connect_ports_impl(
 
 
 int ALSABackend::connect_matching_ports(
-        int port,
-        std::string const & port_name,
+        ClientPortInfo const & own_port,
+        ClientPortInfoVector const & ext_ports,
         std::string const & pattern,
-        ClientPortInfoVector const & external_ports,
         bool out)
 {
-    snd_seq_client_info_t *client_info;
-    snd_seq_client_info_alloca(&client_info);
-    snd_seq_get_client_info(_seq, client_info);
-
-    std::string client_name = snd_seq_client_info_get_name(client_info);
-    int client_id = snd_seq_client_info_get_client(client_info);
+    das::regex regex;
+    int count = 0;
 
     try {
         // compile pattern into regex object
-        das::regex regex(pattern, true);
-        int count = 0;
-
-        // for each external ALSA MIDI port we might connect to...
-        BOOST_FOREACH (ClientPortInfo const & external_port, external_ports)
-        {
-            std::string external_client_id =
-                    boost::lexical_cast<std::string>(external_port.client_id);
-            std::string external_port_id =
-                    boost::lexical_cast<std::string>(external_port.port_id);
-
-            // check if any combination of client/port and name/id
-            // matches regex
-            if (regex.match(external_client_id + ":" +
-                            external_port_id) ||
-                regex.match(external_client_id + ":" +
-                            external_port.port_name) ||
-                regex.match(external_port.client_name + ":" +
-                            external_port_id) ||
-                regex.match(external_port.client_name + ":" +
-                            external_port.port_name))
-            {
-                // connect ports
-                snd_seq_addr_t self, other;
-                self.client = client_id;
-                self.port = port;
-                other.client = external_port.client_id;
-                other.port = external_port.port_id;
-
-                snd_seq_port_subscribe_t *subscribe;
-                snd_seq_port_subscribe_alloca(&subscribe);
-                snd_seq_port_subscribe_set_sender(subscribe,
-                                                out ? &self : &other);
-                snd_seq_port_subscribe_set_dest(subscribe,
-                                                out ? & other : &self);
-
-                if (snd_seq_subscribe_port(_seq, subscribe) != 0 &&
-                    snd_seq_get_port_subscription(_seq, subscribe) != 0)
-                {
-                    std::string self_full = client_name + ":" + port_name;
-                    std::string other_full = external_port.client_name +
-                                             ":" + external_port.port_name;
-
-                    std::cerr << "could not connect "
-                              << (out ? self_full : other_full) << " to "
-                              << (out ? other_full : self_full) << std::endl;
-                }
-
-                ++count;
-            }
-        }
-        return count;
+        regex = das::regex(pattern, true);
     }
     catch (das::regex::compile_error & ex) {
         throw std::runtime_error(das::make_string()
                 << "failed to parse regular expression '"
                 << pattern << "': " << ex.what());
     }
+
+    // for each external ALSA MIDI port we might connect to...
+    BOOST_FOREACH (ClientPortInfo const & ext_port, ext_ports)
+    {
+        std::string ext_client_id =
+                        boost::lexical_cast<std::string>(ext_port.client_id);
+        std::string ext_port_id =
+                        boost::lexical_cast<std::string>(ext_port.port_id);
+
+        // check if any combination of client/port and name/id matches regex
+        if (regex.match(ext_client_id + ":" + ext_port_id) ||
+            regex.match(ext_client_id + ":" + ext_port.port_name) ||
+            regex.match(ext_port.client_name + ":" + ext_port_id) ||
+            regex.match(ext_port.client_name + ":" + ext_port.port_name))
+        {
+            ++count;
+
+            if (!connect_single_port(own_port, ext_port, out)) {
+                std::string self_full = own_port.client_name + ":" +
+                                        own_port.port_name;
+                std::string other_full = ext_port.client_name + ":" +
+                                         ext_port.port_name;
+
+                std::cerr << "could not connect "
+                          << (out ? self_full : other_full) << " to "
+                          << (out ? other_full : self_full) << std::endl;
+            }
+        }
+    }
+    return count;
+}
+
+
+bool ALSABackend::connect_single_port(
+        ClientPortInfo const & own_port,
+        ClientPortInfo const & ext_port,
+        bool out)
+{
+    // fill in address information of sender and destination port
+    snd_seq_addr_t self, other;
+    snd_seq_port_subscribe_t *subscribe;
+    snd_seq_port_subscribe_alloca(&subscribe);
+
+    self.client = own_port.client_id;
+    self.port = own_port.port_id;
+    other.client = ext_port.client_id;
+    other.port = ext_port.port_id;
+
+    snd_seq_port_subscribe_set_sender(subscribe, out ? &self : &other);
+    snd_seq_port_subscribe_set_dest(subscribe, out ? & other : &self);
+
+    // try to connect ports
+    return (snd_seq_subscribe_port(_seq, subscribe) != 0 &&
+            snd_seq_get_port_subscription(_seq, subscribe) != 0);
 }
 
 

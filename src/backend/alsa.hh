@@ -50,12 +50,20 @@ class ALSABackend
         return _out_ports.size();
     }
 
+    /**
+     * Connect our own input and output ports according to the regular
+     * expressions specified.
+     */
     virtual void connect_ports(PortConnectionMap const & in_port_connections,
                                PortConnectionMap const & out_port_connections);
 
   private:
+    /**
+     * Name and id of an ALSA port, including its client name/id.
+     */
     struct ClientPortInfo {
-        ClientPortInfo(int client_id, int port_id,
+        ClientPortInfo(int client_id,
+                       int port_id,
                        std::string const & client_name,
                        std::string const & port_name)
           : client_id(client_id),
@@ -77,13 +85,20 @@ class ALSABackend
 
     void connect_ports_impl(
             PortConnectionMap const & port_connections,
-            PortIdVector const & ports,
+            PortIdVector const & port_ids,
             bool out);
+
     int connect_matching_ports(
-            int port, std::string const & port_name,
+            ClientPortInfo const & own_port,
+            ClientPortInfoVector const & ext_ports,
             std::string const & pattern,
-            ClientPortInfoVector const & external_ports,
             bool out);
+
+    bool connect_single_port(
+            ClientPortInfo const & own_port,
+            ClientPortInfo const & ext_port,
+            bool out);
+
     ClientPortInfoVector get_external_ports(bool out);
 
     void process_thread(InitFunction init, CycleFunction cycle);
