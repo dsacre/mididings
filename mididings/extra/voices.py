@@ -37,7 +37,11 @@ class _VoiceFilter(object):
             self.notes[ev.note] = (ev.velocity, t)
         elif ev.type == _m.NOTEOFF:
             # delete released note
-            del self.notes[ev.note]
+            try:
+                del self.notes[ev.note]
+            except KeyError:
+                # ignore unmatched note-offs (just in case...)
+                pass
 
         sorted_notes = sorted(self.notes.keys())
 
