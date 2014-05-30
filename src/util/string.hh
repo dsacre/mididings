@@ -16,7 +16,6 @@
 #include <stdexcept>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/noncopyable.hpp>
 
 #include <regex.h>
 
@@ -48,7 +47,6 @@ class make_string
 
 
 class regex
-  : boost::noncopyable
 {
   public:
     struct compile_error
@@ -60,27 +58,32 @@ class regex
         }
     };
 
-    regex(std::string const & pattern, bool complete=false) {
+    regex() {
+    }
+
+    regex(std::string const & pattern, bool complete=false)
+      : _preg(new ::regex_t)
+    {
         std::string p = complete ? ("^" + pattern + "$") : pattern;
 
-        int error = ::regcomp(&_preg, p.c_str(), REG_EXTENDED | REG_NOSUB);
-        _freer.reset(&_preg, ::regfree);
+        int error = ::regcomp(&*_preg, p.c_str(), REG_EXTENDED | REG_NOSUB);
+        _freer.reset(&*_preg, ::regfree);
 
         if (error) {
-            std::size_t bufsize = ::regerror(error, &_preg, NULL, 0);
+            std::size_t bufsize = ::regerror(error, &*_preg, NULL, 0);
             std::vector<char> buf(bufsize);
-            ::regerror(error, &_preg, &(*buf.begin()), bufsize);
+            ::regerror(error, &*_preg, &(*buf.begin()), bufsize);
 
             throw compile_error(&*buf.begin());
         }
     }
 
     bool match(std::string const & str) {
-        return ::regexec(&_preg, str.c_str(), 0, NULL, 0) == 0;
+        return ::regexec(&*_preg, str.c_str(), 0, NULL, 0) == 0;
     }
 
   private:
-    ::regex_t _preg;
+    boost::shared_ptr< ::regex_t> _preg;
     boost::shared_ptr<void> _freer;
 };
 
