@@ -57,7 +57,8 @@ int JACKRealtimeBackend::process(jack_nframes_t nframes)
         MidiEvent ev;
         _out_rb.read(ev);
         if (!write_event(ev, nframes)) {
-            DEBUG_PRINT("couldn't write event from ringbuffer to output buffer");
+            DEBUG_PRINT("couldn't write event from "
+                        "ringbuffer to output buffer");
         }
     }
 
@@ -98,6 +99,7 @@ void JACKRealtimeBackend::finish()
     boost::mutex mutex;
     boost::mutex::scoped_lock lock(mutex);
 
+    // wait until one JACK period is over
     _cond.timed_wait(lock, boost::posix_time::milliseconds(
                                 config::JACK_REALTIME_FINISH_TIMEOUT));
 }

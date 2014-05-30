@@ -23,8 +23,7 @@ void send_midi(std::string const & backend_name,
                std::string const & dest_port,
                std::vector<MidiEvent> const & events)
 {
-    // TODO: allow creation of backend with no input ports
-    backend::PortNameVector in_ports(1, "input");
+    backend::PortNameVector in_ports;
     backend::PortNameVector out_ports(1, "output");
 
     boost::shared_ptr<backend::BackendBase> send_backend =

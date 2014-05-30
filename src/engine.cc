@@ -379,7 +379,8 @@ bool Engine::sanitize_event(MidiEvent & ev) const
 
     if (ev.port < 0 || (_backend &&
             ev.port >= static_cast<int>(_backend->num_out_ports()))) {
-        if (_verbose) {
+        // omit rather pointless warning if there are no output ports at all
+        if (_verbose && _backend->num_out_ports() > 0) {
             std::cout << "invalid output port, event discarded"
                       << std::endl;
         }

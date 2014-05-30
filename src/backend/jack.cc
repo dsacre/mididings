@@ -34,8 +34,6 @@ JACKBackend::JACKBackend(std::string const & client_name,
   , _input_queue(config::JACK_MAX_EVENTS)
 {
     ASSERT(!client_name.empty());
-    ASSERT(!in_port_names.empty());
-    ASSERT(!out_port_names.empty());
 
     // create JACK client
     _client = jack_client_open(client_name.c_str(), JackNoStartServer, NULL);
@@ -198,12 +196,14 @@ void JACKBackend::fill_input_queue(jack_nframes_t nframes)
     for (unsigned int port = 0; port != _in_ports.size(); ++port) {
         void *port_buffer = jack_port_get_buffer(_in_ports[port], nframes);
 
-        for (unsigned int n = 0; n != jack_midi_get_event_count(port_buffer); ++n) {
+        for (unsigned int n = 0;
+                n != jack_midi_get_event_count(port_buffer); ++n) {
             jack_midi_event_t jack_ev;
             VERIFY(!jack_midi_event_get(&jack_ev, port_buffer, n));
 
-            MidiEvent ev = buffer_to_midi_event(jack_ev.buffer, jack_ev.size,
-                                                port, _current_frame + jack_ev.time);
+            MidiEvent ev = buffer_to_midi_event(
+                                    jack_ev.buffer, jack_ev.size,
+                                    port, _current_frame + jack_ev.time);
             _input_queue.push(ev);
         }
     }

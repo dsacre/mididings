@@ -28,11 +28,11 @@ class Dings(object):
             self.config(client_name=options.client_name)
         if options.start_delay:
             self.config(start_delay=options.start_delay)
-        if options.in_ports or options.in_connections:
+        if options.in_ports is not None or options.in_connections:
             in_ports = self.make_port_definitions(
                             options.in_connections, options.in_ports)
             self.config(in_ports=in_ports)
-        if options.out_ports or options.out_connections:
+        if options.out_ports is not None or options.out_connections:
             out_ports = self.make_port_definitions(
                             options.out_connections, options.out_ports)
             self.config(out_ports=out_ports)

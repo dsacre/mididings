@@ -35,8 +35,6 @@ ALSABackend::ALSABackend(
         PortNameVector const & out_port_names)
 {
     ASSERT(!client_name.empty());
-    ASSERT(!in_port_names.empty());
-    ASSERT(!out_port_names.empty());
 
     // create sequencer client
     if (snd_seq_open(&_seq, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
@@ -48,8 +46,10 @@ ALSABackend::ALSABackend(
     // create input ports
     BOOST_FOREACH (std::string const & port_name, in_port_names) {
         int id = snd_seq_create_simple_port(_seq, port_name.c_str(),
-                SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
-                SND_SEQ_PORT_TYPE_APPLICATION | SND_SEQ_PORT_TYPE_MIDI_GENERIC);
+                                            SND_SEQ_PORT_CAP_WRITE |
+                                            SND_SEQ_PORT_CAP_SUBS_WRITE,
+                                            SND_SEQ_PORT_TYPE_APPLICATION |
+                                            SND_SEQ_PORT_TYPE_MIDI_GENERIC);
 
         if (id < 0) {
             throw Error("error creating sequencer input port");
@@ -64,8 +64,10 @@ ALSABackend::ALSABackend(
     // create output ports
     BOOST_FOREACH (std::string const & port_name, out_port_names) {
         int id = snd_seq_create_simple_port(_seq, port_name.c_str(),
-                SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
-                SND_SEQ_PORT_TYPE_APPLICATION | SND_SEQ_PORT_TYPE_MIDI_GENERIC);
+                                            SND_SEQ_PORT_CAP_READ |
+                                            SND_SEQ_PORT_CAP_SUBS_READ,
+                                            SND_SEQ_PORT_TYPE_APPLICATION |
+                                            SND_SEQ_PORT_TYPE_MIDI_GENERIC);
 
         if (id < 0) {
             throw Error("error creating sequencer output port");
@@ -127,7 +129,8 @@ void ALSABackend::connect_ports_impl(
         snd_seq_get_port_info(_seq, port, port_info);
         std::string port_name = snd_seq_port_info_get_name(port_info);
 
-        PortConnectionMap::const_iterator element = port_connections.find(port_name);
+        PortConnectionMap::const_iterator element =
+                                    port_connections.find(port_name);
 
         // break if no connections are defined for this port
         if (element == port_connections.end()) break;
@@ -135,7 +138,8 @@ void ALSABackend::connect_ports_impl(
         // for each regex pattern defined for this port...
         BOOST_FOREACH (std::string const & pattern, element->second) {
             // connect to all ports that match the pattern
-            if (connect_matching_ports(port, port_name, pattern, external_ports, out) == 0) {
+            if (connect_matching_ports(port, port_name,
+                                       pattern, external_ports, out) == 0) {
                 std::cerr << "warning: regular expression '" << pattern
                           << "' didn't match any ALSA sequencer ports"
                           << std::endl;
@@ -172,11 +176,16 @@ int ALSABackend::connect_matching_ports(
             std::string external_port_id =
                     boost::lexical_cast<std::string>(external_port.port_id);
 
-            // check if any combination of client/port and name/id matches regex
-            if (regex.match(external_client_id + ":" + external_port_id) ||
-                regex.match(external_client_id + ":" + external_port.port_name) ||
-                regex.match(external_port.client_name + ":" + external_port_id) ||
-                regex.match(external_port.client_name + ":" + external_port.port_name))
+            // check if any combination of client/port and name/id
+            // matches regex
+            if (regex.match(external_client_id + ":" +
+                            external_port_id) ||
+                regex.match(external_client_id + ":" +
+                            external_port.port_name) ||
+                regex.match(external_port.client_name + ":" +
+                            external_port_id) ||
+                regex.match(external_port.client_name + ":" +
+                            external_port.port_name))
             {
                 // connect ports
                 snd_seq_addr_t self, other;
@@ -187,8 +196,10 @@ int ALSABackend::connect_matching_ports(
 
                 snd_seq_port_subscribe_t *subscribe;
                 snd_seq_port_subscribe_alloca(&subscribe);
-                snd_seq_port_subscribe_set_sender(subscribe, out ? &self : &other);
-                snd_seq_port_subscribe_set_dest(subscribe, out ? & other : &self);
+                snd_seq_port_subscribe_set_sender(subscribe,
+                                                out ? &self : &other);
+                snd_seq_port_subscribe_set_dest(subscribe,
+                                                out ? & other : &self);
 
                 if (snd_seq_subscribe_port(_seq, subscribe) != 0 &&
                     snd_seq_get_port_subscription(_seq, subscribe) != 0)
@@ -236,14 +247,16 @@ ALSABackend::ClientPortInfoVector ALSABackend::get_external_ports(bool out)
         snd_seq_port_info_set_port(port_info, -1);
 
         while (snd_seq_query_next_port(_seq, port_info) == 0) {
-            unsigned int capability = snd_seq_port_info_get_capability(port_info);
+            unsigned int capability =
+                            snd_seq_port_info_get_capability(port_info);
 
             if (((capability & port_flags) == port_flags) &&
                 ((capability & SND_SEQ_PORT_CAP_NO_EXPORT) == 0)) {
                 int port_id = snd_seq_port_info_get_port(port_info);
                 std::string port_name = snd_seq_port_info_get_name(port_info);
 
-                ClientPortInfo info(client_id, port_id, client_name, port_name);
+                ClientPortInfo info(client_id, port_id,
+                                    client_name, port_name);
                 vec.push_back(info);
             }
         }
@@ -274,7 +287,6 @@ void ALSABackend::stop()
 
         snd_seq_ev_set_direct(&ev);
         ev.type = SND_SEQ_EVENT_USR0;
-        ev.source.port = _out_ports[0];
         ev.dest.client = snd_seq_client_id(_seq);
         ev.dest.port = _in_ports[0];
         snd_seq_event_output_direct(_seq, &ev);
@@ -417,7 +429,8 @@ void ALSABackend::alsa_to_midi_event_generic(
     unsigned char buf[12];
 
     snd_midi_event_reset_decode(_parser);
-    std::size_t len = snd_midi_event_decode(_parser, buf, sizeof(buf), &alsa_ev);
+    std::size_t len = snd_midi_event_decode(_parser, buf, sizeof(buf),
+                                            &alsa_ev);
 
     ev = buffer_to_midi_event(buf, len, _in_ports_rev[alsa_ev.dest.port], 0);
 }
@@ -441,15 +454,18 @@ void ALSABackend::midi_event_to_alsa(
     switch (ev.type)
     {
       case MIDI_EVENT_NOTEON:
-        snd_seq_ev_set_noteon(&alsa_ev, ev.channel, ev.note.note, ev.note.velocity);
+        snd_seq_ev_set_noteon(&alsa_ev, ev.channel,
+                              ev.note.note, ev.note.velocity);
         break;
 
       case MIDI_EVENT_NOTEOFF:
-        snd_seq_ev_set_noteoff(&alsa_ev, ev.channel, ev.note.note, ev.note.velocity);
+        snd_seq_ev_set_noteoff(&alsa_ev, ev.channel,
+                               ev.note.note, ev.note.velocity);
         break;
 
       case MIDI_EVENT_CTRL:
-        snd_seq_ev_set_controller(&alsa_ev, ev.channel, ev.ctrl.param, ev.ctrl.value);
+        snd_seq_ev_set_controller(&alsa_ev, ev.channel,
+                                  ev.ctrl.param, ev.ctrl.value);
         break;
 
       case MIDI_EVENT_PITCHBEND:

@@ -79,13 +79,13 @@ def reset():
     'client_name':      str,
     'in_ports':         _arguments.either(
                             _arguments.each(int,
-                                _arguments.condition(lambda x: x > 0)),
+                                _arguments.condition(lambda x: x >= 0)),
                             _arguments.sequenceof(
                                 _arguments.either(str, [str])),
                         ),
     'out_ports':        _arguments.either(
                             _arguments.each(int,
-                                _arguments.condition(lambda x: x > 0)),
+                                _arguments.condition(lambda x: x >= 0)),
                             _arguments.sequenceof(
                                 _arguments.either(str, [str])),
                         ),
