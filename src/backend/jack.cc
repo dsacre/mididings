@@ -16,6 +16,7 @@
 #include <jack/midiport.h>
 
 #include <iostream>
+#include <algorithm>
 
 #include <boost/foreach.hpp>
 
@@ -32,6 +33,7 @@ JACKBackend::JACKBackend(std::string const & client_name,
                          PortNameVector const & out_port_names)
   : _current_frame(0)
   , _input_queue(config::JACK_MAX_EVENTS)
+  , _last_written_frame(out_port_names.size())
 {
     ASSERT(!client_name.empty());
 
@@ -177,14 +179,17 @@ int JACKBackend::connect_matching_ports(
 
 int JACKBackend::process_(jack_nframes_t nframes, void *arg)
 {
-    JACKBackend *this_ = static_cast<JACKBackend*>(arg);
+    JACKBackend *that = static_cast<JACKBackend*>(arg);
 
     // read events from all input ports, and order them by frame
-    this_->fill_input_queue(nframes);
+    that->fill_input_queue(nframes);
 
-    int r = this_->process(nframes);
+    std::fill(that->_last_written_frame.begin(),
+              that->_last_written_frame.end(), 0);
 
-    this_->_current_frame += nframes;
+    int r = that->process(nframes);
+
+    that->_current_frame += nframes;
     return r;
 }
 
@@ -240,27 +245,38 @@ bool JACKBackend::write_event(MidiEvent const & ev, jack_nframes_t nframes)
 
     VERIFY(midi_event_to_buffer(ev, data, len, port, frame));
 
-    if (!len) {
+    void *port_buffer = jack_port_get_buffer(_out_ports[port], nframes);
+
+    if (!len || len > jack_midi_max_event_size(port_buffer)) {
         return false;
     }
 
-    void *port_buffer = jack_port_get_buffer(_out_ports[port], nframes);
-
-    jack_nframes_t f;
+    // the frame within the current period at which the event will be written
+    jack_nframes_t write_at_frame;
 
     if (frame >= _current_frame) {
         // event received within current period, zero delay
-        f = frame - _current_frame;
+        write_at_frame = frame - _current_frame;
     } else if (frame >= _current_frame - nframes) {
         // event received during last period, exactly one period delay
         // (minimize jitter)
-        f = frame - _current_frame + nframes;
+        write_at_frame = frame - _current_frame + nframes;
     } else {
         // event is older, send as soon as possible (minimize latency)
-        f = 0;
+        write_at_frame = 0;
     }
 
-    if (!jack_midi_event_write(port_buffer, f, data, len)) {
+    // if events would be out of order, simply increase this event's frame
+    // to be equal to that of the most recently written event.
+    // this should only happen in the rare cases where output_event() is
+    // called directly from Python.
+    if (jack_midi_get_event_count(port_buffer) &&
+            write_at_frame < _last_written_frame[port]) {
+        write_at_frame = _last_written_frame[port];
+    }
+
+    if (!jack_midi_event_write(port_buffer, write_at_frame, data, len)) {
+        _last_written_frame[port] = write_at_frame;
         return true;
     } else {
         return false;

@@ -38,7 +38,9 @@ class JACKBackend
                 PortNameVector const & out_port_names);
     virtual ~JACKBackend();
 
-    virtual std::size_t num_out_ports() const { return _out_ports.size(); }
+    virtual std::size_t num_out_ports() const {
+        return _out_ports.size();
+    }
 
     virtual void connect_ports(PortConnectionMap const & in_port_connections,
                                PortConnectionMap const & out_port_connections);
@@ -46,7 +48,9 @@ class JACKBackend
   protected:
     // XXX this should be pure virtual.
     // it isn't, because the process thread is started from within the c'tor
-    virtual int process(jack_nframes_t) { return 0; } //= 0;
+    virtual int process(jack_nframes_t) {
+        return 0;
+    }
 
     void clear_buffers(jack_nframes_t nframes);
     bool read_event(MidiEvent & ev, jack_nframes_t nframes);
@@ -77,7 +81,9 @@ class JACKBackend
       : public std::priority_queue<T, Container, Compare>
     {
     public:
-        typedef typename std::priority_queue<T, Container, Compare>::size_type size_type;
+        typedef typename std::priority_queue<
+            T, Container, Compare
+        >::size_type size_type;
 
         reservable_priority_queue(size_type capacity = 0) {
             reserve(capacity);
@@ -97,7 +103,12 @@ class JACKBackend
     };
 
     // queue of incoming MIDI events, ordered by frame
-    reservable_priority_queue<MidiEvent, std::vector<MidiEvent>, compare_frame> _input_queue;
+    reservable_priority_queue<
+        MidiEvent, std::vector<MidiEvent>, compare_frame
+    > _input_queue;
+
+    // the frame at which the last event during each period was written
+    std::vector<jack_nframes_t> _last_written_frame;
 };
 
 

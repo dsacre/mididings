@@ -114,7 +114,8 @@ struct MidiEvent
       , data2(0)
       , sysex()
       , frame(0)
-    { }
+    {
+    }
 
     MidiEvent(MidiEvent const & other)
       : type(other.type)
@@ -124,7 +125,8 @@ struct MidiEvent
       , data2(other.data2)
       , sysex(other.sysex)
       , frame(other.frame)
-    { }
+    {
+    }
 
     ~MidiEvent() { }
 
@@ -192,7 +194,8 @@ inline bool operator==(MidiEvent const & lhs, MidiEvent const & rhs)
         (!have_channel || lhs.channel == rhs.channel) &&
         (!have_data1 || lhs.data1 == rhs.data1) &&
         (!have_data2 || lhs.data2 == rhs.data2) &&
-        (!have_sysex || (lhs.sysex && rhs.sysex && *lhs.sysex == *rhs.sysex)) &&
+        (!have_sysex || (lhs.sysex && rhs.sysex &&
+                         *lhs.sysex == *rhs.sysex)) &&
         lhs.frame == rhs.frame
     );
 }

@@ -78,7 +78,8 @@ void JACKBufferedBackend::stop()
 }
 
 
-void JACKBufferedBackend::process_thread(InitFunction init, CycleFunction cycle)
+void JACKBufferedBackend::process_thread(InitFunction init,
+                                         CycleFunction cycle)
 {
     init();
     cycle();
@@ -100,7 +101,7 @@ int JACKBufferedBackend::process(jack_nframes_t nframes)
     // clear all JACK output buffers
     clear_buffers(nframes);
 
-    // read all events from output ringbuffer, write them to JACK output buffers
+    // read all events from output ringbuffer, write to JACK output buffers
     while (_out_rb.read_space()) {
         _out_rb.read(ev);
         if (!write_event(ev, nframes)) {
