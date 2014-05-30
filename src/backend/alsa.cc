@@ -232,8 +232,8 @@ bool ALSABackend::connect_single_port(
     snd_seq_port_subscribe_set_dest(subscribe, out ? & other : &self);
 
     // try to connect ports
-    return (snd_seq_subscribe_port(_seq, subscribe) != 0 &&
-            snd_seq_get_port_subscription(_seq, subscribe) != 0);
+    return (snd_seq_subscribe_port(_seq, subscribe) == 0 &&
+            snd_seq_get_port_subscription(_seq, subscribe) == 0);
 }
 
 
