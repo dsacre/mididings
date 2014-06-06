@@ -21,6 +21,7 @@ import mididings
 import mididings.extra
 import mididings.setup
 import mididings.engine
+import mididings.patch
 
 
 class Dings(object):
@@ -146,12 +147,18 @@ class Dings(object):
                 return r.lstrip()
             shell.raw_input = raw_input_wrapper
 
-            # replace sys.displayhook to execute anything that might be a
+            # replace sys.displayhook to execute anything that is a valid
             # mididings patch, unless input started with a blank.
             displayhook_orig = sys.displayhook
             def displayhook_wrapper(value):
-                if (isinstance(value, mididings.units.base._UNIT_TYPES)
-                        and not started_with_blank[0]):
+                try:
+                    # build a throw-away patch to check for exceptions
+                    mididings.patch.Patch(value)
+                    is_patch = True
+                except TypeError:
+                    is_patch = False
+
+                if is_patch and not started_with_blank[0]:
                     run_wrapper(value)
                 else:
                     displayhook_orig(value)
