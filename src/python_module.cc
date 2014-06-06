@@ -28,6 +28,7 @@
 #include "util/python_bytes_converters.hh"
 #include "util/python_dict_converters.hh"
 #include "util/counted_objects.hh"
+#include "util/string.hh"
 
 #include <boost/python/module.hpp>
 #include <boost/python/def.hpp>
@@ -48,7 +49,6 @@
 #ifdef ENABLE_DEBUG_STATS
 #include <iostream>
 #include <iomanip>
-#include "util/string.hh"
 #endif
 
 
@@ -163,7 +163,7 @@ BOOST_PYTHON_MODULE(_mididings)
     PyEval_InitThreads();
 
 #ifdef VERSION
-    bp::scope().attr("__version__") = VERSION;
+    bp::scope().attr("__version__") = STRINGIFY(VERSION);
 #else
     bp::scope().attr("__version__") = "(unknown)";
 #endif

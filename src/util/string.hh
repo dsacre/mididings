@@ -20,6 +20,10 @@
 #include <regex.h>
 
 
+#define STRINGIFY(x) _STRINGIFY(x)
+#define _STRINGIFY(x) #x
+
+
 namespace das {
 
 

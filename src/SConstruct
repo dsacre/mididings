@@ -47,6 +47,11 @@ env = Environment(
     ],
 )
 
+status, output = getstatusoutput('git rev-parse --short HEAD')
+if not status:
+    env.Append(CPPDEFINES = [('VERSION', 'r%s' % output)])
+
+
 env.Append(
     CPPPATH = [sysconfig.get_python_inc(plat_specific=1)],
     LIBPATH = [sysconfig.get_python_lib(plat_specific=1)],
