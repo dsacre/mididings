@@ -64,8 +64,8 @@ def my_customize_compiler(compiler):
     # immediately stop on error
     compiler.compiler_so.append('-Wfatal-errors')
     # some options to reduce the size of the binary
-    compiler.compiler_so.append('-finline-functions')
     compiler.compiler_so.append('-fvisibility=hidden')
+    compiler.compiler_so.append('-fvisibility-inlines-hidden')
     return retval
 
 sysconfig.customize_compiler = my_customize_compiler
@@ -110,10 +110,8 @@ def boost_lib_name(name, add_suffixes=[]):
     Try to figure out the correct boost library name (with or without "-mt"
     suffix, or with any of the given additional suffixes).
     """
-    libdirs = ['/usr/lib', '/usr/local/lib',
-               '/usr/lib64', '/usr/local/lib64'] + lib_dirs()
     for suffix in add_suffixes + ['', '-mt']:
-        for libdir in libdirs:
+        for libdir in lib_dirs():
             libname = 'lib%s%s.so' % (name, suffix)
             if os.path.isfile(os.path.join(libdir, libname)):
                 return name + suffix

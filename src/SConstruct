@@ -16,10 +16,8 @@ def lib_dirs():
         return []
 
 def boost_lib_name(name, add_suffixes=[]):
-    libdirs = ['/usr/lib', '/usr/local/lib',
-               '/usr/lib64', '/usr/local/lib64'] + lib_dirs()
     for suffix in add_suffixes + ['', '-mt']:
-        for libdir in libdirs:
+        for libdir in lib_dirs():
             libname = 'lib%s%s.so' % (name, suffix)
             if os.path.isfile(os.path.join(libdir, libname)):
                 return name + suffix
@@ -29,7 +27,7 @@ def boost_lib_name(name, add_suffixes=[]):
 env = Environment(
 #    CXX = 'clang++',
 #    CCFLAGS = ['-O2', '-Wall', '-Wextra',
-#               '-finline-functions', '-fvisibility=hidden'],
+#               '-fvisibility=hidden', '-fvisibility-inlines-hidden'],
     CCFLAGS = ['-g', '-Wall', '-Wextra'],
     CPPDEFINES = [
 #        'NDEBUG',
