@@ -39,14 +39,16 @@ struct from_sequence_converter
 
             for (Py_ssize_t i = 0; i != size; ++i) {
                 PyObject *item = PySequence_GetItem(obj, i);
-                cont.push_back(boost::python::extract<typename T::value_type>(item));
+                cont.push_back(
+                        boost::python::extract<typename T::value_type>(item));
                 boost::python::decref(item);
             }
         }
         else {
             PyObject *item;
             while ((item = PyIter_Next(obj))) {
-                cont.push_back(boost::python::extract<typename T::value_type>(item));
+                cont.push_back(
+                        boost::python::extract<typename T::value_type>(item));
                 boost::python::decref(item);
             }
 
@@ -69,7 +71,8 @@ struct to_list_converter
 {
     static PyObject *convert(T const & cont) {
         boost::python::list ret;
-        for (typename T::const_iterator it = cont.begin(); it != cont.end(); ++it) {
+        for (typename T::const_iterator it = cont.begin();
+                it != cont.end(); ++it) {
             ret.append(*it);
         }
 

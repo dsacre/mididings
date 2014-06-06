@@ -55,7 +55,8 @@ void Patch::Fork::process(B & buffer, typename B::Range & range) const
     MidiEvent *in_events = static_cast<MidiEvent*>(
                                 ::alloca(num_events * sizeof(MidiEvent)));
     MidiEvent *p = in_events;
-    for (typename B::iterator it = range.begin(); it != range.end(); ++it, ++p) {
+    for (typename B::iterator it = range.begin();
+            it != range.end(); ++it, ++p) {
         new (p) MidiEvent(*it);
     }
 

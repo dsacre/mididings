@@ -56,7 +56,7 @@ arrow keys to switch scenes (up/down) and subscenes (left/right).
 --------------------
 
 send_midi is a simple utility to send MIDI events to any ALSA or
-JACK MIDI clients, using a terse command line format::
+JACK MIDI client, using a terse command line format::
 
     $ send_midi LinuxSampler:0 NOTEON,1,60,127 CTRL,2,7,66
     $ send_midi -J mididings:in_.* PROGRAM,1,42

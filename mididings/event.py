@@ -55,6 +55,8 @@ class MidiEvent(_mididings.MidiEvent):
         port=_util.NoDataOffset(0), channel=_util.NoDataOffset(0),
         data1=0, data2=0, sysex=None
     ):
+        # use default c'tor, then set data members manually to take advantage
+        # of automatic data offset conversion
         _mididings.MidiEvent.__init__(self)
         self.type = type
         self.port = port

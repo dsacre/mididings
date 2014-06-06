@@ -96,7 +96,8 @@ class Velocity
     virtual bool process(MidiEvent & ev) const
     {
         if (ev.type == MIDI_EVENT_NOTEON && ev.note.velocity > 0) {
-            ev.note.velocity = apply_transform(ev.note.velocity, _param, _mode);
+            ev.note.velocity = apply_transform(ev.note.velocity,
+                                               _param, _mode);
         }
         return true;
     }
@@ -187,8 +188,8 @@ class CtrlRange
     virtual bool process(MidiEvent & ev) const
     {
         if (ev.type == MIDI_EVENT_CTRL && ev.ctrl.param == _ctrl) {
-            ev.ctrl.value = map_range(ev.ctrl.value, _in_min, _in_max,
-                                                     _min, _max);
+            ev.ctrl.value = map_range(ev.ctrl.value,
+                                      _in_min, _in_max, _min, _max);
         }
         return true;
     }

@@ -77,8 +77,8 @@ Filtering and Splitting
         # allow only program and control changes to go through
         Filter(PROGRAM, CTRL)
 
-    See section :ref:`units-filters` for units that allow filtering by different
-    event properties.
+    See section :ref:`units-filters` for units that allow filtering by
+    different event properties.
 
 .. dingsfun:: ~F <Filter.invert>
               F.invert() <Filter.invert>

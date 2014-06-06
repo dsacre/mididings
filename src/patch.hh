@@ -258,7 +258,8 @@ class Patch
      */
     template <typename B, typename IterT>
     static inline typename B::Range
-    replace_event(B & buffer, typename B::Iterator it, IterT begin, IterT end) {
+    replace_event(B & buffer, typename B::Iterator it,
+            IterT begin, IterT end) {
         it = buffer.erase(it);
 
         typename B::Iterator first = buffer.insert(it, *begin);

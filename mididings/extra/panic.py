@@ -38,7 +38,7 @@ def Panic(bypass=True):
         further processing.
     """
     if bypass:
-        return _m.Call(lambda ev: _panic_bypass()) >> _m.Discard()
+        return _m.Call(lambda ev: _panic_bypass())
     else:
         return _m.Fork([
             (_m.Ctrl(p, _util.NoDataOffset(c), 123, 0) //

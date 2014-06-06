@@ -41,7 +41,7 @@ class _LatchNotes(object):
                     self.notes.remove(ev.note)
                     return _event.NoteOffEvent(ev.port, ev.channel, ev.note, 0)
             else:
-                # turn off previous note, play new note
+                # monophonic: turn off previous note, play new note
                 if len(self.notes):
                     r = [_event.NoteOffEvent(
                                     ev.port, ev.channel, self.notes[0], 0)]

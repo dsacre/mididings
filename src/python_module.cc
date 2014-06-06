@@ -58,7 +58,8 @@ namespace mididings {
 #ifdef ENABLE_DEBUG_STATS
 
 template <typename T>
-std::string alloc_stats(std::string const & name) {
+std::string alloc_stats(std::string const & name)
+{
     std::size_t allocated = das::counted_objects<T>::allocated();
     std::size_t deallocated = das::counted_objects<T>::deallocated();
     std::size_t leaks = allocated - deallocated;
@@ -67,7 +68,8 @@ std::string alloc_stats(std::string const & name) {
 }
 
 template <typename T>
-std::string curious_alloc_stats(std::string const & name) {
+std::string curious_alloc_stats(std::string const & name)
+{
     return das::make_string() << std::left << std::setw(20) << (name + ": ")
                               << std::setw(8)
                               << curious_alloc_base<T>::max_utilization()
@@ -75,7 +77,8 @@ std::string curious_alloc_stats(std::string const & name) {
                               << curious_alloc_base<T>::fallback_count();
 }
 
-void unload() {
+void unload()
+{
 #ifdef ENABLE_BENCHMARK
     std::cerr << '\n'
               << std::left << std::setw(20) << "number of cycles:"
@@ -115,7 +118,8 @@ class EngineWrap
       , _self(self)
     { }
 
-    void scene_switch_callback(int scene, int subscene) {
+    void scene_switch_callback(int scene, int subscene)
+    {
         das::python::scoped_gil_lock gil;
         try {
             boost::python::call_method<void>(_self,
@@ -131,12 +135,14 @@ class EngineWrap
 
 
 MidiEvent buffer_to_midi_event(std::vector<unsigned char> const & buffer,
-                               int port, uint64_t frame) {
+                               int port, uint64_t frame)
+{
     return backend::buffer_to_midi_event(
                             &buffer.front(), buffer.size(), port, frame);
 }
 
-boost::python::tuple midi_event_to_buffer(MidiEvent const & ev) {
+boost::python::tuple midi_event_to_buffer(MidiEvent const & ev)
+{
     std::vector<unsigned char> buffer(256, 0);
     std::size_t len = buffer.size();
     int port;

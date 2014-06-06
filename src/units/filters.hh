@@ -34,7 +34,8 @@ class PortFilter
 
     virtual bool process_filter(MidiEvent & ev) const
     {
-        return (std::find(_ports.begin(), _ports.end(), ev.port) != _ports.end());
+        return (std::find(_ports.begin(), _ports.end(), ev.port)
+                            != _ports.end());
     }
 
   private:
@@ -53,7 +54,8 @@ class ChannelFilter
 
     virtual bool process_filter(MidiEvent & ev) const
     {
-        return (std::find(_channels.begin(), _channels.end(), ev.channel) != _channels.end());
+        return (std::find(_channels.begin(), _channels.end(), ev.channel)
+                            != _channels.end());
     }
 
   private:
@@ -76,9 +78,10 @@ class KeyFilter
     {
         if (_lower || _upper) {
             return ((ev.note.note >= _lower || _lower == 0) &&
-                    (ev.note.note < _upper  || _upper == 0));
+                    (ev.note.note <  _upper || _upper == 0));
         } else {
-            return (std::find(_notes.begin(), _notes.end(), ev.note.note) != _notes.end());
+            return (std::find(_notes.begin(), _notes.end(), ev.note.note)
+                                != _notes.end());
         }
     }
 
@@ -102,7 +105,7 @@ class VelocityFilter
     virtual bool process_filter(MidiEvent & ev) const
     {
         return ((ev.note.velocity >= _lower || _lower == 0) &&
-                (ev.note.velocity < _upper  || _upper == 0));
+                (ev.note.velocity <  _upper || _upper == 0));
     }
 
   private:
@@ -122,7 +125,8 @@ class CtrlFilter
 
     virtual bool process_filter(MidiEvent & ev) const
     {
-        return (std::find(_ctrls.begin(), _ctrls.end(), ev.ctrl.param) != _ctrls.end());
+        return (std::find(_ctrls.begin(), _ctrls.end(), ev.ctrl.param)
+                            != _ctrls.end());
     }
 
   private:
@@ -143,7 +147,7 @@ class CtrlValueFilter
     virtual bool process_filter(MidiEvent & ev) const
     {
         return ((ev.ctrl.value >= _lower || _lower == 0) &&
-                (ev.ctrl.value < _upper  || _upper == 0));
+                (ev.ctrl.value <  _upper || _upper == 0));
     }
 
   private:
@@ -163,7 +167,8 @@ class ProgramFilter
 
     virtual bool process_filter(MidiEvent & ev) const
     {
-        return (std::find(_progs.begin(), _progs.end(), ev.ctrl.value) != _progs.end());
+        return (std::find(_progs.begin(), _progs.end(), ev.ctrl.value)
+                            != _progs.end());
     }
 
   private:
@@ -184,8 +189,9 @@ class SysExFilter
     virtual bool process_filter(MidiEvent & ev) const
     {
         if (_partial) {
-            return std::search(ev.sysex->begin(), ev.sysex->end(),
-                               _sysex->begin(), _sysex->end()) == ev.sysex->begin();
+            return std::search(
+                        ev.sysex->begin(), ev.sysex->end(),
+                       _sysex->begin(), _sysex->end()) == ev.sysex->begin();
         } else {
             return *ev.sysex == *_sysex;
         }
