@@ -14,10 +14,13 @@
 import sys
 import os
 import optparse
+import platform
+import functools
 
 import mididings
 import mididings.extra
 import mididings.setup
+import mididings.engine
 
 
 class Dings(object):
@@ -37,8 +40,12 @@ class Dings(object):
                             options.out_connections, options.out_ports)
             self.config(out_ports=out_ports)
 
-        self.dings_dict = mididings.__dict__.copy()
-        self.dings_dict.update(mididings.extra.__dict__)
+        # build dict of all public members of mididings and mididings.extra
+        self.dings_dict = dict((k, v) for k, v in mididings.__dict__.items()
+                                      if k in mididings.__all__)
+        self.dings_dict.update(
+                      dict((k, v) for k, v in mididings.extra.__dict__.items()
+                                  if k in mididings.extra.__all__))
 
     def config(self, **kwargs):
         mididings.setup._config_impl(override=True, **kwargs)
@@ -84,16 +91,96 @@ class Dings(object):
         self.config(out_ports=0)
         mididings.run(mididings.Print())
 
+    def run_interactive(self, source=None, auto=False):
+        import code
+        import readline     # it's... magic!
+
+        try:
+            import xdg.BaseDirectory
+            DATA_DIR = os.path.join(xdg.BaseDirectory.xdg_data_home,
+                                    'mididings')
+        except ImportError:
+            DATA_DIR = os.path.expanduser('~/.local/config/mididings')
+        HISTFILE = os.path.join(DATA_DIR, 'history')
+        HISTSIZE = 100
+
+        shell = code.InteractiveConsole(self.dings_dict)
+        readline.set_history_length(HISTSIZE)
+        try:
+            readline.read_history_file(HISTFILE)
+        except IOError:
+            pass
+
+        # set up simple tab completion
+        def complete_dings(text, state):
+            for cmd in self.dings_dict.keys():
+                if cmd.startswith(text):
+                    if not state:
+                        return cmd
+                    else:
+                        state -= 1
+        readline.parse_and_bind("tab: complete")
+        readline.set_completer(complete_dings)
+
+        # execute source from command line
+        if source:
+            shell.runsource(source)
+
+        # start backend (and leave it running until mididings exits)
+        mididings.engine._start_backend()
+
+        # print newline after run()
+        @functools.wraps(mididings.run)
+        def run_wrapper(*args, **kwargs):
+            mididings.run(*args, **kwargs)
+            print('')
+        self.dings_dict['run'] = run_wrapper
+
+        if auto:
+            # monkey-patch shell.raw_input() to remember whether the input
+            # started with a blank.
+            started_with_blank = [False]
+            def raw_input_wrapper(prompt):
+                r = code.InteractiveConsole.raw_input(shell, prompt)
+                started_with_blank[0] = r.startswith(' ')
+                return r.lstrip()
+            shell.raw_input = raw_input_wrapper
+
+            # replace sys.displayhook to execute anything that might be a
+            # mididings patch, unless input started with a blank.
+            displayhook_orig = sys.displayhook
+            def displayhook_wrapper(value):
+                if (isinstance(value, mididings.units.base._UNIT_TYPES)
+                        and not started_with_blank[0]):
+                    run_wrapper(value)
+                else:
+                    displayhook_orig(value)
+            sys.displayhook = displayhook_wrapper
+
+        # run interactive shell
+        shell.interact(banner='mididings %s, using Python %s' %
+                        (mididings.__version__, platform.python_version()))
+        # save history
+        try:
+            os.makedirs(DATA_DIR)
+        except OSError:
+            pass
+        try:
+            readline.write_history_file(HISTFILE)
+        except IOError:
+            pass
+
 
 if __name__ == '__main__':
-    usage   = ("Usage: mididings [options] 'patch'\n"
+    usage   = ("Usage: mididings [options] \"patch\"\n"
                "       mididings [options] -f filename.py")
     epilog  = ("The -I and -O options may be specified multiple times, "
                "once for each port.\n\n"
                "The -f option executes a regular mididings Python script. "
                "Command line arguments override config settings in that "
                "script.")
-    version = "mididings %s" % mididings.__version__
+    version = ("mididings %s, using Python %s" %
+                        (mididings.__version__, platform.python_version()))
 
     parser = optparse.OptionParser(usage=usage, epilog=epilog, version=version)
     parser.add_option('-b', dest='backend',
@@ -112,15 +199,25 @@ if __name__ == '__main__':
                       help="delay (in seconds) before starting processing")
     parser.add_option('-f', dest='filename',
                       help="file name of script to run")
+    parser.add_option('-s', dest='interactive', action='store_true',
+                      help="run interactive shell")
+    parser.add_option('-S', dest='interactive_auto', action='store_true',
+                      help="run interactive shell with automatic execution")
     parser.add_option('-p', action='store_true', dest='print_events',
                       help="print MIDI events (no processing)")
 
     options, args = parser.parse_args(sys.argv[1:])
 
-    if len(args) == 0 and not options.filename and not options.print_events:
+    if (len(args) == 0 and not options.filename and
+            not options.print_events and
+            not options.interactive and
+            not options.interactive_auto):
         parser.error("no patch and no filename specified")
     elif len(args) > 1:
         parser.error("more than one patch specified")
+    elif options.filename and (options.interactive or
+                               options.interactive_auto):
+        parser.error("filename and interactive shell are mutually exclusive")
 
     app = Dings(options)
 
@@ -128,5 +225,9 @@ if __name__ == '__main__':
         app.run_print()
     elif options.filename:
         app.run_file(options.filename)
+    elif options.interactive:
+        app.run_interactive(args[0] if len(args) else None, False)
+    elif options.interactive_auto:
+        app.run_interactive(args[0] if len(args) else None, True)
     else:
         app.run_patch(args[0])
