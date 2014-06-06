@@ -18,6 +18,9 @@
 
 #include <cstring>
 
+// reduce binary size a little bit
+#define BOOST_PYTHON_NO_PY_SIGNATURES
+
 
 namespace mididings {
 
