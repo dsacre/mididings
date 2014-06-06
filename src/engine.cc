@@ -38,12 +38,9 @@ int Engine::num_cycles_(0);
 #endif
 
 
-Engine::Engine(std::string const & backend_name,
-               std::string const & client_name,
-               backend::PortNameVector const & in_ports,
-               backend::PortNameVector const & out_ports,
-               bool verbose)
+Engine::Engine(backend::BackendPtr backend, bool verbose)
   : _verbose(verbose)
+  , _backend(backend)
   , _current_patch(NULL)
   , _current_scene(-1)
   , _current_subscene(-1)
@@ -54,8 +51,6 @@ Engine::Engine(std::string const & backend_name,
   , _buffer(*this)
   , _python_caller(new PythonCaller(boost::bind(&Engine::run_async, this)))
 {
-    _backend = backend::create(backend_name, client_name, in_ports, out_ports);
-
     // construct a patch with a single sanitize unit
     Patch::UnitExPtr sani(new units::Sanitize);
     Patch::ModulePtr mod(new Patch::Extended(sani));
@@ -71,16 +66,6 @@ Engine::~Engine()
 
     // this needs to be gone before the engine can safely be destroyed
     _python_caller.reset();
-}
-
-
-void Engine::connect_ports(
-    backend::PortConnectionMap const & in_port_connections,
-    backend::PortConnectionMap const & out_port_connections)
-{
-    if (_backend) {
-        _backend->connect_ports(in_port_connections, out_port_connections);
-    }
 }
 
 

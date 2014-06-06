@@ -50,7 +50,7 @@ std::vector<std::string> const & available()
 }
 
 
-boost::shared_ptr<BackendBase> create(
+BackendPtr create(
         std::string const & backend_name,
         std::string const & client_name,
         PortNameVector const & in_ports,
@@ -58,21 +58,21 @@ boost::shared_ptr<BackendBase> create(
 {
     if (backend_name == "dummy") {
         // return empty shared pointer
-        return boost::shared_ptr<BackendBase>();
+        return BackendPtr();
     }
 #ifdef ENABLE_ALSA_SEQ
     else if (backend_name == "alsa") {
-        return boost::shared_ptr<BackendBase>(
+        return BackendPtr(
                     new ALSABackend(client_name, in_ports, out_ports));
     }
 #endif
 #ifdef ENABLE_JACK_MIDI
     else if (backend_name == "jack") {
-        return boost::shared_ptr<BackendBase>(
+        return BackendPtr(
                     new JACKBufferedBackend(client_name, in_ports, out_ports));
     }
     else if (backend_name == "jack-rt") {
-        return boost::shared_ptr<BackendBase>(
+        return BackendPtr(
                     new JACKRealtimeBackend(client_name, in_ports, out_ports));
     }
 #endif

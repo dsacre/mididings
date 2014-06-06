@@ -108,13 +108,8 @@ class EngineWrap
   : public Engine
 {
   public:
-    EngineWrap(PyObject *self,
-               std::string const & backend_name,
-               std::string const & client_name,
-               backend::PortNameVector const & in_ports,
-               backend::PortNameVector const & out_ports,
-               bool verbose)
-      : Engine(backend_name, client_name, in_ports, out_ports, verbose)
+    EngineWrap(PyObject *self, backend::BackendPtr backend, bool verbose)
+      : Engine(backend, verbose)
       , _self(self)
     { }
 
@@ -178,6 +173,16 @@ BOOST_PYTHON_MODULE(_mididings)
     def("available_backends", &backend::available,
         bp::return_value_policy<bp::return_by_value>());
 
+    // backend base class
+    class_<backend::BackendBase, backend::BackendPtr, noncopyable>(
+        "BackendBase", bp::no_init)
+        .def("connect_ports", &backend::BackendBase::connect_ports)
+    ;
+
+    // backend creation
+    def("create_backend", &backend::create);
+
+    // buffer to MidiEvent conversion (used only by process_file())
     def("buffer_to_midi_event", buffer_to_midi_event);
     def("midi_event_to_buffer", midi_event_to_buffer);
 
@@ -188,12 +193,7 @@ BOOST_PYTHON_MODULE(_mididings)
 
     // main engine class, derived from in python
     class_<Engine, EngineWrap, noncopyable>(
-        "Engine",
-        init<std::string const &, std::string const &,
-             std::vector<std::string> const &,
-             std::vector<std::string> const &,
-             bool>())
-        .def("connect_ports", &Engine::connect_ports)
+        "Engine", init<backend::BackendPtr, bool>())
         .def("add_scene", &Engine::add_scene)
         .def("set_processing", &Engine::set_processing)
         .def("start", &Engine::start)

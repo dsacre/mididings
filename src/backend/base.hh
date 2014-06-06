@@ -37,13 +37,15 @@ struct Error
 };
 
 
+typedef boost::shared_ptr<class BackendBase> BackendPtr;
+
 typedef std::vector<std::string> PortNameVector;
 typedef std::map<std::string, std::vector<std::string> > PortConnectionMap;
 
 
 std::vector<std::string> const & available();
 
-boost::shared_ptr<class BackendBase> create(
+BackendPtr create(
         std::string const & backend_name,
         std::string const & client_name,
         PortNameVector const & in_ports,

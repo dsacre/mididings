@@ -64,17 +64,9 @@ class Engine
     typedef std::tr1::unordered_map<EventKey, Patch *> SustainPatchMap;
 
 
-    Engine(std::string const & backend_name,
-           std::string const & client_name,
-           backend::PortNameVector const & in_ports,
-           backend::PortNameVector const & out_ports,
-           bool verbose);
+    Engine(backend::BackendPtr backend, bool verbose);
 
     virtual ~Engine();
-
-    void connect_ports(
-            backend::PortConnectionMap const & in_port_connections,
-            backend::PortConnectionMap const & out_port_connections);
 
     void add_scene(int i, PatchPtr patch,
                    PatchPtr init_patch, PatchPtr exit_patch);
@@ -140,7 +132,7 @@ class Engine
 
     bool _verbose;
 
-    boost::shared_ptr<backend::BackendBase> _backend;
+    backend::BackendPtr _backend;
 
     SceneMap _scenes;
 

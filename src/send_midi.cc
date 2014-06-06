@@ -26,7 +26,7 @@ void send_midi(std::string const & backend_name,
     backend::PortNameVector in_ports;
     backend::PortNameVector out_ports(1, "output");
 
-    boost::shared_ptr<backend::BackendBase> send_backend =
+    backend::BackendPtr send_backend =
             backend::create(backend_name, "send_midi", in_ports, out_ports);
 
     backend::PortConnectionMap in_port_connections;

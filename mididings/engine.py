@@ -34,23 +34,31 @@ if _sys.version_info >= (3,):
     raw_input = input
 
 
+_TheBackend = None
 _TheEngine = None
+
+
+def _start_backend():
+    global _TheBackend
+    if _TheBackend is None:
+        _TheBackend = _mididings.create_backend(
+            _setup.get_config('backend'),
+            _setup.get_config('client_name'),
+            _setup._in_portnames,
+            _setup._out_portnames
+        )
+        if _TheBackend:
+            _TheBackend.connect_ports(_setup._in_port_connections,
+                                      _setup._out_port_connections)
 
 
 class Engine(_mididings.Engine):
     def __init__(self):
-        # initialize C++ base class
-        engine_args = (
-            _setup.get_config('backend'),
-            _setup.get_config('client_name'),
-            _setup._in_portnames,
-            _setup._out_portnames,
-            not _setup.get_config('silent')
-        )
-        _mididings.Engine.__init__(self, *engine_args)
+        _start_backend()
 
-        self.connect_ports(_setup._in_port_connections,
-                           _setup._out_port_connections)
+        verbose = not _setup.get_config('silent')
+        # initialize C++ base class
+        _mididings.Engine.__init__(self, _TheBackend, verbose)
 
         self._scenes = {}
 
@@ -252,14 +260,15 @@ class Engine(_mididings.Engine):
     The first version just runs a single patch, while the second version
     allows switching between multiple scenes.
 
-    :param scenes: A dictionary with program numbers as keys, and
+    :param patch: a single patch.
+    :param scenes: a dictionary with program numbers as keys, and
         :class:`Scene` objects, :class:`SceneGroup` objects or plain patches
         as values.
-    :param control: An optional "control" patch, which is always active, and
+    :param control: an optional "control" patch, which is always active, and
         runs in parallel to the current scene.
-    :param pre: An optional patch that allows common processing to take place
+    :param pre: an optional patch that allows common processing to take place
         before every scene. Does not affect the control patch.
-    :param post: An optional patch that allows common processing to take place
+    :param post: an optional patch that allows common processing to take place
         after every scene. Does not affect the control patch.
     """
 )
