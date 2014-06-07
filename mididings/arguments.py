@@ -126,7 +126,7 @@ def _apply_constraint(constraint, arg, func_name, arg_name):
         argstr = (("for parameter '%s'" % arg_name)
                         if arg_name else "in varargs")
 
-        raise type(ex)("invalid %s %s of %s():\n%s" %
+        raise type(ex)("invalid %s %s of function %s():\n%s" %
                        (typestr, argstr, func_name, str(ex)))
 
 
