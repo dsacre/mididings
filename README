@@ -37,6 +37,8 @@ Optional:
   (to automatically restart when a script changes)
 * Tkinter
   (for the livedings GUI)
+* pyxdg [http://freedesktop.org/wiki/Software/pyxdg/]
+  (so mididings knows where to look for config files)
 
 
 Installation:
@@ -49,4 +51,4 @@ Installation:
 Documentation:
 ==============
 
-See doc/index.html for the mididings manual.
+See http://dsacre.github.io/mididings/doc/ for the mididings manual.

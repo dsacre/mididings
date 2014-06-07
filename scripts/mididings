@@ -24,8 +24,38 @@ import mididings.engine
 import mididings.patch
 
 
+try:
+    import xdg.BaseDirectory
+    MIDIDINGS_CONFIG_DIR = os.path.join(
+                            xdg.BaseDirectory.xdg_config_home, 'mididings')
+    MIDIDINGS_DATA_DIR = os.path.join(
+                            xdg.BaseDirectory.xdg_data_home, 'mididings')
+except ImportError:
+    MIDIDINGS_CONFIG_DIR = os.path.expanduser('~/.config/mididings')
+    MIDIDINGS_DATA_DIR = os.path.expanduser('~/.local/share/mididings')
+
+MIDIDINGS_DEFAULTS = os.path.join(MIDIDINGS_CONFIG_DIR, 'default.py')
+MIDIDINGS_HISTFILE = os.path.join(MIDIDINGS_DATA_DIR, 'history')
+MIDIDINGS_HISTSIZE = 100
+
+
+
 class Dings(object):
     def __init__(self, options):
+        # build dict of all public members of mididings and mididings.extra
+        self.dings_dict = dict((k, v) for k, v in mididings.__dict__.items()
+                                      if k in mididings.__all__)
+        self.dings_dict.update(
+                      dict((k, v) for k, v in mididings.extra.__dict__.items()
+                                  if k in mididings.extra.__all__))
+
+        # load defaults from config file
+        try:
+            self.exec_dings(MIDIDINGS_DEFAULTS)
+        except IOError:
+            pass
+
+        # handle command line options
         if options.backend:
             self.config(backend=options.backend)
         if options.client_name:
@@ -45,13 +75,6 @@ class Dings(object):
                             options.out_connections, options.out_ports)
             self.config(out_ports=out_ports)
 
-        # build dict of all public members of mididings and mididings.extra
-        self.dings_dict = dict((k, v) for k, v in mididings.__dict__.items()
-                                      if k in mididings.__all__)
-        self.dings_dict.update(
-                      dict((k, v) for k, v in mididings.extra.__dict__.items()
-                                  if k in mididings.extra.__all__))
-
     def config(self, **kwargs):
         mididings.setup._config_impl(override=True, **kwargs)
 
@@ -67,6 +90,13 @@ class Dings(object):
 
         return [(None, c) for c in connections]
 
+    def exec_dings(self, filename):
+        if sys.version_info >= (3,):
+            exec(compile(open(filename).read(), filename, 'exec'),
+                 self.dings_dict)
+        else:
+            execfile(filename, self.dings_dict)
+
     def run_file(self, filename):
         # add filename's directory to sys.path to allow import from the same
         # directory
@@ -78,11 +108,7 @@ class Dings(object):
         sys.modules['__mididings_main__'] = type(
                 'MididingsMain', (), {'__file__': os.path.abspath(filename)})
 
-        if sys.version_info >= (3,):
-            exec(compile(open(filename).read(), filename, 'exec'),
-                 self.dings_dict)
-        else:
-            execfile(filename, self.dings_dict)
+        self.exec_dings(filename)
 
         # avoid memory leaks
         self.dings_dict.clear()
@@ -100,19 +126,10 @@ class Dings(object):
         import code
         import readline     # it's... magic!
 
-        try:
-            import xdg.BaseDirectory
-            DATA_DIR = os.path.join(xdg.BaseDirectory.xdg_data_home,
-                                    'mididings')
-        except ImportError:
-            DATA_DIR = os.path.expanduser('~/.local/config/mididings')
-        HISTFILE = os.path.join(DATA_DIR, 'history')
-        HISTSIZE = 100
-
         shell = code.InteractiveConsole(self.dings_dict)
-        readline.set_history_length(HISTSIZE)
+        readline.set_history_length(MIDIDINGS_HISTSIZE)
         try:
-            readline.read_history_file(HISTFILE)
+            readline.read_history_file(MIDIDINGS_HISTFILE)
         except IOError:
             pass
 
@@ -173,11 +190,11 @@ class Dings(object):
                         (mididings.__version__, platform.python_version()))
         # save history
         try:
-            os.makedirs(DATA_DIR)
+            os.makedirs(MIDIDINGS_DATA_DIR)
         except OSError:
             pass
         try:
-            readline.write_history_file(HISTFILE)
+            readline.write_history_file(MIDIDINGS_HISTFILE)
         except IOError:
             pass
 
