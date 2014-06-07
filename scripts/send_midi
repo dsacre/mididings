@@ -63,7 +63,7 @@ def parse_event(string, data_offset):
 
 if __name__ == '__main__':
     usage       = "Usage: send_midi [options] dest_port event [...]"
-    description = "Sends one or more MIDI events via ALSA or JACK."
+    description = "Send one or more MIDI events via ALSA or JACK."
     version     = "mididings %s" % _mididings.__version__
 
     parser = optparse.OptionParser(
@@ -77,7 +77,7 @@ if __name__ == '__main__':
                       help="use JACK")
     parser.add_option('-0', '--zero-based', dest='data_offset',
                       action='store_const', const=0, default=1,
-                      help="channel and program numbers start at zero")
+                      help="channel and program numbers are zero-based")
 
     options, args = parser.parse_args()
 

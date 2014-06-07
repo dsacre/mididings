@@ -30,8 +30,12 @@ class Dings(object):
             self.config(backend=options.backend)
         if options.client_name:
             self.config(client_name=options.client_name)
-        if options.start_delay:
+        if options.start_delay is not None:
             self.config(start_delay=options.start_delay)
+        if options.data_offset is not None:
+            self.config(data_offset=options.data_offset)
+        if options.octave_offset is not None:
+            self.config(octave_offset=options.octave_offset)
         if options.in_ports is not None or options.in_connections:
             in_ports = self.make_port_definitions(
                             options.in_connections, options.in_ports)
@@ -179,8 +183,9 @@ class Dings(object):
 
 
 if __name__ == '__main__':
-    usage   = ("Usage: mididings [options] \"patch\"\n"
-               "       mididings [options] -f filename.py")
+    usage   = ("Usage: mididings [backend options] \"patch\"\n"
+               "       mididings [backend options] [mode option]")
+    description = ("A MIDI router and processor based on Python.")
     epilog  = ("The -I and -O options may be specified multiple times, "
                "once for each port.\n\n"
                "The -f option executes a regular mididings Python script. "
@@ -189,29 +194,52 @@ if __name__ == '__main__':
     version = ("mididings %s, using Python %s" %
                         (mididings.__version__, platform.python_version()))
 
-    parser = optparse.OptionParser(usage=usage, epilog=epilog, version=version)
-    parser.add_option('-b', dest='backend',
-                      help="name of backend to use")
-    parser.add_option('-c', dest='client_name',
-                      help="ALSA or JACK client name")
-    parser.add_option('-i', dest='in_ports', type=int,
-                      help="number of input ports")
-    parser.add_option('-o', dest='out_ports', type=int,
-                      help="number of output ports")
-    parser.add_option('-I', dest='in_connections', type=str, action='append',
-                      help='input port connection (regular expression)')
-    parser.add_option('-O', dest='out_connections', type=str, action='append',
-                      help='output port connection (regular expression)')
-    parser.add_option('-d', dest='start_delay', type=float,
-                      help="delay (in seconds) before starting processing")
-    parser.add_option('-f', dest='filename',
-                      help="file name of script to run")
-    parser.add_option('-s', dest='interactive', action='store_true',
-                      help="run interactive shell")
-    parser.add_option('-S', dest='interactive_auto', action='store_true',
-                      help="run interactive shell with automatic execution")
-    parser.add_option('-p', action='store_true', dest='print_events',
-                      help="print MIDI events (no processing)")
+    parser = optparse.OptionParser(usage=usage, description=description,
+                                   epilog=epilog, version=version)
+
+    backopt = optparse.OptionGroup(parser, "Backend options")
+    backopt.add_option('-b', dest='backend', help=optparse.SUPPRESS_HELP)
+    backopt.add_option('-A', dest='backend',
+                       action='store_const', const='alsa',
+                       help="use ALSA sequencer (default)")
+    backopt.add_option('-J', dest='backend',
+                       action='store_const', const='jack',
+                       help="use JACK MIDI (buffered)")
+    backopt.add_option('-R', dest='backend',
+                       action='store_const', const='jack-rt',
+                       help="use JACK MIDI (realtime)")
+    backopt.add_option('-c', dest='client_name',
+                       help="ALSA or JACK client name")
+    backopt.add_option('-i', dest='in_ports', type=int,
+                       help="number of input ports")
+    backopt.add_option('-o', dest='out_ports', type=int,
+                       help="number of output ports")
+    backopt.add_option('-I', dest='in_connections', type=str, action='append',
+                       help='input port connections (regular expression)')
+    backopt.add_option('-O', dest='out_connections', type=str, action='append',
+                       help='output port connections (regular expression)')
+    parser.add_option_group(backopt)
+
+    procopt = optparse.OptionGroup(parser, "Processing options")
+    procopt.add_option('-d', dest='start_delay', type=float,
+                       help="delay (in seconds) before processing starts")
+    procopt.add_option('-t', dest='octave_offset', type=int,
+                       help="octave offset (default: 2)")
+    procopt.add_option('-0', dest='data_offset',
+                      action='store_const', const=0, default=1,
+                      help="port, channel, and program numbers are zero-based")
+    parser.add_option_group(procopt)
+
+    modeopt = optparse.OptionGroup(parser, "Mode options")
+    modeopt.add_option('-f', dest='filename',
+                       help="file name of script to run")
+    modeopt.add_option('-s', dest='interactive', action='store_true',
+                       help="interactive shell")
+    modeopt.add_option('-S', dest='interactive_auto', action='store_true',
+                       help="interactive shell with automatic patch execution")
+    modeopt.add_option('-p', action='store_true', dest='print_events',
+                       help="print MIDI events (no processing)")
+    parser.add_option_group(modeopt)
 
     options, args = parser.parse_args(sys.argv[1:])
 
@@ -219,12 +247,12 @@ if __name__ == '__main__':
             not options.print_events and
             not options.interactive and
             not options.interactive_auto):
-        parser.error("no patch and no filename specified")
+        parser.error("no patch and no file name specified")
     elif len(args) > 1:
         parser.error("more than one patch specified")
     elif options.filename and (options.interactive or
                                options.interactive_auto):
-        parser.error("filename and interactive shell are mutually exclusive")
+        parser.error("file name and interactive shell are mutually exclusive")
 
     app = Dings(options)
 
