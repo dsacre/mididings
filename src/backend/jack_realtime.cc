@@ -41,6 +41,13 @@ void JACKRealtimeBackend::start(InitFunction init, CycleFunction cycle)
 }
 
 
+void JACKRealtimeBackend::stop()
+{
+    _run_init.clear();
+    _run_cycle.clear();
+}
+
+
 int JACKRealtimeBackend::process(jack_nframes_t nframes)
 {
     _nframes = nframes;

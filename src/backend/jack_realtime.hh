@@ -36,7 +36,7 @@ class JACKRealtimeBackend
                         PortNameVector const & out_port_names);
 
     virtual void start(InitFunction init, CycleFunction cycle);
-    virtual void stop() { }
+    virtual void stop();
 
     virtual bool input_event(MidiEvent & ev);
     virtual void output_event(MidiEvent const & ev);
