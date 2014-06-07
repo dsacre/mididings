@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -61,8 +59,8 @@
 <p>These global settings can be configured using the <a class="reference internal" href="#mididings.config" title="mididings.config"><tt class="xref py py-func docutils literal"><span class="pre">config()</span></tt></a> function
 described below:</p>
 <dl class="var">
-<dt id="backend">
-<tt class="descname">backend</tt><a class="headerlink" href="#backend" title="Permalink to this definition">¶</a></dt>
+<dt id="c.backend">
+<tt class="descname">backend</tt><a class="headerlink" href="#c.backend" title="Permalink to this definition">¶</a></dt>
 <dd><p>The MIDI backend to be used:</p>
 <ul>
 <li><div class="first line-block">
@@ -77,52 +75,64 @@ least) one period.</div>
 </li>
 <li><div class="first line-block">
 <div class="line"><tt class="docutils literal"><span class="pre">'jack-rt'</span></tt>: Use JACK MIDI. All MIDI events are processed directly
-in the JACK process callback. Running Python code in a realtime
-context may cause xruns (or worse), so it&#8217;s recommended not to use
-the <a class="reference internal" href="units.html#mididings.Process" title="mididings.Process"><tt class="xref py py-func docutils literal"><span class="pre">Process()</span></tt></a> unit, or many of the units from the
-<tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt> module, which use <a class="reference internal" href="units.html#mididings.Process" title="mididings.Process"><tt class="xref py py-func docutils literal"><span class="pre">Process()</span></tt></a>
-internally. All other units from the main <a class="reference internal" href="#module-mididings" title="mididings"><tt class="xref py py-mod docutils literal"><span class="pre">mididings</span></tt></a> module
-are safe to use.</div>
+in the JACK process callback, with no additional latency.</div>
 </div>
 </li>
 </ul>
 <p>The default, if available, is <tt class="docutils literal"><span class="pre">'alsa'</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Python code is not realtime safe, so it&#8217;s recommended not to use
+the <a class="reference internal" href="units.html#mididings.Process" title="mididings.Process"><tt class="xref py py-func docutils literal"><span class="pre">Process()</span></tt></a> unit in conjunction with the <strong>jack-rt</strong> backend.</p>
+<p>With the buffering <strong>jack</strong> backend, Python code that does not finish
+in time merely causes MIDI events from mididings to be slightly
+delayed.
+With the <strong>jack-rt</strong> backend, it causes xruns which are potentially
+audible, may cause loss of MIDI events, and also affect other JACK
+clients!</p>
+<p class="last">In practice, if you require sample-accurate MIDI processing with
+<em>zero latency</em>, but your JACK period size is <em>large enough</em>, you can
+often get away with <strong>jack-rt</strong> running Python code in a realtime
+context.
+On the other hand, if your JACK period size is small, the single period
+of delay caused by the buffering <strong>jack</strong> backend is likely to be
+unnoticable.</p>
+</div>
 </dd></dl>
 
 <dl class="var">
-<dt id="client_name">
-<tt class="descname">client_name</tt><a class="headerlink" href="#client_name" title="Permalink to this definition">¶</a></dt>
+<dt id="c.client_name">
+<tt class="descname">client_name</tt><a class="headerlink" href="#c.client_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The ALSA or JACK client name to be used. The default is <tt class="docutils literal"><span class="pre">'mididings'</span></tt>.</p>
 </dd></dl>
 
 <dl class="var">
-<dt id="in_ports">
-<tt class="descname">in_ports</tt><a class="headerlink" href="#in_ports" title="Permalink to this definition">¶</a></dt>
-<dt id="out_ports">
-<tt class="descname">out_ports</tt><a class="headerlink" href="#out_ports" title="Permalink to this definition">¶</a></dt>
+<dt id="c.in_ports">
+<tt class="descname">in_ports</tt><a class="headerlink" href="#c.in_ports" title="Permalink to this definition">¶</a></dt>
+<dt id="c.out_ports">
+<tt class="descname">out_ports</tt><a class="headerlink" href="#c.out_ports" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines the number and names of input and output ports, and optionally
 external ports to connect them to. The default is one input and one output
 port.</p>
 <p>Possible values are:</p>
 <ul>
 <li><div class="first line-block">
-<div class="line">Integers: Simply indicates the number of ports to create (named
-<tt class="docutils literal"><span class="pre">in_n</span></tt> and <tt class="docutils literal"><span class="pre">out_n</span></tt>, respectively, where <tt class="docutils literal"><span class="pre">n</span></tt> is the index of the
-port).</div>
+<div class="line">Integer: Indicates the number of ports to be created (named <tt class="docutils literal"><span class="pre">in_n</span></tt>
+and <tt class="docutils literal"><span class="pre">out_n</span></tt>, respectively, where <tt class="docutils literal"><span class="pre">n</span></tt> is the port number).</div>
 </div>
 </li>
 <li><div class="first line-block">
-<div class="line">Lists of ports:
+<div class="line">List of ports:
 Each port is either described by a single string specifying its name,
 or by a list/tuple containing the port name, followed by any number
 of regular expressions specifying ports to connect to.</div>
 <div class="line">These regular expressions are matched against the full name
-(clientname:portname) of each external port. ALSA clients and ports can
+(client:port) of each external port. ALSA clients and ports can
 be referred to using either their names or numbers.</div>
 </div>
 </li>
 </ul>
-<div class="code highlight-python"><div class="highlight"><pre><span class="c"># create two input ports</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># create two input ports</span>
 <span class="n">in_ports</span> <span class="o">=</span> <span class="mi">2</span>
 
 <span class="c"># create three output ports with custom names, and automatically</span>
@@ -137,16 +147,16 @@ be referred to using either their names or numbers.</div>
 </dd></dl>
 
 <dl class="var">
-<dt id="data_offset">
-<tt class="descname">data_offset</tt><a class="headerlink" href="#data_offset" title="Permalink to this definition">¶</a></dt>
+<dt id="c.data_offset">
+<tt class="descname">data_offset</tt><a class="headerlink" href="#c.data_offset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines whether program, port and channel numbers used in your script
 are in the range 1-128 (with data_offset = 1) or 0-127 (with
 data_offset = 0). The default is 1.</p>
 </dd></dl>
 
 <dl class="var">
-<dt id="octave_offset">
-<tt class="descname">octave_offset</tt><a class="headerlink" href="#octave_offset" title="Permalink to this definition">¶</a></dt>
+<dt id="c.octave_offset">
+<tt class="descname">octave_offset</tt><a class="headerlink" href="#c.octave_offset" title="Permalink to this definition">¶</a></dt>
 <dd><p>The note-octave notation used in your script, specified as the number of
 octaves between MIDI note number 0 and the note called &#8220;C0&#8221;.
 The default is 2, meaning that &#8220;middle C&#8221; (note number 60) is named &#8220;C3&#8221;.
@@ -154,19 +164,21 @@ Another typical value is 1, meaning that &#8220;middle C&#8221; is &#8220;C4&#82
 </dd></dl>
 
 <dl class="var">
-<dt id="initial_scene">
-<tt class="descname">initial_scene</tt><a class="headerlink" href="#initial_scene" title="Permalink to this definition">¶</a></dt>
-<dd><p>The number of the first scene to be activated.</p>
+<dt id="c.initial_scene">
+<tt class="descname">initial_scene</tt><a class="headerlink" href="#c.initial_scene" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of the first scene to be activated.
+Also see <a class="reference internal" href="extra.html#mididings.extra.MemorizeScene" title="mididings.extra.MemorizeScene"><tt class="xref py py-class docutils literal"><span class="pre">MemorizeScene</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="var">
-<dt id="start_delay">
-<tt class="descname">start_delay</tt><a class="headerlink" href="#start_delay" title="Permalink to this definition">¶</a></dt>
+<dt id="c.start_delay">
+<tt class="descname">start_delay</tt><a class="headerlink" href="#c.start_delay" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of seconds to wait before sending any MIDI events (i.e.
-switching to the first scene). A small value like 0.5 can be used to give
-tools like qjackctl&#8217;s patchbay time to connect the ports.
+switching to the first scene). A small delay like 0.5 s can be used to give
+tools like QjackCtl&#8217;s patchbay time to connect ports before sending initial
+MIDI events.
 A value of 0 instructs mididings to wait for the user to press enter.
-The default is None, meaning not to wait at all.</p>
+The default is <tt class="docutils literal"><span class="pre">None</span></tt>, meaning not to wait at all.</p>
 </dd></dl>
 
 </div>
@@ -175,19 +187,19 @@ The default is None, meaning not to wait at all.</p>
 <dl class="function">
 <dt id="mididings.config">
 <tt class="descname">config</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#mididings.config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Change <a class="reference internal" href="#main-config"><em>global settings</em></a>. This should usually be called
-only once at the beginning of the script, before constructing any
-processing units.</p>
+<dd><p>Change <a class="reference internal" href="#main-config"><em>global settings</em></a>. This should usually be
+called only once at the beginning of the script, before constructing
+any processing units.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> &#8211; an arbitrary number of keyword arguments, matching the
-names and values described in section <a class="reference internal" href="#main-config"><em>Global Configuration</em></a>.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> &#8211; an arbitrary number of keyword arguments, matching
+the names and values described in section <a class="reference internal" href="#main-config"><em>Global Configuration</em></a>.</td>
 </tr>
 </tbody>
 </table>
-<div class="code highlight-python"><div class="highlight"><pre><span class="c"># set some configuration values</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># set some configuration values</span>
 <span class="n">config</span><span class="p">(</span>
     <span class="n">client_name</span> <span class="o">=</span> <span class="s">&#39;test&#39;</span><span class="p">,</span>
     <span class="n">out_ports</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
@@ -200,8 +212,8 @@ names and values described in section <a class="reference internal" href="#main-
 <dl class="function">
 <dt id="mididings.hook">
 <tt class="descname">hook</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#mididings.hook" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register &#8220;hook&#8221; objects, that can be used to extend the functionality of
-mididings.
+<dd><p>Register &#8220;hook&#8221; objects, that can be used to extend the functionality
+of mididings.
 Hook classes that ship with mididings are described in section
 <a class="reference internal" href="extra.html#extra-hooks"><em>Hooks</em></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -228,14 +240,15 @@ allows switching between multiple scenes.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>scenes</strong> &#8211; A dictionary with program numbers as keys, and
+<li><strong>patch</strong> &#8211; a single patch.</li>
+<li><strong>scenes</strong> &#8211; a dictionary with program numbers as keys, and
 <a class="reference internal" href="#mididings.Scene" title="mididings.Scene"><tt class="xref py py-class docutils literal"><span class="pre">Scene</span></tt></a> objects, <a class="reference internal" href="#mididings.SceneGroup" title="mididings.SceneGroup"><tt class="xref py py-class docutils literal"><span class="pre">SceneGroup</span></tt></a> objects or plain patches
 as values.</li>
-<li><strong>control</strong> &#8211; An optional &#8220;control&#8221; patch, which is always active, and
+<li><strong>control</strong> &#8211; an optional &#8220;control&#8221; patch, which is always active, and
 runs in parallel to the current scene.</li>
-<li><strong>pre</strong> &#8211; An optional patch that allows common processing to take place
+<li><strong>pre</strong> &#8211; an optional patch that allows common processing to take place
 before every scene. Does not affect the control patch.</li>
-<li><strong>post</strong> &#8211; An optional patch that allows common processing to take place
+<li><strong>post</strong> &#8211; an optional patch that allows common processing to take place
 after every scene. Does not affect the control patch.</li>
 </ul>
 </td>
@@ -259,10 +272,10 @@ after every scene. Does not affect the control patch.</li>
 <li><strong>name</strong> &#8211; a string describing the scene.</li>
 <li><strong>patch</strong> &#8211; the patch defining the MIDI processing to take place for
 incoming events.</li>
-<li><strong>init_patch</strong> &#8211; an optional patch that will be triggered when switching
-to this scene.</li>
-<li><strong>exit_patch</strong> &#8211; an optional patch that will be triggered when switching
-away from this scene.</li>
+<li><strong>init_patch</strong> &#8211; an optional patch that will be triggered when
+switching to this scene.</li>
+<li><strong>exit_patch</strong> &#8211; an optional patch that will be triggered when
+switching away from this scene.</li>
 </ul>
 </td>
 </tr>
@@ -289,7 +302,7 @@ under a common name and program number.</p>
 </table>
 </dd></dl>
 
-<div class="code highlight-python"><div class="highlight"><pre><span class="c"># define one scene (song) with 3 subscenes (parts)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># define one scene (song) with 3 subscenes (parts)</span>
 <span class="n">SceneGroup</span><span class="p">(</span><span class="s">&quot;Example Song&quot;</span><span class="p">,</span> <span class="p">[</span>
     <span class="n">Scene</span><span class="p">(</span><span class="s">&quot;Intro&quot;</span><span class="p">,</span> <span class="n">intro_patch</span><span class="p">),</span>
     <span class="n">Scene</span><span class="p">(</span><span class="s">&quot;Verse&quot;</span><span class="p">,</span> <span class="n">verse_patch</span><span class="p">),</span>
@@ -358,7 +371,7 @@ under a common name and program number.</p>
 <li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
-<li class="toctree-l1"><a class="reference internal" href="tools.html">GUI and Command Line Tools</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Command Line Tools and GUI</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#mididings"><strong class="command">mididings</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#livedings"><strong class="command">livedings</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#send-midi"><strong class="command">send_midi</strong></a></li>
@@ -409,7 +422,7 @@ under a common name and program number.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2008-2014, Dominic Sacré.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

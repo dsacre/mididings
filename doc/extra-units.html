@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -54,12 +52,12 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="mididings-extra-units">
-<span id="extra-units"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt> Units<a class="headerlink" href="#mididings-extra-units" title="Permalink to this headline">¶</a></h1>
+  <span class="target" id="module-mididings.extra"></span><div class="section" id="mididings-extra-units">
+<span id="extra-units"></span><h1><a class="reference internal" href="#module-mididings.extra" title="mididings.extra"><tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt></a> Units<a class="headerlink" href="#mididings-extra-units" title="Permalink to this headline">¶</a></h1>
 <p>These units offer some more advanced/specific functionality than what&#8217;s
 provided in the core mididings module.
 Unless otherwise noted, they are made available by importing the
-<tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt> module.</p>
+<a class="reference internal" href="#module-mididings.extra" title="mididings.extra"><tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt></a> module.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Some of these units are implemented in Python using <a class="reference internal" href="units.html#mididings.Process" title="mididings.Process"><tt class="xref py py-func docutils literal"><span class="pre">Process()</span></tt></a>,
@@ -70,7 +68,8 @@ and are thus not safe to use with the <tt class="docutils literal"><span class="
 <dl class="function">
 <dt id="mididings.extra.Harmonize">
 <tt class="descname">Harmonize</tt><big>(</big><em>tonic</em>, <em>scale</em>, <em>interval</em>, <em>non_harmonic='below'</em><big>)</big><a class="headerlink" href="#mididings.extra.Harmonize" title="Permalink to this definition">¶</a></dt>
-<dd><p>A diatonic harmonizer.</p>
+<dd><blockquote>
+<div>A diatonic harmonizer.</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -111,7 +110,8 @@ multiple harmonized voices.</p>
 <dl class="function">
 <dt id="mididings.extra.VoiceFilter">
 <tt class="descname">VoiceFilter</tt><big>(</big><em>voice='highest'</em>, <em>time=0.1</em>, <em>retrigger=False</em><big>)</big><a class="headerlink" href="#mididings.extra.VoiceFilter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Filter individual voices from a chord.</p>
+<dd><blockquote>
+<div>Filter individual voices from a chord.</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -253,7 +253,8 @@ pedal.</li>
 <dl class="function">
 <dt id="mididings.extra.LatchNotes">
 <tt class="descname">LatchNotes</tt><big>(</big><em>polyphonic=False</em>, <em>reset=None</em><big>)</big><a class="headerlink" href="#mididings.extra.LatchNotes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Makes notes latching, so they will keep playing when the key is released.</p>
+<dd><p>Makes notes latching, so they will keep playing when the key is
+released.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -302,9 +303,9 @@ all channels.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bypass</strong> &#8211; If true, events will be sent directly on all output ports, instead of
-originating from the <a class="reference internal" href="#mididings.extra.Panic" title="mididings.extra.Panic"><tt class="xref py py-func docutils literal"><span class="pre">Panic()</span></tt></a> unit and being subject to further
-processing.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bypass</strong> &#8211; If true, events will be sent directly on all output ports, instead
+of originating from the <a class="reference internal" href="#mididings.extra.Panic" title="mididings.extra.Panic"><tt class="xref py py-func docutils literal"><span class="pre">Panic()</span></tt></a> unit and being subject to
+further processing.</td>
 </tr>
 </tbody>
 </table>
@@ -419,7 +420,7 @@ Requires dbus-python.</p>
 <li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
-<li class="toctree-l1"><a class="reference internal" href="tools.html">GUI and Command Line Tools</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Command Line Tools and GUI</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#mididings"><strong class="command">mididings</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#livedings"><strong class="command">livedings</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#send-midi"><strong class="command">send_midi</strong></a></li>
@@ -470,7 +471,7 @@ Requires dbus-python.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2008-2014, Dominic Sacré.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

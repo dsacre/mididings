@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -101,11 +99,11 @@ System events (which don&#8217;t carry channel information) are discarded.</p>
 <tt class="descname">KeyFilter</tt><big>(</big><em>upper=...</em><big>)</big></dt>
 <dt>
 <tt class="descname">KeyFilter</tt><big>(</big><em>notes=...</em><big>)</big></dt>
-<dd><p>Filter note events by key (note number or note range). All other events are
-let through.
+<dd><p>Filter note events by key (note number or note range). All other events
+are let through.
 The last form expects its argument to be a list of individual note names
 or numbers.</p>
-<div class="code highlight-python"><div class="highlight"><pre><span class="c"># match a note range</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># match a note range</span>
 <span class="n">KeyFilter</span><span class="p">(</span><span class="s">&#39;c1:a3&#39;</span><span class="p">)</span>
 <span class="c"># match anything above middle C (note number 60)</span>
 <span class="n">KeyFilter</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
@@ -133,7 +131,7 @@ or numbers.</p>
 <dd><p>Filter control change events by controller number. The <em>ctrls</em> argument
 can be a single controller or a list of multiple controller numbers.
 All other events are discarded.</p>
-<div class="code highlight-python"><div class="highlight"><pre><span class="c"># remove all sustain pedal messages</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># remove all sustain pedal messages</span>
 <span class="o">~</span><span class="n">CtrlFilter</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -173,7 +171,7 @@ given data bytes are accepted.</p>
 either a string or a sequence of integers, with a length of one or three
 bytes.</p>
 <p>All non-sysex events are discarded.</p>
-<div class="code highlight-python"><div class="highlight"><pre><span class="c"># match SysEx messages starting with &#39;F0 07 15 42&#39;</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># match SysEx messages starting with &#39;F0 07 15 42&#39;</span>
 <span class="n">SysExFilter</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\xf0\x07\x15\x42</span><span class="s">&#39;</span><span class="p">)</span>
 <span class="c"># match SysEx messages for Yamaha devices</span>
 <span class="n">SysExFilter</span><span class="p">(</span><span class="n">manufacturer</span><span class="o">=</span><span class="mh">0x43</span><span class="p">)</span>
@@ -321,11 +319,11 @@ a dictionary of the form <tt class="docutils literal"><span class="pre">{manufac
 <li><em>offset</em>: add the given value to the event&#8217;s velocity.</li>
 <li><em>multiply</em>: multiply the event&#8217;s velocity with the given value.</li>
 <li><em>fixed</em>: set the event&#8217;s velocity to a fixed value.</li>
-<li><em>curve</em>: apply an exponential function:
-<tt class="docutils literal"><span class="pre">f(x)</span> <span class="pre">=</span> <span class="pre">127</span> <span class="pre">*</span> <span class="pre">(exp(p*x/127)-1)</span> <span class="pre">/</span> <span class="pre">(exp(p)-1)</span></tt>
+<li><em>curve</em>: apply an exponential function
+<tt class="docutils literal"><span class="pre">f(x)</span> <span class="pre">=</span> <span class="pre">127</span> <span class="pre">*</span> <span class="pre">(exp(p*x/127)-1)</span> <span class="pre">/</span> <span class="pre">(exp(p)-1)</span></tt>.
 Positive values increase velocity, while negative values decrease it.</li>
-<li><em>gamma</em>: apply a simple power function:
-<tt class="docutils literal"><span class="pre">f(x)</span> <span class="pre">=</span> <span class="pre">127</span> <span class="pre">*</span> <span class="pre">(x/127)**(1/p)</span></tt>
+<li><em>gamma</em>: apply a simple power function
+<tt class="docutils literal"><span class="pre">f(x)</span> <span class="pre">=</span> <span class="pre">127</span> <span class="pre">*</span> <span class="pre">(x/127)**(1/p)</span></tt>.
 Values greater than 1 increase velocity, while values between 0 and 1
 decrease it.</li>
 </ul>
@@ -334,7 +332,7 @@ decrease it.</li>
 less than 1. When sending events through a MIDI output port, or by using
 the <a class="reference internal" href="#mididings.Sanitize" title="mididings.Sanitize"><tt class="xref py py-func docutils literal"><span class="pre">Sanitize()</span></tt></a> unit, velocities greater than 127 will automatically
 be reduced to 127, and events with a velocity less than 1 will be removed.</p>
-<div class="code highlight-python"><div class="highlight"><pre><span class="c"># increase velocity of note-on events, making the keyboard feel softer</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># increase velocity of note-on events, making the keyboard feel softer</span>
 <span class="n">Velocity</span><span class="p">(</span><span class="n">curve</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -354,13 +352,13 @@ be reduced to 127, and events with a velocity less than 1 will be removed.</p>
 <dt>
 <tt class="descname">VelocitySlope</tt><big>(</big><em>notes</em>, <em>multiply</em>, <em>offset</em><big>)</big></dt>
 <dd><p>Change the velocity of note-on events, applying a linear slope between
-different notes. This can be thought of as a <a class="reference internal" href="#mididings.Velocity" title="mididings.Velocity"><tt class="xref py py-func docutils literal"><span class="pre">Velocity()</span></tt></a> unit with
-different parameters for different note ranges, and is useful for example
-to fade-in a sound over a region of the keyboard.</p>
+different notes. This can be thought of as a <a class="reference internal" href="#mididings.Velocity" title="mididings.Velocity"><tt class="xref py py-func docutils literal"><span class="pre">Velocity()</span></tt></a> unit
+with different parameters for different note ranges, and is useful for
+example to fade-in a sound over a region of the keyboard.</p>
 <p>Both parameters must be sequences of the same length, with notes in
 ascending order, and one velocity parameter corresponding to each note.</p>
 <img alt="velocity slope" src="_images/velocityslope.png" />
-<div class="code highlight-python"><div class="highlight"><pre><span class="c"># apply a velocity slope as seen in the graphic above</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># apply a velocity slope as seen in the graphic above</span>
 <span class="n">VelocitySlope</span><span class="p">(</span><span class="n">notes</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;b1&#39;</span><span class="p">,</span><span class="s">&#39;g2&#39;</span><span class="p">,</span><span class="s">&#39;g#3&#39;</span><span class="p">,</span><span class="s">&#39;d4&#39;</span><span class="p">),</span> <span class="n">offset</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -381,7 +379,7 @@ ascending order, and one velocity parameter corresponding to each note.</p>
 <tt class="descname">CtrlMap</tt><big>(</big><em>ctrl_in</em>, <em>ctrl_out</em><big>)</big><a class="headerlink" href="#mididings.CtrlMap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert controller <em>ctrl_in</em> to <em>ctrl_out</em>, i.e. change the event&#8217;s
 control change number.</p>
-<div class="code highlight-python"><div class="highlight"><pre><span class="c"># convert sustain pedal to sostenuto</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># convert sustain pedal to sostenuto</span>
 <span class="n">CtrlMap</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -408,8 +406,8 @@ value of <em>max</em>.</p>
 <tt class="descname">CtrlCurve</tt><big>(</big><em>ctrl</em>, <em>multiply=...</em><big>)</big></dt>
 <dt>
 <tt class="descname">CtrlCurve</tt><big>(</big><em>ctrl</em>, <em>multiply</em>, <em>offset</em><big>)</big></dt>
-<dd><p>Transform control change values. See <a class="reference internal" href="#mididings.Velocity" title="mididings.Velocity"><tt class="xref py py-func docutils literal"><span class="pre">Velocity()</span></tt></a> for a description
-of the parameters.</p>
+<dd><p>Transform control change values. See <a class="reference internal" href="#mididings.Velocity" title="mididings.Velocity"><tt class="xref py py-func docutils literal"><span class="pre">Velocity()</span></tt></a> for a
+description of the parameters.</p>
 </dd></dl>
 
 <dl class="function">
@@ -420,7 +418,7 @@ of the parameters.</p>
 <dd><p>Change the pitchbend range to values between <em>min</em> and <em>max</em>, or to the
 given number of semitones <em>down</em> and <em>up</em>. The latter requires the tone
 generator&#8217;s pitchbend range to be specified as <em>range</em>.</p>
-<div class="code highlight-python"><div class="highlight"><pre><span class="c"># set up the pitchbend wheel to bend a full octave down, but only</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># set up the pitchbend wheel to bend a full octave down, but only</span>
 <span class="c"># one whole step up, assuming the synth is set to a symmetric range of</span>
 <span class="c"># 12 semitones</span>
 <span class="n">PitchbendRange</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
@@ -558,7 +556,7 @@ objects.</p>
 so this should only be used with functions that don&#8217;t block.
 Use <a class="reference internal" href="#mididings.Call" title="mididings.Call"><tt class="xref py py-func docutils literal"><span class="pre">Call()</span></tt></a> for tasks that may take longer and/or don&#8217;t require
 returning any MIDI events.</p>
-<div class="code highlight-python"><div class="highlight"><pre><span class="c"># invert velocities of all note-on events</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># invert velocities of all note-on events</span>
 <span class="k">def</span> <span class="nf">invert_velocity</span><span class="p">(</span><span class="n">ev</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">NOTEON</span><span class="p">:</span>
         <span class="n">ev</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="mi">128</span> <span class="o">-</span> <span class="n">ev</span><span class="o">.</span><span class="n">velocity</span>
@@ -630,8 +628,8 @@ the incoming event&#8217;s data.
 With no arguments, the program number of the incoming event (which should
 be a program change) will be used.</p>
 <p><em>offset</em> can be a positive or negative value that will be added to the
-current scene number, allowing you to go forward or backward in the list of
-scenes.</p>
+current scene number, allowing you to go forward or backward in the list
+of scenes.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># switch scenes based on incoming program change messages</span>
 <span class="n">Filter</span><span class="p">(</span><span class="n">PROGRAM</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">SceneSwitch</span><span class="p">()</span>
 </pre></div>
@@ -650,8 +648,8 @@ the incoming event&#8217;s data.
 With no arguments, the program number of the incoming event (which should
 be a program change) will be used.</p>
 <p><em>offset</em> can be a positive or negative value that will be added to the
-current subscene number, allowing you to go forward or backward in the list
-of subscenes. If <em>wrap</em> is <tt class="docutils literal"><span class="pre">True</span></tt> you can loop through subscenes.</p>
+current subscene number, allowing you to go forward or backward in the
+list of subscenes. If <em>wrap</em> is <tt class="docutils literal"><span class="pre">True</span></tt> you can loop through subscenes.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># switch to the next subscene when C1 is pressed</span>
 <span class="n">Filter</span><span class="p">(</span><span class="n">NOTEON</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">KeyFilter</span><span class="p">(</span><span class="s">&#39;c1&#39;</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">SubSceneSwitch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
@@ -694,7 +692,7 @@ bank number, and the second is the program number.</p>
 <em>expression</em> (#11) can be specified directly. For all other controllers,
 the <em>ctrls</em> argument can contain a mapping from controller numbers to
 their respective values.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># route all events to output &#39;synth&#39;, channel 1, and set the volume to 100</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># route all events to output &#39;synth&#39;, channel 1, and set volume to 100</span>
 <span class="n">Output</span><span class="p">(</span><span class="s">&#39;synth&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -710,9 +708,9 @@ one when called.</p>
 <p>This works just like <tt class="docutils literal"><span class="pre">functools.partial(Output,</span> <span class="pre">*args,</span> <span class="pre">**kwargs)</span></tt>, but
 with the added benefit that an <a class="reference internal" href="#mididings.OutputTemplate" title="mididings.OutputTemplate"><tt class="xref py py-class docutils literal"><span class="pre">OutputTemplate()</span></tt></a> object also
 supports operator <tt class="docutils literal"><span class="pre">&gt;&gt;</span></tt> like any unit.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># define an instrument by specifying its output port, channel, program</span>
-<span class="c"># number and transposition, then use the same instrument in two different</span>
-<span class="c"># patches at different volumes</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># define an instrument by specifying its output port, channel,</span>
+<span class="c"># program number and transposition, then use the same instrument</span>
+<span class="c"># in two different patches at different volumes</span>
 <span class="n">synth</span> <span class="o">=</span> <span class="n">Transpose</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">OutputTemplate</span><span class="p">(</span><span class="s">&#39;synth&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">42</span><span class="p">)</span>
 
 <span class="n">patch1</span> <span class="o">=</span> <span class="n">synth</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
@@ -759,10 +757,11 @@ a <a class="reference internal" href="event.html#mididings.event.MidiEvent" titl
 </tr>
 </tbody>
 </table>
-<div class="code highlight-python"><pre># a simple command-line MIDI event monitor
-$ mididings "Print()"</pre>
+<div class="highlight-python"><div class="highlight"><pre># a simple command-line MIDI event monitor
+$ mididings &quot;Print()&quot;
+</pre></div>
 </div>
-<div class="code highlight-python"><div class="highlight"><pre><span class="c"># print a graph of note-on velocities</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># print a graph of note-on velocities</span>
 <span class="n">Filter</span><span class="p">(</span><span class="n">NOTEON</span><span class="p">)</span> <span class="o">%</span> <span class="n">Print</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="k">lambda</span> <span class="n">ev</span><span class="p">:</span> <span class="s">&#39;#&#39;</span> <span class="o">*</span> <span class="n">ev</span><span class="o">.</span><span class="n">velocity</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -853,7 +852,7 @@ the range 0-127.</p>
 <li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
-<li class="toctree-l1"><a class="reference internal" href="tools.html">GUI and Command Line Tools</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Command Line Tools and GUI</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#mididings"><strong class="command">mididings</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#livedings"><strong class="command">livedings</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#send-midi"><strong class="command">send_midi</strong></a></li>
@@ -904,7 +903,7 @@ the range 0-127.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2008-2014, Dominic Sacré.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

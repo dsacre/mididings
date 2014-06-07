@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -129,8 +127,8 @@
 <p>For use in filters, the following constants are also defined:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="25%" />
-<col width="75%" />
+<col width="36%" />
+<col width="64%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Symbolic constant</th>
@@ -139,19 +137,27 @@
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">NOTE</span></tt></td>
-<td>Any note event (<tt class="xref py py-const docutils literal"><span class="pre">NOTEON</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">NOTEOFF</span></tt>)</td>
+<td>Any note event
+(<tt class="xref py py-const docutils literal"><span class="pre">NOTEON</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">NOTEOFF</span></tt>)</td>
 </tr>
 <tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSCM</span></tt></td>
-<td>Any system common event (<tt class="xref py py-const docutils literal"><span class="pre">SYSCM_QFRAME</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSCM_SONGPOS</span></tt> |
-<tt class="xref py py-const docutils literal"><span class="pre">SYSCM_SONGSEL</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSCM_TUNEREQ</span></tt>)</td>
+<td>Any system common event
+(<tt class="xref py py-const docutils literal"><span class="pre">SYSCM_QFRAME</span></tt> |
+<tt class="xref py py-const docutils literal"><span class="pre">SYSCM_SONGPOS</span></tt> |
+<tt class="xref py py-const docutils literal"><span class="pre">SYSCM_SONGSEL</span></tt> |
+<tt class="xref py py-const docutils literal"><span class="pre">SYSCM_TUNEREQ</span></tt>)</td>
 </tr>
 <tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSRT</span></tt></td>
-<td>Any system realtime event (<tt class="xref py py-const docutils literal"><span class="pre">SYSRT_CLOCK</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSRT_START</span></tt> |
-<tt class="xref py py-const docutils literal"><span class="pre">SYSRT_CONTINUE</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSRT_STOP</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSRT_SENSING</span></tt> |
+<td>Any system realtime event
+(<tt class="xref py py-const docutils literal"><span class="pre">SYSRT_CLOCK</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSRT_START</span></tt> |
+<tt class="xref py py-const docutils literal"><span class="pre">SYSRT_CONTINUE</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSRT_STOP</span></tt> |
+<tt class="xref py py-const docutils literal"><span class="pre">SYSRT_SENSING</span></tt> |
 <tt class="xref py py-const docutils literal"><span class="pre">SYSRT_RESET</span></tt>)</td>
 </tr>
 <tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">SYSTEM</span></tt></td>
-<td>Any system (non-channel) event (<tt class="xref py py-const docutils literal"><span class="pre">SYSEX</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSCM</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSRT</span></tt>)</td>
+<td>Any system (non-channel) event
+(<tt class="xref py py-const docutils literal"><span class="pre">SYSEX</span></tt> | <tt class="xref py py-const docutils literal"><span class="pre">SYSCM</span></tt> |
+<tt class="xref py py-const docutils literal"><span class="pre">SYSRT</span></tt>)</td>
 </tr>
 <tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">NONE</span></tt></td>
 <td>No event</td>
@@ -220,8 +226,8 @@ while <tt class="docutils literal"><span class="pre">':a2'</span></tt> matches a
 For instance, when an event is received on the second input port, and is
 not explicitly routed to another port, it will be sent to the second
 output port, regardless of port names.</p>
-<p>If you named your input and output ports using the <a class="reference internal" href="main.html#in_ports" title="in_ports"><tt class="xref c c-data docutils literal"><span class="pre">in_ports</span></tt></a> and
-<a class="reference internal" href="main.html#out_ports" title="out_ports"><tt class="xref c c-data docutils literal"><span class="pre">out_ports</span></tt></a> parameters to <a class="reference internal" href="main.html#mididings.config" title="mididings.config"><tt class="xref py py-func docutils literal"><span class="pre">config()</span></tt></a>, you can also refer to
+<p>If you named your input and output ports using the <a class="reference internal" href="main.html#c.in_ports" title="in_ports"><tt class="xref c c-data docutils literal"><span class="pre">in_ports</span></tt></a> and
+<a class="reference internal" href="main.html#c.out_ports" title="out_ports"><tt class="xref c c-data docutils literal"><span class="pre">out_ports</span></tt></a> parameters to <a class="reference internal" href="main.html#mididings.config" title="mididings.config"><tt class="xref py py-func docutils literal"><span class="pre">config()</span></tt></a>, you can also refer to
 them by their names in all units that accept ports as parameters.</p>
 <p>To avoid ambiguities, port names should be unique
 (with the JACK backend they must be).</p>
@@ -420,7 +426,7 @@ In some cases it may be necessary to wrap those in
 <li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
-<li class="toctree-l1"><a class="reference internal" href="tools.html">GUI and Command Line Tools</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Command Line Tools and GUI</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#mididings"><strong class="command">mididings</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#livedings"><strong class="command">livedings</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#send-midi"><strong class="command">send_midi</strong></a></li>
@@ -471,7 +477,7 @@ In some cases it may be necessary to wrap those in
     </div>
     <div class="footer">
         &copy; Copyright 2008-2014, Dominic Sacré.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

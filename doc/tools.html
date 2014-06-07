@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,14 +6,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>GUI and Command Line Tools &mdash; mididings  documentation</title>
+    <title>Command Line Tools and GUI &mdash; mididings  documentation</title>
     
     <link rel="stylesheet" href="_static/nasophon.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -50,38 +48,125 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="gui-and-command-line-tools">
-<span id="tools"></span><h1>GUI and Command Line Tools<a class="headerlink" href="#gui-and-command-line-tools" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="command-line-tools-and-gui">
+<span id="tools"></span><h1>Command Line Tools and GUI<a class="headerlink" href="#command-line-tools-and-gui" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="mididings">
 <span id="id1"></span><h2><strong class="command">mididings</strong><a class="headerlink" href="#mididings" title="Permalink to this headline">¶</a></h2>
-<p>With the mididings command line application, simple patches can
-be specified directly in your favorite shell, so sometimes there&#8217;s no
-need to write full-fledged Python scripts:</p>
-<div class="highlight-python"><pre>$ mididings "Transpose(3) &gt;&gt; Channel(2)"</pre>
+<p>The mididings command line tool offers several ways to run patches without
+writing full-fledged Python scripts.
+See <tt class="docutils literal"><span class="pre">mididings</span> <span class="pre">--help</span></tt> for a list of all command line options.</p>
+<div class="section" id="mididings-patches-and-scripts">
+<span id="scripts"></span><h3>mididings Patches and Scripts<a class="headerlink" href="#mididings-patches-and-scripts" title="Permalink to this headline">¶</a></h3>
+<p>Simple patches can be specified directly on the command line:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>mididings <span class="s2">&quot;Transpose(3) &gt;&gt; Channel(2)&quot;</span>
+</pre></div>
 </div>
-<p>See <tt class="docutils literal"><span class="pre">mididings</span> <span class="pre">--help</span></tt> for a list of all command line options.</p>
-<p>It&#8217;s also worth mentioning that mididings can easily be used in an
-interactive Python session:</p>
-<div class="highlight-python"><pre>$ python -i -c "from mididings import *"
-&gt;&gt;&gt; run(Transpose(3) &gt;&gt; Channel(2))</pre>
+<p>mididings scripts in general are regular Python source files.
+They can be executed either by invoking the Python interpreter directly,
+or by invoking mididings with the <tt class="docutils literal"><span class="pre">-f</span></tt> option:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>python test.py
+<span class="c"># or:</span>
+<span class="nv">$ </span>mididings -f test.py
+</pre></div>
+</div>
+<p>These two commands differ in that the latter reads the <a class="reference internal" href="#default-config"><em>Default Configuration File</em></a>,
+while the former does not.
+For convenience, <tt class="docutils literal"><span class="pre">mididings</span> <span class="pre">-f</span></tt> also imports the <a class="reference internal" href="main.html#module-mididings" title="mididings"><tt class="xref py py-mod docutils literal"><span class="pre">mididings</span></tt></a> and
+<a class="reference internal" href="extra-units.html#module-mididings.extra" title="mididings.extra"><tt class="xref py py-mod docutils literal"><span class="pre">mididings.extra</span></tt></a> modules automatically, so that scripts may omit
+these import statements.</p>
+</div>
+<div class="section" id="interactive-shell">
+<span id="interactive"></span><h3>Interactive Shell<a class="headerlink" href="#interactive-shell" title="Permalink to this headline">¶</a></h3>
+<p>mididings provides a shell based on an interactive Python interpreter,
+offering history and tab-completion, to quickly build and test patches:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="go">$ mididings -s</span>
+<span class="go">mididings 2014+rf6e2d01, using Python 3.3.2+</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">run</span><span class="p">(</span><span class="n">Filter</span><span class="p">(</span><span class="n">NOTE</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">//</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="go">^C</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">run</span><span class="p">(</span><span class="n">Filter</span><span class="p">(</span><span class="n">NOTE</span><span class="o">|</span><span class="n">CTRL</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">Channel</span><span class="p">(</span><span class="mi">13</span><span class="p">))</span>
+<span class="go">^C</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>
+</pre></div>
+</div>
+<p>The ALSA or JACK backend is initialized at startup and remains active if a
+call to the <a class="reference internal" href="main.html#mididings.run" title="mididings.run"><tt class="xref py py-func docutils literal"><span class="pre">run()</span></tt></a> function is interrupted.
+This way you can easily switch patches without reconnecting your clients.</p>
+<p>If mididings is started with the <tt class="docutils literal"><span class="pre">-S</span></tt> option, you don&#8217;t even need to call
+the <a class="reference internal" href="main.html#mididings.run" title="mididings.run"><tt class="xref py py-func docutils literal"><span class="pre">run()</span></tt></a> function explicitly, and any valid patches you enter
+will be started automatically.
+This can be bypassed by prepending a space, resulting in Python&#8217;s usual
+behavior of evaluating the expression you entered, and displaying its result:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span class="go">$ mididings -S</span>
+<span class="go">mididings 2014+rf6e2d01, using Python 3.3.2+</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ChannelFilter</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="n">Transpose</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">^C</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="n">ChannelFilter</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="n">Transpose</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[ChannelFilter(channels=[2]) &gt;&gt; Transpose(offset=3), -ChannelFilter(channels=[2])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="midi-event-logger">
+<span id="logger"></span><h3>MIDI Event Logger<a class="headerlink" href="#midi-event-logger" title="Permalink to this headline">¶</a></h3>
+<p>To execute a patch consisting of a single <a class="reference internal" href="units.html#mididings.Print" title="mididings.Print"><tt class="xref py py-func docutils literal"><span class="pre">Print()</span></tt></a> unit,
+with client name <tt class="docutils literal"><span class="pre">'printdings'</span></tt>, run <tt class="docutils literal"><span class="pre">mididings</span> <span class="pre">-p</span></tt>.</p>
+</div>
+<div class="section" id="ports-and-connections">
+<span id="port-connect"></span><h3>Ports and Connections<a class="headerlink" href="#ports-and-connections" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">-A</span></tt>, <tt class="docutils literal"><span class="pre">-J</span></tt> and <tt class="docutils literal"><span class="pre">-R</span></tt> command line options correspond to (and override)
+the <a class="reference internal" href="main.html#c.backend" title="backend"><tt class="xref c c-data docutils literal"><span class="pre">backend</span></tt></a> setting.
+The <tt class="docutils literal"><span class="pre">-i</span></tt> and <tt class="docutils literal"><span class="pre">-o</span></tt> options can be used to specify the number (but not names)
+of input and output ports.
+The <tt class="docutils literal"><span class="pre">-I</span></tt> and <tt class="docutils literal"><span class="pre">-O</span></tt> options may be specified multiple times, once for each
+port, to specify other client&#8217;s ports to connect to.</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="c"># split output of jack-keyboard between fluidsynth and yoshimi</span>
+<span class="nv">$ </span>mididings -R -o 2 -I jack-keyboard:midi_out <span class="se">\</span>
+    -O fluidsynth-midi:midi -O yoshimi:midi<span class="se">\ </span>in <span class="se">\</span>
+    <span class="s2">&quot;KeySplit(&#39;c3&#39;, Port(1), Port(2))&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="default-configuration-file">
+<span id="default-config"></span><h3>Default Configuration File<a class="headerlink" href="#default-configuration-file" title="Permalink to this headline">¶</a></h3>
+<p>mididings reads settings from <tt class="file docutils literal"><span class="pre">$XDG_CONFIG_HOME/mididings/default.py</span></tt>
+(<tt class="file docutils literal"><span class="pre">~/.config/mididings/default.py</span></tt>), if that file exists.
+This file will typically contain a call to <a class="reference internal" href="main.html#mididings.config" title="mididings.config"><tt class="xref py py-func docutils literal"><span class="pre">config()</span></tt></a>, but may also be
+used to import additional modules, define classes or functions, and set global
+variables.
+Anything stored in the global scope within this config file is automatically
+made available to your mididings scripts or patches.</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="c"># change default octave_offset to match Scientific Pitch Notation</span>
+<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">&quot;config(octave_offset=1)&quot;</span> &gt;&gt; ~/.config/mididings/default.py
+<span class="c"># use JACK by default</span>
+<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">&quot;config(backend=&#39;jack&#39;)&quot;</span> &gt;&gt; ~/.config/mididings/default.py
+</pre></div>
+</div>
+<p>Global <a class="reference internal" href="main.html#mididings.config" title="mididings.config"><tt class="xref py py-func docutils literal"><span class="pre">config()</span></tt></a> settings made here can be overridden by settings
+in mididings scripts, which in turn can be overridden by mididings command
+line options.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The configuration file is only read when invoking the <strong class="command">mididings</strong>
+command line application.
+It is not used when the <a class="reference internal" href="main.html#module-mididings" title="mididings"><tt class="xref py py-mod docutils literal"><span class="pre">mididings</span></tt></a> module is imported from a regular
+Python script.</p>
+</div>
 </div>
 </div>
 <div class="section" id="livedings">
-<h2><strong class="command">livedings</strong><a class="headerlink" href="#livedings" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2><strong class="command">livedings</strong><a class="headerlink" href="#livedings" title="Permalink to this headline">¶</a></h2>
 <p>livedings is a graphical frontend for mididings that allows
 you to monitor and trigger scene changes.
 It runs as a separate application that uses OSC to communicate with
 mididings.
-To use it, enable the <a class="reference internal" href="extra.html#mididings.extra.osc.OSCInterface" title="mididings.extra.osc.OSCInterface"><tt class="xref py py-class docutils literal"><span class="pre">OSCInterface</span></tt></a> hook in your mididings script:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mididings.extra.osc</span> <span class="kn">import</span> <span class="n">OSCInterface</span>
+To use it, enable the <a class="reference internal" href="extra.html#mididings.extra.osc.OSCInterface" title="mididings.extra.osc.OSCInterface"><tt class="xref py py-class docutils literal"><span class="pre">OSCInterface</span></tt></a> hook in your mididings script</p>
+<div class="highlight-py"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mididings.extra.osc</span> <span class="kn">import</span> <span class="n">OSCInterface</span>
 
 <span class="n">hook</span><span class="p">(</span><span class="n">OSCInterface</span><span class="p">())</span>
 <span class="o">...</span>
 </pre></div>
 </div>
-<p>Then run livedings:</p>
-<div class="highlight-python"><pre>$ livedings</pre>
-</div>
+<p>Then run the <tt class="docutils literal"><span class="pre">livedings</span></tt> application.</p>
 <p>By default, livedings uses the standard Tk theme. Specify the <tt class="docutils literal"><span class="pre">-T</span></tt>
 option to switch to a custom theme with higher contrast and larger fonts.
 See <tt class="docutils literal"><span class="pre">livedings</span> <span class="pre">--help</span></tt> for more options.</p>
@@ -91,12 +176,13 @@ messages (panic) on all output ports. It&#8217;s also possible to use the
 arrow keys to switch scenes (up/down) and subscenes (left/right).</p>
 </div>
 <div class="section" id="send-midi">
-<h2><strong class="command">send_midi</strong><a class="headerlink" href="#send-midi" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2><strong class="command">send_midi</strong><a class="headerlink" href="#send-midi" title="Permalink to this headline">¶</a></h2>
 <p>send_midi is a simple utility to send MIDI events to any ALSA or
-JACK MIDI clients, using a terse command line format:</p>
-<div class="highlight-python"><pre>$ send_midi LinuxSampler:0 NOTEON,1,60,127 CTRL,2,7,66
-$ send_midi -J mididings:in_.* PROGRAM,1,42
-$ send_midi 14:0 SYSEX,F0,23,42,F7</pre>
+JACK MIDI client, using a terse command line format:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>send_midi LinuxSampler:0 NOTEON,1,60,127 CTRL,2,7,66
+<span class="nv">$ </span>send_midi -J mididings:in_.* PROGRAM,1,42
+<span class="nv">$ </span>send_midi 14:0 SYSEX,F0,23,42,F7
+</pre></div>
 </div>
 <p>See <tt class="docutils literal"><span class="pre">send_midi</span> <span class="pre">--help</span></tt> for a list of all command line options.</p>
 </div>
@@ -160,7 +246,7 @@ $ send_midi 14:0 SYSEX,F0,23,42,F7</pre>
 <li class="toctree-l1"><a class="reference internal" href="event.html">Module <tt class="docutils literal"><span class="pre">mididings.event</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="engine.html">Module <tt class="docutils literal"><span class="pre">mididings.engine</span></tt></a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Module <tt class="docutils literal"><span class="pre">mididings.util</span></tt></a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">GUI and Command Line Tools</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Command Line Tools and GUI</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#mididings"><strong class="command">mididings</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#livedings"><strong class="command">livedings</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#send-midi"><strong class="command">send_midi</strong></a></li>
@@ -205,7 +291,7 @@ $ send_midi 14:0 SYSEX,F0,23,42,F7</pre>
     </div>
     <div class="footer">
         &copy; Copyright 2008-2014, Dominic Sacré.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>
