@@ -110,20 +110,23 @@ div.body h1 a, div.body h1 a:visited {
 }
 
 div.body h2 {
-    margin: 1.5em -0.45em 0 -0.7em;
+    margin: 1.5em -0.45em 0 -0.65em;
     border: 0;
     color: #111111;
     background: #eeeeee;
     border-radius: 5px;
-    font-size: 130%;
+    font-size: 135%;
 }
 
 div.body h3 {
     font-weight: bold;
     color: #444;
     border: 0;
-    font-size: 115%;
-    padding-left: 1.15em;
+    font-size: 105%;
+    padding-left: 1.25em;
+    margin-right: 0em;
+    padding-bottom: 0em;
+    margin-bottom: 0em;
 }
 
 div.body hr {

@@ -200,25 +200,24 @@ class Dings(object):
 
 
 if __name__ == '__main__':
-    usage   = ("Usage: mididings [backend options] \"patch\"\n"
-               "       mididings [backend options] [mode option]")
-    description = ("A MIDI router and processor based on Python.")
-    epilog  = ("The -I and -O options may be specified multiple times, "
-               "once for each port.\n\n"
-               "The -f option executes a regular mididings Python script. "
-               "Command line arguments override config settings in that "
-               "script.")
+    usage   = "Usage: mididings [backend options] \"patch\"\n" \
+              "       mididings [backend options] [mode option]"
+    description = "A MIDI router and processor based on Python."
+    epilog  = "See the mididings manual for more information."
     version = ("mididings %s, using Python %s" %
                         (mididings.__version__, platform.python_version()))
 
     parser = optparse.OptionParser(usage=usage, description=description,
                                    epilog=epilog, version=version)
 
+#    parser.format_description = lambda formatter: parser.description
+#    parser.format_epilog = lambda formatter: parser.epilog
+
     backopt = optparse.OptionGroup(parser, "Backend options")
     backopt.add_option('-b', dest='backend', help=optparse.SUPPRESS_HELP)
     backopt.add_option('-A', dest='backend',
                        action='store_const', const='alsa',
-                       help="use ALSA sequencer (default)")
+                       help="use ALSA sequencer")
     backopt.add_option('-J', dest='backend',
                        action='store_const', const='jack',
                        help="use JACK MIDI (buffered)")
@@ -237,15 +236,14 @@ if __name__ == '__main__':
                        help='output port connections (regular expression)')
     parser.add_option_group(backopt)
 
-    procopt = optparse.OptionGroup(parser, "Processing options")
-    procopt.add_option('-d', dest='start_delay', type=float,
+    gnrlopt = optparse.OptionGroup(parser, "General options")
+    gnrlopt.add_option('-d', dest='start_delay', type=float,
                        help="delay (in seconds) before processing starts")
-    procopt.add_option('-t', dest='octave_offset', type=int,
-                       help="octave offset (default: 2)")
-    procopt.add_option('-0', dest='data_offset',
-                      action='store_const', const=0, default=1,
-                      help="port, channel, and program numbers are zero-based")
-    parser.add_option_group(procopt)
+    gnrlopt.add_option('-t', dest='octave_offset', type=int,
+                       help="octave offset")
+    gnrlopt.add_option('-z', dest='data_offset', type=int,
+                       help="offset for port, channel, and program numbers")
+    parser.add_option_group(gnrlopt)
 
     modeopt = optparse.OptionGroup(parser, "Mode options")
     modeopt.add_option('-f', dest='filename',

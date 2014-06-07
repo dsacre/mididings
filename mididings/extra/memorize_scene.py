@@ -18,8 +18,8 @@ import sys as _sys
 
 class MemorizeScene(object):
     """
-    Save the currently selected scene number to a file when terminating
-    mididings, and restore it at the next startup.
+    Saves the currently selected scene number to a file when terminating
+    mididings, and restores it at the next startup.
 
     :param memo_file:
         the path of the file to be used to store the scene number.

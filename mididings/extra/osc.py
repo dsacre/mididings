@@ -23,7 +23,7 @@ import liblo as _liblo
 
 class OSCInterface(object):
     """
-    Allow controlling mididings via OSC.
+    Allows controlling mididings via OSC.
 
     :param port:
         the OSC port to listen on.

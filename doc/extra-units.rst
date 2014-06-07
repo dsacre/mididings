@@ -1,4 +1,4 @@
-.. currentmodule:: mididings.extra
+.. module:: mididings.extra
 
 
 .. _extra-units:

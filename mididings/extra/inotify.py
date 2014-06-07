@@ -20,7 +20,7 @@ import pyinotify as _pyinotify
 
 class AutoRestart(object):
     """
-    Automatically restart mididings when the script changes.
+    Automatically restarts mididings when the script changes.
 
     This restarts the entire mididings script, so MIDI processing is
     interrupted, and mididings does not take care of reestablishing any

@@ -23,14 +23,29 @@ described below:
         outside the JACK process callback, and will thus be delayed by (at
         least) one period.
     * | ``'jack-rt'``: Use JACK MIDI. All MIDI events are processed directly
-        in the JACK process callback. Running Python code in a realtime
-        context may cause xruns (or worse), so it's recommended not to use
-        the :func:`Process()` unit, or many of the units from the
-        :mod:`mididings.extra` module, which use :func:`Process()`
-        internally. All other units from the main :mod:`mididings` module
-        are safe to use.
+        in the JACK process callback, with no additional latency.
 
     The default, if available, is ``'alsa'``.
+
+    .. note::
+
+        Python code is not realtime safe, so it's recommended not to use
+        the :func:`Process()` unit in conjunction with the **jack-rt** backend.
+
+        With the buffering **jack** backend, Python code that does not finish
+        in time merely causes MIDI events from mididings to be slightly
+        delayed.
+        With the **jack-rt** backend, it causes xruns which are potentially
+        audible, may cause loss of MIDI events, and also affect other JACK
+        clients!
+
+        In practice, if you require sample-accurate MIDI processing with
+        *zero latency*, but your JACK period size is *large enough*, you can
+        often get away with **jack-rt** running Python code in a realtime
+        context.
+        On the other hand, if your JACK period size is small, the single period
+        of delay caused by the buffering **jack** backend is likely to be
+        unnoticable.
 
 .. c:var:: client_name
 
@@ -45,16 +60,15 @@ described below:
 
     Possible values are:
 
-    * | Integers: Simply indicates the number of ports to create (named
-        ``in_n`` and ``out_n``, respectively, where ``n`` is the index of the
-        port).
+    * | Integer: Indicates the number of ports to be created (named ``in_n``
+        and ``out_n``, respectively, where ``n`` is the port number).
 
-    * | Lists of ports:
+    * | List of ports:
         Each port is either described by a single string specifying its name,
         or by a list/tuple containing the port name, followed by any number
         of regular expressions specifying ports to connect to.
       | These regular expressions are matched against the full name
-        (clientname:portname) of each external port. ALSA clients and ports can
+        (client:port) of each external port. ALSA clients and ports can
         be referred to using either their names or numbers.
 
     ::
@@ -86,14 +100,16 @@ described below:
 .. c:var:: initial_scene
 
     The number of the first scene to be activated.
+    Also see :class:`~.extra.MemorizeScene`.
 
 .. c:var:: start_delay
 
     The number of seconds to wait before sending any MIDI events (i.e.
-    switching to the first scene). A small value like 0.5 can be used to give
-    tools like qjackctl's patchbay time to connect the ports.
+    switching to the first scene). A small delay like 0.5 s can be used to give
+    tools like QjackCtl's patchbay time to connect ports before sending initial
+    MIDI events.
     A value of 0 instructs mididings to wait for the user to press enter.
-    The default is None, meaning not to wait at all.
+    The default is ``None``, meaning not to wait at all.
 
 
 .. _main-functions:

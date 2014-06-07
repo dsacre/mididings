@@ -46,7 +46,9 @@ into the global namespace. The :func:`run()` function is then used to
 execute a simple patch, consisting of just a single :func:`Transpose()` unit.
 
 You can start this script by saving it to a Python file and executing it,
-for example::
+for example:
+
+.. code-block:: sh
 
     $ python transpose.py
 

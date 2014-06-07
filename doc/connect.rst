@@ -86,9 +86,9 @@ Filtering and Splitting
     Invert the filter **F**. Note that for filters which only affect certain
     kinds of events, other events will remain unaffected when the filter is
     inverted.
-    For example, an inverted *KeyFilter* will match a different note range,
-    but neither the original nor the inverted filter will have any effect on
-    controllers or program changes. ::
+    For example, an inverted :func:`KeyFilter()` will match a different note
+    range, but neither the original nor the inverted filter will have any
+    effect on controllers or program changes. ::
 
         # remove CC events with controller number 42
         ~CtrlFilter(42)
