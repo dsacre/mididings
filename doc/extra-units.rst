@@ -69,6 +69,8 @@ Utilities
 
 .. autofunction:: KeyColorFilter
 
+.. autofunction:: CtrlToSysEx
+
 .. autofunction:: Panic
 
 .. autofunction:: Restart

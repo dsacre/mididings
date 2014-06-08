@@ -21,6 +21,7 @@ from mididings.extra.panic import *
 from mididings.extra.floating_split import *
 from mididings.extra.voices import *
 from mididings.extra.engine import *
+from mididings.extra.ctrl_sysex import *
 
 
 import mididings.misc as _misc
