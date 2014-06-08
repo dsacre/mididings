@@ -295,6 +295,30 @@ been selected on the same port/channel.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="mididings.extra.CtrlToSysEx">
+<tt class="descname">CtrlToSysEx</tt><big>(</big><em>ctrl</em>, <em>sysex</em>, <em>index</em>, <em>checksum_start=None</em><big>)</big><a class="headerlink" href="#mididings.extra.CtrlToSysEx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert control change to system exclusive event using a sysex pattern.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ctrl</strong> &#8211; controller number to be replaced.</li>
+<li><strong>sysex</strong> &#8211; sysex pattern.</li>
+<li><strong>index</strong> &#8211; index of sysex pattern byte to be replaced by the
+controller value.</li>
+<li><strong>checksum_start</strong> &#8211; index of first sysex byte to be incorporated into
+Roland checksum computation. The checksum will replace the
+next-to-last byte of the sysex pattern.
+If this parameter is <tt class="docutils literal"><span class="pre">None</span></tt>, no checksum is computed.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="mididings.extra.Panic">
 <tt class="descname">Panic</tt><big>(</big><em>bypass=True</em><big>)</big><a class="headerlink" href="#mididings.extra.Panic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate all-notes-off (CC #123) and sustain off (CC #64) events on
