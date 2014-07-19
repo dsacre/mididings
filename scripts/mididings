@@ -165,7 +165,10 @@ class Dings(object):
             def raw_input_wrapper(prompt):
                 r = code.InteractiveConsole.raw_input(shell, prompt)
                 started_with_blank[0] = r.startswith(' ')
-                return r.lstrip()
+                if started_with_blank[0]:
+                    return r[1:]
+                else:
+                    return r
             shell.raw_input = raw_input_wrapper
 
             # replace sys.displayhook to execute anything that is a valid
