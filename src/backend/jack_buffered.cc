@@ -40,8 +40,11 @@ JACKBufferedBackend::JACKBufferedBackend(
 
 void JACKBufferedBackend::start(InitFunction init, CycleFunction cycle)
 {
-    // clear input event buffer
+    // clear event buffers
     _in_rb.reset();
+    _out_rb.reset();
+
+    _quit = false;
 
     boost::function<void()> func = boost::bind(
                     &JACKBufferedBackend::process_thread, this, init, cycle);
