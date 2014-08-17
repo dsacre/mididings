@@ -93,20 +93,27 @@ def pkgconfig(name):
             library_dirs.append(val)
 
 
+def library_path_dirs():
+    return os.environ.get('LIBRARY_PATH', '').split(':')
+
+
 def lib_dirs():
     """
     Attempt to return the compiler's library search paths.
+
+    Also include paths from LIBRARY_PATH environment variable.
     """
+    env_libs = library_path_dirs()
     try:
         status, output = getstatusoutput(
                     sysconfig.get_config_var('CC') + ' -print-search-dirs')
         for line in output.splitlines():
             if 'libraries: =' in line:
                 libdirs = line.split('=', 1)[1]
-                return libdirs.split(':')
-        return []
+                return env_libs + libdirs.split(':')
+        return env_libs
     except Exception:
-        return []
+        return env_libs
 
 
 def boost_lib_name(name, add_suffixes=[]):
@@ -116,9 +123,10 @@ def boost_lib_name(name, add_suffixes=[]):
     """
     for suffix in add_suffixes + ['', '-mt']:
         for libdir in lib_dirs():
-            libname = 'lib%s%s.so' % (name, suffix)
-            if os.path.isfile(os.path.join(libdir, libname)):
-                return name + suffix
+            for ext in ['so'] + ['dylib'] * (sys.platform == 'darwin'):
+                libname = 'lib%s%s.%s' % (name, suffix, ext)
+                if os.path.isfile(os.path.join(libdir, libname)):
+                    return name + suffix
     return name
 
 
@@ -138,6 +146,8 @@ if sys.version_info[0] == 3:
     boost_python_suffixes.append('3')
 libraries.append(boost_lib_name('boost_python', boost_python_suffixes))
 libraries.append(boost_lib_name('boost_thread'))
+
+library_dirs.extend(library_path_dirs())
 
 
 if config['alsa-seq']:

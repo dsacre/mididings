@@ -19,7 +19,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <tr1/unordered_map>
 
 #ifdef ENABLE_BENCHMARK
 #include <chrono>
@@ -29,6 +28,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/unordered/unordered_map.hpp>
 
 #include "util/counted_objects.hh"
 
@@ -60,8 +60,8 @@ class Engine
     typedef std::map<int, std::vector<ScenePtr> > SceneMap;
 
     typedef unsigned int EventKey;
-    typedef std::tr1::unordered_map<EventKey, Patch *> NotePatchMap;
-    typedef std::tr1::unordered_map<EventKey, Patch *> SustainPatchMap;
+    typedef boost::unordered_map<EventKey, Patch *> NotePatchMap;
+    typedef boost::unordered_map<EventKey, Patch *> SustainPatchMap;
 
 
     Engine(backend::BackendPtr backend, bool verbose);
