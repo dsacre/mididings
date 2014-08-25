@@ -233,7 +233,7 @@ class MidiEvent(_mididings.MidiEvent):
         if hasattr(self, '_sysex_tmp'):
             return self._sysex_tmp
         else:
-            return _util.sysex_to_sequence(self.sysex_)
+            return _util.sysex_to_bytearray(self.sysex_)
 
     def _sysex_getter(self):
         self._check_type_attribute(_constants.SYSEX, 'sysex')
@@ -242,7 +242,7 @@ class MidiEvent(_mididings.MidiEvent):
 
     def _sysex_setter(self, sysex):
         self._check_type_attribute(_constants.SYSEX, 'sysex')
-        self._sysex_tmp = _util.sysex_to_sequence(sysex)
+        self._sysex_tmp = _util.sysex_to_bytearray(sysex)
 
 
     #: The event type, one of the :ref:`event-types` constants.

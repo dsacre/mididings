@@ -194,5 +194,5 @@ def SysExFilter(sysex):
 @_overload.mark
 @_unitrepr.accept(_util.sysex_manufacturer)
 def SysExFilter(manufacturer):
-    sysex = _util.sysex_to_sequence([0xf0]) + manufacturer
+    sysex = _util.sysex_to_bytearray([0xf0]) + manufacturer
     return _Filter(_mididings.SysExFilter(sysex, True))

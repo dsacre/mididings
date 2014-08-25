@@ -282,7 +282,7 @@ def subscene_number(subscene):
     return subscene
 
 
-def sysex_to_sequence(sysex):
+def sysex_to_bytearray(sysex):
     if isinstance(sysex, str):
         sysex = map(ord, sysex)
 
@@ -293,7 +293,7 @@ def sysex_to_sequence(sysex):
 
 
 def sysex_data(sysex, allow_partial=False):
-    sysex = sysex_to_sequence(sysex)
+    sysex = sysex_to_bytearray(sysex)
     if len(sysex) < 2:
         raise ValueError("sysex too short")
     elif sysex[0] != 0xf0:
@@ -308,7 +308,7 @@ def sysex_data(sysex, allow_partial=False):
 def sysex_manufacturer(manufacturer):
     if not _misc.issequence(manufacturer, True):
         manufacturer = [manufacturer]
-    manid = sysex_to_sequence(manufacturer)
+    manid = sysex_to_bytearray(manufacturer)
     if len(manid) not in (1, 3):
         raise ValueError("manufacturer id must be either one or three bytes")
     elif len(manid) == 3 and manid[0] != 0x00:
