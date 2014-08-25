@@ -102,6 +102,18 @@ class UtilTestCase(MididingsTestCase):
             sysex_data([0xf0, 0x04, 0x08, 0x15, 0x16, 0x23, 0x42, 0xf7]),
             self.native_sysex('\xf0\x04\x08\x15\x16\x23\x42\xf7'))
         self.assertEqual(
+            sysex_data('F0 04 08 15 16 23 42 F7'),
+            self.native_sysex('\xf0\x04\x08\x15\x16\x23\x42\xf7'))
+        self.assertEqual(
+            sysex_data('F0,04,08,15,16,23,42,F7'),
+            self.native_sysex('\xf0\x04\x08\x15\x16\x23\x42\xf7'))
+        self.assertEqual(
+            sysex_data('f0 04 08 15 16 23 42 f7'),
+            self.native_sysex('\xf0\x04\x08\x15\x16\x23\x42\xf7'))
+        self.assertEqual(
+            sysex_data('f0,04,08,15,16,23,42,f7'),
+            self.native_sysex('\xf0\x04\x08\x15\x16\x23\x42\xf7'))
+        self.assertEqual(
             sysex_data('\xf0\x23\x42\x66', allow_partial=True),
             self.native_sysex('\xf0\x23\x42\x66'))
 
@@ -113,6 +125,10 @@ class UtilTestCase(MididingsTestCase):
             sysex_data('\xf0\x23\x42\xfa')
         with self.assertRaises(ValueError):
             sysex_data('\xf0\xff\xff\xfa')
+        with self.assertRaises(ValueError):
+            sysex_data('F0 FF FF FA')
+        with self.assertRaises(ValueError):
+            sysex_data('f0,23,42,fa')
 
     def test_sysex_manufacturer(self):
         self.assertEqual(sysex_manufacturer('\x42'),
