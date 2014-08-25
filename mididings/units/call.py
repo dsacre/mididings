@@ -177,7 +177,7 @@ def Call(function, *args, **kwargs):
 @_overload.mark
 @_unitrepr.accept(_collections.Callable, kwargs={ None: None })
 def Call(thread, **kwargs):
-    return _CallThread(_call_partial(function, (), kwargs))
+    return _CallThread(_call_partial(thread, (), kwargs))
 
 
 @_unitrepr.accept((str, _collections.Callable))
