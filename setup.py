@@ -105,12 +105,13 @@ def lib_dirs():
     """
     env_libs = library_path_dirs()
     try:
-        status, output = getstatusoutput(
+        status, output = getstatusoutput('LC_ALL=C ' +
                     sysconfig.get_config_var('CC') + ' -print-search-dirs')
         for line in output.splitlines():
             if 'libraries: =' in line:
-                libdirs = line.split('=', 1)[1]
-                return env_libs + libdirs.split(':')
+                libdirs = [os.path.normpath(p)
+                    for p in line.split('=', 1)[1].split(':')]
+                return env_libs + libdirs
         return env_libs
     except Exception:
         return env_libs
