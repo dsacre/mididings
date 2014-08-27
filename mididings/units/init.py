@@ -15,6 +15,7 @@ from mididings.units.generators import Program, Ctrl
 from mididings.units.modifiers import Port, Channel
 
 import mididings.unitrepr as _unitrepr
+import mididings.util as _util
 
 import functools as _functools
 import copy as _copy
@@ -56,10 +57,10 @@ def Exit(patch):
     return _InitExit(exit_patch=patch)
 
 
-def Output(port, channel, program=None,
+def Output(port=None, channel=None, program=None,
            volume=None, pan=None, expression=None, ctrls={}):
     """
-    Output(port, channel, program=None, volume=None, pan=None, expression=None, ctrls={})
+    Output(port=None, channel=None, program=None, volume=None, pan=None, expression=None, ctrls={})
 
     Route incoming events to the specified *port* and *channel*.
     When switching to the scene containing this unit, a program change and/or
@@ -73,7 +74,15 @@ def Output(port, channel, program=None,
     *expression* (#11) can be specified directly. For all other controllers,
     the *ctrls* argument can contain a mapping from controller numbers to
     their respective values.
+
+    If *port* or *channel* are ``None``, events will be routed to the first
+    port/channel.
     """
+    if port is None:
+        port = _util.offset(0)
+    if channel is None:
+        channel = _util.offset(0)
+
     if isinstance(program, tuple):
         bank, program = program
     else:
