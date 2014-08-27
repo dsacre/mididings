@@ -124,7 +124,7 @@ class CallTestCase(MididingsTestCase):
         event = threading.Event()
 
         class Foo(object):
-            def __call__(myself):
+            def __call__(myself, ev):
                 self.assertEqual(ev.type, NOTEON)
                 event.set()
         obj = Foo()
