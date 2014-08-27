@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-from distutils.core import setup, Extension
+try:
+    from setuptools import setup, Extension
+except ImportError:
+    from distutils.core import setup, Extension
+
 from distutils import sysconfig
 import sys
 import platform
