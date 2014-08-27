@@ -293,7 +293,11 @@ def subscene_number(subscene):
 def sysex_to_bytearray(sysex):
     if isinstance(sysex, str):
         if sysex.startswith('F0') or sysex.startswith('f0'):
-            return bytearray(int(x, 16) for x in sysex.split(sysex[2]))
+            if len(sysex) < 3 or sysex[2] not in ', \f\n\r\t\v':
+                return bytearray(int(sysex[i:i+2], 16)
+                                 for i in range(0, len(sysex), 2))
+            else:
+                return bytearray(int(x, 16) for x in sysex.split(sysex[2]))
         else:
             return bytearray(map(ord, sysex))
     elif isinstance(sysex, bytearray):

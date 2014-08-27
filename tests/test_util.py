@@ -114,9 +114,17 @@ class UtilTestCase(MididingsTestCase):
             sysex_data('f0,04,08,15,16,23,42,f7'),
             self.native_sysex('\xf0\x04\x08\x15\x16\x23\x42\xf7'))
         self.assertEqual(
+            sysex_data('F0040815162342F7'),
+            self.native_sysex('\xf0\x04\x08\x15\x16\x23\x42\xf7'))
+        self.assertEqual(
+            sysex_data('f0040815162342f7'),
+            self.native_sysex('\xf0\x04\x08\x15\x16\x23\x42\xf7'))
+        self.assertEqual(
             sysex_data('\xf0\x23\x42\x66', allow_partial=True),
             self.native_sysex('\xf0\x23\x42\x66'))
 
+        with self.assertRaises(ValueError):
+            sysex_data('F0')
         with self.assertRaises(ValueError):
             sysex_data('\xf0')
         with self.assertRaises(ValueError):
