@@ -22,9 +22,9 @@ def _panic_bypass():
     for p in _engine.out_ports():
         for c in range(16):
             _engine.output_event(
-                _event.CtrlEvent(p, _util.NoDataOffset(c), 123, 0))
+                _event.CtrlEvent(p, _util.offset(c), 123, 0))
             _engine.output_event(
-                _event.CtrlEvent(p, _util.NoDataOffset(c), 64, 0))
+                _event.CtrlEvent(p, _util.offset(c), 64, 0))
 
 
 def Panic(bypass=True):
@@ -41,8 +41,8 @@ def Panic(bypass=True):
         return _m.Call(lambda ev: _panic_bypass())
     else:
         return _m.Fork([
-            (_m.Ctrl(p, _util.NoDataOffset(c), 123, 0) //
-             _m.Ctrl(p, _util.NoDataOffset(c), 64, 0))
+            (_m.Ctrl(p, _util.offset(c), 123, 0) //
+             _m.Ctrl(p, _util.offset(c), 64, 0))
                 for p in _engine.out_ports()
                 for c in range(16)
         ])
