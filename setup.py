@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 
+import os
+import platform
+import sys
+
+from distutils import sysconfig
+
 try:
     from setuptools import setup, Extension
 except ImportError:
     from distutils.core import setup, Extension
-
-from distutils import sysconfig
-import sys
-import platform
-import os.path
 
 if sys.version_info >= (3,):
     from subprocess import getstatusoutput
