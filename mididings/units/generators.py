@@ -178,8 +178,8 @@ def SysEx(port, sysex):
     SysEx(port, sysex)
 
     Create a system exclusive event, replacing the incoming event.
-    *sysex* can be a string or a sequence of integers, and must include the
-    leading ``F0`` and trailing ``F7`` bytes.
+    *sysex* can be a string (binary or ASCII) or a sequence of integers,
+    and must include the leading ``F0`` and trailing ``F7`` bytes.
     """
     return _Unit(_mididings.SysExGenerator(
         _util.actual_ref(port),

@@ -87,9 +87,32 @@ Splits
 
 .. autofunction:: PortSplit
 
+    ::
+
+        config(in_ports = ['keyboard', 'piano', 'footswitch'],
+               out_ports = ['synth', 'sampler'])
+        ...
+        PortSplit({
+            'keyboard':   Output('sampler', 1),
+            'piano':      Transpose(-12) >> Output('sampler', 2),
+            'footswitch': Output('synth', 1),
+        })
+
 .. autofunction:: ChannelSplit
 
 .. autofunction:: KeySplit
+
+    ::
+
+        KeySplit('c3', Port('bass'), Port('piano'))
+
+    ::
+
+        KeySplit({
+            ':c3':      Port('bass'),
+            'c3:a#5':   Port('piano'),
+            'a#5:':     Port('strings'),
+        })
 
 .. autofunction:: VelocitySplit
 
@@ -109,6 +132,13 @@ Modifiers
 
 .. autofunction:: Port
 
+    ::
+
+        # route to the second output port
+        Port(2)
+        # route to the port named 'synth'
+        Port('synth')
+
 .. autofunction:: Channel
 
 .. autofunction:: Transpose
@@ -127,7 +157,9 @@ Modifiers
 
     ::
 
-        # increase velocity of note-on events, making the keyboard feel softer
+        # reduce velocity of note-on events by an offset
+        Velocity(-20)
+        # increase velocity of note-on events by applying a curve
         Velocity(curve=1.0)
 
 .. autofunction:: VelocitySlope
@@ -142,6 +174,11 @@ Modifiers
 
 .. autofunction:: VelocityLimit
 
+    ::
+
+        # limit velocity values to a maximum of 100
+        VelocityLimit(max=100)
+
 .. autofunction:: CtrlMap
 
     ::
@@ -150,6 +187,14 @@ Modifiers
         CtrlMap(64, 66)
 
 .. autofunction:: CtrlRange
+
+    .. image:: ctrlrange.png
+        :alt: ctrlrange
+
+    ::
+
+        # invert controller 11
+        CtrlRange(11, 127, 0)
 
 .. autofunction:: CtrlCurve
 
@@ -199,7 +244,13 @@ constants can be used in place of any parameter.
 
     ::
 
-        # send a SysEx message read from a file
+        # binary string notation
+        SysEx('\xf0\x04\x08\x15\x16\x23\x42\xf7')
+        # ASCII string notation
+        SysEx('F0 04 08 15 16 23 42 F7')
+        # list notation
+        SysEx([0xf0, 0x04, 0x08, 0x15, 0x16, 0x23, 0x42, 0xf7])
+        # sysex message read from a file
         SysEx(open('example.syx').read())
 
 .. autofunction:: Generator

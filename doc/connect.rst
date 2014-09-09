@@ -76,6 +76,9 @@ Filtering and Splitting
 
         # allow only program and control changes to go through
         Filter(PROGRAM, CTRL)
+        # these are equivalent:
+        Filter(PROGRAM|CTRL)
+        Filter([PROGRAM, CTRL])
 
     See section :ref:`units-filters` for units that allow filtering by
     different event properties.
