@@ -302,8 +302,10 @@ def sysex_data(sysex, allow_partial=False):
         raise ValueError("sysex doesn't start with F0")
     elif sysex[-1] != 0xf7 and not allow_partial:
         raise ValueError("sysex doesn't end with F7")
-    elif any(c > 0x7f for c in sysex[1:-1]):
-        raise ValueError("sysex data byte out of range")
+    else:
+        for c in sysex[1:-1]:
+            if c > 0x7f:
+                raise ValueError("sysex data byte %#x is out of range" % c)
     return sysex
 
 
@@ -314,10 +316,11 @@ def sysex_manufacturer(manufacturer):
     if len(manid) not in (1, 3):
         raise ValueError("manufacturer id must be either one or three bytes")
     elif len(manid) == 3 and manid[0] != 0x00:
-        raise ValueError("three-byte manufacturer id must"
-                         " start with null byte")
-    elif any(c > 0x7f for c in manid):
-        raise ValueError("manufacturer id out of range")
+        raise ValueError("three-byte manufacturer id must start with 0x00")
+    else:
+        for c in manid:
+            if c > 0x7f:
+                raise ValueError("manufacturer id byte %#x is out of range" % c)
     return manid
 
 
