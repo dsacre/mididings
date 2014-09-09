@@ -129,6 +129,9 @@ Multiple types can be combined as bit masks, or given as lists or as
 separate parameters.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># allow only program and control changes to go through</span>
 <span class="n">Filter</span><span class="p">(</span><span class="n">PROGRAM</span><span class="p">,</span> <span class="n">CTRL</span><span class="p">)</span>
+<span class="c"># these are equivalent:</span>
+<span class="n">Filter</span><span class="p">(</span><span class="n">PROGRAM</span><span class="o">|</span><span class="n">CTRL</span><span class="p">)</span>
+<span class="n">Filter</span><span class="p">([</span><span class="n">PROGRAM</span><span class="p">,</span> <span class="n">CTRL</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>See section <a class="reference internal" href="units.html#units-filters"><em>Filters</em></a> for units that allow filtering by

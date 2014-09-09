@@ -200,6 +200,16 @@ also be a list or tuple of values. The following filters are equivalent:</p>
 <tt class="descname">PortSplit</tt><big>(</big><em>mapping</em><big>)</big><a class="headerlink" href="#mididings.PortSplit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split events by input port, with <em>mapping</em> being a dictionary of the form
 <tt class="docutils literal"><span class="pre">{ports:&nbsp;patch,&nbsp;...}</span></tt>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">config</span><span class="p">(</span><span class="n">in_ports</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;keyboard&#39;</span><span class="p">,</span> <span class="s">&#39;piano&#39;</span><span class="p">,</span> <span class="s">&#39;footswitch&#39;</span><span class="p">],</span>
+       <span class="n">out_ports</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;synth&#39;</span><span class="p">,</span> <span class="s">&#39;sampler&#39;</span><span class="p">])</span>
+<span class="o">...</span>
+<span class="n">PortSplit</span><span class="p">({</span>
+    <span class="s">&#39;keyboard&#39;</span><span class="p">:</span>   <span class="n">Output</span><span class="p">(</span><span class="s">&#39;sampler&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="s">&#39;piano&#39;</span><span class="p">:</span>      <span class="n">Transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;sampler&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="s">&#39;footswitch&#39;</span><span class="p">:</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;synth&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+<span class="p">})</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -218,6 +228,16 @@ the form <tt class="docutils literal"><span class="pre">{channels:&nbsp;patch,&n
 <p>The first version splits at a single threshold. The second version allows
 an arbitrary number of (possibly overlapping) note ranges, with <em>mapping</em>
 being a dictionary of the form <tt class="docutils literal"><span class="pre">{note_range:&nbsp;patch,&nbsp;...}</span></tt>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">KeySplit</span><span class="p">(</span><span class="s">&#39;c3&#39;</span><span class="p">,</span> <span class="n">Port</span><span class="p">(</span><span class="s">&#39;bass&#39;</span><span class="p">),</span> <span class="n">Port</span><span class="p">(</span><span class="s">&#39;piano&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">KeySplit</span><span class="p">({</span>
+    <span class="s">&#39;:c3&#39;</span><span class="p">:</span>      <span class="n">Port</span><span class="p">(</span><span class="s">&#39;bass&#39;</span><span class="p">),</span>
+    <span class="s">&#39;c3:a#5&#39;</span><span class="p">:</span>   <span class="n">Port</span><span class="p">(</span><span class="s">&#39;piano&#39;</span><span class="p">),</span>
+    <span class="s">&#39;a#5:&#39;</span><span class="p">:</span>     <span class="n">Port</span><span class="p">(</span><span class="s">&#39;strings&#39;</span><span class="p">),</span>
+<span class="p">})</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -279,6 +299,12 @@ a dictionary of the form <tt class="docutils literal"><span class="pre">{manufac
 <dt id="mididings.Port">
 <tt class="descname">Port</tt><big>(</big><em>port</em><big>)</big><a class="headerlink" href="#mididings.Port" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change the event&#8217;s port number.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># route to the second output port</span>
+<span class="n">Port</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="c"># route to the port named &#39;synth&#39;</span>
+<span class="n">Port</span><span class="p">(</span><span class="s">&#39;synth&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -332,7 +358,9 @@ decrease it.</li>
 less than 1. When sending events through a MIDI output port, or by using
 the <a class="reference internal" href="#mididings.Sanitize" title="mididings.Sanitize"><tt class="xref py py-func docutils literal"><span class="pre">Sanitize()</span></tt></a> unit, velocities greater than 127 will automatically
 be reduced to 127, and events with a velocity less than 1 will be removed.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># increase velocity of note-on events, making the keyboard feel softer</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># reduce velocity of note-on events by an offset</span>
+<span class="n">Velocity</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">)</span>
+<span class="c"># increase velocity of note-on events by applying a curve</span>
 <span class="n">Velocity</span><span class="p">(</span><span class="n">curve</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -372,6 +400,10 @@ ascending order, and one velocity parameter corresponding to each note.</p>
 <dt>
 <tt class="descname">VelocityLimit</tt><big>(</big><em>max=...</em><big>)</big></dt>
 <dd><p>Limit velocities of note-on events to the given range.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># limit velocity values to a maximum of 100</span>
+<span class="n">VelocityLimit</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -393,6 +425,11 @@ control change number.</p>
 Any input value less than or equal to <em>in_min</em> results in an output value
 of <em>min</em>. Likewise, any value of <em>in_max</em> or greater results in an output
 value of <em>max</em>.</p>
+<img alt="ctrlrange" src="_images/ctrlrange.png" />
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># invert controller 11</span>
+<span class="n">CtrlRange</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -501,9 +538,15 @@ constants can be used in place of any parameter.</p>
 <dt>
 <tt class="descname">SysEx</tt><big>(</big><em>port</em>, <em>sysex</em><big>)</big></dt>
 <dd><p>Create a system exclusive event, replacing the incoming event.
-<em>sysex</em> can be a string or a sequence of integers, and must include the
-leading <tt class="docutils literal"><span class="pre">F0</span></tt> and trailing <tt class="docutils literal"><span class="pre">F7</span></tt> bytes.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># send a SysEx message read from a file</span>
+<em>sysex</em> can be a string (binary or ASCII) or a sequence of integers,
+and must include the leading <tt class="docutils literal"><span class="pre">F0</span></tt> and trailing <tt class="docutils literal"><span class="pre">F7</span></tt> bytes.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># binary string notation</span>
+<span class="n">SysEx</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\xf0\x04\x08\x15\x16\x23\x42\xf7</span><span class="s">&#39;</span><span class="p">)</span>
+<span class="c"># ASCII string notation</span>
+<span class="n">SysEx</span><span class="p">(</span><span class="s">&#39;F0 04 08 15 16 23 42 F7&#39;</span><span class="p">)</span>
+<span class="c"># list notation</span>
+<span class="n">SysEx</span><span class="p">([</span><span class="mh">0xf0</span><span class="p">,</span> <span class="mh">0x04</span><span class="p">,</span> <span class="mh">0x08</span><span class="p">,</span> <span class="mh">0x15</span><span class="p">,</span> <span class="mh">0x16</span><span class="p">,</span> <span class="mh">0x23</span><span class="p">,</span> <span class="mh">0x42</span><span class="p">,</span> <span class="mh">0xf7</span><span class="p">])</span>
+<span class="c"># sysex message read from a file</span>
 <span class="n">SysEx</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s">&#39;example.syx&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -681,7 +724,7 @@ discards all events.</p>
 
 <dl class="function">
 <dt id="mididings.Output">
-<tt class="descname">Output</tt><big>(</big><em>port</em>, <em>channel</em>, <em>program=None</em>, <em>volume=None</em>, <em>pan=None</em>, <em>expression=None</em>, <em>ctrls={}</em><big>)</big><a class="headerlink" href="#mididings.Output" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">Output</tt><big>(</big><em>port=None</em>, <em>channel=None</em>, <em>program=None</em>, <em>volume=None</em>, <em>pan=None</em>, <em>expression=None</em>, <em>ctrls={}</em><big>)</big><a class="headerlink" href="#mididings.Output" title="Permalink to this definition">¶</a></dt>
 <dd><p>Route incoming events to the specified <em>port</em> and <em>channel</em>.
 When switching to the scene containing this unit, a program change and/or
 arbitrary control changes can be sent.</p>
@@ -692,6 +735,8 @@ bank number, and the second is the program number.</p>
 <em>expression</em> (#11) can be specified directly. For all other controllers,
 the <em>ctrls</em> argument can contain a mapping from controller numbers to
 their respective values.</p>
+<p>If <em>port</em> or <em>channel</em> are <tt class="docutils literal"><span class="pre">None</span></tt>, events will be routed to the first
+port/channel.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># route all events to output &#39;synth&#39;, channel 1, and set volume to 100</span>
 <span class="n">Output</span><span class="p">(</span><span class="s">&#39;synth&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 </pre></div>
