@@ -183,9 +183,11 @@ if HAVE_SETUPTOOLS:
             'http://das.nasophon.de/pysmf'
         ],
         extras_require = {
+            'dbus': ['dbus-python'],
             'osc': ['pyliblo'],
             'smf': ['pysmf'],
-            'autorestart': ['pyinotify>=0.8']
+            'autorestart': ['pyinotify>=0.8'],
+            'xdg': ['pyxdg']
         },
         entry_points = {
             'console_scripts': [
