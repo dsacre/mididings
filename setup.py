@@ -180,8 +180,7 @@ if HAVE_SETUPTOOLS:
     extra_setup_opts = dict(
         setup_requires = ['wheel'],
         dependency_links = [
-            'http://das.nasophon.de/pyliblo',
-            'http://das.nasophon.de/pysmf',
+            'http://das.nasophon.de/pysmf'
         ],
         extras_require = {
             'osc': ['pyliblo'],
