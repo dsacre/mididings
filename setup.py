@@ -185,7 +185,7 @@ if HAVE_SETUPTOOLS:
         extras_require = {
             'osc': ['pyliblo'],
             'smf': ['pysmf'],
-            'autorestart': ['pyinotify']
+            'autorestart': ['pyinotify>=0.8']
         },
         entry_points = {
             'console_scripts': [
@@ -212,6 +212,7 @@ setup(
     author_email = 'dominic.sacre@gmx.de',
     url = 'http://das.nasophon.de/mididings/',
     description = 'a MIDI router/processor',
+    long_description = open('README').read(),
     license = 'GPL',
     ext_modules = [
         Extension(
