@@ -1,9 +1,11 @@
 /build
+/core
 /dist
+/doc/build
 /mididings.egg-info
 /src/.sconsign.dblite
 /src/_mididings.so
-/doc/build
 *.o
-/core
 *.pyc
+_mididings*.so
+wheel-*.egg

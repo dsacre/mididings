@@ -9,8 +9,10 @@ from distutils import sysconfig
 
 try:
     from setuptools import setup, Extension
+    HAVE_SETUPTOOLS = True
 except ImportError:
     from distutils.core import setup, Extension
+    HAVE_SETUPTOOLS = False
 
 if sys.version_info >= (3,):
     from subprocess import getstatusoutput
@@ -174,6 +176,34 @@ if config['c++11']:
 else:
     pkgconfig('glib-2.0')
 
+if HAVE_SETUPTOOLS:
+    setup_opts = dict(
+        setup_requires = ['wheel'],
+        dependency_links = [
+            'http://das.nasophon.de/pyliblo',
+            'http://das.nasophon.de/pysmf',
+        ],
+        extras_require = {
+            'osc': ['pyliblo'],
+            'smf': ['pysmf']
+        },
+        entry_points = {
+            'console_scripts': [
+                'mididings = mididings.scripts.mididings:main',
+                'livedings = mididings.scripts.livedings:main [osc]',
+                'send_midi = mididings.scripts.send_midi:main',
+            ]
+        }
+    )
+else:
+    scripts = dict(
+        scripts = [
+            'scripts/mididings',
+            'scripts/livedings',
+            'scripts/send_midi',
+        ]
+    )
+
 
 setup(
     name = 'mididings',
@@ -199,10 +229,7 @@ setup(
         'mididings.units',
         'mididings.extra',
         'mididings.live',
+        'mididings.scripts',
     ],
-    scripts = [
-        'scripts/mididings',
-        'scripts/livedings',
-        'scripts/send_midi',
-    ],
+    **setup_opts
 )
