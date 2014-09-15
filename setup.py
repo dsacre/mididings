@@ -177,7 +177,7 @@ else:
     pkgconfig('glib-2.0')
 
 if HAVE_SETUPTOOLS:
-    setup_opts = dict(
+    extra_setup_opts = dict(
         setup_requires = ['wheel'],
         dependency_links = [
             'http://das.nasophon.de/pyliblo',
@@ -196,7 +196,7 @@ if HAVE_SETUPTOOLS:
         }
     )
 else:
-    scripts = dict(
+    extra_setup_opts = dict(
         scripts = [
             'scripts/mididings',
             'scripts/livedings',
@@ -231,5 +231,5 @@ setup(
         'mididings.live',
         'mididings.scripts',
     ],
-    **setup_opts
+    **extra_setup_opts
 )
