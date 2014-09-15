@@ -185,7 +185,8 @@ if HAVE_SETUPTOOLS:
         ],
         extras_require = {
             'osc': ['pyliblo'],
-            'smf': ['pysmf']
+            'smf': ['pysmf'],
+            'autorestart': ['pyinotify']
         },
         entry_points = {
             'console_scripts': [
@@ -231,5 +232,6 @@ setup(
         'mididings.live',
         'mididings.scripts',
     ],
+    install_requires = ['decorator'],
     **extra_setup_opts
 )
