@@ -9,10 +9,10 @@ from distutils import sysconfig
 
 try:
     from setuptools import setup, Extension
-    HAVE_SETUPTOOLS = True
+    have_setuptools = True
 except ImportError:
     from distutils.core import setup, Extension
-    HAVE_SETUPTOOLS = False
+    have_setuptools = False
 
 if sys.version_info >= (3,):
     from subprocess import getstatusoutput
@@ -176,7 +176,7 @@ if config['c++11']:
 else:
     pkgconfig('glib-2.0')
 
-if HAVE_SETUPTOOLS:
+if have_setuptools:
     extra_setup_opts = dict(
         setup_requires = ['wheel'],
         dependency_links = [
