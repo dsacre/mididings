@@ -15,9 +15,7 @@ Run the script from the command line like this::
 
     python process_file.py <infile.mid> <outfile.mid>
 
-.. note::
-    mididings needs to be compiled and run with the pysmf_ module installed to
-    support this.
+.. note:: The pysmf_ module needs to be installed to run this script.
 
 
 .. _pysmf: http://das.nasophon.de/pysmf/
