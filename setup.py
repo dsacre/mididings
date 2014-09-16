@@ -179,9 +179,6 @@ else:
 if have_setuptools:
     extra_setup_opts = dict(
         setup_requires = ['wheel'],
-        dependency_links = [
-            'http://das.nasophon.de/pysmf'
-        ],
         extras_require = {
             'dbus': ['dbus-python'],
             'osc': ['pyliblo'],
