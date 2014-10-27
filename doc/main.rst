@@ -86,8 +86,8 @@ described below:
 
 .. c:var:: data_offset
 
-    Determines whether program, port and channel numbers used in your script
-    are in the range 1-128 (with data_offset = 1) or 0-127 (with
+    Determines whether program, port, channel and scene numbers used in your
+    script are in the range 1-128 (with data_offset = 1) or 0-127 (with
     data_offset = 0). The default is 1.
 
 .. c:var:: octave_offset
@@ -99,7 +99,8 @@ described below:
 
 .. c:var:: initial_scene
 
-    The number of the first scene to be activated.
+    The number of the first scene to be activated. The default is the scene
+    with the lowest number.
     Also see :class:`~.extra.MemorizeScene`.
 
 .. c:var:: start_delay
