@@ -100,7 +100,8 @@ def pkgconfig(name):
 
 
 def library_path_dirs():
-    return os.environ.get('LIBRARY_PATH', '').split(':')
+    library_path = os.environ.get('LIBRARY_PATH')
+    return library_path.split(':') if library_path else []
 
 
 def lib_dirs():
