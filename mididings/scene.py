@@ -71,3 +71,7 @@ def _parse_scene(scene):
     scene.exit_patch += _patch.get_exit_patches(scene.patch)
 
     return scene
+
+
+# the types that are (convertible to) valid scenes
+_SCENE_TYPES = (Scene, SceneGroup) + _UNIT_TYPES

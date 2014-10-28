@@ -21,6 +21,7 @@ import mididings.constants as _constants
 import mididings.overload as _overload
 import mididings.arguments as _arguments
 from mididings.units.base import _UNIT_TYPES
+from mididings.scene import _SCENE_TYPES
 
 import time as _time
 import weakref as _weakref
@@ -287,7 +288,7 @@ def run(patch):
 
 @_overload.mark
 @_arguments.accept(
-    _UNIT_TYPES,
+    {_util.scene_number: _SCENE_TYPES},
     _arguments.nullable(_UNIT_TYPES),
     _arguments.nullable(_UNIT_TYPES),
     _arguments.nullable(_UNIT_TYPES)
