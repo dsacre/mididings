@@ -18,7 +18,11 @@ else:
     from commands import getstatusoutput
 
 
-version = '2014'
+version = '2015'
+
+status, output = getstatusoutput('git rev-parse --short HEAD')
+if not status:
+    version = '%s+r%s' % (version, output)
 
 config = {
     'alsa-seq':     (platform.system() == 'Linux'),
@@ -33,12 +37,7 @@ library_dirs = []
 define_macros = []
 extra_compile_args = []
 
-
-status, output = getstatusoutput('git rev-parse --short HEAD')
-if not status:
-    define_macros.append(('VERSION', '%s+r%s' % (version, output)))
-else:
-    define_macros.append(('VERSION', '%s' % version))
+define_macros.append(('VERSION', '%s' % version))
 
 
 # parse and then remove additional custom command line options
