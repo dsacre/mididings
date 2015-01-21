@@ -305,6 +305,8 @@ BOOST_PYTHON_MODULE(_mididings)
         "Channel", init<int>());
     class_<Transpose, bases<Unit>, noncopyable>(
         "Transpose", init<int>());
+    class_<Key, bases<Unit>, noncopyable>(
+        "Key", init<int>());
     class_<Velocity, bases<Unit>, noncopyable>(
         "Velocity", init<float, TransformMode>());
     class_<VelocitySlope, bases<Unit>, noncopyable>(

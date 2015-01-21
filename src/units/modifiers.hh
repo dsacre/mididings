@@ -83,6 +83,26 @@ class Transpose
 };
 
 
+class Key
+  : public Unit
+{
+  public:
+    Key(int note)
+      : _note(note)
+    { }
+
+    virtual bool process(MidiEvent & ev) const
+    {
+        if (ev.type & (MIDI_EVENT_NOTE | MIDI_EVENT_POLY_AFTERTOUCH)) {
+            ev.note.note = _note;
+        }
+        return true;
+    }
+
+  private:
+    int const _note;
+};
+
 
 class Velocity
   : public Unit

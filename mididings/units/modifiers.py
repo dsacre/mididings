@@ -62,22 +62,14 @@ def Transpose(octaves):
     return Transpose(octaves * 12)
 
 
-@_arguments.accept(_util.note_number)
+@_unitrepr.accept(_util.note_number)
 def Key(note):
     """
     Key(note)
 
     Change note events to a fixed note number.
     """
-    return (Filter(_constants.NOTE | _constants.POLY_AFTERTOUCH) %
-        Split({
-            _constants.NOTEON:
-                NoteOn(note, _constants.EVENT_VELOCITY),
-            _constants.NOTEOFF:
-                NoteOff(note, _constants.EVENT_VELOCITY),
-            _constants.POLY_AFTERTOUCH:
-                PolyAftertouch(note, _constants.EVENT_VALUE),
-        }))
+    return _Unit(_mididings.Key(note))
 
 
 @_overload.mark(
