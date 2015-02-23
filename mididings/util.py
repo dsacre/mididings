@@ -283,7 +283,7 @@ def scene_number(scene):
 
 
 def subscene_number(subscene):
-    if not isinstance(scene, int):
+    if not isinstance(subscene, int):
         raise TypeError("subscene number must be an integer")
     if actual(subscene) < 0:
         raise ValueError("subscene number %d is out of range" % subscene)
