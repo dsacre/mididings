@@ -44,7 +44,7 @@ class JACKRealtimeBackend
     virtual void finish();
 
   private:
-    virtual int process(jack_nframes_t nframes);
+    virtual int process(jack_nframes_t nframes) REALTIME;
 
     InitFunction _run_init;
     CycleFunction _run_cycle;

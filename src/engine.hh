@@ -109,15 +109,15 @@ class Engine
 
   private:
 
-    void run_init(int initial_scene, int initial_subscene);
-    void run_cycle();
+    void run_init(int initial_scene, int initial_subscene) REALTIME;
+    void run_cycle() REALTIME;
     void run_async();
 
     template <typename B>
-    void process(B & buffer, MidiEvent const & ev);
+    void process(B & buffer, MidiEvent const & ev) REALTIME;
 
     template <typename B>
-    void process_scene_switch(B & buffer);
+    void process_scene_switch(B & buffer) REALTIME;
 
 
     Patch * get_matching_patch(MidiEvent const & ev);

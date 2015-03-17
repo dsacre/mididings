@@ -69,6 +69,15 @@ namespace config
 }
 
 
+#ifdef __clang__
+#define REALTIME __attribute__((annotate("realtime")))
+#define NONREALTIME __attribute__((annotate("nonrealtime")))
+#else
+#define REALTIME
+#define NONREALTIME
+#endif
+
+
 } // mididings
 
 

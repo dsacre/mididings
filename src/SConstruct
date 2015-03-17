@@ -25,9 +25,10 @@ def boost_lib_name(name, add_suffixes=[]):
 
 
 env = Environment(
-#    CXX = 'clang++',
+    CXX = 'clang++',
 #    CCFLAGS = ['-O2', '-Wall', '-Wextra',
 #               '-fvisibility=hidden', '-fvisibility-inlines-hidden'],
+    CXXFLAGS = ['-emit-llvm'],
     CCFLAGS = ['-g', '-Wall', '-Wextra'],
     CPPDEFINES = [
 #        'NDEBUG',

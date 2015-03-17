@@ -12,6 +12,7 @@
 #ifndef MIDIDINGS_UNITS_BASE_HH
 #define MIDIDINGS_UNITS_BASE_HH
 
+#include "config.hh"
 #include "midi_event.hh"
 #include "patch.hh"
 #include "units/util.hh"
@@ -33,7 +34,7 @@ class Unit
     Unit() { }
     virtual ~Unit() { }
 
-    virtual bool process(MidiEvent & ev) const = 0;
+    virtual bool process(MidiEvent & ev) const REALTIME = 0;
 };
 
 
@@ -46,7 +47,7 @@ class UnitEx
 
     virtual Patch::EventBufferRT::Range
     process(Patch::EventBufferRT & buffer,
-            Patch::EventBufferRT::Iterator it) const = 0;
+            Patch::EventBufferRT::Iterator it) const REALTIME = 0;
 
     virtual Patch::EventBuffer::Range
     process(Patch::EventBuffer & buffer,
@@ -61,7 +62,7 @@ class UnitExImpl
   public:
     virtual Patch::EventBufferRT::Range
     process(Patch::EventBufferRT & buffer,
-            Patch::EventBufferRT::Iterator it) const {
+            Patch::EventBufferRT::Iterator it) const REALTIME {
         Derived const & d = *static_cast<Derived const*>(this);
         return d.template process<Patch::EventBufferRT>(buffer, it);
     }

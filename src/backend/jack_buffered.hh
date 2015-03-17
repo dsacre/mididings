@@ -49,7 +49,7 @@ class JACKBufferedBackend
     virtual void finish() { }
 
   private:
-    virtual int process(jack_nframes_t frames);
+    virtual int process(jack_nframes_t frames) REALTIME;
 
     void process_thread(InitFunction init, CycleFunction cycle);
 
