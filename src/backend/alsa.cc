@@ -145,8 +145,8 @@ void ALSABackend::connect_ports_impl(
         PortConnectionMap::const_iterator element =
                                     port_connections.find(port_name);
 
-        // break if no connections are defined for this port
-        if (element == port_connections.end()) break;
+        // continue with next port if no connections are defined for this port
+        if (element == port_connections.end()) continue;
 
         // for each regex pattern defined for this port...
         BOOST_FOREACH (std::string const & pattern, element->second) {
