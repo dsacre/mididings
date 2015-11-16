@@ -133,7 +133,7 @@ class curious_alloc
 
     template <class U>
     void destroy(U *p) {
-        p->~T();
+        p->~U();
     }
 #else
     void construct(pointer p, T const & val) {
