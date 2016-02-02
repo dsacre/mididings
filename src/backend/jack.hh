@@ -45,6 +45,10 @@ class JACKBackend
     virtual void connect_ports(PortConnectionMap const & in_port_connections,
                                PortConnectionMap const & out_port_connections);
 
+    virtual std::string get_actual_client_name();
+
+    virtual std::string get_client_uuid();
+
   protected:
     // XXX this should be pure virtual.
     // it isn't, because the process thread is started from within the c'tor

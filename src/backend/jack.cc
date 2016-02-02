@@ -89,6 +89,20 @@ void JACKBackend::connect_ports(
 }
 
 
+std::string JACKBackend::get_actual_client_name()
+{
+    std::string client_name = jack_get_client_name(_client);
+    return client_name;
+}
+
+
+std::string JACKBackend::get_client_uuid()
+{
+    std::string client_uuid = jack_get_uuid_for_client_name(_client, jack_get_client_name(_client));
+    return client_uuid;
+}
+
+
 void JACKBackend::connect_ports_impl(
         PortConnectionMap const & port_connections,
         std::vector<jack_port_t *> const & ports,

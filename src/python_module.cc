@@ -203,6 +203,9 @@ BOOST_PYTHON_MODULE(_mididings)
         .def("process_event", &Engine::process_event)
         .def("output_event", &Engine::output_event)
         .def("time", &Engine::time)
+        .def("get_client_name", &Engine::get_client_name)
+        .def("get_client_id", &Engine::get_client_id)
+        .def("get_client_uuid", &Engine::get_client_uuid)
     ;
 
 

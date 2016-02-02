@@ -57,6 +57,10 @@ class ALSABackend
     virtual void connect_ports(PortConnectionMap const & in_port_connections,
                                PortConnectionMap const & out_port_connections);
 
+    virtual std::string get_actual_client_name();
+
+    virtual int get_client_id();
+
   private:
     /**
      * Name and id of an ALSA port, including its client name/id.
