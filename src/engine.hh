@@ -102,6 +102,12 @@ class Engine
 
     double time();
 
+    std::string get_client_name() const { return _backend->get_actual_client_name(); };
+
+    int get_client_id() const { return _backend->get_client_id(); };
+
+    std::string get_client_uuid() const { return _backend->get_client_uuid(); };
+
     PythonCaller & python_caller() const { return *_python_caller; }
 
   protected:

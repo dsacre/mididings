@@ -111,6 +111,26 @@ void ALSABackend::connect_ports(
 }
 
 
+std::string ALSABackend::get_actual_client_name()
+{
+    snd_seq_client_info_t *client_info;
+    snd_seq_client_info_alloca(&client_info);
+    snd_seq_get_client_info(_seq, client_info);
+    std::string client_name = snd_seq_client_info_get_name(client_info);
+    return client_name;
+}
+
+
+int ALSABackend::get_client_id()
+{
+    snd_seq_client_info_t *client_info;
+    snd_seq_client_info_alloca(&client_info);
+    snd_seq_get_client_info(_seq, client_info);
+    int client_id = snd_seq_client_info_get_client(client_info);
+    return client_id;
+}
+
+
 void ALSABackend::connect_ports_impl(
         PortConnectionMap const & port_connections,
         PortIdVector const & port_ids,

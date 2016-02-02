@@ -358,6 +358,23 @@ def time():
     """
     return _TheEngine().time()
 
+def get_client_name():
+    """
+    Return actual client name
+    """
+    return _TheEngine().get_client_name()
+
+def get_client_id():
+    """
+    Return client id
+    """
+    if _setup.get_config('backend') == 'alsa':
+        return _TheEngine().get_client_id()
+    uuid = _TheEngine().get_client_uuid()
+    if uuid.isdigit():
+        return int(uuid)
+    return uuid
+
 def active():
     """
     Return ``True`` if the mididings engine is active (the :func:`~.run()`
