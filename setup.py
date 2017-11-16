@@ -73,7 +73,6 @@ def my_customize_compiler(compiler):
     # immediately stop on error
     compiler.compiler_so.append('-Wfatal-errors')
     # some options to reduce the size of the binary
-    compiler.compiler_so.append('-fvisibility=hidden')
     compiler.compiler_so.append('-fvisibility-inlines-hidden')
     return retval
 
