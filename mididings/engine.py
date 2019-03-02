@@ -66,31 +66,25 @@ class Engine(_mididings.Engine):
     def setup(self, scenes, control, pre, post):
         # build and setup all scenes and scene groups
         for number, scene in scenes.items():
-            if isinstance(scene, _scene.SceneGroup):
-                self._scenes[number] = (scene.name, [])
-
-                for subscene in scene.subscenes:
-                    sceneobj = _scene._parse_scene(subscene)
-                    self._scenes[number][1].append(sceneobj.name)
-
-                    # build patches
-                    patch = _patch.Patch(sceneobj.patch)
-                    init_patch = _patch.Patch(sceneobj.init_patch)
-                    exit_patch = _patch.Patch(sceneobj.exit_patch)
-                    # add scene to base class object
-                    self.add_scene(_util.actual(number),
-                                   patch, init_patch, exit_patch)
-            else:
-                sceneobj = _scene._parse_scene(scene)
-                self._scenes[number] = (sceneobj.name, [])
-
-                # build patches
+            def _build_patches(sceneobj):
                 patch = _patch.Patch(sceneobj.patch)
                 init_patch = _patch.Patch(sceneobj.init_patch)
                 exit_patch = _patch.Patch(sceneobj.exit_patch)
                 # add scene to base class object
                 self.add_scene(_util.actual(number),
                                patch, init_patch, exit_patch)
+            
+            if isinstance(scene, _scene.SceneGroup):
+                self._scenes[number] = (scene.name, [])
+
+                for subscene in scene.subscenes:
+                    sceneobj = _scene._parse_scene(subscene)
+                    self._scenes[number][1].append(sceneobj.name)
+                    _build_patches(sceneobj)
+            else:
+                sceneobj = _scene._parse_scene(scene)
+                self._scenes[number] = (sceneobj.name, [])
+                _build_patches(sceneobj)
 
         # build and setup control, pre, and post patches
         control_patch = _patch.Patch(control) if control else None
