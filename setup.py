@@ -18,7 +18,7 @@ else:
     from commands import getstatusoutput
 
 
-version = '2015'
+version = '2019'
 
 status, output = getstatusoutput('git rev-parse --short HEAD')
 if not status:
