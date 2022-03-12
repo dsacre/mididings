@@ -18,7 +18,7 @@ import mididings.constants as _constants
 import mididings.misc as _misc
 
 import sys as _sys
-import collections as _collections
+import collections.abc as _collections
 
 
 class _Print(_CallBase):

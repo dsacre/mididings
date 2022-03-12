@@ -28,7 +28,7 @@ else:
 import subprocess as _subprocess
 import types as _types
 import copy as _copy
-import collections as _collections
+import collections.abc as _collections
 import inspect as _inspect
 
 
