@@ -4,7 +4,6 @@
 import os
 import platform
 import sys
-
 from distutils import sysconfig
 
 try:
@@ -18,7 +17,7 @@ else:
     from commands import getstatusoutput
 
 
-version = '2015'
+version = '2019'
 
 status, output = getstatusoutput('git rev-parse --short HEAD')
 if not status:
@@ -73,7 +72,6 @@ def my_customize_compiler(compiler):
     # immediately stop on error
     compiler.compiler_so.append('-Wfatal-errors')
     # some options to reduce the size of the binary
-    compiler.compiler_so.append('-fvisibility=hidden')
     compiler.compiler_so.append('-fvisibility-inlines-hidden')
     return retval
 
@@ -148,9 +146,9 @@ sources = [
 
 include_dirs.append('src')
 
-boost_python_suffixes = ['-py%d%d' % sys.version_info[:2]]
-if sys.version_info[0] == 3:
-    boost_python_suffixes.append('3')
+boost_python_suffixes = ['%d%d' % sys.version_info[:2]]
+# if sys.version_info[0] == 3:
+#     boost_python_suffixes.append('3')
 libraries.append(boost_lib_name('boost_python', boost_python_suffixes))
 libraries.append(boost_lib_name('boost_thread'))
 

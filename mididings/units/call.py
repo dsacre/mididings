@@ -28,12 +28,12 @@ else:
 import subprocess as _subprocess
 import types as _types
 import copy as _copy
-import collections as _collections
+import collections.abc as _collections
 import inspect as _inspect
 
 
 class _CallBase(_Unit):
-    def __init__(self, function, async, cont):
+    def __init__(self, function, asynchronous, cont):
         def do_call(ev):
             # add additional properties that don't exist on the C++ side
             ev.__class__ = _event.MidiEvent
@@ -41,7 +41,7 @@ class _CallBase(_Unit):
             # call the function
             ret = function(ev)
 
-            if ret is None or async:
+            if ret is None or asynchronous:
                 return None
             elif isinstance(ret, _types.GeneratorType):
                 # function is a generator, build list
@@ -53,7 +53,7 @@ class _CallBase(_Unit):
                 ev._finalize()
             return ret
 
-        _Unit.__init__(self, _mididings.Call(do_call, async, cont))
+        _Unit.__init__(self, _mididings.Call(do_call, asynchronous, cont))
 
 
 class _CallThread(_CallBase):

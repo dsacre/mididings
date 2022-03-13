@@ -13,7 +13,7 @@
 from mididings import misc
 
 import inspect
-import collections
+import collections.abc as collections
 import types
 import functools
 

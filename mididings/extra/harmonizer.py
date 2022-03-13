@@ -39,7 +39,7 @@ class _Harmonizer(object):
             l = len(scale)
             i = scale.index(x) + interval
 
-            hx = scale[i % l] + ((i / l) * 12)
+            hx = scale[i % l] + ((i // l) * 12)
 
             self.lookup[x] = hx - x
 
