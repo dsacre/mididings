@@ -70,11 +70,11 @@ def getargspec(f):
         return _argspec_cache[f]
     else:
         if isinstance(f, functools.partial):
-            argspec = list(inspect.getargspec(f.func))
+            argspec = list(inspect.getfullargspec(f.func))
             argspec[0] = argspec[0][len(f.args):]
             r = tuple(argspec)
         else:
-            r = inspect.getargspec(f)
+            r = inspect.getfullargspec(f)
         _argspec_cache[f] = r
         return r
 

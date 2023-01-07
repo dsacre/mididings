@@ -19,6 +19,38 @@ import functools
 
 import decorator
 
+try:
+    from inspect import Parameter, Signature
+except ImportError:
+    from inspect import formatargspec
+else:
+    def formatargspec(args, varargs=None, varkw=None, defaults=None,
+                      kwonlyargs=(), kwonlydefaults={}, annotations={}):
+        if kwonlydefaults is None:
+            kwonlydefaults = {}
+        ndefaults = len(defaults) if defaults else 0
+        parameters = [
+            Parameter(
+                arg,
+                Parameter.POSITIONAL_OR_KEYWORD,
+                default=defaults[i] if i >= 0 else Parameter.empty,
+                annotation=annotations.get(arg, Parameter.empty),
+            ) for i, arg in enumerate(args, ndefaults - len(args))
+        ]
+        if varargs:
+            parameters.append(Parameter(varargs, Parameter.VAR_POSITIONAL))
+        parameters.extend(
+            Parameter(
+                kwonlyarg,
+                Parameter.KEYWORD_ONLY,
+                default=kwonlydefaults.get(kwonlyarg, Parameter.empty),
+                annotation=annotations.get(kwonlyarg, Parameter.empty),
+            ) for kwonlyarg in kwonlyargs
+        )
+        if varkw:
+            parameters.append(Parameter(varkw, Parameter.VAR_KEYWORD))
+        return_annotation = annotations.get('return', Signature.empty)
+        return str(Signature(parameters, return_annotation=return_annotation))
 
 class accept(object):
     """
@@ -63,14 +95,14 @@ class accept(object):
         if self.add_varargs:
             # add varargs to the signature and use decorator.FunctionMaker
             # directly to create the decorated function
-            orig_signature = inspect.getargspec(f)
+            orig_signature = inspect.getfullargspec(f)
             assert orig_signature.varargs is None
             signature = orig_signature._replace(varargs='args')
             evaldict = self.wrapper.__globals__.copy()
             evaldict['_call_'] = self.wrapper
             evaldict['_func_'] = f
             return decorator.FunctionMaker.create(
-                '%s%s' % (f.__name__, inspect.formatargspec(*signature)),
+                '%s%s' % (f.__name__, formatargspec(*signature)),
                 'return _call_(_func_, %(shortsignature)s)',
                 evaldict, undecorated=f, __wrapped__=f, doc=f.__doc__)
         else:
@@ -157,7 +189,7 @@ def _make_constraint(c):
     elif isinstance(c, _constraint):
         # constraint object
         return c
-    elif isinstance(c, collections.Callable):
+    elif isinstance(c, collections.abc.Callable):
         # function or other callable object
         return transform(c)
     else:
