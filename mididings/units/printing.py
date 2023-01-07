@@ -127,6 +127,6 @@ def Print(name=None, portnames=None):
     return _Print(name, portnames)
 
 @_overload.mark
-@_unitrepr.accept((str, _collections.Callable))
+@_unitrepr.accept((str, _collections.abc.Callable))
 def Print(string):
     return _PrintString(string)

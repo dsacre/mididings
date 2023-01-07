@@ -33,7 +33,7 @@ import inspect as _inspect
 
 
 class _CallBase(_Unit):
-    def __init__(self, function, async, cont):
+    def __init__(self, function, is_async, cont):
         def do_call(ev):
             # add additional properties that don't exist on the C++ side
             ev.__class__ = _event.MidiEvent
@@ -41,7 +41,7 @@ class _CallBase(_Unit):
             # call the function
             ret = function(ev)
 
-            if ret is None or async:
+            if ret is None or is_async:
                 return None
             elif isinstance(ret, _types.GeneratorType):
                 # function is a generator, build list
@@ -53,7 +53,7 @@ class _CallBase(_Unit):
                 ev._finalize()
             return ret
 
-        _Unit.__init__(self, _mididings.Call(do_call, async, cont))
+        _Unit.__init__(self, _mididings.Call(do_call, is_async, cont))
 
 
 class _CallThread(_CallBase):
@@ -105,7 +105,7 @@ def _call_partial(function, args, kwargs, require_event=False):
         return function
 
 
-@_unitrepr.accept(_collections.Callable, None, kwargs={ None: None })
+@_unitrepr.accept(_collections.abc.Callable, None, kwargs={ None: None })
 def Process(function, *args, **kwargs):
     """
     Process(function, *args, **kwargs)
@@ -170,17 +170,17 @@ def Process(function, *args, **kwargs):
         optional keyword arguments that will be passed to *function*.
     """
 )
-@_unitrepr.accept(_collections.Callable, None, kwargs={ None: None })
+@_unitrepr.accept(_collections.abc.Callable, None, kwargs={ None: None })
 def Call(function, *args, **kwargs):
     return _CallBase(_call_partial(function, args, kwargs), True, False)
 
 @_overload.mark
-@_unitrepr.accept(_collections.Callable, kwargs={ None: None })
+@_unitrepr.accept(_collections.abc.Callable, kwargs={ None: None })
 def Call(thread, **kwargs):
     return _CallThread(_call_partial(thread, (), kwargs))
 
 
-@_unitrepr.accept((str, _collections.Callable))
+@_unitrepr.accept((str, _collections.abc.Callable))
 def System(command):
     """
     Run an arbitrary shell command.
